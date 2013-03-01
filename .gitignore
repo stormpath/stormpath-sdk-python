@@ -1,0 +1,23 @@
+*.py[co]
+
+# Packages
+*.egg
+*.egg-info
+dist
+
+# Installer logs
+pip-log.txt
+
+# Unit test / coverage reports
+.coverage
+.tox
+
+# tools
+.idea
+*.iml
+
+# Distutils
+MANIFEST
+
+# Other
+.DS_Store
