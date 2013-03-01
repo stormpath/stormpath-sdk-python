@@ -1,4 +1,4 @@
 stormpath-sdk-python
 ====================
 
-Official Stormpath SDK for Python
+-Official Stormpath SDK for Python
