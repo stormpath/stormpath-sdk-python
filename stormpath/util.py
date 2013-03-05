@@ -13,3 +13,7 @@ def assert_subclass(C, B, parameter_name):
     if not issubclass(C, B):
         full_name = B.__module__ + "." + B.__name__
         raise TypeError("{} must be a subclass of {}.".format(parameter_name, full_name))
+
+def assert_true(statement, message):
+    if (not statement):
+        raise ValueError(message)

@@ -2,12 +2,6 @@ __author__ = 'ecrisostomo'
 
 from stormpath.resource.resource import Resource
 
-STATUS = "status"
-CODE = "code"
-MESSAGE = "message"
-DEV_MESSAGE = "developerMessage"
-MORE_INFO = "moreInfo"
-
 class ResourceError(RuntimeError):
 
     def __init__(self, error):
@@ -29,20 +23,26 @@ class ResourceError(RuntimeError):
 
 class Error(Resource):
 
+    STATUS = "status"
+    CODE = "code"
+    MESSAGE = "message"
+    DEV_MESSAGE = "developerMessage"
+    MORE_INFO = "moreInfo"
+
     def __init__(self, properties):
-        super().__init__(None, properties)
+        super().__init__(properties=properties)
 
     def status(self):
-        self.get_property(STATUS)
+        self.get_property(Error.STATUS)
 
     def code(self):
-        self.get_property(CODE)
+        self.get_property(Error.CODE)
 
     def message(self):
-        self.get_property(MESSAGE)
+        self.get_property(Error.MESSAGE)
 
     def developer_message(self):
-        self.get_property(DEV_MESSAGE)
+        self.get_property(Error.DEV_MESSAGE)
 
     def more_info(self):
-        self.get_property(MORE_INFO)
+        self.get_property(Error.MORE_INFO)
