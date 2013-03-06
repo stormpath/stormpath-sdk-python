@@ -3,6 +3,7 @@ __author__ = 'ecrisostomo'
 import json
 
 from stormpath import __version__
+from stormpath.http.http_client_request_executor import HttpClientRequestExecutor
 from stormpath.http.request_response import Request
 from stormpath.util import assert_instance, assert_subclass, assert_true
 from stormpath.resource.resource import Resource
@@ -16,14 +17,14 @@ class DataStore:
 
     def __init__(self, request_executor, base_url = DEFAULT_SERVER_HOST):
 
-        assert_instance(request_executor, ResourceFactory, "request_executor")
+        assert_instance(request_executor, HttpClientRequestExecutor, "request_executor")
 
         self.base_url = self._get_base_url_(base_url)
         self.request_executor = request_executor
         self.resource_factory = ResourceFactory(self)
 
     def instantiate(self, clazz, resource_properties = {}):
-        return self.resource_factory(clazz, resource_properties)
+        return self.resource_factory.instantiate(clazz, resource_properties)
 
     def get_resource(self, href, clazz):
 
@@ -44,7 +45,7 @@ class DataStore:
 
         assert_instance(resource, Resource, "resource")
 
-        href = resource.href()
+        href = resource.href
         assert_true(href, "save may only be called on objects that have already been persisted (i.e. they have an existing href).")
 
         href = self._qualify_(href) if self._needs_to_be_fully_qualified_(href) else href
@@ -62,7 +63,7 @@ class DataStore:
 
         assert_instance(resource, Resource, 'resource')
 
-        self._execute_request_('delete', resource.href())
+        self._execute_request_('delete', resource.href)
 
     def _execute_request_(self, http_method, href, body = None):
         request = Request(http_method, href, body)
@@ -87,14 +88,14 @@ class DataStore:
 
         return  self.resource_factory.instantiate(return_type, response)
 
-    def _apply_default_request_headers_(request):
+    def _apply_default_request_headers_(self, request):
         request.http_headers['Accept'] = 'application/json'
         request.http_headers['User-Agent'] = 'Stormpath-PythonSDK/' + __version__
 
         if request.body:
             request.http_headers['Content-Type'] = 'application/json'
 
-    def _needs_to_be_fully_qualified_(href):
+    def _needs_to_be_fully_qualified_(self, href):
         return not href.lower().startswith('http')
 
     def _qualify_(self, href):
@@ -103,7 +104,7 @@ class DataStore:
 
         return self.base_url + slash_added + href
 
-    def _get_base_url_(base_url):
+    def _get_base_url_(self, base_url):
         return "https://" + DEFAULT_SERVER_HOST + "/v" + str(DataStore.DEFAULT_API_VERSION) \
         if base_url is DEFAULT_SERVER_HOST \
         else base_url

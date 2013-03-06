@@ -41,12 +41,13 @@ class Resource:
 
         return self._read_property_(name)
 
-
+    @property
     def property_names(self):
         return self.properties.keys()
 
+    @property
     def href(self):
-        self.get_property(Resource.HREF_PROP_NAME)
+        return self.get_property(Resource.HREF_PROP_NAME)
 
     def _get_resource_property_(self, name, clazz):
         value = self.get_property(name)
@@ -79,8 +80,16 @@ class Resource:
         """
 
         #we can't call get_href in here, otherwise we'll have an infinite loop:
-        return False if self._read_property_(Resource.HREF_PROP_NAME) else True;
+        return False if self._read_property_(Resource.HREF_PROP_NAME) else True
 
 
     def _read_property_(self, name):
         return self.properties[name]
+
+class CollectionResource(Resource):
+    pass #TODO implement
+
+class InstanceResource(Resource):
+
+    def save(self):
+        self.data_store.save(self)
