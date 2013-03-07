@@ -1,7 +1,8 @@
 __author__ = 'ecrisostomo'
 
 class Status:
-    pass
+    def __init__(self):
+        self.value = str(self)
 
 class Enabled(Status):
     def __repr__(self):
@@ -11,5 +12,6 @@ class Disabled(Status):
     def __repr__(self):
         return "DISABLED"
 
-enabled = Enabled()
-disabled = Disabled()
+enabled, disabled = Enabled(), Disabled()
+
+status_dict = {enabled.value : enabled, disabled.value : disabled}

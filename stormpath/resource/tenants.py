@@ -15,19 +15,19 @@ class Tenant(InstanceResource):
 
     @property
     def name(self):
-        return self.get_property(Tenant.NAME)
+        return self.get_property(self.NAME)
 
     @property
     def key(self):
-        return self.get_property(Tenant.KEY)
+        return self.get_property(self.KEY)
 
     @property
     def applications(self):
-        return self._get_resource_property_(Tenant.APPLICATIONS, ApplicationList)
+        return self._get_resource_property_(self.APPLICATIONS, ApplicationList)
 
     @property
     def directories(self):
-        return self._get_resource_property_(Tenant.DIRECTORIES, DirectoryList)
+        return self._get_resource_property_(self.DIRECTORIES, DirectoryList)
 
     def create_application(self, application):
         href = '/applications' #TODO enable auto discovery
