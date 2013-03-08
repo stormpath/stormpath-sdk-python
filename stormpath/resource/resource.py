@@ -86,7 +86,7 @@ class Resource:
 
 
     def _read_property_(self, name):
-        return self.properties[name]
+        return self.properties[name] if name in self.properties else None
 
 class CollectionResource(Resource):
     pass #TODO implement

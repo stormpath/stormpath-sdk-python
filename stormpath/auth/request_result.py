@@ -1,6 +1,7 @@
 __author__ = 'ecrisostomo'
 
-from stormpath.resource.accounts import Account
+import stormpath
+
 from stormpath.resource.resource import Resource
 
 class UsernamePasswordRequest:
@@ -9,18 +10,6 @@ class UsernamePasswordRequest:
         self.principals = username
         self.credentials = password
         self.host = host
-
-    @property
-    def principals(self):
-        return self.principals
-
-    @property
-    def credentials(self):
-        return self.credentials
-
-    @property
-    def host(self):
-        return self.host
 
     def clear(self):
         """
@@ -39,5 +28,6 @@ class AuthenticationResult(Resource):
 
     ACCOUNT = "account"
 
+    @property
     def account(self):
-        return self._get_resource_property_(self.ACCOUNT, Account)
+        return self._get_resource_property_(self.ACCOUNT, stormpath.resource.accounts.Account)

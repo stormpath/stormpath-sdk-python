@@ -4,7 +4,6 @@ from unittest import TestCase
 
 from stormpath.client.client import Client, ApiKey
 
-
 class BaseTest(TestCase):
 
     def setUp(self):

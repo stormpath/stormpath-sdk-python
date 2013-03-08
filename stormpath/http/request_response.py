@@ -4,13 +4,13 @@ from stormpath.util import assert_not_none
 
 class Request:
 
-    def __init__(self, http_method, href, body, http_headers = {}, query_string = {}):
+    def __init__(self, http_method, href, body, http_headers = None, query_string = None):
 
         assert_not_none(href, "href cannot be None.")
 
         split = href.split('?')
 
-        self.query_string = query_string
+        self.query_string = query_string if query_string else {}
 
         if len(split) > 1:
 
@@ -29,11 +29,11 @@ class Request:
             self.href = href
 
         self.http_method = http_method.upper()
-        self.http_headers = http_headers
+        self.http_headers = http_headers if http_headers else {}
         self.body = body
 
         if self.body is not None:
-            self.http_headers['Content-Length'] = len(self.body)
+            self.http_headers['Content-Length'] = str(len(self.body))
 
 class Response:
 

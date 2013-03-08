@@ -1,10 +1,9 @@
 __author__ = 'ecrisostomo'
 
 from stormpath.resource.resource import InstanceResource
-from stormpath.resource.accounts import Account
-from stormpath.resource.applications import Application, ApplicationList
+from stormpath.resource.accounts import *
+from stormpath.resource.applications import *
 from stormpath.resource.email_verification import EmailVerificationToken
-from stormpath.resource.directories import DirectoryList
 
 class Tenant(InstanceResource):
 

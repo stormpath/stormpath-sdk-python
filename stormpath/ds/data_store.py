@@ -111,7 +111,7 @@ class DataStore:
 
     def _to_dict_(self, resource):
 
-        property_names = resource.property_names()
+        property_names = resource.property_names
         properties = {}
 
         for name in property_names:

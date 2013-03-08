@@ -1,6 +1,6 @@
 __author__ = 'ecrisostomo'
 
-from stormpath.resource.accounts import Account
+from stormpath.resource.accounts import *
 from stormpath.resource.resource import Resource
 
 class PasswordResetToken(Resource):

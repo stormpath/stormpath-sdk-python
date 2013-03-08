@@ -1,7 +1,7 @@
 __author__ = 'ecrisostomo'
 
-from stormpath.resource.accounts import Account
-from stormpath.resource.groups import Group
+from stormpath.resource.accounts import *
+from stormpath.resource.groups import *
 from stormpath.resource.resource import Resource, CollectionResource
 
 class GroupMembership(Resource):

@@ -1,10 +1,10 @@
 __author__ = 'ecrisostomo'
 
 import base64
+import stormpath
 
 from stormpath.auth.request_result import AuthenticationResult, UsernamePasswordRequest
 from stormpath.util import assert_instance, assert_not_none
-from stormpath.ds.data_store import DataStore
 from stormpath.resource.resource import Resource
 
 class BasicLoginAttempt(Resource):
@@ -27,7 +27,7 @@ class BasicLoginAttempt(Resource):
 class BasicAuthenticator:
 
     def __init__(self, data_store):
-        assert_instance(data_store, DataStore, 'data_store')
+        assert_instance(data_store, stormpath.ds.data_store.DataStore, 'data_store')
         self.data_store = data_store
 
     def authenticate(self, parent_href, request):
@@ -37,11 +37,11 @@ class BasicAuthenticator:
         username = request.principals if request.principals else ''
         password = request.credentials if request.credentials else ''
 
-        value = base64.b64encode(username + ':' + password)
+        value = base64.b64encode(bytes((username + ':' + password).encode()))
 
         attempt = self.data_store.instantiate(BasicLoginAttempt)
         attempt.type('basic')
-        attempt.value(value)
+        attempt.value(value.decode())
 
         href = parent_href + '/loginAttempts'
 

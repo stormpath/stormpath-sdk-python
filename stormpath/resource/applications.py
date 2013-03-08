@@ -1,10 +1,10 @@
 __author__ = 'ecrisostomo'
 
-from stormpath.auth.basic import BasicAuthenticator
-from stormpath.resource.accounts import AccountList
-from stormpath.resource.password_reset import PasswordResetToken
+from stormpath.auth.basic import *
+from stormpath.resource.accounts import *
+from stormpath.resource.password_reset import *
 from stormpath.resource.resource import InstanceResource, CollectionResource, StatusResource
-from stormpath.resource.tenants import Tenant
+from stormpath.resource.tenants import *
 
 class Application(InstanceResource, StatusResource):
 
@@ -14,21 +14,27 @@ class Application(InstanceResource, StatusResource):
     ACCOUNTS = "accounts"
     PASSWORD_RESET_TOKENS = "passwordResetTokens"
 
+    @property
     def name(self):
         return self.get_property(self.NAME)
 
+    @name.setter
     def name(self, name):
         self._set_property_(self.NAME, name)
 
+    @property
     def description(self):
         return self.get_property(self.DESCRIPTION)
 
+    @description.setter
     def description(self, description):
         self._set_property_(self.DESCRIPTION, description)
 
+    @property
     def tenant(self):
         return self._get_resource_property_(self.TENANT, Tenant)
 
+    @property
     def accounts(self):
         return self._get_resource_property_(self.ACCOUNTS, AccountList)
 
@@ -112,8 +118,8 @@ class Application(InstanceResource, StatusResource):
 
         :raises ResourceError if the authentication attempt fails.
         """
-        response = BasicAuthenticator(self.data_store)
-        return response.authenticate(self.href, request)
+        authenticator = BasicAuthenticator(self.data_store)
+        return authenticator.authenticate(self.href, request)
 
     def _create_password_reset_token_(self, email):
 

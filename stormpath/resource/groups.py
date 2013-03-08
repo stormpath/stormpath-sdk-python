@@ -1,7 +1,7 @@
 __author__ = 'ecrisostomo'
 
 from stormpath.resource.resource import CollectionResource, InstanceResource, StatusResource
-from stormpath.resource.accounts import AccountList
+from stormpath.resource.accounts import *
 from stormpath.resource.group_memberships import GroupMembership
 from stormpath.resource.directories import Directory
 from stormpath.resource.tenants import Tenant
