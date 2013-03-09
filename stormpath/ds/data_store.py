@@ -37,7 +37,7 @@ class DataStore:
         returned_resource = self._save_(parent_href, resource, return_type)
 
         if isinstance(resource, return_type):
-            resource.set_properties(returned_resource)
+            resource.set_properties(returned_resource.properties)
 
         return returned_resource
 

@@ -1,6 +1,6 @@
 __author__ = 'ecrisostomo'
 
-from test import BaseTest
+from test.test_base import BaseTest
 
 from stormpath.auth.request_result import AuthenticationResult, UsernamePasswordRequest
 from stormpath.resource.accounts import Account
@@ -20,7 +20,7 @@ class ApplicationsTest(BaseTest):
 
         self.assertIsInstance(result.account, Account)
 
-    def test_fail_authenticate_account(self):
+    def test_authenticate_account_fail(self):
 
         href = 'applications/ys-NzadoQaelH2rDF03VuQ'
         application = self.client.data_store.get_resource(href, Application)

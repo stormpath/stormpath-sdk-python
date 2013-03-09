@@ -1,5 +1,6 @@
 __author__ = 'ecrisostomo'
 
+from stormpath.util import assert_instance
 from stormpath.ds.data_store import DataStore
 from stormpath.http.http_client_request_executor import HttpClientRequestExecutor
 from stormpath.resource.tenants import Tenant
@@ -7,6 +8,7 @@ from stormpath.resource.tenants import Tenant
 class Client:
 
     def __init__(self, api_key, base_url):
+        assert_instance(api_key, ApiKey, 'api_key')
         request_executor = HttpClientRequestExecutor(api_key)
         self.data_store = DataStore(request_executor, base_url)
 

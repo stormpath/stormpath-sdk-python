@@ -89,7 +89,73 @@ class Resource:
         return self.properties[name] if name in self.properties else None
 
 class CollectionResource(Resource):
-    pass #TODO implement
+
+    OFFSET = "offset"
+    LIMIT = "limit"
+    ITEMS = "items"
+
+    def __init__(self, data_store, properties):
+        super().__init__(data_store, properties)
+        self.index = 0
+
+    @property
+    def offset(self):
+        return self.get_property(self.OFFSET)
+
+    @property
+    def limit(self):
+        return self.get_property(self.LIMIT)
+
+    def __iter__(self):
+        return self
+
+    def next(self):
+
+        page = self._get_current_page()
+        total_items = len(page.items)
+
+        if self.index == total_items:
+            raise StopIteration
+
+        self.index += 1
+        return page
+
+    @property
+    def item_type(self):
+        """
+        Children classes must return the InstanceResource classes (not an instance) that they hold as resources.
+        i.e. AccountList should return the Account class.
+        """
+        pass
+
+    def _get_current_page(self):
+
+        value = self.get_property(self.ITEMS)
+        items = self._to_resource_list_(value)
+
+        return Page(self.offset, self.limit, items)
+
+    def _to_resource_list_(self, values):
+
+        clazz = self.item_type
+        items = []
+
+        if (values):
+            for value in values:
+                resource = self._to_resource_(clazz, value)
+                items.append(resource)
+
+        return items
+
+    def _to_resource_(self, clazz, properties):
+        return self.data_store.instantiate(clazz, properties)
+
+class Page:
+
+    def __init__(self, offset, limit, items):
+        self.offset = offset
+        self.limit = limit
+        self.items = items
 
 class InstanceResource(Resource):
 

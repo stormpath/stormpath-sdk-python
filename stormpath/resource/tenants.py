@@ -1,9 +1,11 @@
 __author__ = 'ecrisostomo'
 
+import stormpath
 from stormpath.resource.resource import InstanceResource
-from stormpath.resource.accounts import *
 from stormpath.resource.applications import *
+from stormpath.resource.directories import DirectoryList
 from stormpath.resource.email_verification import EmailVerificationToken
+from stormpath.util import assert_instance
 
 class Tenant(InstanceResource):
 
@@ -29,6 +31,7 @@ class Tenant(InstanceResource):
         return self._get_resource_property_(self.DIRECTORIES, DirectoryList)
 
     def create_application(self, application):
+        assert_instance(application, Application, 'application')
         href = '/applications' #TODO enable auto discovery
         return self.data_store.create(href, application, Application)
 
@@ -42,5 +45,5 @@ class Tenant(InstanceResource):
         ev_token = self.data_store.instantiate(EmailVerificationToken, token_dict)
 
         #execute a POST (should clean this up / make it more obvious)
-        return self.data_store.save(ev_token, Account)
+        return self.data_store.save(ev_token, stormpath.resource.accounts.Account)
 
