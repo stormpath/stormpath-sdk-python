@@ -87,4 +87,7 @@ class Account(InstanceResource, StatusResource):
         return GroupMembership._create_(self, group, self.data_store)
 
 class AccountList(CollectionResource):
-    pass #TODO implement
+
+    @property
+    def item_type(self):
+        return Account

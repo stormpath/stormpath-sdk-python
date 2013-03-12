@@ -31,7 +31,7 @@ class HttpClientRequestExecutor:
 
         if (href and query_string):
 
-            for key, value in query_string:
+            for key, value in query_string.items():
 
                 href += '&' + '='.join((key, value)) if '?' in href else '?' + '='.join((key, value))
 

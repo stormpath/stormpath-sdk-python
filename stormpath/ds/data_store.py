@@ -52,12 +52,12 @@ class DataStore:
 
         clazz = clazz if clazz else resource.__class__
 
-        return_value = self._save_(href, resource, clazz)
+        returned_resource = self._save_(href, resource, clazz)
 
         # ensure the caller's argument is updated with what is returned from the server:
-        resource.set_properties(return_value)
+        resource.set_properties(returned_resource.properties)
 
-        return return_value
+        return returned_resource
 
     def delete(self, resource):
 

@@ -2,12 +2,37 @@ __author__ = 'ecrisostomo'
 
 from test.test_base import BaseTest
 
-from stormpath.auth.request_result import AuthenticationResult, UsernamePasswordRequest
-from stormpath.resource.accounts import Account
-from stormpath.resource.resource_error import ResourceError
-from stormpath.resource.applications import Application
+from stormpath.auth import AuthenticationResult, UsernamePasswordRequest
+from stormpath.resource import Account, AccountList, Application, ResourceError, Tenant, enabled, disabled
 
 class ApplicationsTest(BaseTest):
+
+    def test_properties(self):
+
+        app_name, app_desc = "New App Name", "New App Desc"
+        application = self._create_application_(app_name, app_desc)
+
+        self.assertEqual(application.name, app_name)
+        self.assertEqual(application.description, app_desc)
+        self.assertIsInstance(application.status, enabled.__class__)
+        self.assertIsInstance(application.accounts, AccountList)
+        self.assertIsInstance(application.tenant, Tenant)
+
+    def test_update_attributes(self):
+        app_name, app_desc = "New App Name", "New App Desc"
+        application = self._create_application_(app_name, app_desc)
+
+        app_name, app_desc, status = "Updated App Name", "Updated App Desc", disabled
+        application.name = app_name
+        application.description = app_desc
+        application.status = status
+        application.save()
+
+        self.assertEqual(application.name, app_name)
+        self.assertEqual(application.description, app_desc)
+        self.assertEqual(application.status, status)
+        self.assertIsInstance(application.status, disabled.__class__)
+
 
     def test_authenticate_account(self):
 
@@ -34,3 +59,23 @@ class ApplicationsTest(BaseTest):
             self.assertTrue(re.code == 400 and 'username or password' in re.message
             and 'support@stormpath.com' in re.more_info and re.status == 400
             and 'username or password' in re.developer_message)
+
+    def test_send_password_reset_email(self):
+        pass #TODO: implement, maybe using command line args for the email
+
+    def test_verify_password_reset_token(self):
+        pass #TODO: implement, maybe using command line args for the token
+
+    def _create_application_(self, name, description = None, status = enabled):
+        tenant = self.client.current_tenant
+
+        application = self.client.data_store.instantiate(Application)
+        application.name = name
+        application.description = description
+        application.status = status
+
+        tenant.create_application(application)
+
+        self.created_applications.append(application)
+        return application
+

@@ -45,4 +45,7 @@ class GroupMembership(Resource):
         return data_store.create(href, group_membership, GroupMembership)
 
 class GroupMembershipList(CollectionResource):
-    pass
+
+    @property
+    def item_type(self):
+        return GroupMembership

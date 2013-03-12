@@ -1,10 +1,7 @@
 __author__ = 'ecrisostomo'
 
-from stormpath.auth.basic import *
-from stormpath.resource.accounts import *
-from stormpath.resource.password_reset import *
+import stormpath
 from stormpath.resource.resource import InstanceResource, CollectionResource, StatusResource
-from stormpath.resource.tenants import *
 
 class Application(InstanceResource, StatusResource):
 
@@ -32,11 +29,11 @@ class Application(InstanceResource, StatusResource):
 
     @property
     def tenant(self):
-        return self._get_resource_property_(self.TENANT, Tenant)
+        return self._get_resource_property_(self.TENANT, stormpath.resource.Tenant)
 
     @property
     def accounts(self):
-        return self._get_resource_property_(self.ACCOUNTS, AccountList)
+        return self._get_resource_property_(self.ACCOUNTS, stormpath.resource.AccountList)
 
     def send_password_reset_email(self, account_username_or_email):
         """
@@ -96,7 +93,7 @@ class Application(InstanceResource, StatusResource):
 
         href = self._password_reset_token_href_() + '/' + token
 
-        password_reset_token = self.data_store.instantiate(PasswordResetToken, {self.HREF_PROP_NAME : href})
+        password_reset_token = self.data_store.instantiate(stormpath.resource.PasswordResetToken, {self.HREF_PROP_NAME : href})
 
         return password_reset_token.account
 
@@ -118,16 +115,16 @@ class Application(InstanceResource, StatusResource):
 
         :raises ResourceError if the authentication attempt fails.
         """
-        authenticator = BasicAuthenticator(self.data_store)
+        authenticator = stormpath.auth.BasicAuthenticator(self.data_store)
         return authenticator.authenticate(self.href, request)
 
     def _create_password_reset_token_(self, email):
 
         href = self._password_reset_token_href_()
 
-        password_reset_token = self.data_store.instantiate(PasswordResetToken, {'email' : email})
+        password_reset_token = self.data_store.instantiate(stormpath.resource.PasswordResetToken, {'email' : email})
 
-        return self.data_store.create(href, password_reset_token, PasswordResetToken)
+        return self.data_store.create(href, password_reset_token, stormpath.resource.PasswordResetToken)
 
     def _password_reset_token_href_(self):
 
@@ -137,5 +134,8 @@ class Application(InstanceResource, StatusResource):
             return password_reset_tokens_href[self.HREF_PROP_NAME]
 
 class ApplicationList(CollectionResource):
-    pass #TODO implement
+
+    @property
+    def item_type(self):
+        return Application
 

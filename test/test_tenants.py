@@ -1,14 +1,49 @@
 __author__ = 'ecrisostomo'
 
 from test.test_base import BaseTest
-from stormpath.resource.applications import Application
-from stormpath.resource.resource_error import ResourceError
+from stormpath.resource import Application, ApplicationList, Directory, DirectoryList, ResourceError
 
 class TenantsTest(BaseTest):
 
 
     def test_properties(self):
         tenant = self.client.current_tenant
+
+        application1 = self.client.data_store.instantiate(Application, {"name" : "Tenant's App 1"})
+        application2 = self.client.data_store.instantiate(Application, {"name" : "Tenant's App 2"})
+        tenant.create_application(application=application1)
+        tenant.create_application(application=application2)
+
+        self.created_applications.append(application1)
+        self.created_applications.append(application2)
+
+        directory1 = self.client.data_store.instantiate(Directory, {"name" : "Tenant's Dir 1"})
+        directory2 = self.client.data_store.instantiate(Directory, {"name" : "Tenant's Dir 2"})
+        self.client.data_store.create('directories', directory1, Directory)
+        self.client.data_store.create('directories', directory2, Directory)
+
+        self.created_directories.append(directory1)
+        self.created_directories.append(directory2)
+
+        applications = tenant.applications
+        directories = tenant.directories
+        self.assertIsInstance(applications, ApplicationList)
+        self.assertIsInstance(directories, DirectoryList)
+
+        new_apps = 0
+        for app in applications:
+            self.assertIsInstance(app, Application)
+            if app.name == application1.name or app.name == application2.name:
+                new_apps += 1
+
+        new_dirs = 0
+        for dir in directories:
+            self.assertIsInstance(dir, Directory)
+            if dir.name == directory1.name or dir.name == directory2.name:
+                new_dirs += 1
+
+        self.assertEquals(new_apps, 2)
+        self.assertEquals(new_dirs, 2)
         self.assertTrue(tenant.name)
         self.assertTrue(tenant.key)
 
@@ -36,5 +71,5 @@ class TenantsTest(BaseTest):
             tenant.verify_account_email('badtoken')
 
     def test_verify_account_email(self):
-        pass # TODO: implement, ideally using command line args for the token
+        pass # TODO: implement, maybe using command line args for the token
 

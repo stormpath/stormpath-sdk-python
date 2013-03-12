@@ -1,10 +1,7 @@
 __author__ = 'ecrisostomo'
 
+import stormpath
 from stormpath.resource.resource import CollectionResource, InstanceResource, StatusResource
-from stormpath.resource.accounts import *
-from stormpath.resource.group_memberships import GroupMembership
-from stormpath.resource.directories import Directory
-from stormpath.resource.tenants import Tenant
 
 class Group(InstanceResource, StatusResource):
 
@@ -32,18 +29,21 @@ class Group(InstanceResource, StatusResource):
 
     @property
     def tenant(self):
-        return self._get_resource_property_(self.TENANT, Tenant)
+        return self._get_resource_property_(self.TENANT, stormpath.resource.Tenant)
 
     @property
     def directory(self):
-        return self._get_resource_property_(self.DIRECTORY, Directory)
+        return self._get_resource_property_(self.DIRECTORY, stormpath.resource.Directory)
 
     @property
     def accounts(self):
-        return self._get_resource_property_(self.ACCOUNTS, AccountList)
+        return self._get_resource_property_(self.ACCOUNTS, stormpath.resource.AccountList)
 
     def add_account(self, account):
-        return GroupMembership._create_(account, self, self.data_store)
+        return stormpath.resource.GroupMembership._create_(account, self, self.data_store)
 
 class GroupList(CollectionResource):
-    pass
+
+    @property
+    def item_type(self):
+        return Group

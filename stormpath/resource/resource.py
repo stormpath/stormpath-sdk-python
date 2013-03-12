@@ -68,7 +68,7 @@ class Resource:
     def _materialize_(self):
         clazz = self.__class__
 
-        resource = self.data_store.get_resource(self.href(), clazz)
+        resource = self.data_store.get_resource(self.href, clazz)
         self.properties.update(resource.properties)
 
         #retain dirty properties:
@@ -93,10 +93,7 @@ class CollectionResource(Resource):
     OFFSET = "offset"
     LIMIT = "limit"
     ITEMS = "items"
-
-    def __init__(self, data_store, properties):
-        super().__init__(data_store, properties)
-        self.index = 0
+    items_iter = None
 
     @property
     def offset(self):
@@ -109,16 +106,13 @@ class CollectionResource(Resource):
     def __iter__(self):
         return self
 
-    def next(self):
+    def __next__(self):
 
-        page = self._get_current_page()
-        total_items = len(page.items)
-
-        if self.index == total_items:
-            raise StopIteration
-
-        self.index += 1
-        return page
+        if self.items_iter:
+            return next(self.items_iter)
+        else:
+            self.items_iter = iter(self._get_current_page().items)
+            return next(self.items_iter)
 
     @property
     def item_type(self):
@@ -138,7 +132,7 @@ class CollectionResource(Resource):
     def _to_resource_list_(self, values):
 
         clazz = self.item_type
-        items = []
+        items = list()
 
         if (values):
             for value in values:
@@ -168,7 +162,8 @@ class StatusResource(Resource):
 
     @property
     def status(self):
-        return status_dict[self.get_property(self.STATUS).upper()]
+        status = status_dict[self.get_property(self.STATUS).upper()]
+        return status
 
     @status.setter
     def status(self, status):
