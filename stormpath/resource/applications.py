@@ -13,7 +13,7 @@ class Application(InstanceResource, StatusResource):
 
     @property
     def name(self):
-        return self.get_property(self.NAME)
+        return self._get_property_(self.NAME)
 
     @name.setter
     def name(self, name):
@@ -21,7 +21,7 @@ class Application(InstanceResource, StatusResource):
 
     @property
     def description(self):
-        return self.get_property(self.DESCRIPTION)
+        return self._get_property_(self.DESCRIPTION)
 
     @description.setter
     def description(self, description):
@@ -128,7 +128,7 @@ class Application(InstanceResource, StatusResource):
 
     def _password_reset_token_href_(self):
 
-        password_reset_tokens_href = self.get_property(self.PASSWORD_RESET_TOKENS)
+        password_reset_tokens_href = self._get_property_(self.PASSWORD_RESET_TOKENS)
 
         if(password_reset_tokens_href):
             return password_reset_tokens_href[self.HREF_PROP_NAME]

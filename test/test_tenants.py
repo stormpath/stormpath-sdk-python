@@ -1,7 +1,7 @@
 __author__ = 'ecrisostomo'
 
 from test.test_base import BaseTest
-from stormpath.resource import Application, ApplicationList, Directory, DirectoryList, ResourceError
+from stormpath.resource import Account, Application, ApplicationList, Directory, DirectoryList, ResourceError
 
 class TenantsTest(BaseTest):
 
@@ -71,5 +71,11 @@ class TenantsTest(BaseTest):
             tenant.verify_account_email('badtoken')
 
     def test_verify_account_email(self):
-        pass # TODO: implement, maybe using command line args for the token
+
+        #TODO: change this test because it fails after the 1st time it succeeds
+        account = self.client.current_tenant.verify_account_email('4lWcj3aj6iZ0jeQDCVQ6nz')
+
+        self.assertIsInstance(account, Account)
+        self.assertTrue(account.href)
+        self.assertTrue(account.given_name)
 

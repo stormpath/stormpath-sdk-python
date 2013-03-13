@@ -2,7 +2,6 @@ __author__ = 'ecrisostomo'
 
 import stormpath
 from stormpath.resource.resource import InstanceResource
-from stormpath.resource.email_verification import EmailVerificationToken
 from stormpath.util import assert_instance
 
 class Tenant(InstanceResource):
@@ -14,11 +13,11 @@ class Tenant(InstanceResource):
 
     @property
     def name(self):
-        return self.get_property(self.NAME)
+        return self._get_property_(self.NAME)
 
     @property
     def key(self):
-        return self.get_property(self.KEY)
+        return self._get_property_(self.KEY)
 
     @property
     def applications(self):
@@ -40,7 +39,7 @@ class Tenant(InstanceResource):
 
         token_dict = {self.HREF_PROP_NAME : href}
 
-        ev_token = self.data_store.instantiate(EmailVerificationToken, token_dict)
+        ev_token = self.data_store.instantiate(stormpath.resource.EmailVerificationToken, token_dict)
 
         #execute a POST (should clean this up / make it more obvious)
         return self.data_store.save(ev_token, stormpath.resource.Account)

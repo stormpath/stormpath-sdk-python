@@ -61,10 +61,28 @@ class ApplicationsTest(BaseTest):
             and 'username or password' in re.developer_message)
 
     def test_send_password_reset_email(self):
-        pass #TODO: implement, maybe using command line args for the email
+        href = 'applications/ys-NzadoQaelH2rDF03VuQ'
+        application = self.client.data_store.get_resource(href, Application)
+
+        email = 'fakeuseragain@mailinator.com'
+        account = application.send_password_reset_email(email)
+
+        self.assertIsInstance(account, Account)
+        self.assertTrue(account.href)
+        self.assertEquals(account.email, email)
 
     def test_verify_password_reset_token(self):
-        pass #TODO: implement, maybe using command line args for the token
+
+        href = 'applications/ys-NzadoQaelH2rDF03VuQ'
+        application = self.client.data_store.get_resource(href, Application)
+
+        token = '5YvR5x01v2jRp1OE56Nbvf'
+
+        account = application.verify_password_reset_token(token)
+
+        self.assertIsInstance(account, Account)
+        self.assertTrue(account.href)
+        self.assertTrue(account.given_name)
 
     def _create_application_(self, name, description = None, status = enabled):
         tenant = self.client.current_tenant

@@ -13,7 +13,7 @@ class Group(InstanceResource, StatusResource):
 
     @property
     def name(self):
-        return self.get_property(self.NAME)
+        return self._get_property_(self.NAME)
 
     @name.setter
     def name(self, name):
@@ -21,7 +21,7 @@ class Group(InstanceResource, StatusResource):
 
     @property
     def description(self):
-        return self.get_property(self.DESCRIPTION)
+        return self._get_property_(self.DESCRIPTION)
 
     @description.setter
     def description(self, description):

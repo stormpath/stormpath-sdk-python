@@ -1,6 +1,6 @@
 __author__ = 'ecrisostomo'
 
-from stormpath.resource.accounts import *
+import stormpath
 from stormpath.resource.resource import Resource
 
 class PasswordResetToken(Resource):
@@ -10,7 +10,7 @@ class PasswordResetToken(Resource):
 
     @property
     def email(self):
-        return self.get_property(self.EMAIL)
+        return self._get_property_(self.EMAIL)
 
     @email.setter
     def email(self, email):
@@ -18,4 +18,4 @@ class PasswordResetToken(Resource):
 
     @property
     def account(self):
-        return self._get_resource_property_(self.ACCOUNT, Account)
+        return self._get_resource_property_(self.ACCOUNT, stormpath.resource.Account)

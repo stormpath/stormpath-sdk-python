@@ -5,7 +5,7 @@ import stormpath
 
 from stormpath.auth.request_result import AuthenticationResult, UsernamePasswordRequest
 from stormpath.util import assert_instance, assert_not_none
-from stormpath.resource.resource import Resource
+from stormpath.resource import Resource
 
 class BasicLoginAttempt(Resource):
 
@@ -13,13 +13,13 @@ class BasicLoginAttempt(Resource):
     VALUE = "value"
 
     def type(self):
-        return self.get_property(self.TYPE)
+        return self._get_property_(self.TYPE)
 
     def type(self, type):
         self._set_property_(self.TYPE, type)
 
     def value(self):
-        return self.get_property(self.VALUE)
+        return self._get_property_(self.VALUE)
 
     def value(self, value):
         self._set_property_(self.VALUE, value)
@@ -27,7 +27,7 @@ class BasicLoginAttempt(Resource):
 class BasicAuthenticator:
 
     def __init__(self, data_store):
-        assert_instance(data_store, stormpath.ds.data_store.DataStore, 'data_store')
+        assert_instance(data_store, stormpath.ds.DataStore, 'data_store')
         self.data_store = data_store
 
     def authenticate(self, parent_href, request):

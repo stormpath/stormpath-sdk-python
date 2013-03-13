@@ -17,3 +17,32 @@ def assert_subclass(C, B, parameter_name):
 def assert_true(statement, message):
     if (not statement):
         raise ValueError(message)
+
+class YAMLUtil:
+
+    NOT_NESTED_VALUE_FOUND = 'NOT_NESTED_VALUE_FOUND'
+
+    def retrieve_nested_value(self, dict_to_search, keys):
+
+        result = None
+
+        if isinstance(dict_to_search, dict) and isinstance(keys, list):
+            for key in keys:
+                if key in dict_to_search:
+                    result = dict_to_search[key]
+                elif isinstance(result, dict):
+                    result = result[key]
+
+        if not result:
+            raise NestedValueNotFoundError()
+
+        return result
+
+
+class NestedValueNotFoundError(RuntimeError):
+    pass
+
+
+
+
+

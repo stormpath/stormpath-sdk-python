@@ -1,9 +1,9 @@
 __author__ = 'ecrisostomo'
 
 from stormpath.util import assert_instance
-from stormpath.ds.data_store import DataStore
-from stormpath.http.http_client_request_executor import HttpClientRequestExecutor
-from stormpath.resource.tenants import Tenant
+from stormpath.ds import DataStore
+from stormpath.http import HttpClientRequestExecutor
+from stormpath.resource import Tenant
 
 class Client:
 

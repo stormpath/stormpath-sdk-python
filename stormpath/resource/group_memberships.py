@@ -1,7 +1,6 @@
 __author__ = 'ecrisostomo'
 
-from stormpath.resource.accounts import *
-from stormpath.resource.groups import *
+import stormpath
 from stormpath.resource.resource import Resource, CollectionResource
 
 class GroupMembership(Resource):
@@ -11,11 +10,11 @@ class GroupMembership(Resource):
 
     @property
     def account(self):
-        return self._get_resource_property_(self.ACCOUNT, Account)
+        return self._get_resource_property_(self.ACCOUNT, stormpath.resource.Account)
 
     @property
     def group(self):
-        return self._get_resource_property_(self.GROUP, Group)
+        return self._get_resource_property_(self.GROUP, stormpath.resource.Group)
 
     def delete(self):
         self.data_store.delete(self)
@@ -37,10 +36,12 @@ class GroupMembership(Resource):
         #TODO: enable auto discovery
         href = '/groupMemberships'
 
-        properties = {{GroupMembership.ACCOUNT : {GroupMembership.HREF_PROP_NAME : account.href}},
-                      {GroupMembership.GROUP : {GroupMembership.HREF_PROP_NAME : group.href}}}
+        properties = {
+                      GroupMembership.ACCOUNT : {GroupMembership.HREF_PROP_NAME : account.href},
+                      GroupMembership.GROUP : {GroupMembership.HREF_PROP_NAME : group.href}
+        }
 
-        group_membership = GroupMembership.data_store.instantiate(GroupMembership, properties)
+        group_membership = data_store.instantiate(GroupMembership, properties)
 
         return data_store.create(href, group_membership, GroupMembership)
 

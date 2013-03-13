@@ -42,20 +42,20 @@ class Error(Resource):
 
     @property
     def status(self):
-        return self.get_property(Error.STATUS)
+        return self._get_property_(Error.STATUS)
 
     @property
     def code(self):
-        return self.get_property(Error.CODE)
+        return self._get_property_(Error.CODE)
 
     @property
     def message(self):
-        return self.get_property(Error.MESSAGE)
+        return self._get_property_(Error.MESSAGE)
 
     @property
     def developer_message(self):
-        return self.get_property(Error.DEV_MESSAGE)
+        return self._get_property_(Error.DEV_MESSAGE)
 
     @property
     def more_info(self):
-        return self.get_property(Error.MORE_INFO)
+        return self._get_property_(Error.MORE_INFO)

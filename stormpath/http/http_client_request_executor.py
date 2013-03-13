@@ -2,7 +2,7 @@ __author__ = 'ecrisostomo'
 
 import httplib2
 
-from stormpath.http.request_response import Request, Response
+from stormpath.http import Request, Response
 from stormpath.util import assert_instance
 
 class HttpClientRequestExecutor:

@@ -30,4 +30,4 @@ class AuthenticationResult(Resource):
 
     @property
     def account(self):
-        return self._get_resource_property_(self.ACCOUNT, stormpath.resource.accounts.Account)
+        return self._get_resource_property_(self.ACCOUNT, stormpath.resource.Account)

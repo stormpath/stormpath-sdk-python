@@ -6,7 +6,7 @@ class Resource:
 
     HREF_PROP_NAME = 'href'
 
-    def __init__(self, data_store = None, properties = {}):
+    def __init__(self, data_store = None, properties = None):
         self.data_store = data_store
         self.properties = {}
         self.dirty_properties = {}
@@ -28,11 +28,19 @@ class Resource:
         else:
             self.materialized = False
 
-    def get_property(self, name):
+    @property
+    def property_names(self):
+        return self.properties.keys()
+
+    @property
+    def href(self):
+        return self._get_property_(self.HREF_PROP_NAME)
+
+    def _get_property_(self, name):
 
         if self.HREF_PROP_NAME is not name:
             #not the href/id, must be a property that requires materialization:
-            if not self.is_new() and not self.materialized:
+            if not self._is_new_() and not self.materialized:
 
                 # only materialize if the property hasn't been set previously (no need to execute a server
                 # request when we already have the most recent value):
@@ -43,16 +51,8 @@ class Resource:
 
         return self._read_property_(name)
 
-    @property
-    def property_names(self):
-        return self.properties.keys()
-
-    @property
-    def href(self):
-        return self.get_property(self.HREF_PROP_NAME)
-
     def _get_resource_property_(self, name, clazz):
-        value = self.get_property(name)
+        value = self._get_property_(name)
 
         if(isinstance(value, dict)):
             href = value[self.HREF_PROP_NAME]
@@ -76,7 +76,7 @@ class Resource:
 
         self.materialized = True
 
-    def is_new(self):
+    def _is_new_(self):
         """
         Returns True if the resource doesn't yet have an assigned 'href' property, False otherwise.
         """
@@ -97,11 +97,11 @@ class CollectionResource(Resource):
 
     @property
     def offset(self):
-        return self.get_property(self.OFFSET)
+        return self._get_property_(self.OFFSET)
 
     @property
     def limit(self):
-        return self.get_property(self.LIMIT)
+        return self._get_property_(self.LIMIT)
 
     def __iter__(self):
         return self
@@ -124,7 +124,7 @@ class CollectionResource(Resource):
 
     def _get_current_page(self):
 
-        value = self.get_property(self.ITEMS)
+        value = self._get_property_(self.ITEMS)
         items = self._to_resource_list_(value)
 
         return Page(self.offset, self.limit, items)
@@ -162,9 +162,41 @@ class StatusResource(Resource):
 
     @property
     def status(self):
-        status = status_dict[self.get_property(self.STATUS).upper()]
-        return status
+        """
+        Gets the status of the resource as a stormpath.resource.status.Enabled object or
+        stormpath.resource.status.Disabled object.
+
+        The string value of the object returned by this method can be obtained in one of two ways:
+
+        1- Calling the *value* property of the object (assuming the *status_resource* variable is an instance of
+        StatusResource):
+            status_value = status_resource.status.value
+
+        2- Calling the *str* function on the returned object (assuming the *status_resource* variable is an instance of
+        StatusResource):
+            status_value = str(status_resource.status)
+
+        :returns the status of the resource as a stormpath.resource.status.Enabled object or
+        stormpath.resource.status.Disabled object.
+        """
+        return status_dict[self._get_property_(self.STATUS).upper()]
 
     @status.setter
     def status(self, status):
+        """
+        Sets the status of the resource. The status can be set as a stormpath.resource.status.Enabled object, or
+        stormpath.resource.status.Disabled object, or as a string (*ENABLED* or *DISABLED* are allowed).
+
+        For example (assuming the *status_resource* variable is an instance of
+        StatusResource):
+
+        1- status_resource.status = stormpath.resource.status.disabled #or stormpath.resource.status.enabled
+
+        OR
+
+        2- status_resource.status = 'DISABLED' #or 'ENABLED'
+
+        :param status: the status of the resource, as a stormpath.resource.status.Enabled object, or
+        stormpath.resource.status.Disabled object, or as a string (*ENABLED* or *DISABLED* are allowed).
+        """
         self._set_property_(self.STATUS, str(status))

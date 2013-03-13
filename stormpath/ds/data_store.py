@@ -6,8 +6,8 @@ from stormpath import __version__
 from stormpath.http.http_client_request_executor import HttpClientRequestExecutor
 from stormpath.http.request_response import Request
 from stormpath.util import assert_instance, assert_subclass, assert_true
-from stormpath.resource.resource import Resource
-from stormpath.resource.resource_error import Error, ResourceError
+from stormpath.resource import Resource
+from stormpath.resource import Error, ResourceError
 
 DEFAULT_SERVER_HOST = "api.stormpath.com"
 
@@ -116,7 +116,7 @@ class DataStore:
 
         for name in property_names:
 
-            prop = resource.get_property(name)
+            prop = resource._get_property_(name)
 
             if isinstance(prop, dict):
                 prop = self._to_simple_reference_(name, prop)
