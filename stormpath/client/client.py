@@ -7,7 +7,7 @@ from stormpath.resource import Tenant
 
 class Client:
 
-    def __init__(self, api_key, base_url):
+    def __init__(self, api_key, base_url = None):
         assert_instance(api_key, ApiKey, 'api_key')
         request_executor = HttpClientRequestExecutor(api_key)
         self.data_store = DataStore(request_executor, base_url)
