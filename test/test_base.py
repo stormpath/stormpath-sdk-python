@@ -1,8 +1,9 @@
 __author__ = 'ecrisostomo'
 
+from os.path import expanduser
 from unittest import TestCase
 
-from stormpath.client.client import Client, ApiKey
+from stormpath.client import ClientBuilder
 
 class BaseTest(TestCase):
 
@@ -12,8 +13,8 @@ class BaseTest(TestCase):
         self.created_directories = []
         self.created_group_memberships = []
         self.created_groups = []
-        id, secret = 'id', 'secret'
-        self.client = Client(api_key=ApiKey(id=id, secret=secret), base_url='http://localhost:8080/v1')
+        location = expanduser('~') + '/.stormpath/apiKey.yml'
+        self.client = ClientBuilder().set_base_url('http://localhost:8080/v1').set_api_key_file_location(location).build()
 
     def tearDown(self):
 
@@ -31,3 +32,9 @@ class BaseTest(TestCase):
 
         for dir in self.created_directories:
             self.client.data_store.delete(dir)
+
+class BaseClientBuilder(TestCase):
+
+    def setUp(self):
+        self.api_key_file = 'test/apiKey.yml'
+        self.ap_key_remote_file = 'http://localhost/apiKey.yml'

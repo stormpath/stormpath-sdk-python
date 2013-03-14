@@ -4,7 +4,7 @@ from stormpath.util import assert_not_none
 
 class Request:
 
-    def __init__(self, http_method, href, body, http_headers = None, query_string = None):
+    def __init__(self, http_method, href, body = None, http_headers = None, query_string = None):
 
         assert_not_none(href, "href cannot be None.")
 

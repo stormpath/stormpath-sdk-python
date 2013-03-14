@@ -7,11 +7,11 @@ from stormpath.util import assert_instance
 
 class HttpClientRequestExecutor:
 
-    def __init__(self, api_key):
+    def __init__(self, api_key = None):
         self.api_key = api_key
         self.http_client = httplib2.Http()
-        self.http_client.add_credentials(self.api_key.id, self.api_key.secret)
-
+        if api_key:
+            self.http_client.add_credentials(self.api_key.id, self.api_key.secret)
 
     def execute_request(self, request):
 

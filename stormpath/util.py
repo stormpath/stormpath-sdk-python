@@ -18,25 +18,22 @@ def assert_true(statement, message):
     if (not statement):
         raise ValueError(message)
 
-class YAMLUtil:
+def search_in_dict(dict_to_search, keys):
 
-    NOT_NESTED_VALUE_FOUND = 'NOT_NESTED_VALUE_FOUND'
+    result = None
 
-    def retrieve_nested_value(self, dict_to_search, keys):
+    if isinstance(dict_to_search, dict) and keys:
+        for key in keys:
+            if key in dict_to_search:
+                result = dict_to_search[key]
+            elif isinstance(result, dict) and key in result:
+                result = result[key]
 
-        result = None
+    #only a 'primitive' value is accepted here
+    if isinstance(result, dict) or not result:
+        raise NestedValueNotFoundError()
 
-        if isinstance(dict_to_search, dict) and isinstance(keys, list):
-            for key in keys:
-                if key in dict_to_search:
-                    result = dict_to_search[key]
-                elif isinstance(result, dict):
-                    result = result[key]
-
-        if not result:
-            raise NestedValueNotFoundError()
-
-        return result
+    return result
 
 
 class NestedValueNotFoundError(RuntimeError):
