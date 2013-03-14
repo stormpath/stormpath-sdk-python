@@ -84,11 +84,11 @@ class ClientBuilder:
 
                 location = "/home/jsmith/.stormpath/apiKey.yml"
 
-            client = ClientBuilder().\
-                     set_api_key_file_location(location).\
-                     set_api_key_id_property_name("myStormpathApiKeyId").\
-                     set_api_key_secret_property_name("myStormpathApiKeySecret").\
-                     build()
+                client = ClientBuilder().\
+                         set_api_key_file_location(location).\
+                         set_api_key_id_property_name(myStormpathApiKeyId).\
+                         set_api_key_secret_property_name(myStormpathApiKeySecret).\
+                         build()
 
         :param location: the file or url location of the API Key *.yml* file to load when
                         constructing the API Key to use for communicating with the Stormpath REST API.
@@ -100,7 +100,7 @@ class ClientBuilder:
 
     def set_api_key_id_property_name(self, *api_key_id_property_name):
         """
-        Sets the name used to query for the API Key ID from a YAML instance.
+        Sets the name used to query for the API Key ID from a YAML string instance.
 
         The *api_key_id_property_name* key can be as deep as needed, as long as it comes
         in the exact path order.
@@ -123,7 +123,7 @@ class ClientBuilder:
 
     def set_api_key_secret_property_name(self, *api_key_secret_property_name):
         """
-        Sets the name used to query for the API Key Secret from a YAML instance.
+        Sets the name used to query for the API Key Secret from a YAML string instance.
 
         The *api_key_secret_property_name* key can be as deep as needed, as long as it comes
         in the exact path order.
