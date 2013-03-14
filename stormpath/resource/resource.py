@@ -30,7 +30,7 @@ class Resource:
 
     @property
     def property_names(self):
-        return self.properties.keys()
+        return self.properties.copy().keys()
 
     @property
     def href(self):
