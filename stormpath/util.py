@@ -1,5 +1,7 @@
 __author__ = 'ecrisostomo'
 
+from urllib import parse
+
 def assert_not_none(p_object, message):
     if p_object is None:
         raise ValueError(message)
@@ -35,11 +37,59 @@ def search_in_dict(dict_to_search, keys):
 
     return result
 
+def is_default_port(parsed_url):
+    """
+    Returns True if the specified URI uses a standard port (i.e. http == 80 or https == 443),
+    False otherwise.
+
+    :param parsed_url
+    :returns True if the specified URI is using a non-standard port, False otherwise.
+    """
+    scheme = parsed_url.scheme.lower()
+    port = parsed_url.port
+    return not port or (port == 80 and scheme == 'http') or (port == 443 and scheme == 'https')
+
+def encode_url(value, path = True, canonical = True):
+
+    if not value:
+        return ''
+
+    encoded = parse.quote(value)
+
+    if canonical:
+
+        str_dict = {'+' : '%20', '*' : '%2A', '%7E' : '~'}
+
+        for key, value in str_dict.items():
+
+            if key in encoded:
+                encoded = encoded.replace(key, value)
+
+        if path:
+
+            str = '%2F'
+            encoded = encoded.replace(str, '/') if str in encoded else encoded
+
+    return encoded
+
+def str_query_string(query_string, canonical = True):
+
+    result = ''
+
+    if (query_string):
+
+        for key, value in query_string.items():
+
+            encoded_key = encode_url(key, False, canonical)
+            encoded_value = encode_url(value, False, canonical)
+
+            if result:
+
+                result += '&'
+
+            result += ''.join(encoded_key, '=', encoded_value)
+
+    return result
 
 class NestedValueNotFoundError(RuntimeError):
     pass
-
-
-
-
-

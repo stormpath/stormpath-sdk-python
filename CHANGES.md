@@ -1,3 +1,10 @@
+Version 0.1.1
+-------------
+
+Released on March 14, 2013
+
+- Making the 'base_url' an optional argument in the Client class constructor.
+
 Version 0.1.0
 -------------
 
