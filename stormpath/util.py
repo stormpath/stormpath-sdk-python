@@ -87,7 +87,7 @@ def str_query_string(query_string, canonical = True):
 
                 result += '&'
 
-            result += ''.join(encoded_key, '=', encoded_value)
+            result += ''.join((encoded_key, '=', encoded_value))
 
     return result
 

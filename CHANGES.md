@@ -1,3 +1,11 @@
+Version 0.2.0
+-------------
+
+Released on March 22, 2013
+
+- Implementing Stormpath Digest Authentication (SAuthc1).
+- Fixing implementation when no 'base_url' is specified when creating a DataStore.
+
 Version 0.1.1
 -------------
 

@@ -9,13 +9,13 @@ from stormpath.util import assert_instance, assert_subclass, assert_true
 from stormpath.resource import Resource
 from stormpath.resource import Error, ResourceError
 
-DEFAULT_SERVER_HOST = "api.stormpath.com"
 
 class DataStore:
 
     DEFAULT_API_VERSION = 1
+    DEFAULT_SERVER_HOST = "api.stormpath.com"
 
-    def __init__(self, request_executor, base_url = DEFAULT_SERVER_HOST):
+    def __init__(self, request_executor, base_url = None):
 
         assert_instance(request_executor, HttpClientRequestExecutor, "request_executor")
 
@@ -105,8 +105,8 @@ class DataStore:
         return self.base_url + slash_added + href
 
     def _get_base_url_(self, base_url):
-        return "https://" + DEFAULT_SERVER_HOST + "/v" + str(DataStore.DEFAULT_API_VERSION) \
-        if base_url is DEFAULT_SERVER_HOST \
+        return "https://" + self.DEFAULT_SERVER_HOST + "/v" + str(self.DEFAULT_API_VERSION) \
+        if base_url is None \
         else base_url
 
     def _to_dict_(self, resource):
