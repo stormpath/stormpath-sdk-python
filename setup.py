@@ -18,7 +18,7 @@ def find_packages(path='.', prefix=""):
 # file by typing:
 #
 # python setup.py install
-REQUIRES = ["httplib2 (>= 0.7)", "unittest2py3k", "PyYAML (>= 3.10)"]
+REQUIRES = ["httplib2 >= 0.7", "unittest2py3k", "pyaml >= 3.10"]
 
 setup(
     name = "stormpath-sdk",
@@ -28,7 +28,7 @@ setup(
     author_email = "elder@stormpath.com",
     url = "https://github.com/stormpath/stormpath-sdk-python",
     keywords = ["stormpath","authentication"],
-    requires = REQUIRES,
+    install_requires = REQUIRES,
     packages = list(find_packages(stormpath.__path__, stormpath.__name__)),
     classifiers = [
         "Development Status :: 4 - Beta",
