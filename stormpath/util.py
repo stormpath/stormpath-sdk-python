@@ -1,6 +1,11 @@
 __author__ = 'ecrisostomo'
 
-from urllib import parse
+try:
+    from urllib import parse
+except ImportError:
+    import urlparse as parse
+    from urllib2 import quote as urllib2_quote
+    parse.quote = urllib2_quote
 
 def assert_not_none(p_object, message):
     if p_object is None:

@@ -6,16 +6,16 @@ from stormpath import __version__
 from stormpath.http.http_client_request_executor import HttpClientRequestExecutor
 from stormpath.http.request_response import Request
 from stormpath.util import assert_instance, assert_subclass, assert_true
-from stormpath.resource import Resource
+from stormpath.resource.base import Base
 from stormpath.resource import Error, ResourceError
 
 
-class DataStore:
+class DataStore(object):
 
     DEFAULT_API_VERSION = 1
     DEFAULT_SERVER_HOST = "api.stormpath.com"
 
-    def __init__(self, request_executor, base_url = None):
+    def __init__(self, request_executor, base_url=None):
 
         assert_instance(request_executor, HttpClientRequestExecutor, "request_executor")
 
@@ -125,7 +125,6 @@ class DataStore:
 
         return properties
 
-
     def _to_simple_reference_(self, property_name, resource_properties):
 
         href_prop_name = Resource.HREF_PROP_NAME
@@ -134,7 +133,7 @@ class DataStore:
         return {href_prop_name : resource_properties[href_prop_name]}
 
 
-class ResourceFactory:
+class ResourceFactory(object):
 
     def __init__(self, data_store):
 
@@ -143,8 +142,6 @@ class ResourceFactory:
 
     def instantiate(self, resource_clazz, resource_properties = {}):
 
-        assert_subclass(resource_clazz, Resource, "resource_clazz")
+        assert_subclass(resource_clazz, Base, "resource_clazz")
 
-        return resource_clazz(self.data_store, resource_properties)
-
-
+        return resource_clazz(resource_properties, self.data_store)

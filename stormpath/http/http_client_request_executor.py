@@ -5,9 +5,10 @@ import stormpath
 from stormpath.http import Request, Response
 from stormpath.util import assert_instance
 
-class HttpClientRequestExecutor:
 
-    def __init__(self, api_key = None):
+class HttpClientRequestExecutor(object):
+
+    def __init__(self, api_key=None):
         self.api_key = api_key
         self.http_client = httplib2.Http()
         self.http_client.follow_redirects = False
@@ -26,7 +27,6 @@ class HttpClientRequestExecutor:
         resp, content = self.http_client.request(request.href, request.http_method, request.body, request.http_headers)
 
         return Response(int(resp.status), resp.get('content-type'), content.decode())
-
 
     def _add_query_string_to_href_(self, request):
 

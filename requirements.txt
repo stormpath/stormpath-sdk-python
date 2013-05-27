@@ -1,0 +1,4 @@
+jprops
+httplib2
+PyYAML
+mock
