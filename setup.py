@@ -1,59 +1,108 @@
-__author__ = 'ecrisostomo'
+#
+# Copyright 2012, 2013 Stormpath, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
 
-from distutils.core import setup
-from pkgutil import walk_packages
+from setuptools import setup, find_packages, Command
+import sys
+import os
 
 import stormpath
 
 
-def find_packages(path='.', prefix=""):
-    yield prefix
-    prefix = prefix + "."
-    for _, name, is_pkg in walk_packages(path, prefix):
-        if is_pkg:
-            yield name
+class BaseCommand(Command):
+    user_options = []
 
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+
+class TestCommand(BaseCommand):
+
+    description = "run self-tests"
+
+    tests = ['account', 'tenant', 'apikey']
+
+    def run(self):
+        os.chdir('tests')
+        for test in self.tests:
+            ret = os.system('python test_' + test + '.py')
+            if ret != 0:
+                sys.exit(-1)
 
 # To install the stormpath library, open a Terminal shell, then run this
 # file by typing:
 #
 # python setup.py install
-REQUIRES = ["httplib2 >= 0.7", "unittest2py3k", "pyaml >= 3.10"]
+
+if sys.version_info.major == 3 and sys.version_info.major == 3:
+    REQUIRES = ["httplib2 >= 0.7", "PyYAML>=3.10", "jprops>=0.2",
+        "httpretty>=0.6.1"]
+    classifiers = [
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.3",
+    ]
+else:
+    REQUIRES = ["httplib2 >= 0.7", "PyYAML>=3.10", "jprops>=0.2",
+        "httpretty>=0.6.1", "mock>=1.0.1"]
+    classifiers = [
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 2",
+        "Programming Language :: Python :: 2.7",
+    ]
+
 
 setup(
-    name = "stormpath-sdk",
-    version = stormpath.__version__,
-    description = "Stormpath SDK used to interact with the Stormpath REST API",
-    author = "Elder Crisostomo",
-    author_email = "elder@stormpath.com",
-    url = "https://github.com/stormpath/stormpath-sdk-python",
-    keywords = ["stormpath","authentication"],
-    install_requires = REQUIRES,
-    packages = list(find_packages(stormpath.__path__, stormpath.__name__)),
-    classifiers = [
+    name="stormpath-sdk",
+    version=stormpath.__version__,
+    description="Stormpath SDK used to interact with the Stormpath REST API",
+    author="Elder Crisostomo",
+    author_email="elder@stormpath.com",
+    url="https://github.com/stormpath/stormpath-sdk-python",
+    keywords=["stormpath", "authentication"],
+    install_requires=REQUIRES,
+    packages=find_packages(),
+    classifiers=[
         "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: Apache Software License",
         "Operating System :: OS Independent",
-        "Programming Language :: Python",
-        "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.2",
         "Topic :: Security",
         "Topic :: Software Development :: Libraries :: Python Modules",
         "Topic :: Software Development :: Libraries",
-        ],
-    long_description = """\
+        ].extend(classifiers),
+    cmdclass={
+        'test': TestCommand,
+    },
+    long_description="""\
     Stormpath SDK
     -------------
 
     DESCRIPTION
-    The Stormpath Python SDK allows any Python-based application to easily use the
-    Stormpath user management service for all authentication and access control needs.
+    The Stormpath Python SDK allows any Python-based application to easily use
+    the Stormpath user management service for all authentication and
+    access control needs.
 
-    When you make SDK method calls, the calls are translated into HTTPS requests to
-    the Stormpath REST+JSON API. The Stormpath Python SDK therefore provides a clean
-    object-oriented paradigm natural to Python developers and alleviates the need to
-    know how to make REST+JSON requests.
+    When you make SDK method calls, the calls are translated into HTTPS requests
+    to the Stormpath REST+JSON API. The Stormpath Python SDK therefore provides
+    a clean object-oriented paradigm natural to Python developers and alleviates
+    the need to know how to make REST+JSON requests.
 
-    LICENSE The Stormpath Python SDK is distributed under the Apache Software License.
-    """ )
+    LICENSE The Stormpath Python SDK is distributed under the
+    Apache Software License.
+    """)

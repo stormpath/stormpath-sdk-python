@@ -14,14 +14,24 @@
 # limitations under the License.
 #
 
-from stormpath.resource.base import Base
 
+class UsernamePasswordRequest(object):
 
-class Instance(Base):
+    def __init__(self, username, password, host=None):
+        self.principals = username
+        self.credentials = password
+        self.host = host
 
-    def save(self):
-        return self.data_store.save(self)
+    def clear(self):
+        """
+        Clears out (None) the username, password, and host.
+        The password bytes are explicitly set to 0x00
+        to eliminate the possibility of memory access at a later time.
+        """
+        self.principals = None
+        self.host = None
 
-    def delete(self):
-        if not self.new:
-            self.data_store.delete(self)
+        for c in self.credentials:
+            c = 0x00
+
+        self.credentials = None

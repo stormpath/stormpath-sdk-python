@@ -56,10 +56,6 @@ class Base(object):
     def property_names(self):
         return self.properties.copy().keys()
 
-    @property
-    def href(self):
-        return self._get_property(self.HREF_PROP_NAME)
-
     def _get_href_from_dict(self, properties=None):
         if properties and assert_instance(properties, dict):
             return properties[self.HREF_PROP_NAME]
@@ -70,13 +66,13 @@ class Base(object):
             #not the href/id, must be a property that requires materialization:
             if not self.new and not self.materialized:
 
-                # only materialize if the property hasn't been set previously
-                # (no need to execute a server request when we already
-                # have the most recent value):
+                # only materialize if the property hasn't been set previously (no need to execute a server
+                # request when we already have the most recent value):
                 present = name in self.dirty_properties
 
                 if not present:
                     self.materialize()
+
         return self._read_property(name)
 
     def _get_resource_property(self, name, cls):
@@ -115,12 +111,16 @@ class Base(object):
     @property
     def new(self):
         """
-        Returns True if the resource doesn't yet have an assigned 'href' property.
+        Returns True if the resource doesn't yet have an assigned 'href' property,
         False otherwise.
         """
 
         #we can't call get_href in here, otherwise we'll have an infinite loop:
         return False if self._read_property(self.HREF_PROP_NAME) else True
+
+    @property
+    def href(self):
+        return self._get_property(self.HREF_PROP_NAME)
 
     def _read_property(self, name):
         return self.properties[name] if name in self.properties else None
@@ -167,16 +167,22 @@ class Collection(Base):
 
         return self._to_resource(cls, properties)
 
-    def create(self, properties_or_resource, property_name=None, href=None):
-        href = href or self._get_resource_href_property(property_name)
+    def create(self, properties_or_resource, property_name=None,
+            href=None, cls=None):
+
+        item_class = cls or self.item_type
 
         if isinstance(properties_or_resource, Base):
             resource = properties_or_resource
-        else:
-            item_class = self.item_type
-            resource = item_class(properties_or_resource, self.client)
 
-            return self.data_store.create(href, resource, item_class)
+        else:
+            resource = item_class(properties_or_resource, self.client)
+            for k, v in properties_or_resource.items():
+                setattr(resource, k, v)
+
+        href = href or self._get_resource_href_property(property_name)
+
+        return self.data_store.create(href, resource, item_class)
 
     def _get_current_page(self):
 

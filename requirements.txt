@@ -2,3 +2,4 @@ jprops
 httplib2
 PyYAML
 mock
+httpretty

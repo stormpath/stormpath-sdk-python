@@ -18,7 +18,7 @@
 class Error(RuntimeError):
 
     def __init__(self, error):
-        super().__init__(error.message if error else None)
+        super(Error, self).__init__(error.message if error else None)
         self.error = error
 
     @property

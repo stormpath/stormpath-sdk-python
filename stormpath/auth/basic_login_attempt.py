@@ -14,14 +14,23 @@
 # limitations under the License.
 #
 
+
 from stormpath.resource.base import Base
 
 
-class Instance(Base):
+class BasicLoginAttempt(Base):
 
-    def save(self):
-        return self.data_store.save(self)
+    TYPE = "type"
+    VALUE = "value"
 
-    def delete(self):
-        if not self.new:
-            self.data_store.delete(self)
+    def type(self):
+        return self._get_property(self.TYPE)
+
+    def type(self, type):
+        self._set_property(self.TYPE, type)
+
+    def value(self):
+        return self._get_property(self.VALUE)
+
+    def value(self, value):
+        self._set_property(self.VALUE, value)

@@ -84,6 +84,10 @@ class Client(object):
     def directories(self):
         return self.tenant.directories
 
+    @property
+    def accounts(self):
+        return self.tenant.accounts
+
     def load_api_key_file(self, api_key_file_location=None,
             id_property_name=None, secret_property_name=None):
         try:

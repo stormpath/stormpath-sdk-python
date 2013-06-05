@@ -26,24 +26,24 @@ class ResourceError(Base):
     MORE_INFO = "moreInfo"
 
     def __init__(self, properties):
-        super(Error, self).__init__(properties=properties)
+        super(ResourceError, self).__init__(properties_or_url=properties)
 
     @property
     def status(self):
-        return self._get_property(Error.STATUS)
+        return self._get_property(self.STATUS)
 
     @property
     def code(self):
-        return self._get_property(Error.CODE)
+        return self._get_property(self.CODE)
 
     @property
     def message(self):
-        return self._get_property(Error.MESSAGE)
+        return self._get_property(self.MESSAGE)
 
     @property
     def developer_message(self):
-        return self._get_property(Error.DEV_MESSAGE)
+        return self._get_property(self.DEV_MESSAGE)
 
     @property
     def more_info(self):
-        return self._get_property(Error.MORE_INFO)
+        return self._get_property(self.MORE_INFO)

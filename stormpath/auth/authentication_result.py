@@ -15,13 +15,13 @@
 #
 
 from stormpath.resource.base import Base
+from stormpath.resource.account import Account
 
 
-class Instance(Base):
+class AuthenticationResult(Base):
 
-    def save(self):
-        return self.data_store.save(self)
+    ACCOUNT = "account"
 
-    def delete(self):
-        if not self.new:
-            self.data_store.delete(self)
+    @property
+    def account(self):
+        return self._get_resource_property(self.ACCOUNT, Account)

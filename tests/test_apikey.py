@@ -12,14 +12,14 @@ from stormpath.api_key import ApiKey
 class TestApiKey(unittest.TestCase):
     def jprops(self, *args):
         return {
-            'apiKey.id': '2GOC9ROK2X65D46TDOJZS4W92',
-            'apiKey.secret': 'vvcLLmoCoE+BsA8Xg2Xz2SlglfgWloyWvx56TQfmxpY'}
+            'apiKey.id': 'API_KEY_ID',
+            'apiKey.secret': 'API_KEY_SECRET'}
 
     def setUp(self):
         self.file_location = os.path.join(os.path.dirname(__file__),
             'apiKey.properties')
-        self.id = '2GOC9ROK2X65D46TDOJZS4W92'
-        self.secret = 'vvcLLmoCoE+BsA8Xg2Xz2SlglfgWloyWvx56TQfmxpY'
+        self.id = 'API_KEY_ID'
+        self.secret = 'API_KEY_SECRET'
 
     @mock.patch('stormpath.clients.jprops.load_properties', jprops)
     def test_file_argument(self):

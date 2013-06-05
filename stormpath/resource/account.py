@@ -89,5 +89,5 @@ class AccountList(Collection):
 
     def create(self, properties_or_resource, property_name=None, href=None):
         property_name = property_name or "accounts"
-        super(AccountList, self).create(
-            properties_or_resource, property_name, href)
+        return super(AccountList, self).create(
+            properties_or_resource, property_name, self.href)

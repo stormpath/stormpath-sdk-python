@@ -2,9 +2,10 @@ __author__ = 'ecrisostomo'
 
 from stormpath.util import assert_not_none
 
-class Request:
 
-    def __init__(self, http_method, href, body = None, http_headers = None, query_string = None):
+class Request(object):
+
+    def __init__(self, http_method, href, body=None, http_headers=None, query_string=None):
 
         assert_not_none(href, "href cannot be None.")
 
@@ -35,11 +36,12 @@ class Request:
         if self.body is not None:
             self.http_headers['Content-Length'] = str(len(self.body))
 
-class Response:
+
+class Response(object):
 
     def __init__(self, http_status, content_type, body):
         self.http_status = http_status
-        self.headers = {'content-type' : content_type}
+        self.headers = {'content-type': content_type}
         self.body = body
 
     def is_client_error(self):

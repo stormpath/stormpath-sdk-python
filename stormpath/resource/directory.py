@@ -15,11 +15,11 @@
 #
 
 from stormpath.resource.instance import Instance
-from stormpath.resource.account import AccountList
+from stormpath.resource.account import AccountList, Account
 from stormpath.resource.base import Collection
 
 
-class Directory(Instance):
+class Directory(Instance, Collection):
 
     NAME = "name"
     DESCRIPTION = "description"
@@ -38,6 +38,14 @@ class Directory(Instance):
     @property
     def accounts(self):
         return self._get_resource_property(self.ACCOUNTS, AccountList)
+
+    def create_account(self, account, registration_workflow_enabled=None):
+        href = self.accounts.href
+        if registration_workflow_enabled is not None:
+            href = href + "?registrationWorkflowEnabled=" + \
+                str(registration_workflow_enabled).lower()
+
+        return self.create(account, "accounts", href, Account)
 
 
 class DirectoryList(Collection):

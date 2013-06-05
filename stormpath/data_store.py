@@ -49,21 +49,22 @@ class DataStore(object):
         else:
             q_href = href
         properties = self._execute_request('get', q_href, None)
-        return self.instantiate(cls, self._to_dict(properties))
+        return self.instantiate(cls, properties)
 
     def create(self, parent_href, resource, return_type):
 
         returned_resource = self._save_resource(parent_href, resource, return_type)
 
         if isinstance(resource, return_type):
-            return resource.set_properties(self._to_dict(returned_resource))
+            resource.set_properties(returned_resource.properties)
+
+        return returned_resource
 
     def save(self, resource, cls=None):
 
         assert_instance(resource, Base, "resource argument cannot be None")
 
         href = resource.href
-
         assert_true(href,
             "save may only be called on objects that have already been persisted"
             + "(i.e. they have an existing href).")
@@ -85,7 +86,7 @@ class DataStore(object):
 
         assert_instance(resource, Base, 'base')
 
-        self._execute_request_('delete', resource.href)
+        self._execute_request('delete', resource.href)
 
     def _execute_request(self, http_method, href, body=None):
         request = Request(http_method, href, body)
@@ -95,7 +96,8 @@ class DataStore(object):
         result = json.loads(response.body) if response.body else {}
 
         if response.is_error():
-            raise ResourceError(Error(result))
+            error = ResourceError(result)
+            raise Error(error)
 
         return result
 
@@ -139,16 +141,17 @@ class DataStore(object):
 
     def _to_dict(self, resource):
 
+        property_names = resource.property_names
         properties = {}
 
-        for name in resource:
+        for name in property_names:
 
-            prop = resource.get(name)
-
+            prop = resource._get_property(name)
             if isinstance(prop, dict):
                 prop = self._to_simple_reference(name, prop)
 
             properties[name] = prop
+
         return properties
 
     def _to_simple_reference(self, property_name, resource_properties):
