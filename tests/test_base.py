@@ -1,7 +1,7 @@
 import unittest
 import httpretty
 
-from stormpath.clients import Client
+from stormpath import Client
 
 
 class BaseTest(unittest.TestCase):

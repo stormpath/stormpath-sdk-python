@@ -1,215 +1,180 @@
-#
-# Copyright 2012, 2013 Stormpath, Inc.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-#
-from stormpath.util import assert_instance
+import json
+import requests
 
+API_URL = 'https://api.stormpath.com/v1/'
 
-class Base(object):
+class Session(requests.Session):
+    def __init__(self, auth, *args, **kwargs):
+        super(Session, self).__init__(*args, **kwargs)
+        self.headers.update({
+            'content-type': 'application/json'
+        })
+        self.auth = auth
 
-    HREF_PROP_NAME = 'href'
+class Resource(object):
+    """
+    Resource is a thin layer over requests library
+    used by all Stormpath resources.
 
-    def __init__(self, properties_or_url, client=None):
+    """
 
-        if isinstance(properties_or_url, str):
-            properties = {self.HREF_PROP_NAME: properties_or_url}
-        elif isinstance(properties_or_url, dict):
-            properties = properties_or_url
-        else:
-            raise ValueError("Please provide a url or a dictionary with properties")
+    def __init__(self, session=None, auth=None, **kwargs):
+        self._uid = None
+        self._is_dirty = False
+        self.fields = getattr(self, 'fields', [])
+        self.related_fields = getattr(self, 'related_fields', [])
 
-        self.client = client
-        self.properties = {}
-        self.dirty_properties = {}
-        self.set_properties(properties)
-        self.dirty = False
+        if session:
+            self._session = session
+        elif auth:
+            self._session = Session(auth=auth())
 
-    @property
-    def data_store(self):
-        return self.client.data_store
+        self._data = kwargs.get('data')
+        if self._data:
+            self.url = self._data.get('href')
+            if self.url:
+                return
 
-    def set_properties(self, properties):
+        self.url = kwargs.get('url')
+        if not self.url:
+            id = kwargs.get('id')
+            if id:
+                path = '%s/%s' % (self.path, id)
+                self.url = '%s%s' % (API_URL, path)
 
-        if (isinstance(properties, dict)):
-            self.properties.update(properties)
+    def __repr__(self):
+        try:
+            return "%s: %s" % (self.__class__.__name__, str(self))
+        except:
+            return self.__class__.__name__
 
-            # Don't consider this resource materialized if it is only a reference.
-            # A reference is any object that has only one 'href' property.
-            href_only = len(self.properties) is 1 and self.HREF_PROP_NAME in self.properties
-            self.materialized = not href_only
-
-        else:
-            self.materialized = False
-
-    @property
-    def property_names(self):
-        return self.properties.copy().keys()
-
-    def _get_href_from_dict(self, properties=None):
-        if properties and assert_instance(properties, dict):
-            return properties[self.HREF_PROP_NAME]
-
-    def _get_property(self, name):
-
-        if self.HREF_PROP_NAME is not name:
-            #not the href/id, must be a property that requires materialization:
-            if not self.new and not self.materialized:
-
-                # only materialize if the property hasn't been set previously (no need to execute a server
-                # request when we already have the most recent value):
-                present = name in self.dirty_properties
-
-                if not present:
-                    self.materialize()
-
-        return self._read_property(name)
-
-    def _get_resource_property(self, name, cls):
-        value = self._get_property(name)
-
-        if(isinstance(value, dict)):
-            href = value[self.HREF_PROP_NAME]
-
-            if href:
-                return self.data_store.instantiate(cls, value)
-
-    def _get_resource_href_property(self, key):
-        value = self._get_property(key)
-
-        if isinstance(value, dict):
-            return self._get_href_from_dict(key)
-        else:
-            return None
-
-    def _set_property(self, name, value):
-        self.properties[name] = value
-        self.dirty_properties[name] = value
-        self.dirty = True
-
-    def materialize(self):
-        cls = self.__class__
-
-        resource = self.data_store.get_resource(self.href, cls)
-        self.properties.update(resource.properties)
-
-        #retain dirty properties:
-        self.properties.update(self.dirty_properties)
-
-        self.materialized = True
-
-    @property
-    def new(self):
-        """
-        Returns True if the resource doesn't yet have an assigned 'href' property,
-        False otherwise.
-        """
-
-        #we can't call get_href in here, otherwise we'll have an infinite loop:
-        return False if self._read_property(self.HREF_PROP_NAME) else True
+    def __str__(self):
+        return self.url
 
     @property
     def href(self):
-        return self._get_property(self.HREF_PROP_NAME)
+        if self.url:
+            return self.url
 
-    def _read_property(self, name):
-        return self.properties[name] if name in self.properties else None
-
-
-class Collection(Base):
-
-    OFFSET = "offset"
-    LIMIT = "limit"
-    ITEMS = "items"
-    items_iter = None
+        raise Exception('Resource not saved, href is not available.')
 
     @property
-    def offset(self):
-        return self._get_property(self.OFFSET)
+    def uid(self):
+        if self.url:
+            uid = self.url[self.url.rfind('/')+1:]
+            return uid
+        raise Exception('Resource not saved, unique identifier is not available.')
 
-    @property
-    def limit(self):
-        return self._get_property(self.LIMIT)
+    def create(self):
+        url = '%s%s' % (API_URL, self.path)
+        resp = self._session.post(url, data=json.dumps(self._data))
+        if resp.status_code != 201:
+            raise NotImplementedError
 
-    def __iter__(self):
-        return self
+        self._data = resp.json()
 
-    def __next__(self):
+    def read(self):
+        if self._data:
+            return
 
-        if self.items_iter:
-            return next(self.items_iter)
-        else:
-            self.items_iter = iter(self._get_current_page().items)
-            return next(self.items_iter)
+        resp = self._session.get(self.url, data=json.dumps({}))
+        if resp.status_code != 200:
+            raise NotImplementedError
 
-    @property
-    def item_type(self):
-        """
-        Children classes must return the InstanceResource classes
-        (not an instance) that they hold as resources.
-        i.e. AccountList should return the Account class.
-        """
+        self._data = resp.json()
+
+    def update(self):
+        data = {k: v for k,v in self._data.items() if k in self.fields}
+        resp = self._session.post(self.url, data=json.dumps(data))
+        if resp.status_code != 200:
+            raise NotImplementedError
+
+        self._data = resp.json()
+
+    def delete(self):
         pass
 
-    def get(self, href):
-        properties = self.data_store._execute_request('get', href, None)
-        cls = self.item_type
+    def save(self):
+        if not self._is_dirty:
+            return # FIXME: return False or something related
 
-        return self._to_resource(cls, properties)
-
-    def create(self, properties_or_resource, property_name=None,
-            href=None, cls=None):
-
-        item_class = cls or self.item_type
-
-        if isinstance(properties_or_resource, Base):
-            resource = properties_or_resource
-
+        if self.uid:
+            self.update()
         else:
-            resource = item_class(properties_or_resource, self.client)
-            for k, v in properties_or_resource.items():
-                setattr(resource, k, v)
+            self.create()
 
-        href = href or self._get_resource_href_property(property_name)
+    def __dir__(self):
+        return self.fields
 
-        return self.data_store.create(href, resource, item_class)
+    def __getattr__(self, name):
+        data = self.__dict__.get('_data')
+        fields = self.__dict__.get('fields', [])
+        related_fields = self.__dict__.get('related_fields', [])
 
-    def _get_current_page(self):
+        if name in fields or name in related_fields:
+            if not data and 'url' in self.__dict__:
+                self.read()
+                data = self.__dict__.get('_data')
 
-        value = self._get_property(self.ITEMS)
-        items = self._to_resource_list(value)
+            if data and name in data:
+                return data[name]
 
-        return Page(self.offset, self.limit, items)
+        raise AttributeError
 
-    def _to_resource_list(self, values):
+    def __setattr__(self, name, value):
+        data = self.__dict__.get('_data')
+        fields = self.__dict__.get('fields', [])
 
-        cls = self.item_type
-        items = list()
+        if data and name in fields:
+            data[name] = value
+            object.__setattr__(self, '_is_dirty', True)
+        else:
+            object.__setattr__(self, name, value)
 
-        if (values):
-            for value in values:
-                resource = self._to_resource(cls, value)
-                items.append(resource)
+class ResourceList(object):
+    def __init__(self, session=None, auth=None, *args, **kwargs):
+        if session:
+            self._session = session
+        elif auth:
+            self._session = Session(auth=auth())
 
-        return items
+        self._resource_class = kwargs.pop('resource')
+        self._url = kwargs.pop('url')
+        self._items = None
+        super(ResourceList, self).__init__(*args, **kwargs)
 
-    def _to_resource(self, cls, properties):
-        return self.data_store.instantiate(cls, properties)
+    def get(self, url):
+        resp = self._resource_class(session=self._session, url=url)
+        return resp
 
+    def create(self, data):
+        r = self._resource_class(session=self._session, data=data)
+        r.create()
 
-class Page(object):
+    def __getitem__(self, key):
+        resp = self._session.get(self._url, data=json.dumps({}))
+        if resp.status_code != 200:
+            raise NotImplementedError
 
-    def __init__(self, offset, limit, items):
-        self.offset = offset
-        self.limit = limit
-        self.items = items
+        data = resp.json()
+        item = data['items'][key]
+        return self._resource_class(session=self._session, data=item)
+
+    def __iter__(self):
+        # fixme: implement pagination and cache
+        if not self._items:
+            resp = self._session.get(self._url, data=json.dumps({}))
+            if resp.status_code != 200:
+                raise NotImplementedError
+
+            self._items = []
+            data = resp.json()
+            for item in data['items']:
+                m = self._resource_class(session=self._session, data=item)
+                self._items.append(m)
+            self._items = self._items
+        while self._items:
+            yield self._items.pop(0)
+            # if not self._items check next resource page/collection
+        else:
+            raise StopIteration
