@@ -18,7 +18,8 @@ from setuptools import setup, find_packages, Command
 import sys
 import os
 
-import stormpath
+__version_info__ = ('0', '2', '0')
+__version__ = '.'.join(__version_info__)
 
 
 class BaseCommand(Command):
@@ -35,7 +36,7 @@ class TestCommand(BaseCommand):
 
     description = "run self-tests"
 
-    tests = ['account', 'tenant']
+    tests = ['account', 'tenant', 'directory', 'group', 'application']
 
     def run(self):
         os.chdir('tests')
@@ -50,7 +51,7 @@ class TestCommand(BaseCommand):
 # python setup.py install
 
 if sys.version_info.major == 3 and sys.version_info.major == 3:
-    REQUIRES = ["httplib2 >= 0.7", "PyYAML>=3.10", "jprops>=1.0",
+    REQUIRES = ["requests>=1.1.0", "jprops>=1.0",
         "httpretty>=0.6.1"]
     classifiers = [
         "Programming Language :: Python",
@@ -58,7 +59,7 @@ if sys.version_info.major == 3 and sys.version_info.major == 3:
         "Programming Language :: Python :: 3.3",
     ]
 else:
-    REQUIRES = ["httplib2 >= 0.7", "PyYAML>=3.10", "jprops>=1.0",
+    REQUIRES = ["requests>=1.1.0", "jprops>=1.0",
         "httpretty>=0.6.1", "mock>=1.0.1"]
     classifiers = [
         "Programming Language :: Python",
@@ -69,7 +70,7 @@ else:
 
 setup(
     name="stormpath-sdk",
-    version=stormpath.__version__,
+    version=__version__,
     description="Stormpath SDK used to interact with the Stormpath REST API",
     author="Elder Crisostomo",
     author_email="elder@stormpath.com",

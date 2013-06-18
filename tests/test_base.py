@@ -15,6 +15,7 @@ class BaseTest(unittest.TestCase):
         self.app_href = self.base_url + '/applications/APP_HREF'
         self.dir_href = self.base_url + '/directories/DIR_HREF'
         self.acc_href = self.base_url + '/accounts/ACC_HREF'
+        self.grp_href = self.base_url + '/groups/GRP_HREF'
 
         self.tenant_body = {
             "href": "TENANT_HREF",
@@ -33,9 +34,10 @@ class BaseTest(unittest.TestCase):
         self.dir_body = {
             "href": self.dir_href,
             "name": "DIR_NAME", "description": "DIR_DESC",
-            "status": "ENABLED",
+            "status": "enabled",
             "tenant": {
-                "href": self.base_url + "/tenants/TENANT_ID"},
+                "href": self.base_url + "/tenants/TENANT_ID"
+                },
             "accounts": {
                 "href": self.dir_href + "/accounts"
                 },
@@ -47,9 +49,10 @@ class BaseTest(unittest.TestCase):
         self.app_body = {
             "href": self.app_href,
             "name": "APP_NAME", "description": "APP_DESC",
-            "status": "ENABLED",
+            "status": "enabled",
             "tenant": {
-                "href": self.base_url + "/tenants/TENANT_ID"},
+                "href": self.base_url + "/tenants/TENANT_ID"
+                },
             "accounts": {
                 "href": self.app_href + "/accounts"
                 },
@@ -58,6 +61,50 @@ class BaseTest(unittest.TestCase):
                 },
             "passwordResetTokens": {
                 "href": self.app_href + "/passwordResetTokens"
+                }
+            }
+
+        self.acc_body = {
+            "href": self.acc_href,
+            "username": "ACC_USERNAME",
+            "email": "ACC_EMAIL",
+            "fullName": "ACC_FULLNAME",
+            "givenName": "ACC_GIVENNAME",
+            "middleName": "",
+            "surname": "ACC_SURNAME",
+            "status": "enabled",
+            "groups":
+                {
+                    "href": self.grp_href
+                },
+            "groupMemberships":
+                {
+                    "href": self.acc_href + "/groupMemberships"
+                },
+            "directory":
+                {
+                    "href": self.dir_href
+                },
+            "tenant":
+                {
+                    "href": self.base_url + "/tenants/TENANT_ID"
+                },
+            "emailVerificationToken": None
+            }
+
+        self.grp_body = {
+            "href": self.grp_href,
+            "name": "GRP_NAME",
+            "description": "GRP_DESC",
+            "status": "enabled",
+            "directory": {
+                "href": self.dir_href
+                },
+            "tenant": {
+                "href": self.base_url + "/tenants/TENANT_ID"
+                },
+            "accounts": {
+                "href": self.dir_href + "/accounts"
                 }
             }
 

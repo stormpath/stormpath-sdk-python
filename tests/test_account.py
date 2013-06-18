@@ -1,13 +1,87 @@
 import unittest
 from tests.test_base import BaseTest
 import httpretty
+from httpretty import HTTPretty
 import json
+
+from stormpath.resource import (Directory,
+    GroupMembership, GroupMembershipResourceList)
 
 
 class TestAccount(BaseTest):
 
     @httpretty.activate
-    def test_save(self):
+    def test_properties(self):
+
+        username = 'ACC_USERNAME'
+        email = 'ACC_EMAIL'
+        given_name = 'ACC_GIVENNAME'
+        surname = 'ACC_SURNAME'
+        dir_name = 'DIR_NAME'
+
+        httpretty.register_uri(httpretty.GET,
+            self.base_url + "/tenants/current",
+            body=json.dumps(self.tenant_body),
+            content_type="application/json")
+
+        httpretty.register_uri(httpretty.GET,
+            self.dir_href,
+            body=json.dumps(self.dir_body),
+            content_type="application/json")
+
+        directory = self.client.directories.get(self.dir_href)
+
+        httpretty.register_uri(httpretty.GET,
+            self.acc_href,
+            body=json.dumps(self.acc_body),
+            content_type="application/json")
+
+        account = directory.accounts.get(self.acc_href)
+
+        self.assertEqual(account.username, username)
+        self.assertEqual(account.email, email)
+        self.assertEqual(account.givenName, given_name)
+
+        self.assertEqual(HTTPretty.last_request.path, '/v1/accounts/ACC_HREF')
+
+        self.assertEqual(account.surname, surname)
+        self.assertEqual(account.directory.name, dir_name)
+        self.assertIsInstance(account.directory, Directory)
+        self.assertIsInstance(account.group_memberships,
+            GroupMembershipResourceList)
+
+    @httpretty.activate
+    def test_delete(self):
+
+        httpretty.register_uri(httpretty.GET,
+            self.base_url + "/tenants/current",
+            body=json.dumps(self.tenant_body),
+            content_type="application/json")
+
+        httpretty.register_uri(httpretty.GET,
+            self.dir_href,
+            body=json.dumps(self.dir_body),
+            content_type="application/json")
+
+        httpretty.register_uri(httpretty.DELETE,
+            self.acc_href,
+            body='', status=204)
+
+        httpretty.register_uri(httpretty.GET,
+            self.acc_href,
+            body=json.dumps(self.acc_body),
+            content_type="application/json")
+
+        directory = self.client.directories.get(self.dir_href)
+        account = directory.accounts.get(self.acc_href)
+        account.delete()
+
+        self.assertEqual(HTTPretty.last_request.method, 'DELETE')
+        self.assertEqual(HTTPretty.last_request.path,
+            '/v1/accounts/ACC_HREF')
+
+    @httpretty.activate
+    def test_update(self):
 
         httpretty.register_uri(httpretty.GET,
             self.base_url + "/tenants/current",
@@ -27,12 +101,12 @@ class TestAccount(BaseTest):
             "givenName": "Super",
             "middleName": None,
             "surname": "User",
-            "status": "ENABLED",
+            "status": "enabled",
             "groups": {
                 "href": self.acc_href + "/groups"
                 },
             "groupMemberships": {
-                "href": self.acc_href + "groupMemberships"
+                "href": self.acc_href + "/groupMemberships"
                 },
                 "directory": {
                     "href": self.dir_href
@@ -59,12 +133,12 @@ class TestAccount(BaseTest):
             "givenName": "Super Changed",
             "middleName": "middle",
             "surname": "User Changed",
-            "status": "ENABLED",
+            "status": "disabled",
             "groups": {
                 "href": self.acc_href + "/groups"
                 },
             "groupMemberships": {
-                "href": self.acc_href + "groupMemberships"
+                "href": self.acc_href + "/groupMemberships"
                 },
                 "directory": {
                     "href": self.dir_href
@@ -85,6 +159,7 @@ class TestAccount(BaseTest):
         given_name = 'Super Changed'
         surname = 'User Changed'
         password = 'superP4ssChanged'
+        status = 'disabled'
 
         account.username = username
         account.email = email
@@ -92,14 +167,19 @@ class TestAccount(BaseTest):
         account.surname = surname
         account.password = password
         account.middle_name = 'middle'
+        account.status = status
 
         account.save()
+
+        self.assertEqual(HTTPretty.last_request.method, 'POST')
+        self.assertEqual(HTTPretty.last_request.path, '/v1/accounts/ACC_HREF')
 
         self.assertEqual(account.username, username)
         self.assertEqual(account.email, email)
         self.assertEqual(account.given_name, given_name)
         self.assertEqual(account.surname, surname)
         self.assertEqual(account.middle_name, 'middle')
+        self.assertEqual(account.status, status)
 
     @httpretty.activate
     def test_create(self):
@@ -122,12 +202,12 @@ class TestAccount(BaseTest):
             "givenName": "Super",
             "middleName": None,
             "surname": "User",
-            "status": "ENABLED",
+            "status": "enabled",
             "groups": {
                 "href": self.acc_href + "/groups"
                 },
             "groupMemberships": {
-                "href": self.acc_href + "groupMemfaberships"
+                "href": self.acc_href + "/groupMemberships"
                 },
                 "directory": {
                     "href": self.dir_href
@@ -157,6 +237,10 @@ class TestAccount(BaseTest):
 
         directory = self.client.directories.get(self.dir_href)
         account = directory.accounts.create(account_dict)
+
+        self.assertEqual(HTTPretty.last_request.method, 'POST')
+        self.assertEqual(HTTPretty.last_request.path,
+            '/v1/directories/DIR_HREF/accounts')
 
         self.assertEqual(account.username, username)
         self.assertEqual(account.email, email)
@@ -193,9 +277,67 @@ class TestAccount(BaseTest):
             content_type="application/json")
 
         application = self.client.applications.get(self.app_href)
-        account = application.authenticate_account("goran.cetusic@dobarkod.hr", "Batwie96")
+        account = application.authenticate_account("USERNAME", "PASSWORD")
+
+        self.assertEqual(HTTPretty.last_request.method, "GET")
+        self.assertEqual(HTTPretty.last_request.path,
+            '/v1/accounts/ACC_HREF')
+
         self.assertEqual(application.href, self.app_href)
         self.assertEqual(account.href, self.acc_href)
+
+    @httpretty.activate
+    def test_add_group(self):
+
+        httpretty.register_uri(httpretty.GET,
+            self.base_url + "/tenants/current",
+            body=json.dumps(self.tenant_body),
+            content_type="application/json")
+
+        httpretty.register_uri(httpretty.GET,
+            self.dir_href,
+            body=json.dumps(self.dir_body),
+            content_type="application/json")
+
+        httpretty.register_uri(httpretty.POST,
+            self.dir_href + '/groups',
+            body=json.dumps(self.grp_body),
+            content_type="application/json")
+
+        httpretty.register_uri(httpretty.GET,
+            self.acc_href,
+            body=json.dumps(self.acc_body),
+            content_type="application/json")
+
+        directory = self.client.directories.get(self.dir_href)
+        account = directory.accounts.get(self.acc_href)
+
+        group_name = 'GRP_NAME'
+        group = account.directory.create_group({"name": group_name})
+
+        self.assertEqual(HTTPretty.last_request.method, 'POST')
+        self.assertEqual(HTTPretty.last_request.path,
+            '/v1/directories/DIR_HREF/groups')
+
+        grp_mem_href = self.base_url + '/groupMemberships'
+        grp_mem_body = {
+            "href": "GRP_MEM_HREF",
+            "account": {"href": account.href},
+            "group": {"href": group.href},
+        }
+        httpretty.register_uri(httpretty.POST,
+            grp_mem_href,
+            body=json.dumps(grp_mem_body),
+            content_type="application/json")
+
+        group_membership = account.add_group(group)
+
+        self.assertEqual(HTTPretty.last_request.method, 'POST')
+        self.assertEqual(HTTPretty.last_request.path, '/v1/groupMemberships')
+
+        self.assertIsInstance(group_membership, GroupMembership)
+        self.assertTrue(group_membership.href)
+        self.assertEqual(group_membership.group.name, group_name)
 
 if __name__ == '__main__':
     unittest.main()
