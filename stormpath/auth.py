@@ -14,7 +14,7 @@ class Auth(object):
             api_key=None, api_id=None, api_secret=None, api_url=None,
             **kwargs):
         """
-        Checks various authentication sources for an API key and 
+        Checks various authentication sources for an API key and
         uses first available.
 
         """

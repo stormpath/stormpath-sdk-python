@@ -35,7 +35,7 @@ class TestCommand(BaseCommand):
 
     description = "run self-tests"
 
-    tests = ['account', 'tenant', 'apikey']
+    tests = ['account', 'tenant']
 
     def run(self):
         os.chdir('tests')
@@ -50,7 +50,7 @@ class TestCommand(BaseCommand):
 # python setup.py install
 
 if sys.version_info.major == 3 and sys.version_info.major == 3:
-    REQUIRES = ["httplib2 >= 0.7", "PyYAML>=3.10", "jprops>=0.2",
+    REQUIRES = ["httplib2 >= 0.7", "PyYAML>=3.10", "jprops>=1.0",
         "httpretty>=0.6.1"]
     classifiers = [
         "Programming Language :: Python",
@@ -58,7 +58,7 @@ if sys.version_info.major == 3 and sys.version_info.major == 3:
         "Programming Language :: Python :: 3.3",
     ]
 else:
-    REQUIRES = ["httplib2 >= 0.7", "PyYAML>=3.10", "jprops>=0.2",
+    REQUIRES = ["httplib2 >= 0.7", "PyYAML>=3.10", "jprops>=1.0",
         "httpretty>=0.6.1", "mock>=1.0.1"]
     classifiers = [
         "Programming Language :: Python",

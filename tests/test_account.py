@@ -3,8 +3,6 @@ from tests.test_base import BaseTest
 import httpretty
 import json
 
-from stormpath.auth import UsernamePasswordRequest
-
 
 class TestAccount(BaseTest):
 
@@ -152,7 +150,7 @@ class TestAccount(BaseTest):
         account_dict = {
             'username': username,
             'email': email,
-            'given_name': given_name,
+            'givenName': given_name,
             'surname': surname,
             'password': password
         }
@@ -162,12 +160,11 @@ class TestAccount(BaseTest):
 
         self.assertEqual(account.username, username)
         self.assertEqual(account.email, email)
-        self.assertEqual(account.given_name, given_name)
+        self.assertEqual(account.givenName, given_name)
         self.assertEqual(account.surname, surname)
 
     @httpretty.activate
     def test_authenticate(self):
-        auth_request = UsernamePasswordRequest("USERNAME", "PASSWORD")
 
         httpretty.register_uri(httpretty.GET,
             self.base_url + "/tenants/current",
@@ -190,9 +187,13 @@ class TestAccount(BaseTest):
             body=json.dumps(body),
             content_type="application/json")
 
+        httpretty.register_uri(httpretty.GET,
+            self.acc_href,
+            body=json.dumps(body),
+            content_type="application/json")
+
         application = self.client.applications.get(self.app_href)
-        auth_result = application.authenticate_account(auth_request)
-        account = auth_result.account
+        account = application.authenticate_account("goran.cetusic@dobarkod.hr", "Batwie96")
         self.assertEqual(application.href, self.app_href)
         self.assertEqual(account.href, self.acc_href)
 
