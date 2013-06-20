@@ -17,7 +17,7 @@ def assert_subclass(C, B, parameter_name):
         raise TypeError("{} must be a subclass of {}.".format(parameter_name, full_name))
 
 def assert_true(statement, message):
-    if (not statement):
+    if not statement:
         raise ValueError(message)
 
 def search_in_dict(dict_to_search, keys):
@@ -76,7 +76,7 @@ def str_query_string(query_string, canonical = True):
 
     result = ''
 
-    if (query_string):
+    if query_string:
 
         for key, value in query_string.items():
 
