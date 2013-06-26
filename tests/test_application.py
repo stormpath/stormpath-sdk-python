@@ -15,7 +15,7 @@ class TestApplication(BaseTest):
     def test_properties(self):
 
         httpretty.register_uri(httpretty.GET,
-            self.base_url + "/tenants/current",
+            self.base_href + "/tenants/current",
             body=json.dumps(self.tenant_body),
             content_type="application/json")
 
@@ -27,11 +27,10 @@ class TestApplication(BaseTest):
         app_name, app_desc = "APP_NAME", "APP_DESC"
         application = self.client.applications.get(self.app_href)
 
-        self.assertEqual(application.name, app_name)
-        self.assertEqual(application.description, app_desc)
-        self.assertEqual(application.status, "enabled")
-        self.assertEqual(HTTPretty.last_request.path,
-            '/v1/applications/APP_HREF')
+        self.assertEqual(application.name, self.app_body['name'])
+        self.assertEqual(application.description, self.app_body['description'])
+        self.assertEqual(application.status, self.app_body['status'])
+        self.assertEqual(HTTPretty.last_request.path, self.app_path)
 
         self.assertIsInstance(application.accounts, AccountResourceList)
         self.assertIsInstance(application.tenant, Tenant)
@@ -40,7 +39,7 @@ class TestApplication(BaseTest):
     def test_delete(self):
 
         httpretty.register_uri(httpretty.GET,
-            self.base_url + "/tenants/current",
+            self.base_href + "/tenants/current",
             body=json.dumps(self.tenant_body),
             content_type="application/json")
 
@@ -57,14 +56,13 @@ class TestApplication(BaseTest):
         application.delete()
 
         self.assertEqual(HTTPretty.last_request.method, 'DELETE')
-        self.assertEqual(HTTPretty.last_request.path,
-            '/v1/applications/APP_HREF')
+        self.assertEqual(HTTPretty.last_request.path, self.app_path)
 
     @httpretty.activate
     def test_update(self):
 
         httpretty.register_uri(httpretty.GET,
-            self.base_url + "/tenants/current",
+            self.base_href + "/tenants/current",
             body=json.dumps(self.tenant_body),
             content_type="application/json")
 
@@ -111,13 +109,13 @@ class TestApplication(BaseTest):
         self.assertEqual(application.status, status)
 
         self.assertEqual(HTTPretty.last_request.method, 'POST')
-        self.assertEqual(HTTPretty.last_request.path, '/v1/applications/APP_HREF')
+        self.assertEqual(HTTPretty.last_request.path, self.app_path)
 
     @httpretty.activate
     def test_send_password_reset_email(self):
 
         httpretty.register_uri(httpretty.GET,
-            self.base_url + "/tenants/current",
+            self.base_href + "/tenants/current",
             body=json.dumps(self.tenant_body),
             content_type="application/json")
 
@@ -152,7 +150,7 @@ class TestApplication(BaseTest):
     def test_verify_password_reset_token(self):
 
         httpretty.register_uri(httpretty.GET,
-            self.base_url + "/tenants/current",
+            self.base_href + "/tenants/current",
             body=json.dumps(self.tenant_body),
             content_type="application/json")
 
@@ -184,7 +182,7 @@ class TestApplication(BaseTest):
     def test_search(self):
         # fetch application
         httpretty.register_uri(httpretty.GET,
-            self.base_url + "/tenants/current",
+            self.base_href + "/tenants/current",
             body=json.dumps(self.tenant_body),
             content_type="application/json")
 
@@ -212,7 +210,7 @@ class TestApplication(BaseTest):
         for acc in accounts:
             pass
 
-        regex = '\/v1\/applications\/APP_HREF\/accounts\?' \
+        regex = '\/v1\/applications\/APP_ID\/accounts\?' \
             + '.*((?=.*offset=0)(?=.*limit=25)(?=.*q=ACC_USERNAME).*$)'
         self.assertIsInstance(accounts, AccountResourceList)
         self.assertEqual(HTTPretty.last_request.method, 'GET')
@@ -223,7 +221,7 @@ class TestApplication(BaseTest):
         for acc in accounts:
             pass
 
-        regex = '\/v1\/applications\/APP_HREF\/accounts\?' \
+        regex = '\/v1\/applications\/APP_ID\/accounts\?' \
             + '.*((?=.*offset=0)(?=.*limit=25)(?=.*givenName=ACC_USERNAME).*$)'
         self.assertIsInstance(accounts, AccountResourceList)
         self.assertEqual(HTTPretty.last_request.method, 'GET')
@@ -246,27 +244,53 @@ class TestApplication(BaseTest):
         for group in groups:
             pass
 
-        regex = '\/v1\/applications\/APP_HREF\/groups\?' \
+        regex = '\/v1\/applications\/APP_ID\/groups\?' \
             + '.*((?=.*offset=0)(?=.*limit=25)(?=.*q=GRP_NAME).*$)'
         self.assertIsInstance(groups, GroupResourceList)
         self.assertEqual(HTTPretty.last_request.method, 'GET')
         self.assertIsNotNone(re.search(regex, HTTPretty.last_request.path))
 
         # search application groups with attributes
-        httpretty.register_uri(httpretty.GET,
-            self.grp_href + "/groups",
-            body=json.dumps(self.resource_body),
-            content_type="application/json")
-
-        groups = application.groups.search(name="GRP_NAME")
+        groups = application.groups.search(name=self.grp_body['name'])
         for group in groups:
             pass
 
-        regex = '\/v1\/applications\/APP_HREF\/groups\?' \
+        regex = '\/v1\/applications\/APP_ID\/groups\?' \
             + '.*((?=.*offset=0)(?=.*limit=25)(?=.*name=GRP_NAME).*$)'
         self.assertIsInstance(groups, GroupResourceList)
         self.assertEqual(HTTPretty.last_request.method, 'GET')
         self.assertIsNotNone(re.search(regex, HTTPretty.last_request.path))
+
+    @httpretty.activate
+    def test_associations(self):
+        httpretty.register_uri(httpretty.GET,
+            self.base_href + "/tenants/current",
+            body=json.dumps(self.tenant_body),
+            content_type="application/json")
+
+        httpretty.register_uri(httpretty.GET,
+            self.tenant_href,
+            body=json.dumps(self.tenant_body),
+            content_type="application/json")
+
+        httpretty.register_uri(httpretty.GET,
+            self.app_href,
+            body=json.dumps(self.app_body),
+            content_type="application/json")
+
+        application = self.client.applications.get(self.app_href)
+
+        # accounts
+        httpretty.register_uri(httpretty.GET,
+            self.acc_href,
+            body=json.dumps(self.acc_body),
+            content_type="application/json")
+
+        account = application.accounts.get(self.acc_href)
+        self.assertEqual(account.href, self.acc_href)
+
+        # tenant
+        self.assertEqual(application.tenant.name, self.tenant_body["name"])
 
 if __name__ == '__main__':
     unittest.main()

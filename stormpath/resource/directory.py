@@ -10,7 +10,7 @@ class Directory(Resource):
     @property
     def tenant(self):
         from .tenant import Tenant
-        return Tenant(session=self._session, url=self._data['tenant'])
+        return Tenant(session=self._session, url=self._data['tenant']['href'])
 
     def create_account(self, account_data):
         return self.accounts.create(account_data)

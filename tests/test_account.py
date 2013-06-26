@@ -20,7 +20,7 @@ class TestAccount(BaseTest):
         dir_name = 'DIR_NAME'
 
         httpretty.register_uri(httpretty.GET,
-            self.base_url + "/tenants/current",
+            self.base_href + "/tenants/current",
             body=json.dumps(self.tenant_body),
             content_type="application/json")
 
@@ -42,7 +42,7 @@ class TestAccount(BaseTest):
         self.assertEqual(account.email, email)
         self.assertEqual(account.givenName, given_name)
 
-        self.assertEqual(HTTPretty.last_request.path, '/v1/accounts/ACC_HREF')
+        self.assertEqual(HTTPretty.last_request.path, self.acc_path)
 
         self.assertEqual(account.surname, surname)
         self.assertEqual(account.directory.name, dir_name)
@@ -54,7 +54,7 @@ class TestAccount(BaseTest):
     def test_delete(self):
 
         httpretty.register_uri(httpretty.GET,
-            self.base_url + "/tenants/current",
+            self.base_href + "/tenants/current",
             body=json.dumps(self.tenant_body),
             content_type="application/json")
 
@@ -77,14 +77,13 @@ class TestAccount(BaseTest):
         account.delete()
 
         self.assertEqual(HTTPretty.last_request.method, 'DELETE')
-        self.assertEqual(HTTPretty.last_request.path,
-            '/v1/accounts/ACC_HREF')
+        self.assertEqual(HTTPretty.last_request.path, self.acc_path)
 
     @httpretty.activate
     def test_update(self):
 
         httpretty.register_uri(httpretty.GET,
-            self.base_url + "/tenants/current",
+            self.base_href + "/tenants/current",
             body=json.dumps(self.tenant_body),
             content_type="application/json")
 
@@ -112,7 +111,7 @@ class TestAccount(BaseTest):
                     "href": self.dir_href
                     },
                     "tenant": {
-                        "href": self.base_url + "/tenants/TENANT_ID"
+                        "href": self.base_href + "/tenants/TENANT_ID"
                         },
                     "emailVerificationToken": None
                 }
@@ -144,7 +143,7 @@ class TestAccount(BaseTest):
                     "href": self.dir_href
                     },
                     "tenant": {
-                        "href": self.base_url + "/tenants/TENANT_ID"
+                        "href": self.tenant_href
                         },
                     "emailVerificationToken": None
                 }
@@ -172,7 +171,7 @@ class TestAccount(BaseTest):
         account.save()
 
         self.assertEqual(HTTPretty.last_request.method, 'POST')
-        self.assertEqual(HTTPretty.last_request.path, '/v1/accounts/ACC_HREF')
+        self.assertEqual(HTTPretty.last_request.path, self.acc_path)
 
         self.assertEqual(account.username, username)
         self.assertEqual(account.email, email)
@@ -185,7 +184,7 @@ class TestAccount(BaseTest):
     def test_create(self):
 
         httpretty.register_uri(httpretty.GET,
-            self.base_url + "/tenants/current",
+            self.base_href + "/tenants/current",
             body=json.dumps(self.tenant_body),
             content_type="application/json")
 
@@ -213,7 +212,7 @@ class TestAccount(BaseTest):
                     "href": self.dir_href
                     },
                     "tenant": {
-                        "href": self.base_url + "/tenants/TENANT_ID"
+                        "href": self.tenant_href
                         },
                     "emailVerificationToken": None
                 }
@@ -240,7 +239,7 @@ class TestAccount(BaseTest):
 
         self.assertEqual(HTTPretty.last_request.method, 'POST')
         self.assertEqual(HTTPretty.last_request.path,
-            '/v1/directories/DIR_HREF/accounts')
+            self.dir_path + '/accounts')
 
         self.assertEqual(account.username, username)
         self.assertEqual(account.email, email)
@@ -251,7 +250,7 @@ class TestAccount(BaseTest):
     def test_authenticate(self):
 
         httpretty.register_uri(httpretty.GET,
-            self.base_url + "/tenants/current",
+            self.base_href + "/tenants/current",
             body=json.dumps(self.tenant_body),
             content_type="application/json")
 
@@ -280,8 +279,7 @@ class TestAccount(BaseTest):
         account = application.authenticate_account("USERNAME", "PASSWORD")
 
         self.assertEqual(HTTPretty.last_request.method, "GET")
-        self.assertEqual(HTTPretty.last_request.path,
-            '/v1/accounts/ACC_HREF')
+        self.assertEqual(HTTPretty.last_request.path, self.acc_path)
 
         self.assertEqual(application.href, self.app_href)
         self.assertEqual(account.href, self.acc_href)
@@ -290,7 +288,7 @@ class TestAccount(BaseTest):
     def test_add_group(self):
 
         httpretty.register_uri(httpretty.GET,
-            self.base_url + "/tenants/current",
+            self.base_href + "/tenants/current",
             body=json.dumps(self.tenant_body),
             content_type="application/json")
 
@@ -317,9 +315,9 @@ class TestAccount(BaseTest):
 
         self.assertEqual(HTTPretty.last_request.method, 'POST')
         self.assertEqual(HTTPretty.last_request.path,
-            '/v1/directories/DIR_HREF/groups')
+            self.dir_path + '/groups')
 
-        grp_mem_href = self.base_url + '/groupMemberships'
+        grp_mem_href = self.base_href + '/groupMemberships'
         grp_mem_body = {
             "href": "GRP_MEM_HREF",
             "account": {"href": account.href},

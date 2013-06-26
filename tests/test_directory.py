@@ -13,7 +13,7 @@ class TestDirectory(BaseTest):
     @httpretty.activate
     def test_properties(self):
         httpretty.register_uri(httpretty.GET,
-            self.base_url + "/tenants/current",
+            self.base_href + "/tenants/current",
             body=json.dumps(self.tenant_body),
             content_type="application/json")
 
@@ -24,11 +24,12 @@ class TestDirectory(BaseTest):
 
         directory = self.client.directories.get(self.dir_href)
 
-        self.assertEqual(directory.name, "DIR_NAME")
-        self.assertEqual(directory.description, "DIR_DESC")
-        self.assertEqual(directory.status, "enabled")
+        self.assertEqual(directory.href, self.dir_body['href'])
+        self.assertEqual(directory.name, self.dir_body['name'])
+        self.assertEqual(directory.description, self.dir_body['description'])
+        self.assertEqual(directory.status, self.dir_body['status'])
 
-        self.assertEqual(HTTPretty.last_request.path, '/v1/directories/DIR_HREF')
+        self.assertEqual(HTTPretty.last_request.path, self.dir_path)
 
         self.assertIsInstance(directory.accounts, AccountResourceList)
         self.assertIsInstance(directory.groups, GroupResourceList)
@@ -37,7 +38,7 @@ class TestDirectory(BaseTest):
     @httpretty.activate
     def test_delete(self):
         httpretty.register_uri(httpretty.GET,
-            self.base_url + "/tenants/current",
+            self.base_href + "/tenants/current",
             body=json.dumps(self.tenant_body),
             content_type="application/json")
 
@@ -54,13 +55,12 @@ class TestDirectory(BaseTest):
         directory.delete()
 
         self.assertEqual(HTTPretty.last_request.method, 'DELETE')
-        self.assertEqual(HTTPretty.last_request.path,
-            '/v1/directories/DIR_HREF')
+        self.assertEqual(HTTPretty.last_request.path, self.dir_path)
 
     @httpretty.activate
     def test_update(self):
         httpretty.register_uri(httpretty.GET,
-            self.base_url + "/tenants/current",
+            self.base_href + "/tenants/current",
             body=json.dumps(self.tenant_body),
             content_type="application/json")
 
@@ -104,41 +104,37 @@ class TestDirectory(BaseTest):
         self.assertEqual(directory.status, status)
 
         self.assertEqual(HTTPretty.last_request.method, 'POST')
-        self.assertEqual(HTTPretty.last_request.path, '/v1/directories/DIR_HREF')
+        self.assertEqual(HTTPretty.last_request.path, self.dir_path)
 
     @httpretty.activate
     def test_create(self):
         httpretty.register_uri(httpretty.GET,
-            self.base_url + "/tenants/current",
+            self.base_href + "/tenants/current",
             body=json.dumps(self.tenant_body),
             content_type="application/json")
 
         httpretty.register_uri(httpretty.POST,
-            self.base_url + "/directories",
+            self.base_href + "/directories",
             body=json.dumps(self.dir_body),
             content_type="application/json")
 
-        dir_name = "DIR_NAME"
-        dir_desc = "DIR_DESC"
-        status = "enabled"
-
         directory = self.client.directories.create({
-            "name": dir_name,
-            "description": dir_desc,
-            "enabled": status
+            "name": self.dir_body['name'],
+            "description": self.dir_body['description'],
+            "enabled": self.dir_body['status']
         })
 
         self.assertEqual(HTTPretty.last_request.method, 'POST')
         self.assertEqual(HTTPretty.last_request.path, '/v1/directories')
 
-        self.assertEqual(directory.name, dir_name)
-        self.assertEqual(directory.description, dir_desc)
-        self.assertEqual(directory.status, status)
+        self.assertEqual(directory.name, self.dir_body['name'])
+        self.assertEqual(directory.description, self.dir_body['description'])
+        self.assertEqual(directory.status, self.dir_body['status'])
 
     @httpretty.activate
     def test_create_account(self):
         httpretty.register_uri(httpretty.GET,
-            self.base_url + "/tenants/current",
+            self.base_href + "/tenants/current",
             body=json.dumps(self.tenant_body),
             content_type="application/json")
 
@@ -149,49 +145,54 @@ class TestDirectory(BaseTest):
 
         directory = self.client.directories.get(self.dir_href)
 
+        username = "superuser123"
         email = "newuser@superenterprise.comy"
-        account_dict = {
-            "username": "superuser123",
-            "email": email,
-            "givenName": "Super",
-            "surname": "User",
-            "password": "uGhd%a8Kl!"
-        }
+        given_name = "Super"
+        surname = "User"
+        password = "uGhd%a8Kl!"
 
-        body = {
+        new_user_body = {
             "href": self.acc_href,
-            "username": "superuser123",
+            "username": username,
             "email": email,
-            "fullName": "Super User",
-            "givenName": "Super",
+            "fullName": "%s %s" % (given_name, surname),
+            "givenName": given_name,
             "middleName": None,
-            "surname": "User",
-            "status": "enabled",
+            "surname": surname,
+            "status": "ENABLED",
             "groups": {
                 "href": self.acc_href + "/groups"
                 },
             "groupMemberships": {
-                "href": self.acc_href + "groupMemfaberships"
+                "href": self.acc_href + "/groupMemberships"
                 },
                 "directory": {
                     "href": self.dir_href
                     },
                     "tenant": {
-                        "href": self.base_url + "/tenants/TENANT_ID"
+                        "href": self.tenant_href
                         },
                     "emailVerificationToken": None
                 }
 
         httpretty.register_uri(httpretty.POST,
             self.dir_href + '/accounts',
-            body=json.dumps(body),
+            body=json.dumps(new_user_body),
             content_type="application/json")
+
+        account_dict = {
+            "username": username,
+            "email": email,
+            "givenName": given_name,
+            "surname": surname,
+            "password": password
+        }
 
         account = directory.create_account(account_dict)
 
         self.assertEqual(HTTPretty.last_request.method, 'POST')
         self.assertEqual(HTTPretty.last_request.path,
-            '/v1/directories/DIR_HREF/accounts')
+            self.dir_path + '/accounts')
 
         self.assertIsInstance(account, Account)
         self.assertEqual(account.email, email)
@@ -200,7 +201,7 @@ class TestDirectory(BaseTest):
     @httpretty.activate
     def test_create_group(self):
         httpretty.register_uri(httpretty.GET,
-            self.base_url + "/tenants/current",
+            self.base_href + "/tenants/current",
             body=json.dumps(self.tenant_body),
             content_type="application/json")
 
@@ -221,7 +222,7 @@ class TestDirectory(BaseTest):
 
         self.assertEqual(HTTPretty.last_request.method, 'POST')
         self.assertEqual(HTTPretty.last_request.path,
-            '/v1/directories/DIR_HREF/groups')
+            self.dir_path + '/groups')
 
         self.assertIsInstance(group, Group)
         self.assertEqual(group.name, name)
@@ -231,7 +232,7 @@ class TestDirectory(BaseTest):
     def test_search(self):
         # fetch directory
         httpretty.register_uri(httpretty.GET,
-            self.base_url + "/tenants/current",
+            self.base_href + "/tenants/current",
             body=json.dumps(self.tenant_body),
             content_type="application/json")
 
@@ -260,22 +261,22 @@ class TestDirectory(BaseTest):
             body=json.dumps(self.resource_body),
             content_type="application/json")
 
-        accounts = directory.accounts.search("ACC_USERNAME")
+        accounts = directory.accounts.search(self.acc_body['username'])
         for acc in accounts:
             pass
 
-        regex = '\/v1\/directories\/DIR_HREF\/accounts\?' \
+        regex = '\/v1\/directories\/DIR_ID\/accounts\?' \
             + '.*((?=.*offset=0)(?=.*limit=25)(?=.*q=ACC_USERNAME).*$)'
         self.assertIsInstance(accounts, AccountResourceList)
         self.assertEqual(HTTPretty.last_request.method, 'GET')
         self.assertIsNotNone(re.search(regex, HTTPretty.last_request.path))
 
         # search directory accounts with attributes
-        accounts = directory.accounts.search(givenName="ACC_USERNAME")
+        accounts = directory.accounts.search(givenName=self.acc_body['username'])
         for acc in accounts:
             pass
 
-        regex = '\/v1\/directories\/DIR_HREF\/accounts\?' \
+        regex = '\/v1\/directories\/DIR_ID\/accounts\?' \
             + '.*((?=.*offset=0)(?=.*limit=25)(?=.*givenName=ACC_USERNAME).*$)'
         self.assertIsInstance(accounts, AccountResourceList)
         self.assertEqual(HTTPretty.last_request.method, 'GET')
@@ -298,7 +299,7 @@ class TestDirectory(BaseTest):
         for group in groups:
             pass
 
-        regex = '\/v1\/directories\/DIR_HREF\/groups\?' \
+        regex = '\/v1\/directories\/DIR_ID\/groups\?' \
             + '.*((?=.*offset=0)(?=.*limit=25)(?=.*q=GRP_NAME).*$)'
         self.assertIsInstance(groups, GroupResourceList)
         self.assertEqual(HTTPretty.last_request.method, 'GET')
@@ -309,12 +310,51 @@ class TestDirectory(BaseTest):
         for group in groups:
             pass
 
-        regex = '\/v1\/directories\/DIR_HREF\/groups\?' \
+        regex = '\/v1\/directories\/DIR_ID\/groups\?' \
             + '.*((?=.*offset=0)(?=.*limit=25)(?=.*name=GRP_NAME).*$)'
         self.assertIsInstance(groups, GroupResourceList)
         self.assertEqual(HTTPretty.last_request.method, 'GET')
         self.assertIsNotNone(re.search(regex, HTTPretty.last_request.path))
 
+    @httpretty.activate
+    def test_associations(self):
+        httpretty.register_uri(httpretty.GET,
+            self.base_href + "/tenants/current",
+            body=json.dumps(self.tenant_body),
+            content_type="application/json")
+
+        httpretty.register_uri(httpretty.GET,
+            self.base_href + "/tenants/TENANT_ID",
+            body=json.dumps(self.tenant_body),
+            content_type="application/json")
+
+        httpretty.register_uri(httpretty.GET,
+            self.dir_href,
+            body=json.dumps(self.dir_body),
+            content_type="application/json")
+
+        directory = self.client.directories.get(self.dir_href)
+
+        # accounts
+        httpretty.register_uri(httpretty.GET,
+            self.acc_href,
+            body=json.dumps(self.acc_body),
+            content_type="application/json")
+
+        account = directory.accounts.get(self.acc_href)
+        self.assertEqual(account.href, self.acc_href)
+
+        # groups
+        httpretty.register_uri(httpretty.GET,
+            self.grp_href,
+            body=json.dumps(self.grp_body),
+            content_type="application/json")
+
+        group = directory.groups.get(self.grp_href)
+        self.assertEqual(group.href, self.grp_href)
+
+        # tenant
+        self.assertEqual(directory.tenant.name, self.tenant_body['name'])
 
 if __name__ == '__main__':
     unittest.main()

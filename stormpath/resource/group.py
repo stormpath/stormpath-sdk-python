@@ -13,7 +13,7 @@ class Group(Resource):
     @property
     def tenant(self):
         from .tenant import Tenant
-        return Tenant(session=self._session, url=self._data['tenant'])
+        return Tenant(session=self._session, url=self._data['tenant']['href'])
 
     @property
     def directory(self):
@@ -26,6 +26,8 @@ class Group(Resource):
     @property
     def accounts(self):
         from .account import Account, AccountResourceList
+        if not self._data:
+            self.read()
 
         url = self._data['accounts']['href']
         return AccountResourceList(url=url, session=self._session,\

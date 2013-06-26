@@ -17,6 +17,7 @@
 from setuptools import setup, find_packages, Command
 import sys
 import os
+import subprocess
 
 __version_info__ = ('0', '2', '0')
 __version__ = '.'.join(__version_info__)
@@ -39,11 +40,14 @@ class TestCommand(BaseCommand):
     tests = ['account', 'tenant', 'directory', 'group', 'application']
 
     def run(self):
-        os.chdir('tests')
-        for test in self.tests:
-            ret = os.system('python test_' + test + '.py')
-            if ret != 0:
-                sys.exit(-1)
+        try:
+            subprocess.call("py.test")
+        except OSError:
+            os.chdir('tests')
+            for test in self.tests:
+                ret = os.system('python test_' + test + '.py')
+                if ret != 0:
+                    sys.exit(-1)
 
 # To install the stormpath library, open a Terminal shell, then run this
 # file by typing:
@@ -52,7 +56,7 @@ class TestCommand(BaseCommand):
 
 if sys.version_info.major == 3 and sys.version_info.major == 3:
     REQUIRES = ["requests>=1.1.0", "jprops>=1.0",
-        "httpretty==0.6.1"]
+        "httpretty==0.6.1", "pytest"]
     classifiers = [
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
@@ -60,7 +64,7 @@ if sys.version_info.major == 3 and sys.version_info.major == 3:
     ]
 else:
     REQUIRES = ["requests>=1.1.0", "jprops>=1.0",
-        "httpretty>=0.6.1", "mock>=1.0.1"]
+        "httpretty>=0.6.1", "mock>=1.0.1", "pytest"]
     classifiers = [
         "Programming Language :: Python",
         "Programming Language :: Python :: 2",
