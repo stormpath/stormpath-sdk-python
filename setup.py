@@ -52,7 +52,7 @@ class TestCommand(BaseCommand):
 
 if sys.version_info.major == 3 and sys.version_info.major == 3:
     REQUIRES = ["requests>=1.1.0", "jprops>=1.0",
-        "httpretty>=0.6.1"]
+        "httpretty==0.6.1"]
     classifiers = [
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
@@ -75,6 +75,7 @@ setup(
     author="Elder Crisostomo",
     author_email="elder@stormpath.com",
     url="https://github.com/stormpath/stormpath-sdk-python",
+    zip_safe=False,
     keywords=["stormpath", "authentication"],
     install_requires=REQUIRES,
     packages=find_packages(),
