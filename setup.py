@@ -18,7 +18,7 @@ def find_packages(path='.', prefix=""):
 # file by typing:
 #
 # python setup.py install
-REQUIRES = ["httplib2 >= 0.7", "unittest2py3k", "pyaml >= 3.10"]
+REQUIRES = ["httplib2 >= 0.7", "unittest2py3k", "PyYAML >= 3.10"]
 
 setup(
     name = "stormpath-sdk",

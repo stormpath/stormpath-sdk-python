@@ -13,7 +13,7 @@ class HttpClientRequestExecutor:
         self.http_client.follow_redirects = False
         self.signer = stormpath.http.Sauthc1Signer()
 
-    def execute_request(self, request):
+    def execute_request(self, request, redirects_limit = 10):
 
         full_request_name = Request.__module__ + "." + Request.__name__
         assert_instance(request, Request, "request argument must be an instance of {}.".format(full_request_name))
@@ -25,6 +25,10 @@ class HttpClientRequestExecutor:
 
         resp, content = self.http_client.request(request.href, request.http_method, request.body, request.http_headers)
 
+        if self._is_redirect_(resp) and redirects_limit:
+            request.href = resp.get('location')
+            return self.execute_request(request = request, redirects_limit = redirects_limit - 1)
+
         return Response(int(resp.status), resp.get('content-type'), content.decode())
 
 
@@ -35,3 +39,7 @@ class HttpClientRequestExecutor:
             for key, value in request.query_string.items():
 
                 request.href += '&' + '='.join((key, value)) if '?' in request.href else '?' + '='.join((key, value))
+
+
+    def _is_redirect_(self, response):
+        return response.status in [300, 301, 302, 303, 307] and 'location' in response

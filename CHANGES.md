@@ -1,3 +1,14 @@
+stormpath-sdk-python Changelog
+==============================
+
+Version 0.2.1
+-------------
+
+Released on June 27, 2013
+
+- Fixed current tenant redirection handling by adding general redirection support of the Stormpath REST API.
+
+
 Version 0.2.0
 -------------
 
