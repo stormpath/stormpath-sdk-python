@@ -7,11 +7,14 @@ from stormpath.util import assert_instance
 
 class HttpClientRequestExecutor:
 
+    REDIRECTS_LIMIT = 10
+
     def __init__(self, api_key = None):
         self.api_key = api_key
         self.http_client = httplib2.Http()
         self.http_client.follow_redirects = False
         self.signer = stormpath.http.Sauthc1Signer()
+        self.redirects_limit = self.REDIRECTS_LIMIT
 
     def execute_request(self, request):
 
@@ -25,6 +28,13 @@ class HttpClientRequestExecutor:
 
         resp, content = self.http_client.request(request.href, request.http_method, request.body, request.http_headers)
 
+        if self._is_redirect_(resp) and self.redirects_limit:
+            request.href = resp.get('location')
+            self.redirects_limit -= 1
+            return self.execute_request(request)
+
+        self.redirects_limit = self.REDIRECTS_LIMIT
+
         return Response(int(resp.status), resp.get('content-type'), content.decode())
 
 
@@ -35,3 +45,7 @@ class HttpClientRequestExecutor:
             for key, value in request.query_string.items():
 
                 request.href += '&' + '='.join((key, value)) if '?' in request.href else '?' + '='.join((key, value))
+
+
+    def _is_redirect_(self, response):
+        return response.status in [300, 301, 302, 303, 307]

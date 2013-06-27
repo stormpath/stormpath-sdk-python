@@ -9,6 +9,9 @@ class TenantsTest(BaseTest):
     def test_properties(self):
         tenant = self.client.current_tenant
 
+        self.assertIsNotNone(tenant.name)
+        self.assertIsNotNone(tenant.key)
+
         application1 = self.client.data_store.instantiate(Application, {"name" : "Tenant's App 1"})
         application2 = self.client.data_store.instantiate(Application, {"name" : "Tenant's App 2"})
         tenant.create_application(application=application1)

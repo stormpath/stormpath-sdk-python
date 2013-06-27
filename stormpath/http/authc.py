@@ -26,6 +26,12 @@ class Sauthc1Signer:
 
     def sign_request(self, request, api_key):
 
+        if self.STORMPATH_DATE_HEADER in request.http_headers:
+            del request.http_headers[self.STORMPATH_DATE_HEADER]
+
+        if self.AUTHORIZATION_HEADER in request.http_headers:
+            del request.http_headers[self.AUTHORIZATION_HEADER]
+
         time = datetime.utcnow()
         time_stamp = time.strftime(self.TIMESTAMP_FORMAT)
         date_stamp = time.strftime(self.DATE_FORMAT)
