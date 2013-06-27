@@ -1,3 +1,5 @@
+[![Build Status](https://api.travis-ci.org/stormpath/stormpath-sdk-python.png?branch=master)](https://travis-ci.org/stormpath/stormpath-sdk-python)
+
 # Stormpath Python SDK
 Copyright &copy; 2013 Stormpath, Inc. and contributors.
 
