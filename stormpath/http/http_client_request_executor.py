@@ -7,8 +7,6 @@ from stormpath.util import assert_instance
 
 class HttpClientRequestExecutor:
 
-    REDIRECTS_LIMIT = 10
-
     def __init__(self, api_key = None):
         self.api_key = api_key
         self.http_client = httplib2.Http()
@@ -44,4 +42,4 @@ class HttpClientRequestExecutor:
 
 
     def _is_redirect_(self, response):
-        return response.status in [300, 301, 302, 303, 307]
+        return response.status in [300, 301, 302, 303, 307] and 'location' in response
