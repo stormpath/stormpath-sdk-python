@@ -3,6 +3,7 @@ from . import Resource, ResourceList
 class Directory(Resource):
     path = 'directories'
     fields = ['name', 'description', 'status']
+    related_fields = ['accounts', 'groups']
 
     def __str__(self):
         return self.name
@@ -27,6 +28,11 @@ class Directory(Resource):
             self.read()
 
         url = self._data['accounts']['href']
+        if 'accounts' in self._expansion.items.keys():
+            data = self._data['accounts']['items']
+            return AccountResourceList(url=url, session=self._session,\
+                    resource=Account, directory=self, data=data)
+
         return AccountResourceList(url=url, session=self._session,\
                 resource=Account, directory=self)
 

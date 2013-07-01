@@ -1,15 +1,42 @@
 import json
 import requests
+from ..error import Error as StormpathError
 
 API_URL = 'https://api.stormpath.com/v1/'
 
 class Session(requests.Session):
     def __init__(self, auth, *args, **kwargs):
         super(Session, self).__init__(*args, **kwargs)
+        # FIXME: change UA version from dev to release version
         self.headers.update({
-            'content-type': 'application/json'
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'User-Agent': 'Stormpath-PythonSDK/dev',
         })
         self.auth = auth
+
+class Expansion(object):
+    def __init__(self, *args):
+        self.items = {k: {} for k in args}
+
+    def add_property(self, attr, offset=None, limit=None):
+        D = {}
+        if offset != None: D.update({'offset': offset})
+        if limit != None: D.update({'limit': limit})
+        self.items[attr] = D
+
+    @property
+    def params(self):
+        params = []
+        for k,v in self.items.items():
+            if v:
+                v.update({'attr': k})
+                params.append(
+                    "{attr}(offset:{offset},limit:{limit})".format(**v)
+                )
+            else:
+                params.append(k)
+        return ",".join(params)
 
 class Resource(object):
     """
@@ -18,9 +45,10 @@ class Resource(object):
 
     """
 
-    def __init__(self, session=None, auth=None, **kwargs):
+    def __init__(self, session=None, auth=None, expansion=None, **kwargs):
         self._uid = None
         self._is_dirty = False
+        self._expansion = expansion
         self.fields = getattr(self, 'fields', [])
         self.related_fields = getattr(self, 'related_fields', [])
 
@@ -86,9 +114,13 @@ class Resource(object):
         if self._data:
             return
 
-        resp = self._session.get(self.url)
+        params = {}
+        if self._expansion:
+            params.update({'expand': self._expansion.params})
+
+        resp = self._session.get(self.url, params=params)
         if resp.status_code != 200:
-            raise NotImplementedError
+            raise StormpathError(resp.json())
 
         self._data = resp.json()
 
@@ -163,10 +195,14 @@ class ResourceList(object):
         self._items = None
         self._custom_request = False
 
+        if 'data' in kwargs.keys():
+            self._items = kwargs.pop('data')
+
         super(ResourceList, self).__init__(*args, **kwargs)
 
-    def get(self, url):
-        resp = self._resource_class(session=self._session, url=url)
+    def get(self, url, expansion=None):
+        resp = self._resource_class(session=self._session,\
+                expansion=expansion, url=url)
         return resp
 
     def create(self, *args, **kwargs):
@@ -229,7 +265,7 @@ class ResourceList(object):
 
         resp = self._session.get(self._url, params=params)
         if resp.status_code != 200:
-            raise NotImplementedError
+            raise Exception(resp.json())
 
         items = []
         data = resp.json()
