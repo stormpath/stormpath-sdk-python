@@ -3,9 +3,17 @@ import requests
 from .base import Resource, ResourceList, API_URL
 from .group import Group
 from .account import Account
+from ..error import Error
 
 class GroupMembership(Resource):
-    # FIXME: special case, resolve related_fields handling
+    """
+    GroupMembership resource:
+    https://www.stormpath.com/docs/rest/api#GroupMemberships
+
+    """
+
+    # FIXME: leaving this comment just in case some bug exists
+    # special case, resolve related_fields handling
     path = 'groupMemberships'
     fields = []
     related_fields = ['account', 'group']
@@ -22,8 +30,9 @@ class GroupMembership(Resource):
         return self._related_data.get('group')
 
     def save(self):
-        # FIXME: resolve handling of account/group after save in _data
-        # FIXME: resolve loading from url and object
+        # FIXME: leaving this comment just in case some bug exists
+        # resolve handling of account/group after save in _data
+        # resolve loading from url and object
         url = '%s%s' % (API_URL, self.path)
         account_url = group_url = None
 
@@ -34,7 +43,7 @@ class GroupMembership(Resource):
 
         resp = self._session.post(url, data=json.dumps(data))
         if resp.status_code not in (200, 201):
-            raise Exception(resp.json())
+            raise Error(resp.json())
 
         self._data = resp.json()
         self.url = self._data['href']

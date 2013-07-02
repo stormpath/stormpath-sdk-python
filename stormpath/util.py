@@ -1,5 +1,3 @@
-__author__ = 'ecrisostomo'
-
 try:
     from urllib import parse
 except ImportError:

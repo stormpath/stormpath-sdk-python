@@ -1,11 +1,18 @@
 import json
 import requests
-from ..error import Error as StormpathError
+from ..error import Error
 
 API_URL = 'https://api.stormpath.com/v1/'
 
 class Session(requests.Session):
     def __init__(self, auth, *args, **kwargs):
+        """
+        Session is used for authentication and default headers.
+        Every Resource/ResourceList requires a Session instance
+        which is used for requests to Stormpath API.
+
+        """
+
         super(Session, self).__init__(*args, **kwargs)
         # FIXME: change UA version from dev to release version
         self.headers.update({
@@ -16,10 +23,22 @@ class Session(requests.Session):
         self.auth = auth
 
 class Expansion(object):
+    """
+    Reference expansion allows you to retrieve related information in a single
+    request to the server instead of having to issue multiple separate requests.
+
+    https://www.stormpath.com/docs/rest/api#ReferenceExpansion
+    """
+
     def __init__(self, *args):
         self.items = {k: {} for k in args}
 
     def add_property(self, attr, offset=None, limit=None):
+        """
+        Set expansion with offset and limit.
+
+        """
+
         D = {}
         if offset != None: D.update({'offset': offset})
         if limit != None: D.update({'limit': limit})
@@ -27,6 +46,11 @@ class Expansion(object):
 
     @property
     def params(self):
+        """
+        Generate a final format for request based on current params.
+
+        """
+
         params = []
         for k,v in self.items.items():
             if v:
@@ -42,6 +66,7 @@ class Resource(object):
     """
     Resource is a thin layer over requests library
     used by all Stormpath resources.
+    It implements basic CRUD functionality for Stormpath API.
 
     """
 
@@ -90,6 +115,11 @@ class Resource(object):
 
     @property
     def href(self):
+        """
+        Resource location.
+
+        """
+
         if self.url:
             return self.url
 
@@ -97,12 +127,24 @@ class Resource(object):
 
     @property
     def uid(self):
+        """
+        Resource location.
+
+        """
+
         if self.url:
             uid = self.url[self.url.rfind('/')+1:]
             return uid
         raise Exception('Resource not saved, unique identifier is not available.')
 
     def create(self):
+        """
+        Creates a new Resource.
+
+        https://www.stormpath.com/docs/rest/api#CreatingResources
+
+        """
+
         url = '%s%s' % (API_URL, self.path)
         resp = self._session.post(url, data=json.dumps(self._data))
         if resp.status_code not in (200, 201):
@@ -111,6 +153,13 @@ class Resource(object):
         self._data = resp.json()
 
     def read(self):
+        """
+        Loads data based on url provided.
+
+        https://www.stormpath.com/docs/rest/api#RetrievingResources
+
+        """
+
         if self._data:
             return
 
@@ -120,19 +169,33 @@ class Resource(object):
 
         resp = self._session.get(self.url, params=params)
         if resp.status_code != 200:
-            raise StormpathError(resp.json())
+            raise Error(resp.json())
 
         self._data = resp.json()
 
     def update(self):
+        """
+        Updates resource.
+
+        https://www.stormpath.com/docs/rest/api#UpdatingResources
+
+        """
+
         data = {k: v for k,v in self._data.items() if k in self.fields}
         resp = self._session.post(self.url, data=json.dumps(data))
         if resp.status_code != 200:
-            raise NotImplementedError
+            raise Error(resp.json())
 
         self._data = resp.json()
 
     def delete(self):
+        """
+        Deletes resource.
+
+        https://www.stormpath.com/docs/rest/api#DeletingResources
+
+        """
+
         resp = self._session.delete(self.url)
         if resp.status_code != 204:
             raise Exception('Unknown exception, DELETE failed')
@@ -142,6 +205,11 @@ class Resource(object):
         self.url = None
 
     def save(self):
+        """
+        Create or update resource.
+
+        """
+
         if not self._is_dirty:
             return # FIXME: return False or something related?
 
@@ -185,6 +253,11 @@ class Resource(object):
             object.__setattr__(self, name, value)
 
 class ResourceList(object):
+    """
+    List of resources.
+
+    """
+
     def __init__(self, session=None, auth=None, resource=None, url=None, *args, **kwargs):
         self._session = session or Session(auth=auth())
         self._resource_class = resource
@@ -201,11 +274,21 @@ class ResourceList(object):
         super(ResourceList, self).__init__(*args, **kwargs)
 
     def get(self, url, expansion=None):
+        """
+        Returns a resource for url provided.
+
+        """
+
         resp = self._resource_class(session=self._session,\
                 expansion=expansion, url=url)
         return resp
 
     def create(self, *args, **kwargs):
+        """
+        Create a new resource for data provided.
+
+        """
+
         if len(args) == 1:
             data = args[0]
         else:
@@ -215,21 +298,41 @@ class ResourceList(object):
         return r
 
     def offset(self, offset):
+        """
+        Set offset for search.
+
+        """
+
         self._offset = offset
         self._custom_request = True
         return self
 
     def limit(self, limit):
+        """
+        Set limit for search.
+
+        """
+
         self._limit = limit
         self._custom_request = True
         return self
 
     def order(self, order):
+        """
+        Set order for search.
+
+        """
+
         self._order = order
         self._custom_request = True
         return self
 
     def search(self, *args, **kwargs):
+        """
+        Search resource and limit results based on limit, offset and order.
+
+        """
+
         if len(args) == 1:
             self._query = args[0]
 
@@ -241,6 +344,11 @@ class ResourceList(object):
         return self
 
     def _params(self):
+        """
+        Prepare params for search.
+
+        """
+
         params = {}
         if hasattr(self, "_query"):
             params['q'] = self._query
@@ -261,6 +369,11 @@ class ResourceList(object):
         return params
 
     def _fetch_items(self):
+        """
+        Actual request to fetch data from Stormpath.
+
+        """
+
         params = self._params()
 
         resp = self._session.get(self._url, params=params)
@@ -276,20 +389,24 @@ class ResourceList(object):
         return items
 
     def _fetch_next_page(self):
+        """
+        Change offset based on limit and fetch next page.
+
+        """
+
         self._offset += self._limit
         return self._fetch_items()
 
     def __getitem__(self, key):
         resp = self._session.get(self._url, data=json.dumps({}))
         if resp.status_code != 200:
-            raise NotImplementedError
+            raise Error(resp.json())
 
         data = resp.json()
         item = data['items'][key]
         return self._resource_class(session=self._session, data=item)
 
     def __iter__(self):
-        # FIXME: implement pagination and cache
         if not self._items:
             self._items = self._fetch_items()
 

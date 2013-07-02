@@ -4,6 +4,12 @@ from .base import Resource, ResourceList, API_URL
 from .directory import Directory
 
 class Group(Resource):
+    """
+    Group resource:
+    https://www.stormpath.com/docs/rest/api#Groups
+
+    """
+
     path = 'groups'
     fields = ['name', 'description', 'status',]
 
@@ -12,11 +18,21 @@ class Group(Resource):
 
     @property
     def tenant(self):
+        """
+        Returns a Tenant related to this Group.
+
+        """
+
         from .tenant import Tenant
         return Tenant(session=self._session, url=self._data['tenant']['href'])
 
     @property
     def directory(self):
+        """
+        Returns a Directory related to this Group.
+
+        """
+
         self.read()
         url = self._data['directory']['href']
         directory = Directory(session=self._session, url=url)
@@ -25,6 +41,11 @@ class Group(Resource):
 
     @property
     def accounts(self):
+        """
+        Returns a AccountResourceList related to this Group.
+
+        """
+
         from .account import Account, AccountResourceList
         if not self._data:
             self.read()
@@ -34,12 +55,21 @@ class Group(Resource):
                 resource=Account, group=self)
 
     def add_account(self, account):
+        """
+        Creates and returns a new GroupMembership which connects this group and account.
+
+        """
         from .group_membership import GroupMembership
         gm = GroupMembership(session=self._session, account=account, group=self)
         gm.save()
         return gm
 
 class GroupResourceList(ResourceList):
+    """
+    List of Group resources.
+
+    """
+
     def __init__(self, *args, **kwargs):
         if 'directory' in kwargs:
             self._directory = kwargs.pop('directory')
@@ -47,6 +77,11 @@ class GroupResourceList(ResourceList):
         super(GroupResourceList, self).__init__(*args, **kwargs)
 
     def create(self, *args, **kwargs):
+        """
+        Creates a new Group in a specific Directory.
+
+        """
+
         if len(args) == 1:
             data = args[0]
         else:

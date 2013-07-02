@@ -1,7 +1,13 @@
 from .base import Resource
-#from .error import Error as StormpathError
+from ..error import Error
 
 class Tenant(Resource):
+    """
+    Tenant resource:
+    https://www.stormpath.com/docs/rest/api#Tenants
+
+    """
+
     path = 'tenants'
     fields = ['name', 'key']
     related_fields = ['applications', 'directories']
@@ -21,7 +27,6 @@ class Tenant(Resource):
             return self.read()
 
         if resp.status_code != 200:
-            #raise StormpathError(resp.json())
-            raise Exception(resp.json())
+            raise Error(resp.json())
 
         self._data = resp.json()

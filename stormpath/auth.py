@@ -29,8 +29,7 @@ NL = "\n"
 class Sauthc1Signer(AuthBase):
     def __init__(self, id, secret):
         """
-        Stormpath custom authentication,
-        based on code from previous SDK to work
+        Stormpath custom authentication, based on code from previous SDK to work
         with requests library.
 
         More info in documentation:
@@ -93,12 +92,8 @@ class Sauthc1Signer(AuthBase):
 
         request_payload_hash_hex = hashlib.sha256((r.body or '').encode()).hexdigest() 
 
-        canonical_request = ''.join((method, NL,
-                                     canonical_resource_path, NL,
-                                     canonical_query_string, NL,
-                                     canonical_headers_string, NL,
-                                     signed_headers_string, NL,
-                                     request_payload_hash_hex))
+        canonical_request = "%s%s%s%s%s%s%s%s%s%s%s" % (method, NL, canonical_resource_path, NL, canonical_query_string,
+                NL, canonical_headers_string, NL, signed_headers_string, NL, request_payload_hash_hex)
 
         id = "%s/%s/%s/%s" % (self._id, date_stamp, nonce, ID_TERMINATOR)
 
@@ -142,7 +137,7 @@ class Auth(object):
 
     def __init__(self, api_key_file_location=None,
             api_key_id_property_name='apiKey.id', api_key_secret_property_name='apiKey.secret',
-            api_key=None, api_id=None, api_secret=None, api_url=None,
+            api_key=None, id=None, secret=None, api_url=None,
             **kwargs):
         """
         Checks various authentication sources for an API key and
@@ -170,16 +165,16 @@ class Auth(object):
             self._id, self._secret = api_key.get('id'), api_key.get('secret')
             return
 
-        # if `api_id` and `api_secret` are available use them
+        # if `id` and `secret` are available use them
         # and ignore other authentication sources
-        if api_id and api_secret:
-            self._id, self._secret = api_id, api_secret
+        if id and secret:
+            self._id, self._secret = id, secret
             return
 
         raise Exception('Valid authentication source not found.')
 
     def __call__(self):
-        return self.digest
+        return self.basic
 
     @property
     def id(self):
@@ -191,8 +186,22 @@ class Auth(object):
 
     @property
     def basic(self):
+        """
+        Returns basic http authentication handler which can be used with requests library.
+
+        https://www.stormpath.com/docs/rest/api#BaseAuthenticationHTTPS
+
+        """
         return HTTPBasicAuth(self._id, self._secret)
 
     @property
     def digest(self):
+        """
+        Returns custom authentication handler which can be used with requests library.
+        It uses Stormpath custom digests authentication.
+
+        https://www.stormpath.com/docs/rest/api#DigestAuthenticationHTTPS
+
+        """
+
         return Sauthc1Signer(self._id, self._secret)

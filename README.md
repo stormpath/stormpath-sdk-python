@@ -56,13 +56,13 @@ $ pip install stormpath-sdk
 1.  **Create an account for a user** on the directory.
 
     ```python
-    account = directory.accounts.create({
-      'given_name': 'John',
-      'surname': 'Smith',
-      'email': 'john.smith@example.com',
-      'username': 'johnsmith',
-      'password': '4P@$$w0rd!'
-    })
+    account = directory.accounts.create(
+            given_name='John',
+            surname='Smith',
+            email='john.smith@example.com',
+            username='johnsmith',
+            password='4P@$$w0rd!'
+            )
     ```
 
 1.  **Update an account**
@@ -185,7 +185,6 @@ application = client.applications.get(application_url)
 directory = client.directories.get(directory_url)
 ```
 
-FIXME
 The <code>applications</code> and <code>directories</code> property on a
 client instance also you to iterate
 and scan for resources via that interface.
@@ -232,37 +231,18 @@ ways:
   })
   ```
 
-Both these methods can take either a <code>Hash</code> of the account
-properties, or a <code>Stormpath::Account</code>.
-
 If the directory has been configured with an email verification workflow
 and a non-Stormpath URL, you have to pass the verification token sent to
 the URL in a <code>sptoken</code> query parameter back to Stormpath to
 complete the workflow. This is done through the
 <code>verify_email_token</code> on the <code>accounts</code> collection.
 
-# FIXME
-For example, suppose you have a Sinatra application
-that is handling the email verification at the path
-<code>/users/verify</code>. You could use the following code:
-
-```ruby
-get '/users/verify' do
-  token = params[:sptoken]
-  account = client.accounts.verify_email_token token
-  #proceed to update session, display account, etc
-end
-```
-
 ### Authentication
 
 Authentication is accomplished by passing a username or an email and a
 password to <code>authenticate_account</code> of an application we've
-registered on Stormpath. This will either return a
-
-FIXME
-<code>Stormpath::Authentication::AuthenticationResult</code> instance if
-the credentials are valid, or raise a <code>Stormpath::Error</code>
+registered on Stormpath. This will either return an <code>Account</code> 
+instance if the credentials are valid, or raise a <code>stormpath.Error</code>
 otherwise. In the former case, you can get the <code>account</code>
 associated with the credentials.
 
@@ -289,23 +269,11 @@ URL, you can verify the token sent in the query parameter
 <code>sptoken</code> with the <code>verify_password_reset_token</code>
 method on the application.
 
-#FIXME
-For example, suppose you have a Sinatra application that is verifying
-the tokens. You use the following to carry it out:
-
-```ruby
-get '/users/verify' do
-  token = params[:sptoken]
-  account = application.verify_password_reset_token token
-  #proceed to update session, display account, etc
-end
-```
-
 With the account acquired you can then update the password:
 
-```ruby
+```python
   account.password = new_password
-  account.save
+  account.save()
 ```
 
 _NOTE :_ Confirming a new password is left up to the web application
@@ -315,12 +283,12 @@ code calling the Stormpath SDK. The SDK does not require confirmation.
 
 Memberships of accounts in certain groups can be used as an
 authorization mechanism. As the <code>groups</code> collection property
-on an account instance is <code>Enumerable</code>, you can use any of
+on an account instance is <code>iterable</code>, you can use any of
 that module's methods to determine if an account belongs to a specific
 group:
 
-```ruby
-account.groups.any?{|group| group.name == 'administrators'
+```python
+    any('administrators' == group.name for group in account.groups)
 ```
 
 You can create groups and assign them to accounts using the Stormpath
@@ -346,7 +314,7 @@ Group membership can be created by:
 
 * Using the <code>add_account</code> method on the group instance:
 
-  ```ruby
+  ```python
   group.add_group(account)
   ```
 
@@ -444,7 +412,7 @@ Copyright &copy; 2012 Stormpath, Inc. and contributors.
 
 This project is licensed under the [Apache 2.0 Open Source License](http://www.apache.org/licenses/LICENSE-2.0).
 
-For additional information, please see the full [Project Documentation](https://www.stormpath.com/docs/ruby/product-guide).
+For additional information, please see the full [Project Documentation](https://www.stormpath.com/docs/python/product-guide).
 
   [stormpath]: http://stormpath.com/
-  [create-api-keys]: http://www.stormpath.com/docs/ruby/product-guide#AssignAPIkeys
+  [create-api-keys]: http://www.stormpath.com/docs/python/product-guide#AssignAPIkeys

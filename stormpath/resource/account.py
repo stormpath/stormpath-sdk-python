@@ -5,6 +5,12 @@ from .directory import Directory
 from stormpath.error import Error as StormpathError
 
 class Account(Resource):
+    """
+    Account resource:
+    https://www.stormpath.com/docs/rest/api#Accounts
+
+    """
+
     path = 'accounts'
     fields = ['username', 'email', 'password', 'givenName',
             'middleName', 'surname', 'status',]
@@ -14,6 +20,10 @@ class Account(Resource):
 
     @staticmethod
     def prepare_data(data):
+        """
+        Maps python style names to Stormpath API names for Account.
+
+        """
         clean_data = {}
         for k,v in data.items():
             if k == 'given_name':
@@ -27,6 +37,11 @@ class Account(Resource):
 
     @property
     def directory(self):
+        """
+        Returns directory related to this Account.
+
+        """
+
         self.read()
         url = self._data['directory']['href']
         directory = Directory(session=self._session, url=url)
@@ -34,6 +49,11 @@ class Account(Resource):
         return directory
 
     def add_group(self, group):
+        """
+        Creates and returns a new GroupMembership which connects this account and group.
+
+        """
+
         from .group_membership import GroupMembership
         gm = GroupMembership(session=self._session, account=self, group=group)
         gm.save()
@@ -41,6 +61,11 @@ class Account(Resource):
 
     @property
     def groups(self):
+        """
+        Returns a GroupResourceList related to this directory.
+
+        """
+
         from .group import Group, GroupResourceList
         url = self._data['groups']['href']
         return GroupResourceList(url=url, session=self._session,\
@@ -48,12 +73,22 @@ class Account(Resource):
 
     @property
     def group_memberships(self):
+        """
+        Returns a GroupMembershipResourceList related to this directory.
+
+        """
+
         from .group_membership import GroupMembership, GroupMembershipResourceList
         url = '%s/groupMemberships' % self.url
         return GroupMembershipResourceList(url=url, session=self._session,\
                 resource=GroupMembership)
 
 class AccountResourceList(ResourceList):
+    """
+    List of Account resources.
+
+    """
+
     def __init__(self, *args, **kwargs):
         if 'directory' in kwargs.keys():
             self._directory = kwargs.pop('directory')
@@ -64,6 +99,11 @@ class AccountResourceList(ResourceList):
         super(AccountResourceList, self).__init__(*args, **kwargs)
 
     def create(self, *args, **kwargs):
+        """
+        Creates a new Account in a specific Directory.
+
+        """
+
         if self._directory:
             # handle creation in directory
             url = '%sdirectories/%s/accounts' % (API_URL, self._directory.uid)
