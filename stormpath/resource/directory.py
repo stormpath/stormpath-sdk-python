@@ -51,7 +51,7 @@ class Directory(Resource):
             self.read()
 
         url = self._data['accounts']['href']
-        if 'accounts' in self._expansion.items.keys():
+        if self._expansion and 'accounts' in self._expansion.items.keys():
             data = self._data['accounts']['items']
             return AccountResourceList(url=url, session=self._session,\
                     resource=Account, directory=self, data=data)
