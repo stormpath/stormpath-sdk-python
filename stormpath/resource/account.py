@@ -67,6 +67,9 @@ class Account(Resource):
         """
 
         from .group import Group, GroupResourceList
+        if not self._data:
+            self.read()
+
         url = self._data['groups']['href']
         return GroupResourceList(url=url, session=self._session,\
                 resource=Group, directory=self.directory)
@@ -108,8 +111,10 @@ class AccountResourceList(ResourceList):
             # handle creation in directory
             url = '%sdirectories/%s/accounts' % (API_URL, self._directory.uid)
 
-            if len(args) == 1:
+            if len(args) >= 1:
                 data = args[0]
+            if len(args) == 2:
+                url = url + args[1]
             else:
                 data = kwargs.get('data') or kwargs
             data = self._resource_class.prepare_data(data)

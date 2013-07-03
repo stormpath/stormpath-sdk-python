@@ -267,9 +267,10 @@ class ResourceList(object):
         self._limit = 25
         self._items = None
         self._custom_request = False
+        self._cache = None
 
         if 'data' in kwargs.keys():
-            self._items = kwargs.pop('data')
+            self._cache = kwargs.pop('data')
 
         super(ResourceList, self).__init__(*args, **kwargs)
 
@@ -408,14 +409,24 @@ class ResourceList(object):
 
     def __iter__(self):
         if not self._items:
-            self._items = self._fetch_items()
+            if self._cache:
+                self._items = self._cache.copy()
+            else:
+                self._items = self._fetch_items()
+                self._cache = self._items.copy()
 
-        while self._items:
-            yield self._items.pop(0)
+        try:
+            while self._items:
+                item = self._items.pop(0) 
+                yield item
 
-            # if not self._items check next resource page/collection
-            if len(self._items) == 0 and self._custom_request == False:
-                self._items.extend(self._fetch_next_page())
+                # if not self._items check next resource page/collection
+                if len(self._items) == 0 and self._custom_request == False:
+                    next_items = self._fetch_next_page()
+                    self._items.extend(next_items)
+                    self._cache.extend(next_items)
 
-        else:
-            raise StopIteration
+            else:
+                raise StopIteration
+        finally:
+            self._items = None

@@ -15,6 +15,11 @@ class TestGroup(BaseTest):
     def test_properties(self):
         httpretty.register_uri(httpretty.GET,
             self.base_href + "/tenants/current",
+            location=self.tenant_href,
+            status=302)
+
+        httpretty.register_uri(httpretty.GET,
+            self.tenant_href,
             body=json.dumps(self.tenant_body),
             content_type="application/json")
 
@@ -41,9 +46,13 @@ class TestGroup(BaseTest):
 
     @httpretty.activate
     def test_delete(self):
-
         httpretty.register_uri(httpretty.GET,
             self.base_href + "/tenants/current",
+            location=self.tenant_href,
+            status=302)
+
+        httpretty.register_uri(httpretty.GET,
+            self.tenant_href,
             body=json.dumps(self.tenant_body),
             content_type="application/json")
 
@@ -73,6 +82,11 @@ class TestGroup(BaseTest):
     def test_update(self):
         httpretty.register_uri(httpretty.GET,
             self.base_href + "/tenants/current",
+            location=self.tenant_href,
+            status=302)
+
+        httpretty.register_uri(httpretty.GET,
+            self.tenant_href,
             body=json.dumps(self.tenant_body),
             content_type="application/json")
 
@@ -134,6 +148,11 @@ class TestGroup(BaseTest):
     def test_create(self):
         httpretty.register_uri(httpretty.GET,
             self.base_href + "/tenants/current",
+            location=self.tenant_href,
+            status=302)
+
+        httpretty.register_uri(httpretty.GET,
+            self.tenant_href,
             body=json.dumps(self.tenant_body),
             content_type="application/json")
 
@@ -158,6 +177,11 @@ class TestGroup(BaseTest):
     def test_add_account(self):
         httpretty.register_uri(httpretty.GET,
             self.base_href + "/tenants/current",
+            location=self.tenant_href,
+            status=302)
+
+        httpretty.register_uri(httpretty.GET,
+            self.tenant_href,
             body=json.dumps(self.tenant_body),
             content_type="application/json")
 
@@ -266,6 +290,11 @@ class TestGroup(BaseTest):
     def test_associations(self):
         httpretty.register_uri(httpretty.GET,
             self.base_href + "/tenants/current",
+            location=self.tenant_href,
+            status=302)
+
+        httpretty.register_uri(httpretty.GET,
+            self.tenant_href,
             body=json.dumps(self.tenant_body),
             content_type="application/json")
 

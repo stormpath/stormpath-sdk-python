@@ -1,6 +1,6 @@
 class Error(RuntimeError):
     def __init__(self, error):
-        super(Error, self).__init__(error.get('message'))
+        super(Error, self).__init__(error.get('developerMessage'))
         self.error = error
 
     @property

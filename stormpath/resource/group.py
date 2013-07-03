@@ -2,6 +2,7 @@ import json
 import requests
 from .base import Resource, ResourceList, API_URL
 from .directory import Directory
+from stormpath.error import Error as StormpathError
 
 class Group(Resource):
     """
@@ -90,6 +91,6 @@ class GroupResourceList(ResourceList):
         url = '%sdirectories/%s/groups' % (API_URL, self._directory.uid)
         resp = self._session.post(url, data=json.dumps(data))
         if resp.status_code not in (200, 201):
-            raise NotImplementedError
+            raise StormpathError(error=resp.json())
 
         return Group(session=self._session, data=resp.json())

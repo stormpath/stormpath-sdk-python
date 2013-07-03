@@ -23,11 +23,15 @@ class Directory(Resource):
         from .tenant import Tenant
         return Tenant(session=self._session, url=self._data['tenant']['href'])
 
-    def create_account(self, account_data):
+    def create_account(self, account_data, registration_workflow_enabled=None):
         """
         Creates and returns a new Account related to this directory.
 
         """
+        if registration_workflow_enabled is not None:
+            appendix = '?registrationWorkflowEnabled=%s' \
+                % (str(registration_workflow_enabled).lower())
+            return self.accounts.create(account_data, appendix)
         return self.accounts.create(account_data)
 
     def create_group(self, group_data):

@@ -13,9 +13,13 @@ class TestApplication(BaseTest):
 
     @httpretty.activate
     def test_properties(self):
-
         httpretty.register_uri(httpretty.GET,
             self.base_href + "/tenants/current",
+            location=self.tenant_href,
+            status=302)
+
+        httpretty.register_uri(httpretty.GET,
+            self.tenant_href,
             body=json.dumps(self.tenant_body),
             content_type="application/json")
 
@@ -37,9 +41,13 @@ class TestApplication(BaseTest):
 
     @httpretty.activate
     def test_delete(self):
-
         httpretty.register_uri(httpretty.GET,
             self.base_href + "/tenants/current",
+            location=self.tenant_href,
+            status=302)
+
+        httpretty.register_uri(httpretty.GET,
+            self.tenant_href,
             body=json.dumps(self.tenant_body),
             content_type="application/json")
 
@@ -60,9 +68,13 @@ class TestApplication(BaseTest):
 
     @httpretty.activate
     def test_update(self):
-
         httpretty.register_uri(httpretty.GET,
             self.base_href + "/tenants/current",
+            location=self.tenant_href,
+            status=302)
+
+        httpretty.register_uri(httpretty.GET,
+            self.tenant_href,
             body=json.dumps(self.tenant_body),
             content_type="application/json")
 
@@ -112,10 +124,44 @@ class TestApplication(BaseTest):
         self.assertEqual(HTTPretty.last_request.path, self.app_path)
 
     @httpretty.activate
-    def test_send_password_reset_email(self):
-
+    def test_create(self):
         httpretty.register_uri(httpretty.GET,
             self.base_href + "/tenants/current",
+            location=self.tenant_href,
+            status=302)
+
+        httpretty.register_uri(httpretty.GET,
+            self.tenant_href,
+            body=json.dumps(self.tenant_body),
+            content_type="application/json")
+
+        httpretty.register_uri(httpretty.POST,
+            self.base_href + "/applications",
+            body=json.dumps(self.app_body),
+            content_type="application/json")
+
+        application = self.client.applications.create({
+            "name": self.dir_body['name'],
+            "description": self.dir_body['description'],
+            "enabled": self.dir_body['status']
+        })
+
+        self.assertEqual(HTTPretty.last_request.method, 'POST')
+        self.assertEqual(HTTPretty.last_request.path, '/v1/applications')
+
+        self.assertEqual(application.name, self.app_body['name'])
+        self.assertEqual(application.description, self.app_body['description'])
+        self.assertEqual(application.status, self.app_body['status'])
+
+    @httpretty.activate
+    def test_send_password_reset_email(self):
+        httpretty.register_uri(httpretty.GET,
+            self.base_href + "/tenants/current",
+            location=self.tenant_href,
+            status=302)
+
+        httpretty.register_uri(httpretty.GET,
+            self.tenant_href,
             body=json.dumps(self.tenant_body),
             content_type="application/json")
 
@@ -148,9 +194,13 @@ class TestApplication(BaseTest):
 
     @httpretty.activate
     def test_verify_password_reset_token(self):
-
         httpretty.register_uri(httpretty.GET,
             self.base_href + "/tenants/current",
+            location=self.tenant_href,
+            status=302)
+
+        httpretty.register_uri(httpretty.GET,
+            self.tenant_href,
             body=json.dumps(self.tenant_body),
             content_type="application/json")
 
@@ -183,6 +233,11 @@ class TestApplication(BaseTest):
         # fetch application
         httpretty.register_uri(httpretty.GET,
             self.base_href + "/tenants/current",
+            location=self.tenant_href,
+            status=302)
+
+        httpretty.register_uri(httpretty.GET,
+            self.tenant_href,
             body=json.dumps(self.tenant_body),
             content_type="application/json")
 
@@ -265,8 +320,8 @@ class TestApplication(BaseTest):
     def test_associations(self):
         httpretty.register_uri(httpretty.GET,
             self.base_href + "/tenants/current",
-            body=json.dumps(self.tenant_body),
-            content_type="application/json")
+            location=self.tenant_href,
+            status=302)
 
         httpretty.register_uri(httpretty.GET,
             self.tenant_href,

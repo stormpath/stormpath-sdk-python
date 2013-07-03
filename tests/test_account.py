@@ -4,7 +4,7 @@ import httpretty
 from httpretty import HTTPretty
 import json
 
-from stormpath.resource import (Directory,
+from stormpath.resource import (Directory, GroupResourceList,
     GroupMembership, GroupMembershipResourceList)
 
 
@@ -21,6 +21,11 @@ class TestAccount(BaseTest):
 
         httpretty.register_uri(httpretty.GET,
             self.base_href + "/tenants/current",
+            location=self.tenant_href,
+            status=302)
+
+        httpretty.register_uri(httpretty.GET,
+            self.tenant_href,
             body=json.dumps(self.tenant_body),
             content_type="application/json")
 
@@ -47,14 +52,19 @@ class TestAccount(BaseTest):
         self.assertEqual(account.surname, surname)
         self.assertEqual(account.directory.name, dir_name)
         self.assertIsInstance(account.directory, Directory)
+        self.assertIsInstance(account.groups, GroupResourceList)
         self.assertIsInstance(account.group_memberships,
             GroupMembershipResourceList)
 
     @httpretty.activate
     def test_delete(self):
-
         httpretty.register_uri(httpretty.GET,
             self.base_href + "/tenants/current",
+            location=self.tenant_href,
+            status=302)
+
+        httpretty.register_uri(httpretty.GET,
+            self.tenant_href,
             body=json.dumps(self.tenant_body),
             content_type="application/json")
 
@@ -81,9 +91,13 @@ class TestAccount(BaseTest):
 
     @httpretty.activate
     def test_update(self):
-
         httpretty.register_uri(httpretty.GET,
             self.base_href + "/tenants/current",
+            location=self.tenant_href,
+            status=302)
+
+        httpretty.register_uri(httpretty.GET,
+            self.tenant_href,
             body=json.dumps(self.tenant_body),
             content_type="application/json")
 
@@ -182,9 +196,13 @@ class TestAccount(BaseTest):
 
     @httpretty.activate
     def test_create(self):
-
         httpretty.register_uri(httpretty.GET,
             self.base_href + "/tenants/current",
+            location=self.tenant_href,
+            status=302)
+
+        httpretty.register_uri(httpretty.GET,
+            self.tenant_href,
             body=json.dumps(self.tenant_body),
             content_type="application/json")
 
@@ -248,9 +266,13 @@ class TestAccount(BaseTest):
 
     @httpretty.activate
     def test_authenticate(self):
-
         httpretty.register_uri(httpretty.GET,
             self.base_href + "/tenants/current",
+            location=self.tenant_href,
+            status=302)
+
+        httpretty.register_uri(httpretty.GET,
+            self.tenant_href,
             body=json.dumps(self.tenant_body),
             content_type="application/json")
 
@@ -286,9 +308,13 @@ class TestAccount(BaseTest):
 
     @httpretty.activate
     def test_add_group(self):
-
         httpretty.register_uri(httpretty.GET,
             self.base_href + "/tenants/current",
+            location=self.tenant_href,
+            status=302)
+
+        httpretty.register_uri(httpretty.GET,
+            self.tenant_href,
             body=json.dumps(self.tenant_body),
             content_type="application/json")
 
@@ -336,6 +362,44 @@ class TestAccount(BaseTest):
         self.assertIsInstance(group_membership, GroupMembership)
         self.assertTrue(group_membership.href)
         self.assertEqual(group_membership.group.name, group_name)
+
+    @httpretty.activate
+    def test_associations(self):
+        httpretty.register_uri(httpretty.GET,
+            self.base_href + "/tenants/current",
+            location=self.tenant_href,
+            status=302)
+
+        httpretty.register_uri(httpretty.GET,
+            self.tenant_href,
+            body=json.dumps(self.tenant_body),
+            content_type="application/json")
+
+        httpretty.register_uri(httpretty.GET,
+            self.dir_href,
+            body=json.dumps(self.dir_body),
+            content_type="application/json")
+
+        directory = self.client.directories.get(self.dir_href)
+
+        httpretty.register_uri(httpretty.GET,
+            self.acc_href,
+            body=json.dumps(self.acc_body),
+            content_type="application/json")
+
+        account = directory.accounts.get(self.acc_href)
+
+        # groups
+        httpretty.register_uri(httpretty.GET,
+            self.grp_href,
+            body=json.dumps(self.grp_body),
+            content_type="application/json")
+
+        group = account.groups.get(self.grp_href)
+        self.assertEqual(group.href, self.grp_href)
+
+        # directory
+        self.assertEqual(account.directory.href, self.dir_href)
 
 if __name__ == '__main__':
     unittest.main()

@@ -90,14 +90,14 @@ class Sauthc1Signer(AuthBase):
 
         signed_headers_string = ';'.join(sorted_headers.keys()).lower()
 
-        request_payload_hash_hex = hashlib.sha256((r.body or '').encode()).hexdigest() 
+        request_payload_hash_hex = hashlib.sha256((r.body or '').encode()).hexdigest()
 
         canonical_request = "%s%s%s%s%s%s%s%s%s%s%s" % (method, NL, canonical_resource_path, NL, canonical_query_string,
                 NL, canonical_headers_string, NL, signed_headers_string, NL, request_payload_hash_hex)
 
         id = "%s/%s/%s/%s" % (self._id, date_stamp, nonce, ID_TERMINATOR)
 
-        canonical_request_hash_hex = hashlib.sha256(canonical_request.encode()).hexdigest() 
+        canonical_request_hash_hex = hashlib.sha256(canonical_request.encode()).hexdigest()
 
         string_to_sign = "%s%s%s%s%s%s%s" % (ALGORITHM, NL, time_stamp, NL, id, NL, canonical_request_hash_hex)
 
@@ -152,7 +152,7 @@ class Auth(object):
         # and ignore other authentication sources.
         # key/secret are extracted based on property names
         if api_key_file_location:
-            with open(api_key_file_location, 'r') as fp:
+            with open(api_key_file_location, 'rb') as fp:
                 cred = jprops.load_properties(fp)
                 self._id = cred.get(api_key_id_property_name)
                 self._secret = cred.get(api_key_secret_property_name)

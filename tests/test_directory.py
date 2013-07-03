@@ -14,6 +14,11 @@ class TestDirectory(BaseTest):
     def test_properties(self):
         httpretty.register_uri(httpretty.GET,
             self.base_href + "/tenants/current",
+            location=self.tenant_href,
+            status=302)
+
+        httpretty.register_uri(httpretty.GET,
+            self.tenant_href,
             body=json.dumps(self.tenant_body),
             content_type="application/json")
 
@@ -39,6 +44,11 @@ class TestDirectory(BaseTest):
     def test_delete(self):
         httpretty.register_uri(httpretty.GET,
             self.base_href + "/tenants/current",
+            location=self.tenant_href,
+            status=302)
+
+        httpretty.register_uri(httpretty.GET,
+            self.tenant_href,
             body=json.dumps(self.tenant_body),
             content_type="application/json")
 
@@ -61,6 +71,11 @@ class TestDirectory(BaseTest):
     def test_update(self):
         httpretty.register_uri(httpretty.GET,
             self.base_href + "/tenants/current",
+            location=self.tenant_href,
+            status=302)
+
+        httpretty.register_uri(httpretty.GET,
+            self.tenant_href,
             body=json.dumps(self.tenant_body),
             content_type="application/json")
 
@@ -110,6 +125,11 @@ class TestDirectory(BaseTest):
     def test_create(self):
         httpretty.register_uri(httpretty.GET,
             self.base_href + "/tenants/current",
+            location=self.tenant_href,
+            status=302)
+
+        httpretty.register_uri(httpretty.GET,
+            self.tenant_href,
             body=json.dumps(self.tenant_body),
             content_type="application/json")
 
@@ -135,6 +155,11 @@ class TestDirectory(BaseTest):
     def test_create_account(self):
         httpretty.register_uri(httpretty.GET,
             self.base_href + "/tenants/current",
+            location=self.tenant_href,
+            status=302)
+
+        httpretty.register_uri(httpretty.GET,
+            self.tenant_href,
             body=json.dumps(self.tenant_body),
             content_type="application/json")
 
@@ -159,7 +184,7 @@ class TestDirectory(BaseTest):
             "givenName": given_name,
             "middleName": None,
             "surname": surname,
-            "status": "ENABLED",
+            "status": "DISABLED",
             "groups": {
                 "href": self.acc_href + "/groups"
                 },
@@ -189,10 +214,24 @@ class TestDirectory(BaseTest):
         }
 
         account = directory.create_account(account_dict)
-
         self.assertEqual(HTTPretty.last_request.method, 'POST')
         self.assertEqual(HTTPretty.last_request.path,
             self.dir_path + '/accounts')
+
+        self.assertIsInstance(account, Account)
+        self.assertEqual(account.email, email)
+        self.assertTrue(account.href)
+
+        httpretty.register_uri(httpretty.POST,
+            self.dir_href + '/accounts?registrationWorkflowEnabled=false',
+            body=json.dumps(new_user_body),
+            content_type="application/json")
+
+        account = directory.create_account(account_dict, False)
+
+        self.assertEqual(HTTPretty.last_request.method, 'POST')
+        self.assertEqual(HTTPretty.last_request.path,
+            self.dir_path + '/accounts?registrationWorkflowEnabled=false')
 
         self.assertIsInstance(account, Account)
         self.assertEqual(account.email, email)
@@ -202,6 +241,11 @@ class TestDirectory(BaseTest):
     def test_create_group(self):
         httpretty.register_uri(httpretty.GET,
             self.base_href + "/tenants/current",
+            location=self.tenant_href,
+            status=302)
+
+        httpretty.register_uri(httpretty.GET,
+            self.tenant_href,
             body=json.dumps(self.tenant_body),
             content_type="application/json")
 
@@ -233,6 +277,11 @@ class TestDirectory(BaseTest):
         # fetch directory
         httpretty.register_uri(httpretty.GET,
             self.base_href + "/tenants/current",
+            location=self.tenant_href,
+            status=302)
+
+        httpretty.register_uri(httpretty.GET,
+            self.tenant_href,
             body=json.dumps(self.tenant_body),
             content_type="application/json")
 
@@ -295,7 +344,7 @@ class TestDirectory(BaseTest):
             body=json.dumps(self.resource_body),
             content_type="application/json")
 
-        groups = directory.groups.search("GRP_NAME")
+        groups = directory.groups.search(self.grp_body['name'])
         for group in groups:
             pass
 
@@ -320,11 +369,11 @@ class TestDirectory(BaseTest):
     def test_associations(self):
         httpretty.register_uri(httpretty.GET,
             self.base_href + "/tenants/current",
-            body=json.dumps(self.tenant_body),
-            content_type="application/json")
+            location=self.tenant_href,
+            status=302)
 
         httpretty.register_uri(httpretty.GET,
-            self.base_href + "/tenants/TENANT_ID",
+            self.tenant_href,
             body=json.dumps(self.tenant_body),
             content_type="application/json")
 

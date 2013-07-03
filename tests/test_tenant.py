@@ -14,6 +14,12 @@ class TestTenant(BaseTest):
 
         httpretty.register_uri(httpretty.GET,
             self.base_href + "/tenants/current",
+            content_type="application/json",
+            location=self.tenant_href,
+            status=302)
+
+        httpretty.register_uri(httpretty.GET,
+            self.tenant_href,
             body=json.dumps(self.tenant_body),
             content_type="application/json")
 
@@ -25,8 +31,9 @@ class TestTenant(BaseTest):
     def test_search(self):
         httpretty.register_uri(httpretty.GET,
             self.base_href + "/tenants/current",
-            body=json.dumps(self.tenant_body),
-            content_type="application/json")
+            content_type="application/json",
+            location=self.tenant_href,
+            status=302)
 
         httpretty.register_uri(httpretty.GET,
             self.tenant_href,
@@ -81,9 +88,13 @@ class TestTenant(BaseTest):
 
     @httpretty.activate
     def test_associations(self):
-
         httpretty.register_uri(httpretty.GET,
             self.base_href + "/tenants/current",
+            location=self.tenant_href,
+            status=302)
+
+        httpretty.register_uri(httpretty.GET,
+            self.tenant_href,
             body=json.dumps(self.tenant_body),
             content_type="application/json")
 
