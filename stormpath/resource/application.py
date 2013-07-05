@@ -15,6 +15,7 @@ class Application(Resource):
 
     path = 'applications'
     fields = ['name', 'description', 'status',]
+    password_reset_token = None
 
     def __str__(self):
         return self.name
@@ -57,6 +58,10 @@ class Application(Resource):
         return GroupResourceList(url=url, session=self._session,\
                 resource=Group)
 
+    @property
+    def token(self):
+        return self.password_reset_token
+
     def authenticate_account(self, login, password):
         """
         Allows an application to authenticate its associated accounts.
@@ -97,6 +102,13 @@ class Application(Resource):
 
         resp = self._session.post(url=url, data=json.dumps({'email': email}))
         if resp.status_code != 200:
+            raise StormpathError(resp.json())
+
+        try:
+            token = json.loads(resp.text).get('href').split('/')[-1]
+            self.password_reset_token = token
+        except:
+            # FIXME: unknown exception
             raise NotImplementedError
 
         try:

@@ -54,9 +54,12 @@ class Expansion(object):
         params = []
         for k,v in self.items.items():
             if v:
+                filters = []
+                for n in v.items():
+                    filters.append("{}:{}".format(*n))
                 v.update({'attr': k})
                 params.append(
-                    "{attr}(offset:{offset},limit:{limit})".format(**v)
+                    "%s(%s)" % (v['attr'], ",".join(filters))
                 )
             else:
                 params.append(k)
@@ -413,11 +416,11 @@ class ResourceList(object):
                 self._items = self._cache.copy()
             else:
                 self._items = self._fetch_items()
-                self._cache = self._items.copy()
+                self._cache = list(self._items)
 
         try:
             while self._items:
-                item = self._items.pop(0) 
+                item = self._items.pop(0)
                 yield item
 
                 # if not self._items check next resource page/collection

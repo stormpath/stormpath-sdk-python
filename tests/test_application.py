@@ -28,7 +28,6 @@ class TestApplication(BaseTest):
             body=json.dumps(self.app_body),
             content_type="application/json")
 
-        app_name, app_desc = "APP_NAME", "APP_DESC"
         application = self.client.applications.get(self.app_href)
 
         self.assertEqual(application.name, self.app_body['name'])
@@ -169,25 +168,31 @@ class TestApplication(BaseTest):
             self.app_href,
             body=json.dumps(self.app_body),
             content_type="application/json")
+        email = 'fakeuseragain@mailinator.com'
+
+        response = {
+            "account": {
+                "href": self.acc_href
+            },
+            "email": email,
+            "href": self.app_href + "/passwordResetTokens/TOKEN"
+        }
 
         httpretty.register_uri(httpretty.POST,
             "%s/passwordResetTokens" % self.app_href,
-            body=json.dumps({'account': {'href': self.acc_href}}),
+            body=json.dumps(response),
             content_type="application/json")
 
         application = self.client.applications.get(self.app_href)
 
-        email = 'fakeuseragain@mailinator.com'
-
-        acc_body = self.acc_body.copy()
-        acc_body['email'] = email
         httpretty.register_uri(httpretty.GET,
             self.acc_href,
-            body=json.dumps(acc_body),
+            body=json.dumps(response),
             content_type="application/json")
 
         account = application.send_password_reset_email(email)
 
+        self.assertEqual(application.token, "TOKEN")
         self.assertIsInstance(account, Account)
         self.assertTrue(account.href)
         self.assertEqual(account.email, email)
@@ -223,6 +228,8 @@ class TestApplication(BaseTest):
             content_type="application/json")
 
         account = application.verify_password_reset_token(token)
+
+        self.assertEqual(HTTPretty.last_request.method, 'GET')
 
         self.assertIsInstance(account, Account)
         self.assertTrue(account.href)
@@ -261,7 +268,7 @@ class TestApplication(BaseTest):
             body=json.dumps(self.resource_body),
             content_type="application/json")
 
-        accounts = application.accounts.search("ACC_USERNAME")
+        accounts = application.accounts.search(self.acc_body['username'])
         for acc in accounts:
             pass
 
@@ -295,7 +302,7 @@ class TestApplication(BaseTest):
             body=json.dumps(self.resource_body),
             content_type="application/json")
 
-        groups = application.groups.search("GRP_NAME")
+        groups = application.groups.search(self.grp_body['name'])
         for group in groups:
             pass
 
