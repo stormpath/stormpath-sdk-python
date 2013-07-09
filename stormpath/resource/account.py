@@ -1,6 +1,6 @@
 import json
 import requests
-from . import Resource, ResourceList, API_URL
+from . import Resource, ResourceList, API_URL, VERSION_STRING
 from .directory import Directory
 from stormpath.error import Error as StormpathError
 
@@ -34,6 +34,22 @@ class Account(Resource):
                 clean_data[k] = v
 
         return clean_data
+
+    @property
+    def password_reset_token(self):
+        return self._password_reset_token
+
+    @password_reset_token.setter
+    def password_reset_token(self, token):
+        self._password_reset_token = token
+
+    @property
+    def email_verification_token(self):
+        return self._email_verification_token
+
+    @email_verification_token.setter
+    def email_verification_token(self, token):
+        self._email_verification_token = token
 
     @property
     def directory(self):
@@ -111,9 +127,10 @@ class AccountResourceList(ResourceList):
             # handle creation in directory
             url = '%sdirectories/%s/accounts' % (API_URL, self._directory.uid)
 
-            if len(args) >= 1:
+            if len(args) == 1:
                 data = args[0]
             elif len(args) == 2:
+                data = args[0]
                 url = url + args[1]
             else:
                 data = kwargs.get('data') or kwargs
@@ -123,7 +140,32 @@ class AccountResourceList(ResourceList):
             if resp.status_code not in (200, 201):
                 raise StormpathError(error=resp.json())
 
+            try:
+                token_url = resp.json().get('emailVerificationToken')
+                token = None
+                if token_url:
+                    token = token_url.get('href').split('/')[-1]
+            except:
+                # FIXME: unknown exception
+                raise NotImplementedError
+
             account = Account(session=self._session, data=resp.json())
+            account.email_verification_token = token
             return account
         else:
             raise NotImplementedError
+
+    def verify_email_token(self, token):
+        """
+        Verifies account creation
+
+        """
+        path = "accounts/emailVerificationTokens/%s" % (token)
+        url = "%s%s" % (API_URL, path)
+
+        resp = self._session.post(url=url)
+        if resp.status_code != 200:
+            raise StormpathError(resp.json())
+
+        account = Account(session=self._session, url=resp.json().get('href'))
+        return account

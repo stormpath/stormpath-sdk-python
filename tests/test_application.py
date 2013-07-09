@@ -270,7 +270,7 @@ class TestApplication(BaseTest):
 
         account = application.send_password_reset_email(email)
 
-        self.assertEqual(application.token, "TOKEN")
+        self.assertEqual(account.password_reset_token, "TOKEN")
         self.assertIsInstance(account, Account)
         self.assertTrue(account.href)
         self.assertEqual(account.email, email)

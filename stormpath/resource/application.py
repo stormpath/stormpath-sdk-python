@@ -15,7 +15,6 @@ class Application(Resource):
 
     path = 'applications'
     fields = ['name', 'description', 'status',]
-    password_reset_token = None
 
     def __str__(self):
         return self.name
@@ -127,7 +126,6 @@ class Application(Resource):
 
         try:
             token = json.loads(resp.text).get('href').split('/')[-1]
-            self.password_reset_token = token
         except:
             # FIXME: unknown exception
             raise NotImplementedError
@@ -140,6 +138,7 @@ class Application(Resource):
 
         account = Account(session=self._session, url=account_url)
         account.read()
+        account.password_reset_token = token
         return account
 
     def verify_password_reset_token(self, token):

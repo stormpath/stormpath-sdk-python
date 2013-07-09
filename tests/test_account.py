@@ -232,7 +232,10 @@ class TestAccount(BaseTest):
                     "tenant": {
                         "href": self.tenant_href
                         },
-                    "emailVerificationToken": None
+                    "emailVerificationToken": {
+                        "href": self.base_href +
+                            "/accounts/emailVerificationToken/TOKEN"
+                    }
                 }
 
         httpretty.register_uri(httpretty.POST,
@@ -263,6 +266,93 @@ class TestAccount(BaseTest):
         self.assertEqual(account.email, email)
         self.assertEqual(account.givenName, given_name)
         self.assertEqual(account.surname, surname)
+        self.assertEqual(account.email_verification_token, "TOKEN")
+
+    @httpretty.activate
+    def test_verify_email(self):
+        httpretty.register_uri(httpretty.GET,
+            self.base_href + "/tenants/current",
+            location=self.tenant_href,
+            status=302)
+
+        httpretty.register_uri(httpretty.GET,
+            self.tenant_href,
+            body=json.dumps(self.tenant_body),
+            content_type="application/json")
+
+        httpretty.register_uri(httpretty.GET,
+            self.dir_href,
+            body=json.dumps(self.dir_body),
+            content_type="application/json")
+
+        directory = self.client.directories.get(self.dir_href)
+
+        new_user_body = {
+            "href": self.acc_href,
+            "username": "USERNAME",
+            "email": "EMAIL",
+            "fullName": "Full Name",
+            "givenName": "GNAME",
+            "middleName": None,
+            "surname": "SURNAME",
+            "status": "UNVERIFIED",
+            "groups": {
+                "href": self.acc_href + "/groups"
+                },
+            "groupMemberships": {
+                "href": self.acc_href + "/groupMemberships"
+                },
+                "directory": {
+                    "href": self.dir_href
+                    },
+                    "tenant": {
+                        "href": self.tenant_href
+                        },
+                    "emailVerificationToken": {
+                        "href": self.base_href +
+                            "/accounts/emailVerificationToken/TOKEN"
+                    }
+                }
+
+        httpretty.register_uri(httpretty.POST,
+            self.dir_href + "/accounts",
+            body=json.dumps(new_user_body),
+            content_type="application/json")
+
+        account_dict = {
+            'username': "USERNAME",
+            'email': "EMAIL",
+            'givenName': "GNAME",
+            'surname': "SURNAME",
+            'password': "PASSWORD"
+        }
+
+        account = directory.accounts.create(account_dict)
+
+        self.assertEqual(account.email_verification_token, "TOKEN")
+        token = account.email_verification_token
+
+        verification_body = {'href': self.acc_href}
+
+        httpretty.register_uri(httpretty.POST,
+            self.base_href + "/accounts/emailVerificationTokens/TOKEN",
+            body=json.dumps(verification_body),
+            content_type="application/json")
+
+        account = directory.accounts.verify_email_token(token)
+
+        self.assertEqual(HTTPretty.last_request.method, 'POST')
+        self.assertEqual(HTTPretty.last_request.path,
+            self.base_path + "/accounts/emailVerificationTokens/TOKEN")
+
+        httpretty.register_uri(httpretty.GET,
+            self.acc_href,
+            body=json.dumps(new_user_body),
+            content_type="application/json")
+
+        self.assertEqual(account.username, "USERNAME")
+        self.assertEqual(account.email, "EMAIL")
+        self.assertEqual(account.givenName, "GNAME")
 
     @httpretty.activate
     def test_authenticate(self):

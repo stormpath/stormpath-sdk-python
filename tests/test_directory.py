@@ -222,8 +222,35 @@ class TestDirectory(BaseTest):
         self.assertEqual(account.email, email)
         self.assertTrue(account.href)
 
+        new_user_body = {
+            "href": self.acc_href,
+            "username": username,
+            "email": email,
+            "fullName": "%s %s" % (given_name, surname),
+            "givenName": given_name,
+            "middleName": None,
+            "surname": surname,
+            "status": "DISABLED",
+            "groups": {
+                "href": self.acc_href + "/groups"
+                },
+            "groupMemberships": {
+                "href": self.acc_href + "/groupMemberships"
+                },
+                "directory": {
+                    "href": self.dir_href
+                    },
+                    "tenant": {
+                        "href": self.tenant_href
+                        },
+                    "emailVerificationToken": {
+                        "href": self.base_href +
+                            "/accounts/emailVerificationToken/TOKEN"
+                    }
+                }
+
         httpretty.register_uri(httpretty.POST,
-            self.dir_href + '/accounts?registrationWorkflowEnabled=false',
+            self.dir_href + '/accounts',
             body=json.dumps(new_user_body),
             content_type="application/json")
 
