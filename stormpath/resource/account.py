@@ -113,7 +113,7 @@ class AccountResourceList(ResourceList):
 
             if len(args) >= 1:
                 data = args[0]
-            if len(args) == 2:
+            elif len(args) == 2:
                 url = url + args[1]
             else:
                 data = kwargs.get('data') or kwargs
