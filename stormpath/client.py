@@ -1,7 +1,7 @@
 from .auth import Auth
 from .resource import Resource, ResourceList
 from .resource import Tenant
-from .resource import Application
+from .resource import Application, ApplicationResourceList
 from .resource import Directory
 
 class Client(object):
@@ -42,7 +42,7 @@ class Client(object):
 
         """
         url = self._get_tenant().applications.get('href')
-        return ResourceList(url=url, auth=self.auth, resource=Application)
+        return ApplicationResourceList(url=url, auth=self.auth, resource=Application)
 
     @property
     def directories(self):

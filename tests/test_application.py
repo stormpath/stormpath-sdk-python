@@ -7,7 +7,7 @@ import re
 
 from stormpath.resource import (Tenant, Account, AccountResourceList,
     GroupResourceList)
-
+from stormpath import Error as StormpathError
 
 class TestApplication(BaseTest):
 
@@ -151,6 +151,84 @@ class TestApplication(BaseTest):
         self.assertEqual(application.name, self.app_body['name'])
         self.assertEqual(application.description, self.app_body['description'])
         self.assertEqual(application.status, self.app_body['status'])
+
+    @httpretty.activate
+    def test_create_with_directory(self):
+        httpretty.register_uri(httpretty.GET,
+            self.base_href + "/tenants/current",
+            location=self.tenant_href,
+            status=302)
+
+        httpretty.register_uri(httpretty.GET,
+            self.tenant_href,
+            body=json.dumps(self.tenant_body),
+            content_type="application/json")
+
+        error = {'moreInfo': 'https://www.stormpath.com/docs/errors/2000',
+            'status': 400,
+            'code': 2000,
+            'message': 'createDirectory query parameter value cannot be ' +
+                'null, empty, or blank.',
+            'developerMessage': 'createDirectory query parameter value ' +
+                'cannot be null, empty, or blank.'
+        }
+
+        httpretty.register_uri(httpretty.POST,
+            self.base_href + "/applications",
+            responses=[
+                httpretty.Response(body=json.dumps(self.app_body), status=200),
+                httpretty.Response(body=json.dumps(self.app_body), status=200),
+                httpretty.Response(body=json.dumps(error), status=400),
+            ],
+            content_type="application/json")
+
+        application = self.client.applications.create({
+            "name": self.dir_body['name'],
+            "description": self.dir_body['description'],
+            "enabled": self.dir_body['status']
+        }, create_directory="Directory")
+
+        self.assertEqual(application.name, self.app_body['name'])
+        self.assertEqual(application.description, self.app_body['description'])
+        self.assertEqual(application.status, self.app_body['status'])
+
+        self.assertEqual(HTTPretty.last_request.method, 'POST')
+        self.assertEqual(HTTPretty.last_request.path,
+            '/v1/applications?createDirectory=Directory')
+
+        application = self.client.applications.create({
+            "name": self.dir_body['name'],
+            "description": self.dir_body['description'],
+            "enabled": self.dir_body['status']
+        }, create_directory=True)
+
+        self.assertEqual(application.name, self.app_body['name'])
+        self.assertEqual(application.description, self.app_body['description'])
+        self.assertEqual(application.status, self.app_body['status'])
+
+        self.assertEqual(HTTPretty.last_request.method, 'POST')
+        self.assertEqual(HTTPretty.last_request.path,
+            '/v1/applications?createDirectory=True')
+
+        with self.assertRaises(StormpathError) as context:
+            application = self.client.applications.create({
+                "name": self.dir_body['name'],
+                "description": self.dir_body['description'],
+                "enabled": self.dir_body['status']
+            }, create_directory=True)
+
+        exception = context.exception
+        self.assertEqual(exception.message, error['message'])
+
+        with self.assertRaises(StormpathError) as context:
+            application = self.client.applications.create({
+                "name": self.dir_body['name'],
+                "description": self.dir_body['description'],
+                "enabled": self.dir_body['status']
+            }, create_directory="+++++")
+
+        exception = context.exception
+        self.assertEqual(exception.message, error['message'])
 
     @httpretty.activate
     def test_send_password_reset_email(self):

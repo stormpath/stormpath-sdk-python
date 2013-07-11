@@ -1,7 +1,7 @@
 import base64
 import requests
 import json
-from . import Resource, API_URL
+from . import Resource, ResourceList, API_URL
 from . import Account, AccountResourceList
 from . import Group, GroupResourceList
 from ..error import Error as StormpathError
@@ -61,6 +61,27 @@ class Application(Resource):
     @property
     def token(self):
         return self.password_reset_token
+
+    def create(self, create_directory=None):
+        """
+        Creates a new Application.
+
+        https://www.stormpath.com/docs/rest/api#CreatingResources
+
+        """
+
+        params = {}
+        url = '%s%s' % (API_URL, self.path)
+        if create_directory is not None:
+            params = {'createDirectory': create_directory}
+
+        resp = self._session.post(url, data=json.dumps(self._data),
+            params=params)
+
+        if resp.status_code not in (200, 201):
+            raise StormpathError(resp.json())
+
+        self._data = resp.json()
 
     def authenticate_account(self, login, password):
         """
@@ -143,3 +164,20 @@ class Application(Resource):
         account = Account(session=self._session, url=account_url)
         account.read()
         return account
+
+class ApplicationResourceList(ResourceList):
+    """
+    List of application resources.
+
+    """
+
+    def create(self, *args, **kwargs):
+        dirname = kwargs.get('create_directory', None)
+
+        if len(args) == 1:
+            data = args[0]
+        else:
+            data = kwargs.get('data') or kwargs
+        r = self._resource_class(session=self._session, data=data)
+        r.create(create_directory=dirname)
+        return r

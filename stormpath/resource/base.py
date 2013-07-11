@@ -151,7 +151,7 @@ class Resource(object):
         url = '%s%s' % (API_URL, self.path)
         resp = self._session.post(url, data=json.dumps(self._data))
         if resp.status_code not in (200, 201):
-            raise Exception(resp.json())
+            raise Error(resp.json())
 
         self._data = resp.json()
 
