@@ -282,7 +282,6 @@ class ResourceList(object):
         Returns a resource for url provided.
 
         """
-
         resp = self._resource_class(session=self._session,\
                 expansion=expansion, url=url)
         return resp

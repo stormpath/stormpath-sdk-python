@@ -34,14 +34,12 @@ class TestAccount(BaseTest):
             body=json.dumps(self.dir_body),
             content_type="application/json")
 
-        directory = self.client.directories.get(self.dir_href)
-
         httpretty.register_uri(httpretty.GET,
             self.acc_href,
             body=json.dumps(self.acc_body),
             content_type="application/json")
 
-        account = directory.accounts.get(self.acc_href)
+        account = self.client.accounts.get(self.acc_href)
 
         self.assertEqual(account.username, username)
         self.assertEqual(account.email, email)
@@ -423,8 +421,7 @@ class TestAccount(BaseTest):
             body=json.dumps(self.acc_body),
             content_type="application/json")
 
-        directory = self.client.directories.get(self.dir_href)
-        account = directory.accounts.get(self.acc_href)
+        account = self.client.accounts.get(self.acc_href)
 
         group_name = 'GRP_NAME'
         group = account.directory.create_group({"name": group_name})
@@ -470,14 +467,12 @@ class TestAccount(BaseTest):
             body=json.dumps(self.dir_body),
             content_type="application/json")
 
-        directory = self.client.directories.get(self.dir_href)
-
         httpretty.register_uri(httpretty.GET,
             self.acc_href,
             body=json.dumps(self.acc_body),
             content_type="application/json")
 
-        account = directory.accounts.get(self.acc_href)
+        account = self.client.accounts.get(self.acc_href)
 
         # groups
         httpretty.register_uri(httpretty.GET,

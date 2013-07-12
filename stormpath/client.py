@@ -1,8 +1,10 @@
 from .auth import Auth
-from .resource import Resource, ResourceList
+from .resource import ResourceList
 from .resource import Tenant
 from .resource import Application, ApplicationResourceList
 from .resource import Directory
+from .resource import Account
+from .resource import API_URL
 
 class Client(object):
     """
@@ -54,3 +56,19 @@ class Client(object):
         """
         url = self._get_tenant().directories.get('href')
         return ResourceList(url=url, auth=self.auth, resource=Directory)
+
+    @property
+    def accounts(self):
+        """
+        Returns accounts related to current tenant used by Client.
+
+        https://www.stormpath.com/docs/rest/api#Accounts
+
+        """
+        # The API doesn't return the accounts URL along with the Tenant.
+        # If the SDK user wants to access an account regardless of directory
+        # or application, he/she has to follow a direct url but we still have to
+        # create the Tenant to access applications and directories.
+        self._get_tenant()
+        url = '%s%s' % (API_URL, "accounts")
+        return ResourceList(url=url, auth=self.auth, resource=Account)
