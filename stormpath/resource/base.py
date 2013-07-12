@@ -3,7 +3,6 @@ import requests
 from ..error import Error
 
 API_URL = 'https://api.stormpath.com/v1/'
-VERSION_STRING = 'v1'
 
 class Session(requests.Session):
     def __init__(self, auth, *args, **kwargs):

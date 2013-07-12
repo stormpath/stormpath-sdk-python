@@ -1,6 +1,5 @@
 import json
-import requests
-from . import Resource, ResourceList, API_URL, VERSION_STRING
+from . import Resource, ResourceList, API_URL
 from .directory import Directory
 from stormpath.error import Error as StormpathError
 
