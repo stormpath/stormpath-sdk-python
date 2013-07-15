@@ -4,6 +4,7 @@ from .resource import Tenant
 from .resource import Application, ApplicationResourceList
 from .resource import Directory
 from .resource import Account
+from .resource import Group
 from .resource import API_URL
 
 class Client(object):
@@ -72,3 +73,19 @@ class Client(object):
         self._get_tenant()
         url = '%s%s' % (API_URL, "accounts")
         return ResourceList(url=url, auth=self.auth, resource=Account)
+
+    @property
+    def groups(self):
+        """
+        Returns groups related to current tenant used by Client.
+
+        https://www.stormpath.com/docs/rest/api#Groups
+
+        """
+        # The API doesn't return the accounts URL along with the Tenant.
+        # If the SDK user wants to access an account regardless of directory
+        # or application, he/she has to follow a direct url but we still have to
+        # create the Tenant to access applications and directories.
+        self._get_tenant()
+        url = '%s%s' % (API_URL, "groups")
+        return ResourceList(url=url, auth=self.auth, resource=Group)
