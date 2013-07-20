@@ -4,7 +4,9 @@ from ..error import Error
 
 API_URL = 'https://api.stormpath.com/v1/'
 
+
 class Session(requests.Session):
+
     def __init__(self, auth, *args, **kwargs):
         """
         Session is used for authentication and default headers.
@@ -22,7 +24,9 @@ class Session(requests.Session):
         })
         self.auth = auth
 
+
 class Expansion(object):
+
     """
     Reference expansion allows you to retrieve related information in a single
     request to the server instead of having to issue multiple separate requests.
@@ -40,8 +44,10 @@ class Expansion(object):
         """
 
         D = {}
-        if offset != None: D.update({'offset': offset})
-        if limit != None: D.update({'limit': limit})
+        if offset is not None:
+            D.update({'offset': offset})
+        if limit is not None:
+            D.update({'limit': limit})
         self.items[attr] = D
 
     @property
@@ -52,7 +58,7 @@ class Expansion(object):
         """
 
         params = []
-        for k,v in self.items.items():
+        for k, v in self.items.items():
             if v:
                 filters = []
                 for n in v.items():
@@ -65,7 +71,9 @@ class Expansion(object):
                 params.append(k)
         return ",".join(params)
 
+
 class Resource(object):
+
     """
     Resource is a thin layer over requests library
     used by all Stormpath resources.
@@ -87,13 +95,13 @@ class Resource(object):
 
         self._data = kwargs.get('data', {})
         self._data.update({k: v
-            for k,v in kwargs.items()
-            if k in self.fields})
+                           for k, v in kwargs.items()
+                           if k in self.fields})
 
         self._related_data = kwargs.get('related_data', {})
         self._related_data.update({k: v
-            for k,v in kwargs.items()
-            if k in self.related_fields})
+                                   for k, v in kwargs.items()
+                                   if k in self.related_fields})
 
         if self._data:
             self.url = self._data.get('href')
@@ -136,9 +144,10 @@ class Resource(object):
         """
 
         if self.url:
-            uid = self.url[self.url.rfind('/')+1:]
+            uid = self.url[self.url.rfind('/') + 1:]
             return uid
-        raise Exception('Resource not saved, unique identifier is not available.')
+        raise Exception(
+            'Resource not saved, unique identifier is not available.')
 
     def create(self):
         """
@@ -184,7 +193,7 @@ class Resource(object):
 
         """
 
-        data = {k: v for k,v in self._data.items() if k in self.fields}
+        data = {k: v for k, v in self._data.items() if k in self.fields}
         resp = self._session.post(self.url, data=json.dumps(data))
         if resp.status_code != 200:
             raise Error(resp.json())
@@ -214,7 +223,7 @@ class Resource(object):
         """
 
         if not self._is_dirty:
-            return # FIXME: return False or something related?
+            return  # FIXME: return False or something related?
 
         if self.uid:
             self.update()
@@ -255,13 +264,16 @@ class Resource(object):
         else:
             object.__setattr__(self, name, value)
 
+
 class ResourceList(object):
+
     """
     List of resources.
 
     """
 
-    def __init__(self, session=None, auth=None, resource=None, url=None, *args, **kwargs):
+    def __init__(self, session=None, auth=None, resource=None,
+                url=None, *args, **kwargs):
         self._session = session or Session(auth=auth())
         self._resource_class = resource
         self._url = url
@@ -282,8 +294,8 @@ class ResourceList(object):
         Returns a resource for url provided.
 
         """
-        resp = self._resource_class(session=self._session,\
-                expansion=expansion, url=url)
+        resp = self._resource_class(session=self._session,
+                                    expansion=expansion, url=url)
         return resp
 
     def create(self, *args, **kwargs):
@@ -339,7 +351,7 @@ class ResourceList(object):
         if len(args) == 1:
             self._query = args[0]
 
-        D = {k: v for k,v in kwargs.items() if k in self._resource_class.fields}
+        D = {k: v for k, v in kwargs.items() if k in self._resource_class.fields}
         if D:
             self._attr_query = D
 
@@ -357,7 +369,7 @@ class ResourceList(object):
             params['q'] = self._query
 
         if hasattr(self, "_attr_query"):
-            for k,v in self._attr_query.items():
+            for k, v in self._attr_query.items():
                 params[k] = v
 
         if hasattr(self, "_limit"):
@@ -423,7 +435,7 @@ class ResourceList(object):
                 yield item
 
                 # if not self._items check next resource page/collection
-                if len(self._items) == 0 and self._custom_request == False:
+                if len(self._items) == 0 and self._custom_request is False:
                     next_items = self._fetch_next_page()
                     self._items.extend(next_items)
                     self._cache.extend(next_items)

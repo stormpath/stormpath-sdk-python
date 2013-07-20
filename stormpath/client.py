@@ -7,6 +7,7 @@ from .resource import Account
 from .resource import Group, GroupMembership
 from .resource import API_URL
 
+
 class Client(object):
     """
     Client is the main entry point for consuming Stormpath REST API.
@@ -45,7 +46,8 @@ class Client(object):
 
         """
         url = self._get_tenant().applications.get('href')
-        return ApplicationResourceList(url=url, auth=self.auth, resource=Application)
+        return ApplicationResourceList(url=url, auth=self.auth,
+            resource=Application)
 
     @property
     def directories(self):

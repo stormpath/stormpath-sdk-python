@@ -3,7 +3,9 @@ from . import Resource, ResourceList, API_URL
 from .directory import Directory
 from stormpath.error import Error as StormpathError
 
+
 class Account(Resource):
+
     """
     Account resource:
     https://www.stormpath.com/docs/rest/api#Accounts
@@ -12,7 +14,7 @@ class Account(Resource):
 
     path = 'accounts'
     fields = ['username', 'email', 'password', 'givenName',
-            'middleName', 'surname', 'status',]
+            'middleName', 'surname', 'status']
 
     def __str__(self):
         return self.username
@@ -24,7 +26,7 @@ class Account(Resource):
 
         """
         clean_data = {}
-        for k,v in data.items():
+        for k, v in data.items():
             if k == 'given_name':
                 clean_data['givenName'] = v
             elif k == 'middle_name':
@@ -65,7 +67,8 @@ class Account(Resource):
 
     def add_group(self, group):
         """
-        Creates and returns a new GroupMembership which connects this account and group.
+        Creates and returns a new GroupMembership which connects this
+        account and group.
 
         """
 
@@ -86,7 +89,7 @@ class Account(Resource):
             self.read()
 
         url = self._data['groups']['href']
-        return GroupResourceList(url=url, session=self._session,\
+        return GroupResourceList(url=url, session=self._session,
                 resource=Group, directory=self.directory)
 
     @property
@@ -98,10 +101,12 @@ class Account(Resource):
 
         from .group_membership import GroupMembership, GroupMembershipResourceList
         url = '%s/groupMemberships' % self.url
-        return GroupMembershipResourceList(url=url, session=self._session,\
+        return GroupMembershipResourceList(url=url, session=self._session,
                 resource=GroupMembership)
 
+
 class AccountResourceList(ResourceList):
+
     """
     List of Account resources.
 

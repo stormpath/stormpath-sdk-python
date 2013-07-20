@@ -1,12 +1,13 @@
 import base64
-import requests
 import json
 from . import Resource, ResourceList, API_URL
 from . import Account, AccountResourceList
 from . import Group, GroupResourceList
 from ..error import Error as StormpathError
 
+
 class Application(Resource):
+
     """
     Application resource:
     https://www.stormpath.com/docs/rest/api#Applications
@@ -14,7 +15,7 @@ class Application(Resource):
     """
 
     path = 'applications'
-    fields = ['name', 'description', 'status',]
+    fields = ['name', 'description', 'status']
 
     def __str__(self):
         return self.name
@@ -40,7 +41,7 @@ class Application(Resource):
             self.read()
 
         url = self._data['accounts']['href']
-        return AccountResourceList(url=url, session=self._session,\
+        return AccountResourceList(url=url, session=self._session,
                 resource=Account)
 
     @property
@@ -54,7 +55,7 @@ class Application(Resource):
             self.read()
 
         url = self._data['groups']['href']
-        return GroupResourceList(url=url, session=self._session,\
+        return GroupResourceList(url=url, session=self._session,
                 resource=Group)
 
     @property
@@ -96,7 +97,8 @@ class Application(Resource):
         path = 'applications/%s/loginAttempts'
         url = "%s%s" % (API_URL, path % self.uid)
 
-        resp = self._session.post(url=url, data=json.dumps({'type': 'basic', 'value': value}))
+        resp = self._session.post(url=url, data=json.dumps(
+            {'type': 'basic', 'value': value}))
         if resp.status_code != 200:
             raise StormpathError(resp.json())
 
@@ -164,7 +166,9 @@ class Application(Resource):
         account.read()
         return account
 
+
 class ApplicationResourceList(ResourceList):
+
     """
     List of application resources.
 

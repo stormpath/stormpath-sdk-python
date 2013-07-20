@@ -1,11 +1,10 @@
 import json
-import requests
 from .base import Resource, ResourceList, API_URL
-from .group import Group
-from .account import Account
 from ..error import Error
 
+
 class GroupMembership(Resource):
+
     """
     GroupMembership resource:
     https://www.stormpath.com/docs/rest/api#GroupMemberships
@@ -37,8 +36,8 @@ class GroupMembership(Resource):
         account_url = group_url = None
 
         data = {
-            "account" : {"href": self.account.url},
-            "group" : {"href": self.group.url},
+            "account": {"href": self.account.url},
+            "group": {"href": self.group.url},
         }
 
         resp = self._session.post(url, data=json.dumps(data))
@@ -47,6 +46,7 @@ class GroupMembership(Resource):
 
         self._data = resp.json()
         self.url = self._data['href']
+
 
 class GroupMembershipResourceList(ResourceList):
     pass

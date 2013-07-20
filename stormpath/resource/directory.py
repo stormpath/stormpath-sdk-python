@@ -1,6 +1,8 @@
-from . import Resource, ResourceList
+from . import Resource
+
 
 class Directory(Resource):
+
     """
     Directory resource:
     https://www.stormpath.com/docs/rest/api#Directories
@@ -57,11 +59,11 @@ class Directory(Resource):
         url = self._data['accounts']['href']
         if self._expansion and 'accounts' in self._expansion.items.keys():
             data = self._data['accounts']['items']
-            return AccountResourceList(url=url, session=self._session,\
-                    resource=Account, directory=self, data=data)
+            return AccountResourceList(url=url, session=self._session,
+                                    resource=Account, directory=self, data=data)
 
-        return AccountResourceList(url=url, session=self._session,\
-                resource=Account, directory=self)
+        return AccountResourceList(url=url, session=self._session,
+                                   resource=Account, directory=self)
 
     @property
     def groups(self):
@@ -75,5 +77,5 @@ class Directory(Resource):
             self.read()
 
         url = self._data['groups']['href']
-        return GroupResourceList(url=url, session=self._session,\
-                resource=Group, directory=self)
+        return GroupResourceList(url=url, session=self._session,
+                                 resource=Group, directory=self)

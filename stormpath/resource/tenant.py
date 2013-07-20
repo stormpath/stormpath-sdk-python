@@ -1,6 +1,7 @@
 from .base import Resource
 from ..error import Error
 
+
 class Tenant(Resource):
     """
     Tenant resource:

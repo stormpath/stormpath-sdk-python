@@ -1,10 +1,11 @@
 import json
-import requests
 from .base import Resource, ResourceList, API_URL
 from .directory import Directory
 from stormpath.error import Error as StormpathError
 
+
 class Group(Resource):
+
     """
     Group resource:
     https://www.stormpath.com/docs/rest/api#Groups
@@ -12,7 +13,7 @@ class Group(Resource):
     """
 
     path = 'groups'
-    fields = ['name', 'description', 'status',]
+    fields = ['name', 'description', 'status']
 
     def __str__(self):
         return self.name
@@ -52,20 +53,24 @@ class Group(Resource):
             self.read()
 
         url = self._data['accounts']['href']
-        return AccountResourceList(url=url, session=self._session,\
+        return AccountResourceList(url=url, session=self._session,
                 resource=Account, group=self)
 
     def add_account(self, account):
         """
-        Creates and returns a new GroupMembership which connects this group and account.
+        Creates and returns a new GroupMembership which connects
+        this group and account.
 
         """
         from .group_membership import GroupMembership
-        gm = GroupMembership(session=self._session, account=account, group=self)
+        gm = GroupMembership(
+            session=self._session, account=account, group=self)
         gm.save()
         return gm
 
+
 class GroupResourceList(ResourceList):
+
     """
     List of Group resources.
 
