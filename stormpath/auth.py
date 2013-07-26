@@ -11,6 +11,7 @@ except ImportError:
     from urlparse import urlparse
 from stormpath.util import is_default_port, encode_url
 from collections import OrderedDict
+from os.path import isfile
 
 HOST_HEADER = "Host"
 AUTHORIZATION_HEADER = "Authorization"
@@ -137,54 +138,70 @@ class Sauthc1Signer(AuthBase):
 
 
 class Auth(object):
-
-    """
-    Auth class is used to provide a proper authentication for requests library
-    based on any valid authentication source with Stormpath API key.
-
-    """
+    """Provides authentication for StormPath API requests."""
 
     def __init__(self, api_key_file_location=None,
                  api_key_id_property_name='apiKey.id',
                  api_key_secret_property_name='apiKey.secret',
-                 api_key=None, id=None, secret=None, api_url=None,
-                 **kwargs):
+                 api_key=None, id=None, secret=None):
         """
-        Checks various authentication sources for an API key and
-        uses first available.
+        Initialize authentication using one of the available authentication
+        credentials source:
 
+        :param api_key_file_location: Location of the API key file (in the
+            Java .properties file format) (default: API key file not used)
+        :param api_key_id_property_name: Name of the `ID` property in the
+            key file (default: apiKey.id)
+        :param api_key_secret_property_name: Name of the `secret` property
+            in the key file (default: apiKey.secret)
+        :param api_key: A dictionary-like object containing the `id` and
+            `secret` keys mapped to the API ID and secret respectively
+        :param id: ID (if directly provided; default is None)
+        :param secret: secret (if directly provided; default is None)
+
+        All available authentication credentials sources are checked, in this
+        priority:
+
+        1. API key file (if `api_key_file_location` is set and the file exists)
+        2.
         """
 
         self._id = None
         self._secret = None
 
-        # if `api_key_file_location` is available extract key/secret
-        # and ignore other authentication sources.
-        # key/secret are extracted based on property names
-        if api_key_file_location:
-            with open(api_key_file_location, 'rb') as fp:
-                cred = jprops.load_properties(fp)
-                self._id = cred.get(api_key_id_property_name)
-                self._secret = cred.get(api_key_secret_property_name)
-                del cred
+        if self._read_api_key_file(api_key_file_location,
+                api_key_id_property_name, api_key_secret_property_name):
             return
 
-        # if `api_key` is available extract key/secret
-        # and ignore other authentication sources
-        if api_key:
-            self._id, self._secret = api_key.get('id'), api_key.get('secret')
+        if api_key and 'id' in api_key and 'secret' in api_key:
+            self._id = api_key['id']
+            self._secret = api_key['secret']
             return
 
-        # if `id` and `secret` are available use them
-        # and ignore other authentication sources
         if id and secret:
-            self._id, self._secret = id, secret
+            self._id = id
+            self._secret = secret
             return
 
-        raise Exception('Valid authentication source not found.')
+        raise ValueError('No valid authentication sources found')
+
+    def _read_api_key_file(self, fname, id_name, secret_name):
+        if not fname or not isfile(fname):
+            return False
+        try:
+            with open(fname, 'rb') as fp:
+                cred = jprops.load_properties(fp)
+                # we want this to break if id or secret props aren't there
+                self._id = cred[id_name]
+                self._secret = cred[secret_name]
+            return True
+        except:
+            self._id = None
+            self._secret = None
+            return False
 
     def __call__(self):
-        return self.basic
+        return self.digest
 
     @property
     def id(self):
@@ -197,7 +214,8 @@ class Auth(object):
     @property
     def basic(self):
         """
-        Returns basic http authentication handler which can be used with requests library.
+        Returns basic http authentication handler which can be used with
+        Python Requests library.
 
         https://www.stormpath.com/docs/rest/api#BaseAuthenticationHTTPS
 
@@ -207,11 +225,11 @@ class Auth(object):
     @property
     def digest(self):
         """
-        Returns custom authentication handler which can be used with requests library.
-        It uses Stormpath custom digests authentication.
+        Returns custom authentication handler which can be used with
+        Python requests library, and which uses Stormpath custom digest
+        authentication.
 
         https://www.stormpath.com/docs/rest/api#DigestAuthenticationHTTPS
 
         """
-
         return Sauthc1Signer(self._id, self._secret)
