@@ -5,13 +5,13 @@ import binascii
 from datetime import datetime
 from uuid import uuid4
 from requests.auth import HTTPBasicAuth, AuthBase
-try:
-    from urllib.parse import urlparse
-except ImportError:
-    from urlparse import urlparse
-from stormpath.util import is_default_port, encode_url
 from collections import OrderedDict
 from os.path import isfile
+try:
+    from urllib.parse import urlparse, quote
+except ImportError:
+    from urlparse import urlparse
+    from urllib2 import quote
 
 HOST_HEADER = "Host"
 AUTHORIZATION_HEADER = "Authorization"
@@ -28,20 +28,39 @@ NL = "\n"
 
 
 class Sauthc1Signer(AuthBase):
+    """StormPath auth request signer for custom digest auth.
 
+    The implementation hooks into the Python Requests library to automatically
+    sign all the requests using this auth mechanism.
+
+    More info in documentation:
+    https://www.stormpath.com/docs/rest/api#DigestAuthenticationHTTPS
+
+    """
     def __init__(self, id, secret):
-        """
-        Stormpath custom authentication, based on code from previous SDK to work
-        with requests library.
+        """Initialize new digest auth mechanism with provided id and secret."""
 
-        More info in documentation:
-        https://www.stormpath.com/docs/rest/api#DigestAuthenticationHTTPS
-
-        """
-
+        super(Sauthc1Signer, self).__init__()
         self._id = id
         self._secret = secret
-        super(Sauthc1Signer, self).__init__()
+
+    @staticmethod
+    def _is_default_port(parsed_url):
+        scheme = parsed_url.scheme.lower()
+        port = parsed_url.port
+        return not port or (port == 80 and scheme == 'http') or \
+            (port == 443 and scheme == 'https')
+
+    @staticmethod
+    def _encode_url(value):
+        encoded = quote(value)
+        str_dict = {'+': '%20', '*': '%2A', '%7E': '~'}
+        for key, value in str_dict.items():
+            if key in encoded:
+                encoded = encoded.replace(key, value)
+        str = '%2F'
+        encoded = encoded.replace(str, '/') if str in encoded else encoded
+        return encoded
 
     def __call__(self, r):
         # requests library mixes bytes/string in headers,
@@ -69,7 +88,7 @@ class Sauthc1Signer(AuthBase):
         # have to have it in the request by the time we sign.
         host_header = parsed_url.hostname
 
-        if not is_default_port(parsed_url):
+        if not self._is_default_port(parsed_url):
             host_header = parsed_url.netloc
 
         r.headers[HOST_HEADER] = host_header
@@ -77,7 +96,7 @@ class Sauthc1Signer(AuthBase):
 
         method = r.method
         if parsed_url.path:
-            canonical_resource_path = encode_url(parsed_url.path)
+            canonical_resource_path = self._encode_url(parsed_url.path)
         else:
             canonical_resource_path = '/'
 
