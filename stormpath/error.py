@@ -16,7 +16,7 @@ class Error(RuntimeError):
         obtain more information about the error.
 
     """
-    def __init__(self, error):
+    def __init__(self, error, http_status=None):
         if error is None:
             error = {}
 
@@ -26,9 +26,10 @@ class Error(RuntimeError):
             except:
                 return -1
 
-        msg = error.get('developerMessage')
+        msg = error.get('developerMessage', 'Unknown error' +
+            ((' (%d)' % http_status) if http_status else ''))
         super(Error, self).__init__(msg)
-        self.status = try_int(error.get('status', -1))
+        self.status = try_int(error.get('status', http_status))
         self.code = try_int(error.get('code', -1))
         self.developer_message = msg
         self.more_info = error.get('moreInfo')
