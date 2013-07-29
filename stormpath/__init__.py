@@ -1,2 +1,2 @@
-from .client import Client
-from .error import Error
+from .client import Client  # noqa
+from .error import Error  # noqa
