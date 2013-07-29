@@ -1,446 +1,305 @@
-import json
-import requests
-from ..error import Error
-
-API_URL = 'https://api.stormpath.com/v1/'
-
-
-class Session(requests.Session):
-
-    def __init__(self, auth, *args, **kwargs):
-        """
-        Session is used for authentication and default headers.
-        Every Resource/ResourceList requires a Session instance
-        which is used for requests to Stormpath API.
-
-        """
-
-        super(Session, self).__init__(*args, **kwargs)
-        # FIXME: change UA version from dev to release version
-        self.headers.update({
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'User-Agent': 'Stormpath-PythonSDK/dev',
-        })
-        self.auth = auth
+try:
+    string_type = basestring
+except NameError:
+    string_type = str
 
 
 class Expansion(object):
-
-    """
-    Reference expansion allows you to retrieve related information in a single
-    request to the server instead of having to issue multiple separate requests.
-
-    https://www.stormpath.com/docs/rest/api#ReferenceExpansion
-    """
 
     def __init__(self, *args):
         self.items = {k: {} for k in args}
 
     def add_property(self, attr, offset=None, limit=None):
-        """
-        Set expansion with offset and limit.
-
-        """
-
-        D = {}
+        d = {}
         if offset is not None:
-            D.update({'offset': offset})
+            d['offset'] = offset
         if limit is not None:
-            D.update({'limit': limit})
-        self.items[attr] = D
+            d['limit'] = limit
+        self.items[attr] = d
 
-    @property
-    def params(self):
-        """
-        Generate a final format for request based on current params.
-
-        """
-
-        params = []
+    def get_params(self):
+        ret = []
         for k, v in self.items.items():
+            v = ','.join('%s:%d' % i for i in v.items())
             if v:
-                filters = []
-                for n in v.items():
-                    filters.append("{}:{}".format(*n))
-                v.update({'attr': k})
-                params.append(
-                    "%s(%s)" % (v['attr'], ",".join(filters))
-                )
+                v = '(' + v + ')'
+            ret.append(k + v)
+        return ','.join(ret)
+
+
+class ResourceBase(object):
+
+    readwrite_attrs = ()
+
+    def __init__(self, client, href=None, properties=None, query=None,
+            expand=None):
+        self._client = client
+        self._store = client.data_store
+        self._query = query
+        self._expand = expand
+
+        if href is not None:
+            if not isinstance(href, string_type):
+                raise TypeError("'href' must be a string type")
+            self._set_properties({'href': href})
+        elif properties is not None:
+            self._set_properties(properties)
+        else:
+            raise ValueError("%s: either 'href' or 'properties' are required",
+                self._resource_class__.__name__)
+
+    def __setattr__(self, name, value):
+        if name.startswith('_') or name in self.readwrite_attrs:
+            super(ResourceBase, self).__setattr__(name, value)
+        else:
+            raise AttributeError("Attribute '%s' of %s is not writable" %
+                (name, self.__class__.__name__))
+
+    def __getattr__(self, name):
+        if name == 'href':
+            return self.__dict__['href']
+
+        self._ensure_data()
+
+        if name in self.__dict__:
+            return self.__dict__[name]
+        else:
+            raise AttributeError("%s has no attribute '%s'" %
+                (self.__class__.__name__, name))
+
+    def get_resource_attributes(self):
+        return {}
+
+    def _wrap_resource_attr(self, cls, value):
+        if isinstance(value, ResourceBase):
+            return value
+        elif isinstance(value, dict):
+            return cls(self._client, properties=value)
+        elif value is None:
+            return None
+        else:
+            raise TypeError("Can't convert '%s' to '%s'" %
+                (type(value), cls.__name__))
+
+    @staticmethod
+    def _sanitize_property(value):
+        if isinstance(value, ResourceBase) and value.href:
+            return {'href': value.href}
+        else:
+            return value
+
+    def _set_properties(self, properties):
+        resource_attrs = self.get_resource_attributes()
+        for name, value in properties.items():
+            name = self.from_camel_case(name)
+            if name in resource_attrs:
+                value = self._wrap_resource_attr(resource_attrs[name],
+                    value)
+            elif isinstance(value, dict) and 'href' in value:
+                # no idea what kind of resource it is, but let's load it
+                # it anyways
+                value = ResourceBase(self._client, href=value['href'])
+            self.__dict__[name] = value
+
+    @staticmethod
+    def to_camel_case(name):
+        if '_' not in name:
+            return name
+        head, tail = name.split('_', 1)
+        tail = tail.title().replace('_', '')
+        return head + tail
+
+    @staticmethod
+    def from_camel_case(name):
+        cs = []
+        for c in name:
+            cl = c.lower()
+            if c == cl:
+                cs.append(c)
             else:
-                params.append(k)
-        return ",".join(params)
+                cs.append('_')
+                cs.append(c.lower())
+        return ''.join(cs)
 
+    def _get_properties(self):
+        data = {}
+        for k, v in self.__dict__.items():
+            if k in self.readwrite_attrs:
+                data[self.to_camel_case(k)] = self._sanitize_property(v)
+        return data
 
-class Resource(object):
+    def _get_property_names(self):
+        return [a for a in self.__dict__.keys() if not a.startswith('_')]
 
-    """
-    Resource is a thin layer over requests library
-    used by all Stormpath resources.
-    It implements basic CRUD functionality for Stormpath API.
-
-    """
-
-    def __init__(self, session=None, auth=None, expansion=None, **kwargs):
-        self._uid = None
-        self._is_dirty = False
-        self._expansion = expansion
-        self.fields = getattr(self, 'fields', [])
-        self.related_fields = getattr(self, 'related_fields', [])
-
-        if session:
-            self._session = session
-        elif auth:
-            self._session = Session(auth=auth())
-
-        self._data = kwargs.get('data', {})
-        self._data.update({k: v
-                           for k, v in kwargs.items()
-                           if k in self.fields})
-
-        self._related_data = kwargs.get('related_data', {})
-        self._related_data.update({k: v
-                                   for k, v in kwargs.items()
-                                   if k in self.related_fields})
-
-        if self._data:
-            self.url = self._data.get('href')
-            if self.url:
-                return
-
-        self.url = kwargs.get('url')
-        if not self.url:
-            id = kwargs.get('id')
-            if id:
-                path = '%s/%s' % (self.path, id)
-                self.url = '%s%s' % (API_URL, path)
+    def __dir__(self):
+        self._ensure_data()
+        return self._get_property_names()
 
     def __repr__(self):
-        try:
-            return "%s: %s" % (self.__class__.__name__, str(self))
-        except:
-            return self.__class__.__name__
+        return '<%s href=%s>' % (self.__class__.__name__, self.href)
 
     def __str__(self):
-        return self.url
+        try:
+            return self.name
+        except AttributeError:
+            return repr(self)
 
-    @property
-    def href(self):
-        """
-        Resource location.
+    def is_materialized(self):
+        return self._get_property_names() != ['href']
 
-        """
+    def is_new(self):
+        return self.href is None
 
-        if self.url:
-            return self.url
-
-        raise Exception('Resource not saved, href is not available.')
-
-    @property
-    def uid(self):
-        """
-        Resource location.
-
-        """
-
-        if self.url:
-            uid = self.url[self.url.rfind('/') + 1:]
-            return uid
-        raise Exception(
-            'Resource not saved, unique identifier is not available.')
-
-    def create(self):
-        """
-        Creates a new Resource.
-
-        https://www.stormpath.com/docs/rest/api#CreatingResources
-
-        """
-
-        url = '%s%s' % (API_URL, self.path)
-        resp = self._session.post(url, data=json.dumps(self._data))
-        if resp.status_code not in (200, 201):
-            raise Error(resp.json())
-
-        self._data = resp.json()
-
-    def read(self):
-        """
-        Loads data based on url provided.
-
-        https://www.stormpath.com/docs/rest/api#RetrievingResources
-
-        """
-
-        if self._data:
+    def _ensure_data(self):
+        if self.is_new() or self.is_materialized():
             return
 
         params = {}
-        if self._expansion:
-            params.update({'expand': self._expansion.params})
+        if self._query:
+            params.update(self._query)
+        if self._expand:
+            params.update({'expand': self._expand.get_params()})
+        if not params:
+            params = None
 
-        resp = self._session.get(self.url, params=params)
-        if resp.status_code != 200:
-            raise Error(resp.json())
+        data = self._store.get_resource(self.href, params=params)
+        self._set_properties(data)
 
-        self._data = resp.json()
 
-    def update(self):
-        """
-        Updates resource.
-
-        https://www.stormpath.com/docs/rest/api#UpdatingResources
-
-        """
-
-        data = {k: v for k, v in self._data.items() if k in self.fields}
-        resp = self._session.post(self.url, data=json.dumps(data))
-        if resp.status_code != 200:
-            raise Error(resp.json())
-
-        self._data = resp.json()
-
-    def delete(self):
-        """
-        Deletes resource.
-
-        https://www.stormpath.com/docs/rest/api#DeletingResources
-
-        """
-
-        resp = self._session.delete(self.url)
-        if resp.status_code != 204:
-            raise Exception('Unknown exception, DELETE failed')
-
-        self._data = None
-        self._uid = None
-        self.url = None
+class Resource(ResourceBase):
 
     def save(self):
-        """
-        Create or update resource.
+        if self.is_new():
+            raise ValueError("Can't save new resoures, use create instead")
+        self._store.update_resource(self.href, self._get_properties())
 
-        """
-
-        if not self._is_dirty:
-            return  # FIXME: return False or something related?
-
-        if self.uid:
-            self.update()
-        else:
-            self.create()
-
-    def __dir__(self):
-        return self.fields
-
-    def __getattr__(self, name):
-        data = self.__dict__.get('_data')
-        fields = self.__dict__.get('fields', [])
-        related_fields = self.__dict__.get('related_fields', [])
-
-        if name in fields or name in related_fields:
-            if not data and 'url' in self.__dict__:
-                self.read()
-                data = self.__dict__.get('_data')
-
-            if data and name in data:
-                return data[name]
-
-        raise AttributeError
-
-    def __setattr__(self, name, value):
-        data = self.__dict__.get('_data')
-        fields = self.__dict__.get('fields', [])
-        related_fields = self.__dict__.get('related_fields', [])
-
-        if name in fields or name in related_fields:
-            if not data and 'url' in self.__dict__:
-                self.read()
-                data = self.__dict__.get('_data')
-
-        if data and name in fields:
-            data[name] = value
-            object.__setattr__(self, '_is_dirty', True)
-        else:
-            object.__setattr__(self, name, value)
+    def delete(self):
+        if self.is_new():
+            return
+        self._store.delete_resource(self.href)
 
 
-class ResourceList(object):
+class StatusMixin(object):
 
-    """
-    List of resources.
+    STATUS_ENABLED = 'ENABLED'
+    STATUS_DISABLED = 'DISABLED'
 
-    """
+    def get_status(self):
+        self._ensure_data()
+        return self.__dict__.get('status', self.STATUS_DISABLED).upper()
 
-    def __init__(self, session=None, auth=None, resource=None,
-                url=None, *args, **kwargs):
-        self._session = session or Session(auth=auth())
-        self._resource_class = resource
-        self._url = url
+    def is_enabled(self):
+        return self.get_status() == self.STATUS_ENABLED
 
-        self._offset = 0
-        self._limit = 25
-        self._items = None
-        self._custom_request = False
-        self._cache = None
+    def is_disabled(self):
+        return self.get_status() == self.STATUS_DISABLED
 
-        if 'data' in kwargs.keys():
-            self._cache = kwargs.pop('data')
 
-        super(ResourceList, self).__init__(*args, **kwargs)
+class ResourceList(Resource):
 
-    def get(self, url, expansion=None):
-        """
-        Returns a resource for url provided.
+    resource_class = Resource
+    create_path = None
+    readonly_attrs = ('href', 'offset', 'limit', 'items')
 
-        """
-        resp = self._resource_class(session=self._session,
-                                    expansion=expansion, url=url)
-        return resp
+    def _set_properties(self, properties):
+        items = properties.pop('items', None)
+        super(ResourceList, self)._set_properties(properties)
+        if items is not None:
+            self.__dict__['items'] = [self._wrap_resource_attr(
+                self.resource_class, item) for item in items]
 
-    def create(self, *args, **kwargs):
-        """
-        Create a new resource for data provided.
+    def _get_next_page(self, offset, limit):
+        q = self._query or {}
+        # if the user explicitly asked for a limited set of data, do nothing
+        if 'offset' in q or 'limit' in q:
+            return []
 
-        """
+        q['offset'] = offset
+        q['limit'] = limit
 
-        if len(args) == 1:
-            data = args[0]
-        else:
-            data = kwargs.get('data') or kwargs
-        r = self._resource_class(session=self._session, data=data)
-        r.create()
-        return r
+        data = self._store.get_resource(self.href, params=q)
 
-    def offset(self, offset):
-        """
-        Set offset for search.
-
-        """
-
-        self._offset = offset
-        self._custom_request = True
-        return self
-
-    def limit(self, limit):
-        """
-        Set limit for search.
-
-        """
-
-        self._limit = limit
-        self._custom_request = True
-        return self
-
-    def order(self, order):
-        """
-        Set order for search.
-
-        """
-
-        self._order = order
-        self._custom_request = True
-        return self
-
-    def search(self, *args, **kwargs):
-        """
-        Search resource and limit results based on limit, offset and order.
-
-        """
-
-        if len(args) == 1:
-            self._query = args[0]
-
-        D = {k: v for k, v in kwargs.items() if k in self._resource_class.fields}
-        if D:
-            self._attr_query = D
-
-        self._custom_request = True
-        return self
-
-    def _params(self):
-        """
-        Prepare params for search.
-
-        """
-
-        params = {}
-        if hasattr(self, "_query"):
-            params['q'] = self._query
-
-        if hasattr(self, "_attr_query"):
-            for k, v in self._attr_query.items():
-                params[k] = v
-
-        if hasattr(self, "_limit"):
-            params['limit'] = self._limit
-
-        if hasattr(self, "_offset"):
-            params['offset'] = self._offset
-
-        if hasattr(self, "_order"):
-            params['orderBy'] = self._order
-
-        return params
-
-    def _fetch_items(self):
-        """
-        Actual request to fetch data from Stormpath.
-
-        """
-
-        params = self._params()
-
-        resp = self._session.get(self._url, params=params)
-        if resp.status_code != 200:
-            raise Exception(resp.json())
-
-        items = []
-        data = resp.json()
-        for item in data['items']:
-            m = self._resource_class(session=self._session, data=item)
-            items.append(m)
-
+        items = [self._wrap_resource_attr(self.resource_class,
+            item) for item in data['items']]
+        self.__dict__['items'].extend(items)
+        self.__dict__['limit'] += len(items)
         return items
 
-    def _fetch_next_page(self):
-        """
-        Change offset based on limit and fetch next page.
-
-        """
-
-        self._offset += self._limit
-        return self._fetch_items()
-
-    def __getitem__(self, key):
-        resp = self._session.get(self._url, data=json.dumps({}))
-        if resp.status_code != 200:
-            raise Error(resp.json())
-
-        data = resp.json()
-        item = data['items'][key]
-        return self._resource_class(session=self._session, data=item)
-
     def __iter__(self):
-        if not self._items:
-            if self._cache:
-                self._items = self._cache.copy()
-            else:
-                self._items = self._fetch_items()
-                self._cache = list(self._items)
+        self._ensure_data()
 
-        try:
-            while self._items:
-                item = self._items.pop(0)
+        items = self.__dict__['items']
+        offset = self.__dict__['offset']
+        limit = self.__dict__['limit']
+
+        while len(items) > 0:
+            for item in items:
                 yield item
+            if len(items) < limit:
+                break
+            offset += len(items)
+            items = self._get_next_page(offset, limit)
 
-                # if not self._items check next resource page/collection
-                if len(self._items) == 0 and self._custom_request is False:
-                    next_items = self._fetch_next_page()
-                    self._items.extend(next_items)
-                    self._cache.extend(next_items)
+        # update self._query so no more pagination is attempted
+        if self._query is None:
+            self._query = {}
+        self._query['offset'] = self.__dict__['offset']
+        self._query['limit'] = self.__dict__['limit']
 
-            else:
-                raise StopIteration
-        finally:
-            self._items = None
+    def __len__(self):
+        self._ensure_data()
+        return len(self.__dict__['items'])
+
+    def __getitem__(self, idx):
+        if isinstance(idx, slice):
+            start = idx.start or 0
+            stop = idx.stop or 0
+
+            query = {'offset': start}
+            if stop and stop > start:
+                query['limit'] = stop - start
+
+            return self.query(**query)
+
+        elif isinstance(idx, string_type):
+            return self.get(idx)
+
+        self._ensure_data()
+        return self.__dict__['items'][idx]
+
+    def get(self, href, expand=None):
+        if '/' not in href:
+            href = self._get_create_path() + '/' + href
+        return self.resource_class(self._client, href=href,
+            expand=expand)
+
+    def search(self, query):
+        return self.query(q=query)
+
+    def order(self, order_by):
+        return self.query(orderBy=order_by)
+
+    def query(self, **kwargs):
+        q = self._query or {}
+        q.update(kwargs)
+        return self.__class__(self._client, self.href, query=q)
+
+    def _get_create_path(self):
+        if self.create_path:
+            return self._client.BASE_URL + self.create_path
+        elif self.href.startswith(self._client.BASE_URL):
+            return self.href
+        else:
+            return self._client.BASE_URL + self.href
+
+    def create(self, properties, **params):
+        data = {}
+        for k, v in properties.items():
+            if k in self.resource_class.readwrite_attrs:
+                data[self.to_camel_case(k)] = self._sanitize_property(v)
+
+        params = {self.to_camel_case(k): v for k, v in params.items()}
+
+        return self.resource_class(self._client,
+            properties=self._store.create_resource(self._get_create_path(),
+                data, params=params))
