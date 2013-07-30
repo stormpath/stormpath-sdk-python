@@ -22,7 +22,7 @@ class TestExpansion(TestCase):
         p = e.get_params()
 
         self.assertTrue(p == 'quux(limit:5,offset:10)' or
-            p == 'quux(limit:10,offset:5)')
+            p == 'quux(offset:10,limit:5)')
 
 
 class TestCamelCaseConversions(TestCase):
