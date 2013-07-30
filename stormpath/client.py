@@ -10,10 +10,10 @@ from .resource.group_membership import GroupMembershipList
 class Client(object):
     BASE_URL = 'https://api.stormpath.com/v1'
 
-    def __init__(self, **kwargs):
+    def __init__(self, cache_options=None, **kwargs):
         # FIXME - can't use digest yet
         executor = HttpExecutor(self.BASE_URL, Auth(**kwargs).basic)
-        self.data_store = DataStore(executor)
+        self.data_store = DataStore(executor, cache_options)
         self.tenant = Tenant(client=self, href='/tenants/current')
 
     @property
