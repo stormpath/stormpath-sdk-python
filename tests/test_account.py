@@ -1,11 +1,13 @@
+# -*- coding: utf-8 -*-
+
 import unittest
 from tests.test_base import BaseTest
 import httpretty
 from httpretty import HTTPretty
 import json
 
-from stormpath.resource import (Directory, GroupResourceList,
-    GroupMembership, GroupMembershipResourceList)
+from stormpath.resource import (Directory, GroupList,
+    GroupMembership, GroupMembershipList, Resource)
 
 
 class TestAccount(BaseTest):
@@ -43,16 +45,16 @@ class TestAccount(BaseTest):
 
         self.assertEqual(account.username, username)
         self.assertEqual(account.email, email)
-        self.assertEqual(account.givenName, given_name)
+        self.assertEqual(account.given_name, given_name)
 
         self.assertEqual(HTTPretty.last_request.path, self.acc_path)
 
         self.assertEqual(account.surname, surname)
         self.assertEqual(account.directory.name, dir_name)
         self.assertIsInstance(account.directory, Directory)
-        self.assertIsInstance(account.groups, GroupResourceList)
+        self.assertIsInstance(account.groups, GroupList)
         self.assertIsInstance(account.group_memberships,
-            GroupMembershipResourceList)
+            GroupMembershipList)
 
     @httpretty.activate
     def test_delete(self):
@@ -248,7 +250,7 @@ class TestAccount(BaseTest):
         account_dict = {
             'username': username,
             'email': email,
-            'givenName': given_name,
+            'given_name': given_name,
             'surname': surname,
             'password': password
         }
@@ -262,9 +264,9 @@ class TestAccount(BaseTest):
 
         self.assertEqual(account.username, username)
         self.assertEqual(account.email, email)
-        self.assertEqual(account.givenName, given_name)
+        self.assertEqual(account.given_name, given_name)
         self.assertEqual(account.surname, surname)
-        self.assertEqual(account.email_verification_token, "TOKEN")
+        self.assertIsInstance(account.email_verification_token, Resource)
 
     @httpretty.activate
     def test_verify_email(self):
@@ -327,8 +329,9 @@ class TestAccount(BaseTest):
 
         account = directory.accounts.create(account_dict)
 
-        self.assertEqual(account.email_verification_token, "TOKEN")
-        token = account.email_verification_token
+        self.assertIsInstance(account.email_verification_token, Resource)
+        token = account.email_verification_token.get(self.base_href +
+                            "/accounts/emailVerificationToken/TOKEN")
 
         verification_body = {'href': self.acc_href}
 
@@ -386,10 +389,11 @@ class TestAccount(BaseTest):
             content_type="application/json")
 
         application = self.client.applications.get(self.app_href)
-        account = application.authenticate_account("USERNAME", "PASSWORD")
+        account = application.authenticate_account("USERNAME", "PAŠVORD")
 
-        self.assertEqual(HTTPretty.last_request.method, "GET")
-        self.assertEqual(HTTPretty.last_request.path, self.acc_path)
+        self.assertEqual(HTTPretty.last_request.method, "POST")
+        self.assertEqual(HTTPretty.last_request.path,
+            "%s/%s" % (self.app_path, "loginAttempts"))
 
         self.assertEqual(application.href, self.app_href)
         self.assertEqual(account.href, self.acc_href)
@@ -421,10 +425,15 @@ class TestAccount(BaseTest):
             body=json.dumps(self.acc_body),
             content_type="application/json")
 
+        httpretty.register_uri(httpretty.GET,
+            self.grp_href,
+            body=json.dumps(self.grp_body),
+            content_type="application/json")
+
         account = self.client.accounts.get(self.acc_href)
 
         group_name = 'GRP_NAME'
-        group = account.directory.create_group({"name": group_name})
+        group = account.directory.groups.create({"name": group_name})
 
         self.assertEqual(HTTPretty.last_request.method, 'POST')
         self.assertEqual(HTTPretty.last_request.path,

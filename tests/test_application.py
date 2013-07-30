@@ -5,9 +5,10 @@ from httpretty import HTTPretty
 import json
 import re
 
-from stormpath.resource import (Tenant, Account, AccountResourceList,
-    GroupResourceList)
+from stormpath.resource import (Tenant, Account, AccountList,
+    GroupList, PasswordResetTokenList)
 from stormpath import Error as StormpathError
+
 
 class TestApplication(BaseTest):
 
@@ -35,8 +36,7 @@ class TestApplication(BaseTest):
         self.assertEqual(application.status, self.app_body['status'])
         self.assertEqual(HTTPretty.last_request.path, self.app_path)
 
-        self.assertIsInstance(application.accounts, AccountResourceList)
-        self.assertIsInstance(application.tenant, Tenant)
+        self.assertIsInstance(application.accounts, AccountList)
 
     @httpretty.activate
     def test_delete(self):
@@ -270,7 +270,8 @@ class TestApplication(BaseTest):
 
         account = application.send_password_reset_email(email)
 
-        self.assertEqual(account.password_reset_token, "TOKEN")
+        self.assertIsInstance(application.password_reset_tokens,
+            PasswordResetTokenList)
         self.assertIsInstance(account, Account)
         self.assertTrue(account.href)
         self.assertEqual(account.email, email)
@@ -311,7 +312,7 @@ class TestApplication(BaseTest):
 
         self.assertIsInstance(account, Account)
         self.assertTrue(account.href)
-        self.assertTrue(account.givenName)
+        self.assertTrue(account.given_name)
 
     @httpretty.activate
     def test_search(self):
@@ -350,22 +351,22 @@ class TestApplication(BaseTest):
         for acc in accounts:
             pass
 
-        regex = '\/v1\/applications\/APP_ID\/accounts\?' \
-            + '.*((?=.*offset=0)(?=.*limit=25)(?=.*q=ACC_USERNAME).*$)'
-        self.assertIsInstance(accounts, AccountResourceList)
+        self.assertIsInstance(accounts, AccountList)
         self.assertEqual(HTTPretty.last_request.method, 'GET')
-        self.assertIsNotNone(re.search(regex, HTTPretty.last_request.path))
+        self.assertEqual(HTTPretty.last_request.path,
+            "%s/accounts?q=%s" % (self.app_path, self.acc_body['username']))
 
         # search application accounts with attributes
-        accounts = application.accounts.search(givenName="ACC_USERNAME")
+        accounts = application.accounts.search({
+            'given_name': self.acc_body['username']})
         for acc in accounts:
             pass
 
-        regex = '\/v1\/applications\/APP_ID\/accounts\?' \
-            + '.*((?=.*offset=0)(?=.*limit=25)(?=.*givenName=ACC_USERNAME).*$)'
-        self.assertIsInstance(accounts, AccountResourceList)
+        self.assertIsInstance(accounts, AccountList)
         self.assertEqual(HTTPretty.last_request.method, 'GET')
-        self.assertIsNotNone(re.search(regex, HTTPretty.last_request.path))
+        self.assertEqual(HTTPretty.last_request.path,
+            "%s/accounts?givenName=%s" % (self.app_path,
+                                        self.acc_body['username']))
 
         self.resource_body = {
             "href": self.app_href + "/groups",
@@ -384,22 +385,21 @@ class TestApplication(BaseTest):
         for group in groups:
             pass
 
-        regex = '\/v1\/applications\/APP_ID\/groups\?' \
-            + '.*((?=.*offset=0)(?=.*limit=25)(?=.*q=GRP_NAME).*$)'
-        self.assertIsInstance(groups, GroupResourceList)
+        self.assertIsInstance(groups, GroupList)
         self.assertEqual(HTTPretty.last_request.method, 'GET')
-        self.assertIsNotNone(re.search(regex, HTTPretty.last_request.path))
+        self.assertEqual(HTTPretty.last_request.path,
+            "%s/groups?q=%s" % (self.app_path, self.grp_body['name']))
 
         # search application groups with attributes
-        groups = application.groups.search(name=self.grp_body['name'])
+        groups = application.groups.search({
+            'name': self.grp_body['name']})
         for group in groups:
             pass
 
-        regex = '\/v1\/applications\/APP_ID\/groups\?' \
-            + '.*((?=.*offset=0)(?=.*limit=25)(?=.*name=GRP_NAME).*$)'
-        self.assertIsInstance(groups, GroupResourceList)
+        self.assertIsInstance(groups, GroupList)
         self.assertEqual(HTTPretty.last_request.method, 'GET')
-        self.assertIsNotNone(re.search(regex, HTTPretty.last_request.path))
+        self.assertEqual(HTTPretty.last_request.path,
+            "%s/groups?name=%s" % (self.app_path, self.grp_body['name']))
 
     @httpretty.activate
     def test_associations(self):

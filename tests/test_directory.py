@@ -5,8 +5,7 @@ from httpretty import HTTPretty
 import json
 import re
 
-from stormpath.resource import (AccountResourceList, GroupResourceList,
-    Tenant, Account, Group)
+from stormpath.resource import (AccountList, GroupList, Account, Group)
 
 
 class TestDirectory(BaseTest):
@@ -36,9 +35,8 @@ class TestDirectory(BaseTest):
 
         self.assertEqual(HTTPretty.last_request.path, self.dir_path)
 
-        self.assertIsInstance(directory.accounts, AccountResourceList)
-        self.assertIsInstance(directory.groups, GroupResourceList)
-        self.assertIsInstance(directory.tenant, Tenant)
+        self.assertIsInstance(directory.accounts, AccountList)
+        self.assertIsInstance(directory.groups, GroupList)
 
     @httpretty.activate
     def test_delete(self):
@@ -289,7 +287,7 @@ class TestDirectory(BaseTest):
             content_type="application/json")
 
         name = "GRP_NAME"
-        group = directory.create_group({"name": name})
+        group = directory.groups.create({"name": name})
 
         self.assertEqual(HTTPretty.last_request.method, 'POST')
         self.assertEqual(HTTPretty.last_request.path,
@@ -341,22 +339,22 @@ class TestDirectory(BaseTest):
         for acc in accounts:
             pass
 
-        regex = '\/v1\/directories\/DIR_ID\/accounts\?' \
-            + '.*((?=.*offset=0)(?=.*limit=25)(?=.*q=ACC_USERNAME).*$)'
-        self.assertIsInstance(accounts, AccountResourceList)
+        self.assertIsInstance(accounts, AccountList)
         self.assertEqual(HTTPretty.last_request.method, 'GET')
-        self.assertIsNotNone(re.search(regex, HTTPretty.last_request.path))
+        self.assertEqual(HTTPretty.last_request.path,
+            "%s/accounts?q=%s" % (self.dir_path, self.acc_body['username']))
 
         # search directory accounts with attributes
-        accounts = directory.accounts.search(givenName=self.acc_body['username'])
+        accounts = directory.accounts.search({
+            'givenName': self.acc_body['username']})
         for acc in accounts:
             pass
 
-        regex = '\/v1\/directories\/DIR_ID\/accounts\?' \
-            + '.*((?=.*offset=0)(?=.*limit=25)(?=.*givenName=ACC_USERNAME).*$)'
-        self.assertIsInstance(accounts, AccountResourceList)
+        self.assertIsInstance(accounts, AccountList)
         self.assertEqual(HTTPretty.last_request.method, 'GET')
-        self.assertIsNotNone(re.search(regex, HTTPretty.last_request.path))
+        self.assertEqual(HTTPretty.last_request.path,
+            "%s/accounts?givenName=%s" % (self.dir_path,
+                self.acc_body['username']))
 
         # search directory groups without attributes
         self.resource_body = {
@@ -375,22 +373,21 @@ class TestDirectory(BaseTest):
         for group in groups:
             pass
 
-        regex = '\/v1\/directories\/DIR_ID\/groups\?' \
-            + '.*((?=.*offset=0)(?=.*limit=25)(?=.*q=GRP_NAME).*$)'
-        self.assertIsInstance(groups, GroupResourceList)
+        self.assertIsInstance(groups, GroupList)
         self.assertEqual(HTTPretty.last_request.method, 'GET')
-        self.assertIsNotNone(re.search(regex, HTTPretty.last_request.path))
+        self.assertEqual(HTTPretty.last_request.path,
+            "%s/groups?q=%s" % (self.dir_path, self.grp_body['name']))
 
         # search directory groups with attributes
-        groups = directory.groups.search(name="GRP_NAME")
+        groups = directory.groups.search({
+            'name': 'GRP_NAME'})
         for group in groups:
             pass
 
-        regex = '\/v1\/directories\/DIR_ID\/groups\?' \
-            + '.*((?=.*offset=0)(?=.*limit=25)(?=.*name=GRP_NAME).*$)'
-        self.assertIsInstance(groups, GroupResourceList)
+        self.assertIsInstance(groups, GroupList)
         self.assertEqual(HTTPretty.last_request.method, 'GET')
-        self.assertIsNotNone(re.search(regex, HTTPretty.last_request.path))
+        self.assertEqual(HTTPretty.last_request.path,
+            "%s/groups?name=%s" % (self.dir_path, self.grp_body['name']))
 
     @httpretty.activate
     def test_associations(self):

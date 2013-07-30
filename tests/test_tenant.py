@@ -23,7 +23,7 @@ class TestTenant(BaseTest):
             body=json.dumps(self.tenant_body),
             content_type="application/json")
 
-        self.assertEqual(self.client.tenant.href, self.base_href + "/tenants/current")
+        self.assertEqual(self.client.tenant.href, "/tenants/current")
         self.assertEqual(self.client.tenant.name, self.tenant_body['name'])
         self.assertEqual(self.client.tenant.key, self.tenant_body['key'])
 
@@ -57,11 +57,10 @@ class TestTenant(BaseTest):
         for app in applications:
             pass
 
-        regex = '\/v1\/tenants/TENANT_ID\/applications\?' \
-            + '.*((?=.*offset=0)(?=.*limit=25)(?=.*q=APP_NAME).*$)'
         self.assertIsInstance(applications, ResourceList)
         self.assertEqual(HTTPretty.last_request.method, 'GET')
-        self.assertIsNotNone(re.search(regex, HTTPretty.last_request.path))
+        self.assertEqual(HTTPretty.last_request.path,
+            "%s/applications?q=%s" % (self.tenant_path, self.app_body['name']))
 
         # search tenant directories
         self.resource_body = {
@@ -80,11 +79,10 @@ class TestTenant(BaseTest):
         for directory in directories:
             pass
 
-        regex = '\/v1\/tenants/TENANT_ID\/directories\?' \
-            + '.*((?=.*offset=0)(?=.*limit=25)(?=.*q=DIR_NAME).*$)'
         self.assertIsInstance(directories, ResourceList)
         self.assertEqual(HTTPretty.last_request.method, 'GET')
-        self.assertIsNotNone(re.search(regex, HTTPretty.last_request.path))
+        self.assertEqual(HTTPretty.last_request.path,
+            "%s/directories?q=%s" % (self.tenant_path, self.dir_body['name']))
 
     @httpretty.activate
     def test_associations(self):
