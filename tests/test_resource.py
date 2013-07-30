@@ -1,4 +1,4 @@
-from unittest import TestCase
+from unittest import TestCase, main
 
 from mock import MagicMock
 from stormpath.resource.base import Expansion, Resource, ResourceList
@@ -327,3 +327,6 @@ class TestResourceList(TestCase):
         self.assertEqual(a.href, 'test/resource')
         self.assertEqual(b.href, 'test/resource')
         self.assertEqual(c.href, 'another/resource')
+
+if __name__ == '__main__':
+    main()

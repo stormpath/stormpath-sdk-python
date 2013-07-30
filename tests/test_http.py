@@ -1,4 +1,4 @@
-from unittest import TestCase
+from unittest import TestCase, main
 from stormpath.http import HttpExecutor
 from stormpath.error import Error
 
@@ -59,3 +59,6 @@ class HttpTest(TestCase):
         data = ex.get('/first')
 
         self.assertEqual(data, {'hello': 'World'})
+
+if __name__ == '__main__':
+    main()

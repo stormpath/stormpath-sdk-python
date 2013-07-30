@@ -1,4 +1,4 @@
-from unittest import TestCase
+from unittest import TestCase, main
 from stormpath.error import Error
 
 
@@ -34,3 +34,6 @@ class ErrorTest(TestCase):
 
         self.assertEqual(e.status, -1)
         self.assertEqual(e.code, -1)
+
+if __name__ == '__main__':
+    main()

@@ -1,4 +1,4 @@
-from unittest import TestCase
+from unittest import TestCase, main
 from stormpath.auth import Auth, Sauthc1Signer
 
 from mock import patch, Mock, MagicMock
@@ -61,3 +61,6 @@ class AuthTest(TestCase):
             'SAuthc1 sauthc1Id=MyId/20130701/a43a9d25-ab06-421e-8605-33fd1e760825/sauthc1_request, ' +  # noqa
             'sauthc1SignedHeaders=host;x-stormpath-date, ' +
             'sauthc1Signature=990a95aabbcbeb53e48fb721f73b75bd3ae025a2e86ad359d08558e1bbb9411c')  # noqa
+
+if __name__ == '__main__':
+    main()
