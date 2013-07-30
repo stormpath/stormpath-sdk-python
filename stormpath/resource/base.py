@@ -274,6 +274,8 @@ class ResourceList(Resource):
             expand=expand)
 
     def search(self, query):
+        if isinstance(query, dict):
+            return self.query(**query)
         return self.query(q=query)
 
     def order(self, order_by):
@@ -282,6 +284,7 @@ class ResourceList(Resource):
     def query(self, **kwargs):
         q = self._query or {}
         q.update(kwargs)
+        q = {self.to_camel_case(k): v for k, v in q.items()}
         return self.__class__(self._client, self.href, query=q)
 
     def _get_create_path(self):
