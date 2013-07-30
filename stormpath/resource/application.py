@@ -10,9 +10,11 @@ class Application(Resource, StatusMixin):
     def get_resource_attributes(self):
         from .tenant import Tenant
         from .account import AccountList
+        from .group import GroupList
         return {
             'tenant': Tenant,
             'accounts': AccountList,
+            'groups': GroupList,
             'password_reset_tokens': PasswordResetTokenList,
             'login_attempts': LoginAttemptList,
         }

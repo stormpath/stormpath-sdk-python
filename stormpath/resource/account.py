@@ -20,7 +20,7 @@ class Account(Resource, StatusMixin):
         return self.username
 
     def add_group(self, group):
-        self._client.group_memberships.create({
+        return self._client.group_memberships.create({
             'account': self,
             'group': group
         })

@@ -15,12 +15,12 @@ class Group(Resource, StatusMixin):
             'accounts': AccountList
         }
 
-
-class GroupList(ResourceList):
-    resource_class = Group
-
     def add_account(self, account):
-        self._client.group_memberships.create({
+        return self._client.group_memberships.create({
             'group': self,
             'account': account
         })
+
+
+class GroupList(ResourceList):
+    resource_class = Group
