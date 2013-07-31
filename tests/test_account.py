@@ -12,7 +12,6 @@ from stormpath.resource import (Directory, GroupList,
 
 class TestAccount(BaseTest):
 
-    @unittest.expectedFailure  # FIXME
     @httpretty.activate
     def test_properties(self):
 
@@ -269,7 +268,6 @@ class TestAccount(BaseTest):
         self.assertEqual(account.surname, surname)
         self.assertIsInstance(account.email_verification_token, Resource)
 
-    @unittest.expectedFailure  # FIXME
     @httpretty.activate
     def test_verify_email(self):
         httpretty.register_uri(httpretty.GET,
@@ -304,17 +302,17 @@ class TestAccount(BaseTest):
             "groupMemberships": {
                 "href": self.acc_href + "/groupMemberships"
                 },
-                "directory": {
-                    "href": self.dir_href
-                    },
-                    "tenant": {
-                        "href": self.tenant_href
-                        },
-                    "emailVerificationToken": {
-                        "href": self.base_href +
-                            "/accounts/emailVerificationToken/TOKEN"
-                    }
+            "directory": {
+                "href": self.dir_href
+                },
+            "tenant": {
+                "href": self.tenant_href
+                },
+            "emailVerificationToken": {
+                "href": self.base_href +
+                    "/accounts/emailVerificationTokens/TOKEN"
                 }
+            }
 
         httpretty.register_uri(httpretty.POST,
             self.dir_href + "/accounts",
@@ -332,18 +330,15 @@ class TestAccount(BaseTest):
         account = directory.accounts.create(account_dict)
 
         self.assertIsInstance(account.email_verification_token, Resource)
-        token = account.email_verification_token.get(self.base_href +
-                            "/accounts/emailVerificationToken/TOKEN")
 
         verification_body = {'href': self.acc_href}
-
         httpretty.register_uri(httpretty.POST,
             self.base_href + "/accounts/emailVerificationTokens/TOKEN",
             body=json.dumps(verification_body),
             content_type="application/json")
 
-        account = directory.accounts.verify_email_token(token)
-
+        self.assertEqual(account.status, 'UNVERIFIED')
+        account = account.verify_email_token('TOKEN')
         self.assertEqual(HTTPretty.last_request.method, 'POST')
         self.assertEqual(HTTPretty.last_request.path,
             self.base_path + "/accounts/emailVerificationTokens/TOKEN")
@@ -355,7 +350,26 @@ class TestAccount(BaseTest):
 
         self.assertEqual(account.username, "USERNAME")
         self.assertEqual(account.email, "EMAIL")
-        self.assertEqual(account.givenName, "GNAME")
+        self.assertEqual(account.given_name, "GNAME")
+
+        invalid_token = {
+            "code": 404,
+            "developerMessage": "The requested resource does not exist.",
+            "message": "The requested resource does not exist.",
+            "moreInfo": "mailto:support@stormpath.com",
+            "status": 404
+        }
+
+
+        httpretty.register_uri(httpretty.POST,
+            self.base_href + "/accounts/emailVerificationTokens/TOKEN",
+            body=json.dumps(invalid_token),
+            status=404)
+
+        account = directory.accounts.create(account_dict)
+        account = account.verify_email_token('TOKEN')
+        self.assertIsNone(account)
+
 
     @httpretty.activate
     def test_authenticate(self):
@@ -400,7 +414,6 @@ class TestAccount(BaseTest):
         self.assertEqual(application.href, self.app_href)
         self.assertEqual(account.href, self.acc_href)
 
-    @unittest.expectedFailure  # FIXME
     @httpretty.activate
     def test_add_group(self):
         httpretty.register_uri(httpretty.GET,
