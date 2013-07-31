@@ -1,4 +1,4 @@
-from unittest import TestCase
+from unittest import TestCase, main
 try:
     from mock import patch, call, MagicMock
 except ImportError:
@@ -117,3 +117,6 @@ class TestDataStoreWithMemoryCache(TestCase):
 
         ex.get.assert_called_once_with('http://example.com/accounts/FOO',
             params=None)
+
+if __name__ == '__main__':
+    main()

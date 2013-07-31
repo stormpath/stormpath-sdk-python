@@ -1,4 +1,4 @@
-from unittest import TestCase
+from unittest import TestCase, main
 try:
     from mock import patch, MagicMock
 except ImportError:
@@ -303,3 +303,6 @@ class TestRedisStore(TestCase):
         s['bar'] = CacheEntry(1)
         s.clear()
         self.assertEqual(len(s), 0)
+
+if __name__ == '__main__':
+    main()
