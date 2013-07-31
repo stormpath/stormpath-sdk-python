@@ -7,23 +7,16 @@ import datetime
 
 class AuthTest(TestCase):
 
-    def test_auth_key_file_parsing(self):
-        mock_fp = MagicMock(spec=file)
-        # mocking depends on the jprops internals (iterating through fp
-        # context manager to get the lines) - can't be helped :(
-        mock_fp.__enter__.return_value.__iter__.return_value = [
-            'apiKey.id=MyId\n',
-            'apiKey.secret=Shush!\n']
-        mock_open = Mock()
-        mock_open.return_value = mock_fp
+    @patch.object(Auth, '_load_properties')
+    def test_auth_key_file_parsing(self, _load_properties):
+        _load_properties.return_value = {
+            'apiKey.id': 'MyId',
+            'apiKey.secret': 'Shush!'
+        }
         mock_isfile = MagicMock(return_value=True)
 
-        with patch('stormpath.auth.open', mock_open, create=True):
-            with patch('stormpath.auth.isfile', mock_isfile):
-                a = Auth(api_key_file_location='apiKey.properties')
-
-        mock_open.assert_called_once_with('apiKey.properties', 'rb')
-
+        with patch('stormpath.auth.isfile', mock_isfile):
+            a = Auth(api_key_file_location='apiKey.properties')
         self.assertEqual(a.id, 'MyId')
         self.assertEqual(a.secret, 'Shush!')
 

@@ -57,16 +57,14 @@ class TestCommand(BaseCommand):
 # python setup.py install
 
 if sys.version_info.major == 3:
-    REQUIRES = ["requests>=1.1.0", "jprops>=1.0",
-        "httpretty==0.6.1", "pytest"]
+    REQUIRES = ["requests>=1.1.0", "httpretty==0.6.1", "pytest"]
     classifiers = [
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.3",
     ]
 else:
-    REQUIRES = ["requests>=1.1.0", "jprops>=1.0",
-        "httpretty>=0.6.1", "mock>=1.0.1", "pytest"]
+    REQUIRES = ["requests>=1.1.0", "httpretty>=0.6.1", "mock>=1.0.1", "pytest"]
     classifiers = [
         "Programming Language :: Python",
         "Programming Language :: Python :: 2",

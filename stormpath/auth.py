@@ -1,4 +1,3 @@
-import jprops
 import hashlib
 import hmac
 import binascii
@@ -7,6 +6,7 @@ from uuid import uuid4
 from requests.auth import HTTPBasicAuth, AuthBase
 from collections import OrderedDict
 from os.path import isfile
+import codecs
 try:
     from urllib.parse import urlparse, quote
 except ImportError:
@@ -204,20 +204,31 @@ class Auth(object):
 
         raise ValueError('No valid authentication sources found')
 
-    def _read_api_key_file(self, fname, id_name, secret_name):
+    @staticmethod
+    def _load_properties(fname):
+        import codecs
+
+        props = {}
         if not fname or not isfile(fname):
-            return False
+            return props
+
         try:
-            with open(fname, 'rb') as fp:
-                cred = jprops.load_properties(fp)
-                # we want this to break if id or secret props aren't there
-                self._id = cred[id_name]
-                self._secret = cred[secret_name]
-            return True
-        except:
-            self._id = None
-            self._secret = None
-            return False
+            with codecs.open(fname, 'r', encoding='utf-8') as fd:
+                for line in fd:
+                    line = line.strip()
+                    if line.startswith('#') or '=' not in line:
+                        continue
+                    k, v = line.split('=', 1)
+                    props[k] = v
+            return props
+        except UnicodeDecodeError:
+            return {}
+
+    def _read_api_key_file(self, fname, id_name, secret_name):
+        cred = self._load_properties(fname)
+        self._id = cred.get(id_name)
+        self._secret = cred.get(secret_name)
+        return (self._id and self._secret)
 
     def __call__(self):
         return self.digest
