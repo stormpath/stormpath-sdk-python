@@ -170,7 +170,6 @@ class TestGroup(BaseTest):
         self.assertEqual(HTTPretty.last_request.method, 'POST')
         self.assertEqual(HTTPretty.last_request.path, self.dir_path + "/groups")
 
-    @unittest.expectedFailure  # FIXME
     @httpretty.activate
     def test_add_account(self):
         httpretty.register_uri(httpretty.GET,
@@ -285,7 +284,6 @@ class TestGroup(BaseTest):
     #        "%s/accounts?givenName=%s" % (self.grp_path,
     #                                    self.acc_body['username']))
 
-    @unittest.expectedFailure  # FIXME
     @httpretty.activate
     def test_associations(self):
         httpretty.register_uri(httpretty.GET,

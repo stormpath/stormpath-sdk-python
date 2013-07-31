@@ -230,7 +230,6 @@ class TestApplication(BaseTest):
         exception = context.exception
         self.assertEqual(exception.message, error['message'])
 
-    @unittest.expectedFailure  # FIXME
     @httpretty.activate
     def test_send_password_reset_email(self):
         httpretty.register_uri(httpretty.GET,
@@ -277,7 +276,6 @@ class TestApplication(BaseTest):
         self.assertTrue(account.href)
         self.assertEqual(account.email, email)
 
-    @unittest.expectedFailure  # FIXME
     @httpretty.activate
     def test_verify_password_reset_token(self):
         httpretty.register_uri(httpretty.GET,
@@ -403,7 +401,6 @@ class TestApplication(BaseTest):
         self.assertEqual(HTTPretty.last_request.path,
             "%s/groups?name=%s" % (self.app_path, self.grp_body['name']))
 
-    @unittest.expectedFailure  # FIXME
     @httpretty.activate
     def test_associations(self):
         httpretty.register_uri(httpretty.GET,
