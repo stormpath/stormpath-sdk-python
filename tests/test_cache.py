@@ -1,6 +1,8 @@
-from unittest import TestCase
-from mock import patch, MagicMock
-
+from unittest import TestCase, main
+try:
+    from mock import patch, MagicMock
+except ImportError:
+    from unittest.mock import patch, MagicMock
 from stormpath.cache.entry import CacheEntry
 from stormpath.cache.stats import CacheStats
 from stormpath.cache.cache import Cache
@@ -301,3 +303,6 @@ class TestRedisStore(TestCase):
         s['bar'] = CacheEntry(1)
         s.clear()
         self.assertEqual(len(s), 0)
+
+if __name__ == '__main__':
+    main()

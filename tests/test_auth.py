@@ -1,7 +1,9 @@
 from unittest import TestCase, main
 from stormpath.auth import Auth, Sauthc1Signer
-
-from mock import patch, Mock, MagicMock
+try:
+    from mock import patch, MagicMock
+except ImportError:
+    from unittest.mock import patch, MagicMock
 import datetime
 
 

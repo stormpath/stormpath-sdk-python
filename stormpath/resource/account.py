@@ -1,4 +1,5 @@
 from .base import Resource, ResourceList, StatusMixin
+from ..error import Error
 
 
 class Account(Resource, StatusMixin):
@@ -25,10 +26,17 @@ class Account(Resource, StatusMixin):
             'group': group
         })
 
+    def verify_email_token(self, token):
+        href = '/accounts/emailVerificationTokens/' + token
+        try:
+            data = self._store.create_resource(href, {})
+        except Error as e:
+            if e.code == 404:
+                return None
+            else:
+                raise
+        return self.__class__(properties=data, client=self._client)
 
 class AccountList(ResourceList):
     resource_class = Account
 
-    def verify_email_token(self, token):
-        href = '/accounts/emailVerificationTokens/' + token
-        self._store.create_resource(href, {})

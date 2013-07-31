@@ -1,5 +1,8 @@
-from unittest import TestCase
-from mock import patch, call, MagicMock
+from unittest import TestCase, main
+try:
+    from mock import patch, call, MagicMock
+except ImportError:
+    from unittest.mock import patch, call, MagicMock
 
 from stormpath.data_store import DataStore
 
@@ -32,7 +35,7 @@ class TestDataStore(TestCase):
         get_cache = CacheManager.return_value.get_cache
 
         c = ds._get_cache('https://www.example.com/accounts/ACCOUNTID')
-        #self.assertTrue(c, get_cache.return_value)
+        self.assertTrue(c, get_cache.return_value)
         get_cache.assert_called_once_with('accounts')
 
     def test_recursive_cache_put(self, CacheManager):
@@ -114,3 +117,6 @@ class TestDataStoreWithMemoryCache(TestCase):
 
         ex.get.assert_called_once_with('http://example.com/accounts/FOO',
             params=None)
+
+if __name__ == '__main__':
+    main()

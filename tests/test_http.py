@@ -2,8 +2,10 @@ from unittest import TestCase, main
 from stormpath.http import HttpExecutor
 from stormpath.error import Error
 
-from mock import patch, MagicMock
-
+try:
+    from mock import patch, MagicMock
+except ImportError:
+    from unittest.mock import patch, MagicMock
 
 class HttpTest(TestCase):
 

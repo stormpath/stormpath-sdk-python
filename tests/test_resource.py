@@ -1,6 +1,8 @@
 from unittest import TestCase, main
-
-from mock import MagicMock
+try:
+    from mock import MagicMock
+except ImportError:
+    from unittest.mock import MagicMock
 from stormpath.resource.base import Expansion, Resource, ResourceList
 
 
