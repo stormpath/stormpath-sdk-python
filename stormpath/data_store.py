@@ -56,7 +56,8 @@ class DataStore(object):
                             'href': item['href']
                         })
                 else:
-                    self._cache_put(value['href'], value)
+                    if len(value) > 1:
+                        self._cache_put(value['href'], value)
             else:
                 v2 = value
             resource_data[name] = v2
