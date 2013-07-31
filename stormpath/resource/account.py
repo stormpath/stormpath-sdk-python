@@ -31,7 +31,7 @@ class Account(Resource, StatusMixin):
         try:
             data = self._store.create_resource(href, {})
         except Error as e:
-            if e.code == 404:
+            if e.status == 404:
                 return None
             else:
                 raise
