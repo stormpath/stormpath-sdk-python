@@ -6,7 +6,6 @@ from uuid import uuid4
 from requests.auth import HTTPBasicAuth, AuthBase
 from collections import OrderedDict
 from os.path import isfile
-import codecs
 try:
     from urllib.parse import urlparse, quote
 except ImportError:
