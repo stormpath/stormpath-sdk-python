@@ -43,7 +43,8 @@ class TestCommand(BaseCommand):
 
     def run(self):
         try:
-            subprocess.call("py.test")
+            ret = subprocess.call("py.test")
+            sys.exit(ret)
         except OSError:
             os.chdir('tests')
             for test in self.tests:
