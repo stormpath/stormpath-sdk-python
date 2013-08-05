@@ -7,7 +7,7 @@ import re
 
 from stormpath.resource import (Tenant, Account, AccountList,
     GroupList, PasswordResetTokenList)
-from stormpath import Error as StormpathError
+from stormpath.error import Error as StormpathError
 
 
 class TestApplication(BaseTest):
