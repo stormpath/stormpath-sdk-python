@@ -4,7 +4,7 @@ from ..error import Error
 
 class Account(Resource, StatusMixin):
     readwrite_attrs = ('username', 'password', 'email', 'given_name',
-        'middle_name', 'surname', 'status', 'email_verification_token')
+        'middle_name', 'surname', 'status')
 
     def get_resource_attributes(self):
         from .directory import Directory
