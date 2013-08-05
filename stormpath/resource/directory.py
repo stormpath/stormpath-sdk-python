@@ -7,7 +7,9 @@ class Directory(Resource, StatusMixin):
     def get_resource_attributes(self):
         from .account import AccountList
         from .group import GroupList
+        from .tenant import Tenant
         return {
+            'tenant': Tenant,
             'accounts': AccountList,
             'groups': GroupList
         }
