@@ -3,6 +3,8 @@ from .base import Resource, ResourceList
 
 class Tenant(Resource):
 
+    writable_attrs = ('name', 'key')
+
     def get_resource_attributes(self):
         from .application import ApplicationList
         from .directory import DirectoryList
