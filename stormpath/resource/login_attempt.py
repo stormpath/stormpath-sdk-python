@@ -3,7 +3,7 @@ from .base import Resource, ResourceList
 
 
 class LoginAttempt(Resource):
-    readwrite_attrs = ('type', 'value')
+    writable_attrs = ('type', 'value')
 
     def get_resource_attributes(self):
         from .account import Account

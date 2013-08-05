@@ -2,7 +2,7 @@ from .base import Resource, ResourceList, StatusMixin
 
 
 class Group(Resource, StatusMixin):
-    readwrite_attrs = ('name', 'description', 'status')
+    writable_attrs = ('name', 'description', 'status')
 
     def get_resource_attributes(self):
         from .tenant import Tenant

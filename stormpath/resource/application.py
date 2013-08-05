@@ -5,7 +5,7 @@ from ..error import Error
 
 
 class Application(Resource, StatusMixin):
-    readwrite_attrs = ('name', 'description', 'status')
+    writable_attrs = ('name', 'description', 'status')
 
     def get_resource_attributes(self):
         from .tenant import Tenant

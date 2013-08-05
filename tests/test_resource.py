@@ -102,10 +102,10 @@ class TestBaseResource(TestCase):
         self.assertEqual(name, 'Test Resource')
 
 
-    def test_readwrite_attributes(self):
+    def test_writable_attributes(self):
 
         class Res(Resource):
-            readwrite_attrs = ('name')
+            writable_attrs = ('name')
 
         r = Res(MagicMock(), properties={
             'href': 'test/resource',
@@ -173,7 +173,7 @@ class TestBaseResource(TestCase):
         ds.update_resource.return_value.status_code = 200
 
         class Res(Resource):
-            readwrite_attrs = ('some_property')
+            writable_attrs = ('some_property')
 
         r = Res(MagicMock(data_store=ds), href='test/resource')
         r.some_property = 'hello world'

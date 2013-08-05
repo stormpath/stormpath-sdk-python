@@ -2,7 +2,7 @@ from .base import Resource, ResourceList
 
 
 class GroupMembership(Resource):
-    readwrite_attrs = ('account', 'group')
+    writable_attrs = ('account', 'group')
 
     def get_resource_attributes(self):
         from .account import Account

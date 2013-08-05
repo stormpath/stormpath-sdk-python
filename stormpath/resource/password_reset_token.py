@@ -2,7 +2,7 @@ from .base import Resource, ResourceList
 
 
 class PasswordResetToken(Resource):
-    readwrite_attrs = ('email',)
+    writable_attrs = ('email',)
 
     def get_resource_attributes(self):
         from .account import Account

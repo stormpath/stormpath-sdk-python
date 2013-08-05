@@ -29,7 +29,7 @@ class Expansion(object):
 
 class ResourceBase(object):
 
-    readwrite_attrs = ()
+    writable_attrs = ()
 
     def __init__(self, client, href=None, properties=None, query=None,
             expand=None):
@@ -49,7 +49,7 @@ class ResourceBase(object):
                 self._resource_class__.__name__)
 
     def __setattr__(self, name, value):
-        if name.startswith('_') or name in self.readwrite_attrs:
+        if name.startswith('_') or name in self.writable_attrs:
             super(ResourceBase, self).__setattr__(name, value)
         else:
             raise AttributeError("Attribute '%s' of %s is not writable" %
@@ -124,7 +124,7 @@ class ResourceBase(object):
     def _get_properties(self):
         data = {}
         for k, v in self.__dict__.items():
-            if k in self.readwrite_attrs:
+            if k in self.writable_attrs:
                 data[self.to_camel_case(k)] = self._sanitize_property(v)
         return data
 
@@ -298,7 +298,7 @@ class ResourceList(Resource):
     def create(self, properties, **params):
         data = {}
         for k, v in properties.items():
-            if k in self.resource_class.readwrite_attrs:
+            if k in self.resource_class.writable_attrs:
                 data[self.to_camel_case(k)] = self._sanitize_property(v)
 
         params = {self.to_camel_case(k): v for k, v in params.items()}
