@@ -8,11 +8,13 @@ class Group(Resource, StatusMixin):
         from .tenant import Tenant
         from .directory import Directory
         from .account import AccountList
+        from .group_membership import GroupMembershipList
 
         return {
             'tenant': Tenant,
             'directory': Directory,
-            'accounts': AccountList
+            'accounts': AccountList,
+            'account_memberships': GroupMembershipList
         }
 
     def add_account(self, account):
