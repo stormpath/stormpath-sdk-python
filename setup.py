@@ -19,8 +19,7 @@ import sys
 import os
 import subprocess
 
-__version_info__ = ('1', '0', '0', 'beta')
-__version__ = '.'.join(__version_info__)
+from stormpath import __version__
 
 
 class BaseCommand(Command):

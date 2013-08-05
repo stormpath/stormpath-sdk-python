@@ -2,6 +2,8 @@ from unittest import TestCase, main
 from stormpath.http import HttpExecutor
 from stormpath.error import Error
 
+from stormpath import __version__ as STORMPATH_VERSION
+
 try:
     from mock import patch, MagicMock
 except ImportError:
@@ -18,6 +20,8 @@ class HttpTest(TestCase):
 
         self.assertEqual(s.auth, ('user', 'pass'))
         self.assertEqual(s.headers['Content-Type'], 'application/json')
+        self.assertEqual(s.headers['User-Agent'], 'Stormpath-PythonSDK/' +
+            STORMPATH_VERSION)
 
     @patch('stormpath.http.Session')
     def test_get_request(self, Session):

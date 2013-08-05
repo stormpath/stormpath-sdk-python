@@ -2,10 +2,11 @@ import json
 from requests import Session
 from .error import Error
 
+from stormpath import __version__ as STORMPATH_VERSION
 
 class HttpExecutor(object):
 
-    USER_AGENT = 'Stormpath-PythonSDK/dev'
+    USER_AGENT = 'Stormpath-PythonSDK/' + STORMPATH_VERSION
 
     def __init__(self, base_url, auth):
         self.session = Session()
