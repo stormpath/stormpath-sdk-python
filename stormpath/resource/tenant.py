@@ -1,4 +1,4 @@
-from .base import Resource, ResourceList
+from .base import Resource
 
 
 class Tenant(Resource):
@@ -12,8 +12,3 @@ class Tenant(Resource):
             'applications': ApplicationList,
             'directories': DirectoryList
         }
-
-
-class TenantList(ResourceList):
-    create_path = '/tenants'
-    resource_class = Tenant
