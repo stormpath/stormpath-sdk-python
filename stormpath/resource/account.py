@@ -3,6 +3,8 @@ from ..error import Error
 
 
 class Account(Resource, StatusMixin):
+    STATUS_UNVERIFIED = 'UNVERIFIED'
+
     writable_attrs = ('username', 'password', 'email', 'given_name',
         'middle_name', 'surname', 'full_name', 'status')
 
@@ -38,6 +40,10 @@ class Account(Resource, StatusMixin):
             else:
                 raise
         return self.__class__(properties=data, client=self._client)
+
+    def is_unverified(self):
+        return self.get_status() == self.STATUS_UNVERIFIED
+
 
 class AccountList(ResourceList):
     resource_class = Account
