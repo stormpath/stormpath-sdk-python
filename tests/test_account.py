@@ -338,7 +338,8 @@ class TestAccount(BaseTest):
             content_type="application/json")
 
         self.assertEqual(account.status, 'UNVERIFIED')
-        account = account.verify_email_token('TOKEN')
+        account2 = directory.accounts.verify_email_token('TOKEN')
+        self.assertEqual(account.href, account2.href)
         self.assertEqual(HTTPretty.last_request.method, 'POST')
         self.assertEqual(HTTPretty.last_request.path,
             self.base_path + "/accounts/emailVerificationTokens/TOKEN")
@@ -366,8 +367,7 @@ class TestAccount(BaseTest):
             body=json.dumps(invalid_token),
             status=404)
 
-        account = directory.accounts.create(account_dict)
-        account = account.verify_email_token('TOKEN')
+        account = directory.accounts.verify_email_token('TOKEN')
         self.assertIsNone(account)
 
 

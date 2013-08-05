@@ -30,6 +30,13 @@ class Account(Resource, StatusMixin):
             'group': group
         })
 
+    def is_unverified(self):
+        return self.get_status() == self.STATUS_UNVERIFIED
+
+
+class AccountList(ResourceList):
+    resource_class = Account
+
     def verify_email_token(self, token):
         href = '/accounts/emailVerificationTokens/' + token
         try:
@@ -39,12 +46,4 @@ class Account(Resource, StatusMixin):
                 return None
             else:
                 raise
-        return self.__class__(properties=data, client=self._client)
-
-    def is_unverified(self):
-        return self.get_status() == self.STATUS_UNVERIFIED
-
-
-class AccountList(ResourceList):
-    resource_class = Account
-
+        return self.resource_class(properties=data, client=self._client)
