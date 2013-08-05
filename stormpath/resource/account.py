@@ -10,7 +10,9 @@ class Account(Resource, StatusMixin):
         from .directory import Directory
         from .group import GroupList
         from .group_membership import GroupMembershipList
+        from .tenant import Tenant
         return {
+            'tenant': Tenant,
             'directory': Directory,
             'groups': GroupList,
             'group_memberships': GroupMembershipList,
