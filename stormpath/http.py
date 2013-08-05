@@ -23,7 +23,8 @@ class HttpExecutor(object):
             url = self.base_url + url
 
         try:
-            r = self.session.request(method, url, data=data, params=params)
+            r = self.session.request(method, url, data=data, params=params,
+                allow_redirects=False)
         except Exception as ex:
             raise Error({'developerMessage': str(ex)})
 

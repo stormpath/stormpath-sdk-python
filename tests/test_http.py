@@ -33,7 +33,7 @@ class HttpTest(TestCase):
 
         s.request.assert_called_once_with('GET',
             'http://api.stormpath.com/v1/test',
-            data=None, params={'q': 'foo'})
+            data=None, params={'q': 'foo'}, allow_redirects=False)
 
         self.assertEqual(data, s.request.return_value.json.return_value)
 
@@ -51,7 +51,7 @@ class HttpTest(TestCase):
     @patch('stormpath.http.Session')
     def test_follow_redirects(self, Session):
 
-        def redirector(method, url, data, params):
+        def redirector(method, url, data, params, allow_redirects=None):
             if url.endswith('/first'):
                 return MagicMock(status_code=302, headers={
                     'location': '/second'})
