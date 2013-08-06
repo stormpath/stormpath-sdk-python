@@ -218,7 +218,7 @@ class Auth(object):
                     if line.startswith('#') or '=' not in line:
                         continue
                     k, v = line.split('=', 1)
-                    props[k] = v
+                    props[k.strip()] = v.strip()
             return props
         except UnicodeDecodeError:
             return {}
