@@ -3,9 +3,8 @@ from tests.test_base import BaseTest
 import httpretty
 from httpretty import HTTPretty
 import json
-import re
 
-from stormpath.resource import (Tenant, Account, AccountList,
+from stormpath.resource import (Account, AccountList,
     GroupList, PasswordResetTokenList)
 from stormpath.error import Error as StormpathError
 
