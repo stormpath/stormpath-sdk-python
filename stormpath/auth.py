@@ -217,6 +217,7 @@ class Auth(object):
                     line = line.strip()
                     if line.startswith('#') or '=' not in line:
                         continue
+                    line = ''.join(line.split())
                     k, v = line.split('=', 1)
                     props[k] = v
             return props
