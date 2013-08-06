@@ -56,7 +56,7 @@ class TestCommand(BaseCommand):
 #
 # python setup.py install
 
-if sys.version_info.major == 3 and sys.version_info.minor >= 3:
+if sys.version_info.major == 3:
     REQUIRES = ["requests>=1.1.0", "httpretty==0.6.1", "pytest"]
     classifiers = [
         "Programming Language :: Python",
