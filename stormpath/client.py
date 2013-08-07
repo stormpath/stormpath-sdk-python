@@ -8,7 +8,8 @@ from .resource.group_membership import GroupMembershipList
 
 
 class Client(object):
-    """ The root entry point for SDK functionality is the Client instance.
+    """ The root entry point for SDK functionality.
+
     Using the client instance, you can access all tenant data, such as
     applications, directories, groups, and accounts.
 

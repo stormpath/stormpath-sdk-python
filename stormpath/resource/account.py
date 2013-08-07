@@ -1,14 +1,13 @@
-'''Account resource.
-
-More info in documentation:
-https://www.stormpath.com/docs/python/product-guide#Accounts
-'''
-
 from .base import Resource, ResourceList, StatusMixin
 from ..error import Error
 
 
 class Account(Resource, StatusMixin):
+    '''Account resource.
+
+    More info in documentation:
+    https://www.stormpath.com/docs/python/product-guide#Accounts
+    '''
 
     STATUS_UNVERIFIED = 'UNVERIFIED'
 
@@ -42,6 +41,8 @@ class Account(Resource, StatusMixin):
 
 
 class AccountList(ResourceList):
+    """Account resource list.
+    """
     resource_class = Account
 
     def verify_email_token(self, token):

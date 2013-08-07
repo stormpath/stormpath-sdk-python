@@ -2,9 +2,9 @@ from .cache.manager import CacheManager
 
 
 class DataStore(object):
-    """
-    The DataStore is an intermediary between Resource objects and the data they
-    represent. It fetches the data either from the Stormpath service by using
+    """ An intermediary between Resource objects and the data they represent.
+
+    It fetches the data either from the Stormpath service by using
     the :class:`stormpath.http.HttpExecutor` if the cache doesn't already have
     it and caches it by using :class:`stormpath.cache.manager.CacheManager` or
     fetches the data directly from the cache. Those two components are part of

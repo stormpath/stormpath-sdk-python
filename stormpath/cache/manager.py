@@ -2,9 +2,9 @@ from .cache import Cache
 
 
 class CacheManager(object):
-    """
-    The CacheManager handles all the different caches used by the SDK by keeping
-    track which resource belongs to which cache.\
+    """Handles all the different caches used by the SDK
+
+    It keeps track which resource belongs to which cache.\
     E.g :class:`stormpath.resource.directory.Directory` resource data is stored \
     in :class:`stormpath.cache.memory_store.MemoryStore` while \
     :class:`stormpath.resource.application.Application` resource data is stored

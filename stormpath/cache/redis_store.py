@@ -3,8 +3,7 @@ from .entry import CacheEntry
 
 
 class RedisStore(object):
-    """
-    Caching implementation that uses Redis as data storage.
+    """Caching implementation that uses Redis as data storage.
     """
     def __init__(self, host='localhost', port=6379, db=0):
         try:

@@ -39,7 +39,7 @@ class Expansion(object):
 
 
 class ResourceBase(object):
-    '''Base class for all Stormpath resource objects
+    '''Base class for all Stormpath resource objects.
 
     More information on what a resource object represents can be found in
     documentation:
@@ -220,7 +220,9 @@ class StatusMixin(object):
 
 
 class ResourceList(Resource):
-    """Every resource can be represented as part of a collection. We need to
+    """Provides Resource collections/lists.
+
+    Every resource can be represented as part of a collection. We need to
     provide mechanisms for iterations and searches and support for offsets and
     limits when accessing a collection of data to avoid large data transfers
     when possible.

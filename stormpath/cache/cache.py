@@ -4,9 +4,10 @@ from .memory_store import MemoryStore
 
 
 class Cache(object):
-    """
-    The Cache class serves as a unified interface to different implementations
-    of data caching like :class:`stormpath.cache.memory_store.MemoryStore`.
+    """A unified interface to different implementations of data caching.
+
+    Example of an implementetion is
+    :class:`stormpath.cache.memory_store.MemoryStore`.
     It also provides usage statistics with
     :class:`stormpath.cache.stats.CacheStats`.
     """

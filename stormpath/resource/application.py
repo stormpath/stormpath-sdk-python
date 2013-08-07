@@ -1,10 +1,3 @@
-'''Application resource.
-
-More info in documentation:
-https://www.stormpath.com/docs/python/product-guide#Applications
-'''
-
-
 from .base import Resource, ResourceList, StatusMixin
 from .password_reset_token import PasswordResetTokenList
 from .login_attempt import LoginAttemptList
@@ -12,6 +5,11 @@ from ..error import Error
 
 
 class Application(Resource, StatusMixin):
+    '''Application resource.
+
+    More info in documentation:
+    https://www.stormpath.com/docs/python/product-guide#Applications
+    '''
 
     writable_attrs = ('name', 'description', 'status')
 
@@ -51,5 +49,7 @@ class Application(Resource, StatusMixin):
 
 
 class ApplicationList(ResourceList):
+    """Application resource list.
+    """
     create_path = '/applications'
     resource_class = Application

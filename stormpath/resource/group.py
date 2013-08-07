@@ -1,13 +1,12 @@
-'''Group resource.
-
-More info in documentation:
-https://www.stormpath.com/docs/python/product-guide#Groups
-'''
-
 from .base import Resource, ResourceList, StatusMixin
 
 
 class Group(Resource, StatusMixin):
+    '''Group resource.
+
+    More info in documentation:
+    https://www.stormpath.com/docs/python/product-guide#Groups
+    '''
 
     writable_attrs = ('name', 'description', 'status')
 
@@ -32,4 +31,6 @@ class Group(Resource, StatusMixin):
 
 
 class GroupList(ResourceList):
+    """Group resource list.
+    """
     resource_class = Group
