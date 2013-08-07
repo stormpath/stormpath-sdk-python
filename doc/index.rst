@@ -8,15 +8,19 @@ Welcome to stormpath-sdk-python's documentation!
 
 The Stormpath Python SDK allows any Python-based application to easily use the
 Stormpath user management service for all authentication and access control needs.
+
 This documentation goes through the codebase of the SDK.
 The official web documentation that explains how to use the SDK can be found at
-https://www.stormpath.com/docs/python/product-guide. \
+https://www.stormpath.com/docs/python/product-guide.
+
 A small quickstart is available at
 https://www.stormpath.com/docs/python/quickstart.
 
 
 .. toctree::
    :maxdepth: 3
+
+   stormpath
 
 Indices and tables
 ==================

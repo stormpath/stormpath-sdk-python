@@ -1,8 +1,5 @@
-stormpath Package
-=================
-
 :mod:`stormpath` Package
-------------------------
+=================
 
 .. automodule:: stormpath
     :members:
