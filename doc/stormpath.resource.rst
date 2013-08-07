@@ -22,13 +22,6 @@ resource Package
     :members:
     :show-inheritance:
 
-:mod:`base` Module
-------------------
-
-.. automodule:: stormpath.resource.base
-    :members:
-    :show-inheritance:
-
 :mod:`directory` Module
 -----------------------
 
