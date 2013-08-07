@@ -1,7 +1,14 @@
+'''Group resource.
+
+More info in documentation:
+https://www.stormpath.com/docs/python/product-guide#Groups
+'''
+
 from .base import Resource, ResourceList, StatusMixin
 
 
 class Group(Resource, StatusMixin):
+
     writable_attrs = ('name', 'description', 'status')
 
     def get_resource_attributes(self):

@@ -1,3 +1,8 @@
+"""
+Contains classes that bear the brunt of Stormpath Python SDK resource handling
+like list access, updates, saves, deletes, attribute fetching, iterations etc.
+"""
+
 try:
     string_type = basestring
 except NameError:
@@ -5,6 +10,12 @@ except NameError:
 
 
 class Expansion(object):
+    """Handles resource expansions.
+
+    More info in documentation:
+    https://www.stormpath.com/docs/rest/product-guide#EntityExpansion
+
+    """
 
     def __init__(self, *args):
         self.items = {k: {} for k in args}
@@ -28,6 +39,14 @@ class Expansion(object):
 
 
 class ResourceBase(object):
+    '''Base class for all Stormpath resource objects
+
+    More information on what a resource object represents can be found in
+    documentation:
+    http://www.stormpath.com/docs/python/product-guide#ResourcesAndProxying
+
+    Most of the methods contained within this class are internal SDK methods.
+    '''
 
     writable_attrs = ()
 
@@ -167,6 +186,9 @@ class ResourceBase(object):
 
 
 class Resource(ResourceBase):
+    """Provides public methods for resource updates and deletions.
+    """
+
 
     def save(self):
         if self.is_new():
@@ -180,6 +202,8 @@ class Resource(ResourceBase):
 
 
 class StatusMixin(object):
+    """Provides a consistent resource status.
+    """
 
     STATUS_ENABLED = 'ENABLED'
     STATUS_DISABLED = 'DISABLED'
@@ -196,6 +220,15 @@ class StatusMixin(object):
 
 
 class ResourceList(Resource):
+    """Every resource can be represented as part of a collection. We need to
+    provide mechanisms for iterations and searches and support for offsets and
+    limits when accessing a collection of data to avoid large data transfers
+    when possible.
+
+    More info on the logic of collections in documentation:
+    https://www.stormpath.com/docs/rest/product-guide#RESTSearch
+
+    """
 
     resource_class = Resource
     create_path = None

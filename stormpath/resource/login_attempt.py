@@ -1,6 +1,12 @@
+"""
+Handles Base64-encoded login data.
+
+More info in documentation:
+https://www.stormpath.com/docs/rest/product-guide#AuthenticateAccounts
+"""
+
 from base64 import b64encode
 from .base import Resource, ResourceList
-
 
 class LoginAttempt(Resource):
     writable_attrs = ('type', 'value')

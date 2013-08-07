@@ -2,7 +2,9 @@ from collections import namedtuple
 
 
 class CacheStats(object):
-
+    """
+    Represents cache statistics.
+    """
     Summary = namedtuple('CacheStats', 'puts hits misses expirations size')
 
     def __init__(self):

@@ -1,7 +1,13 @@
+'''Directory resource.
+
+More info in documentation:
+https://www.stormpath.com/docs/python/product-guide#Directories
+'''
+
 from .base import Resource, ResourceList, StatusMixin
 
-
 class Directory(Resource, StatusMixin):
+
     writable_attrs = ('name', 'description', 'status')
 
     def get_resource_attributes(self):

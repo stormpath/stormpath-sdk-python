@@ -1,3 +1,10 @@
+"""
+Handles reset tokens used in password reset workflow.
+
+More info in documentation:
+https://www.stormpath.com/docs/rest/product-guide#PasswordReset
+"""
+
 from .base import Resource, ResourceList
 
 

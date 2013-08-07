@@ -1,8 +1,15 @@
+'''Account resource.
+
+More info in documentation:
+https://www.stormpath.com/docs/python/product-guide#Accounts
+'''
+
 from .base import Resource, ResourceList, StatusMixin
 from ..error import Error
 
 
 class Account(Resource, StatusMixin):
+
     STATUS_UNVERIFIED = 'UNVERIFIED'
 
     writable_attrs = ('username', 'password', 'email', 'given_name',

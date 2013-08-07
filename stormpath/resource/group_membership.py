@@ -1,7 +1,13 @@
+'''GroupMembership resource.
+
+More info in documentation:
+https://www.stormpath.com/docs/python/product-guide#AssignAccountGroup
+'''
+
 from .base import Resource, ResourceList
 
-
 class GroupMembership(Resource):
+
     writable_attrs = ('account', 'group')
 
     def get_resource_attributes(self):
