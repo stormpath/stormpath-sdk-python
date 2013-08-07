@@ -181,7 +181,8 @@ class Auth(object):
         priority:
 
         1. API key file (if `api_key_file_location` is set and the file exists)
-        2.
+        2. API key dict (if `api_key` contains `id` and `secret` keys)
+        3. API key `secret` and `id` parameters
         """
 
         self._id = None

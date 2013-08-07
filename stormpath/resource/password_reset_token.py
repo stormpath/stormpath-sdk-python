@@ -2,6 +2,12 @@ from .base import Resource, ResourceList
 
 
 class PasswordResetToken(Resource):
+    """Handles reset tokens used in password reset workflow.
+
+    More info in documentation:
+    https://www.stormpath.com/docs/rest/product-guide#PasswordReset
+    """
+
     writable_attrs = ('email',)
 
     def get_resource_attributes(self):
@@ -16,4 +22,6 @@ class PasswordResetToken(Resource):
 
 
 class PasswordResetTokenList(ResourceList):
+    """List of reset tokens.
+    """
     resource_class = PasswordResetToken

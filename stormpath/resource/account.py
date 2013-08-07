@@ -3,6 +3,12 @@ from ..error import Error
 
 
 class Account(Resource, StatusMixin):
+    '''Account resource.
+
+    More info in documentation:
+    https://www.stormpath.com/docs/python/product-guide#Accounts
+    '''
+
     STATUS_UNVERIFIED = 'UNVERIFIED'
 
     writable_attrs = ('username', 'password', 'email', 'given_name',
@@ -35,6 +41,8 @@ class Account(Resource, StatusMixin):
 
 
 class AccountList(ResourceList):
+    """Account resource list.
+    """
     resource_class = Account
 
     def verify_email_token(self, token):

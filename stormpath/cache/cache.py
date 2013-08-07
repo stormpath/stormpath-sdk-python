@@ -4,7 +4,13 @@ from .memory_store import MemoryStore
 
 
 class Cache(object):
+    """A unified interface to different implementations of data caching.
 
+    Example of an implementetion is
+    :class:`stormpath.cache.memory_store.MemoryStore`.
+    It also provides usage statistics with
+    :class:`stormpath.cache.stats.CacheStats`.
+    """
     DEFAULT_STORE = MemoryStore
     DEFAULT_TTL = 5 * 60  # seconds
     DEFAULT_TTI = 5 * 60  # seconds

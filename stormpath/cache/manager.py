@@ -2,6 +2,16 @@ from .cache import Cache
 
 
 class CacheManager(object):
+    """Handles all the different caches used by the SDK
+
+    It keeps track which resource belongs to which cache.\
+    E.g :class:`stormpath.resource.directory.Directory` resource data is stored \
+    in :class:`stormpath.cache.memory_store.MemoryStore` while \
+    :class:`stormpath.resource.application.Application` resource data is stored
+    in :class:`stormpath.cache.redis_store.RedisStore`.
+    The CacheManager, along with :class:`stormpath.http.HttpExecutor` is a part
+    of the :class:`stormpath.data_store.DataStore`.
+    """
 
     def __init__(self):
         self.caches = {}

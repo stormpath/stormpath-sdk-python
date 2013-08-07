@@ -1,8 +1,13 @@
 from base64 import b64encode
 from .base import Resource, ResourceList
 
-
 class LoginAttempt(Resource):
+    """Handles Base64-encoded login data.
+
+    More info in documentation:
+    https://www.stormpath.com/docs/rest/product-guide#AuthenticateAccounts
+    """
+
     writable_attrs = ('type', 'value')
 
     def get_resource_attributes(self):
@@ -13,6 +18,8 @@ class LoginAttempt(Resource):
 
 
 class LoginAttemptList(ResourceList):
+    """List of login data.
+    """
     resource_class = LoginAttempt
 
     def basic_auth(self, login, password):

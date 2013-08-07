@@ -5,6 +5,12 @@ from ..error import Error
 
 
 class Application(Resource, StatusMixin):
+    '''Application resource.
+
+    More info in documentation:
+    https://www.stormpath.com/docs/python/product-guide#Applications
+    '''
+
     writable_attrs = ('name', 'description', 'status')
 
     def get_resource_attributes(self):
@@ -43,5 +49,7 @@ class Application(Resource, StatusMixin):
 
 
 class ApplicationList(ResourceList):
+    """Application resource list.
+    """
     create_path = '/applications'
     resource_class = Application

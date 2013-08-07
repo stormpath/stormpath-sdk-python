@@ -23,3 +23,8 @@ MANIFEST
 # Other
 .DS_Store
 *.swp
+
+# Sphinx
+/doc/_build/
+/doc/_static/
+/doc/_templates/

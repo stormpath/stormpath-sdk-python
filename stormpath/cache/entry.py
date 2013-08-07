@@ -2,6 +2,12 @@ from datetime import datetime, timedelta
 
 
 class CacheEntry(object):
+    """A single entry inside a cache.
+
+    It contains the data as originally returned by Stormpath along with
+    additional metadata like timestamps.
+    """
+
     def __init__(self, value, created_at=None, last_accessed_at=None):
         self.value = value
         self.created_at = created_at or datetime.utcnow()
