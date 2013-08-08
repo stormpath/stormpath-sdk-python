@@ -37,7 +37,8 @@ class TestCommand(BaseCommand):
     description = "run self-tests"
 
     tests = [
-        'account', 'tenant', 'directory', 'group', 'application', 'expansion'
+        'account', 'tenant', 'directory', 'group', 'application', 'expansion',
+        'auth', 'cache', 'data_store', 'error', 'http', 'resource'
     ]
 
     def run(self):
@@ -50,6 +51,19 @@ class TestCommand(BaseCommand):
                 ret = os.system('python test_' + test + '.py')
                 if ret != 0:
                     sys.exit(-1)
+
+class DocCommand(BaseCommand):
+
+    description = "generate documentation"
+
+    def run(self):
+        try:
+            os.chdir('doc')
+            ret = os.system('make html')
+            sys.exit(ret)
+        except OSError as e:
+            print(e)
+            sys.exit(-1)
 
 # To install the stormpath library, open a Terminal shell, then run this
 # file by typing:
@@ -94,6 +108,7 @@ setup(
         ].extend(classifiers),
     cmdclass={
         'test': TestCommand,
+        'docs': DocCommand
     },
     long_description="""\
     Stormpath SDK

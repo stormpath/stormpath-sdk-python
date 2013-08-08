@@ -2,11 +2,11 @@ from .base import Resource
 
 
 class Tenant(Resource):
-    '''Tenant resource.
+    """Tenant resource.
 
     More info in documentation:
     https://www.stormpath.com/docs/python/product-guide#DefaultResources
-    '''
+    """
 
     writable_attrs = ('name', 'key')
 

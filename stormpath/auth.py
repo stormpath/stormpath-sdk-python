@@ -183,6 +183,8 @@ class Auth(object):
         1. API key file (if `api_key_file_location` is set and the file exists)
         2. API key dict (if `api_key` contains `id` and `secret` keys)
         3. API key `secret` and `id` parameters
+
+        The `id` and `secret` can be accessed as attributes.
         """
 
         self._id = None
