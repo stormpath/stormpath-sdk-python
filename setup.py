@@ -52,6 +52,19 @@ class TestCommand(BaseCommand):
                 if ret != 0:
                     sys.exit(-1)
 
+class DocCommand(BaseCommand):
+
+    description = "generate documentation"
+
+    def run(self):
+        try:
+            os.chdir('doc')
+            ret = os.system('make html')
+            sys.exit(ret)
+        except OSError as e:
+            print(e)
+            sys.exit(-1)
+
 # To install the stormpath library, open a Terminal shell, then run this
 # file by typing:
 #
@@ -95,6 +108,7 @@ setup(
         ].extend(classifiers),
     cmdclass={
         'test': TestCommand,
+        'docs': DocCommand
     },
     long_description="""\
     Stormpath SDK
