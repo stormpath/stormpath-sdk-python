@@ -103,7 +103,12 @@ class Sauthc1Signer(AuthBase):
         if parsed_url.query:
             canonical_query_string = parsed_url.query
 
-        sorted_headers = OrderedDict(sorted(r.headers.items()))
+        auth_headers = r.headers.copy()
+        # FIXME: REST API doesn't want this header in the signature
+        if 'Content-Length' in auth_headers:
+            del auth_headers['Content-Length']
+
+        sorted_headers = OrderedDict(sorted(auth_headers.items()))
         canonical_headers_string = ''
         for key, value in sorted_headers.items():
             canonical_headers_string += "%s:%s%s" % (key.lower(), value, NL)
