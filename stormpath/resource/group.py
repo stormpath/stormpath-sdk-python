@@ -2,11 +2,11 @@ from .base import Resource, ResourceList, StatusMixin
 
 
 class Group(Resource, StatusMixin):
-    '''Group resource.
+    """Group resource.
 
     More info in documentation:
     https://www.stormpath.com/docs/python/product-guide#Groups
-    '''
+    """
 
     writable_attrs = ('name', 'description', 'status')
 
@@ -24,6 +24,14 @@ class Group(Resource, StatusMixin):
         }
 
     def add_account(self, account):
+        """Associate an Account with the Group.
+
+        This creates a
+        :class:`stormpath.resource.group_membership.GroupMembership`.
+
+        :param account: A :class:`stormpath.resource.account.Account` object
+
+        """
         return self._client.group_memberships.create({
             'group': self,
             'account': account

@@ -2,11 +2,11 @@ from .base import Resource, ResourceList
 
 
 class GroupMembership(Resource):
-    '''GroupMembership resource.
+    """GroupMembership resource.
 
     More info in documentation:
     https://www.stormpath.com/docs/python/product-guide#AssignAccountGroup
-    '''
+    """
 
     writable_attrs = ('account', 'group')
 

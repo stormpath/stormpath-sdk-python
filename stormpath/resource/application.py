@@ -5,11 +5,11 @@ from ..error import Error
 
 
 class Application(Resource, StatusMixin):
-    '''Application resource.
+    """Application resource.
 
     More info in documentation:
     https://www.stormpath.com/docs/python/product-guide#Applications
-    '''
+    """
 
     writable_attrs = ('name', 'description', 'status')
 
@@ -26,6 +26,13 @@ class Application(Resource, StatusMixin):
         }
 
     def authenticate_account(self, login, password):
+        """Authenticate Account inside the Application.
+
+        :param login: Username or email address
+
+        :param password: Unencrypted user password
+
+        """
         try:
             return self.login_attempts.basic_auth(login, password).account
         except Error as e:
@@ -35,10 +42,24 @@ class Application(Resource, StatusMixin):
                 raise
 
     def send_password_reset_email(self, email):
+        """Send a password reset email.
+
+        More info in documentation:
+        http://www.stormpath.com/docs/rest/product-guide#PasswordReset
+
+        :param email: Email address to send the email to
+
+        """
         token = self.password_reset_tokens.create({'email': email})
         return token.account
 
     def verify_password_reset_token(self, token):
+        """Verify password reset by using a token.
+
+        :param token: password reset token extracted from the url
+
+        """
+
         try:
             return self.password_reset_tokens[token].account
         except Error as e:

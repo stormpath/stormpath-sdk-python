@@ -15,6 +15,24 @@ class Client(object):
 
     More info in documentation:
     https://www.stormpath.com/docs/python/product-guide#Client
+
+    The client contains the following attributes that represent resource lists:
+
+    :py:attr:`applications` -
+    :class:`stormpath.resource.application.ApplicationList`
+
+    :py:attr:`directories` -
+    :class:`stormpath.resource.directory.DirectoryList`
+
+    :py:attr:`accounts` -
+    :class:`stormpath.resource.account.AccountList`
+
+    :py:attr:`groups` -
+    :class:`stormpath.resource.group.GroupList`
+
+    :py:attr:`group_memberships` -
+    :class:`stormpath.resource.group_membership.GroupMembershipList`
+
     """
 
     BASE_URL = 'https://api.stormpath.com/v1'
@@ -29,7 +47,7 @@ class Client(object):
         :class:`stormpath.data_store.DataStore` and
         :class:`stormpath.resource.tenant.Tenant`.
         The parameters the Client accepts are those used by
-        :class:`stormpath.http.HttpExecutor` and
+        :class:`stormpath.http.HttpExecutor`, :class:`stormpath.auth.Auth` and
         :class:`stormpath.data_store.DataStore` classes.
         """
 
