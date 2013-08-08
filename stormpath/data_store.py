@@ -16,6 +16,28 @@ class DataStore(object):
         'groupMemberships', 'tenants')
 
     def __init__(self, executor, cache_options=None):
+        """
+        :param executor: A HTTP request executor,
+            like :class:`stormpath.http.HttpExecutor`
+        :param cache_options: A dictionary with cache settings.
+
+        Example of a dictionary with all available options::
+
+                {'store': MemoryStore,
+                'regions': {
+                    'applications': {
+                        'store': RedisStore,
+                        'ttl': 300,
+                        'tti': 300,
+                        'store_opts': {
+                            'host': 'localhost',
+                            'port': 6739}}
+                    'directories': {
+                        'store': MemoryStore,
+                        'ttl': 60}}
+                }
+        """
+
         self.executor = executor
         self.cache_manager = CacheManager()
 

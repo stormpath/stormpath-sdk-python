@@ -6,6 +6,11 @@ class PasswordResetToken(Resource):
 
     More info in documentation:
     https://www.stormpath.com/docs/rest/product-guide#PasswordReset
+
+    Attributes:
+
+    :py:attr:`token` - Token with which to reset the password.
+
     """
 
     writable_attrs = ('email',)

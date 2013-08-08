@@ -10,11 +10,18 @@ class HttpExecutor(object):
     It uses the Requests library: http://docs.python-requests.org/en/latest/.
     The HttpExecutor, along with :class:`stormpath.cache.manager.CacheManager`
     is a part of the :class:`stormpath.data_store.DataStore`.
+
+    :param base_url: The root of the Stormpath service.
+        Paths to specific resources will be prepended by this url.
+
+    :param auth: Authentication manager, like
+        :class:`stormpath.auth.Sauthc1Signer`.
     """
 
     USER_AGENT = 'Stormpath-PythonSDK/' + STORMPATH_VERSION
 
     def __init__(self, base_url, auth):
+
         self.session = Session()
         self.base_url = base_url
         self.session.auth = auth
