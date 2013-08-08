@@ -37,7 +37,8 @@ class TestCommand(BaseCommand):
     description = "run self-tests"
 
     tests = [
-        'account', 'tenant', 'directory', 'group', 'application', 'expansion'
+        'account', 'tenant', 'directory', 'group', 'application', 'expansion',
+        'auth', 'cache', 'data_store', 'error', 'http', 'resource'
     ]
 
     def run(self):
