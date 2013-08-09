@@ -17,12 +17,18 @@ class Application(Resource, StatusMixin):
         from .tenant import Tenant
         from .account import AccountList
         from .group import GroupList
+        from .account_store_mapping import AccountStoreMappingList, \
+            AccountStoreMapping
+
         return {
             'tenant': Tenant,
             'accounts': AccountList,
             'groups': GroupList,
             'password_reset_tokens': PasswordResetTokenList,
             'login_attempts': LoginAttemptList,
+            'account_store_mappings': AccountStoreMappingList,
+            'default_account_store_mapping': AccountStoreMapping,
+            'default_group_store_mapping': AccountStoreMapping,
         }
 
     def authenticate_account(self, login, password):
