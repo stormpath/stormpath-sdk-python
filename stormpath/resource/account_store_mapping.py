@@ -24,28 +24,6 @@ class AccountStoreMapping(Resource):
             'account_store': AccountStore,
         }
 
-    def authenticate_account(self, login, password):
-        try:
-            return self.login_attempts.basic_auth(login, password).account
-        except Error as e:
-            if e.status_code == 400:
-                return None
-            else:
-                raise
-
-    def send_password_reset_email(self, email):
-        token = self.password_reset_tokens.create({'email': email})
-        return token.account
-
-    def verify_password_reset_token(self, token):
-        try:
-            return self.password_reset_tokens[token].account
-        except Error as e:
-            if e.status_code == 404:
-                return None
-            else:
-                raise
-
 
 class AccountStoreMappingList(ResourceList):
     """Account Store Mapping list."""
