@@ -1,5 +1,4 @@
 from .base import Resource, ResourceList
-from ..error import Error
 
 
 class AccountStoreMapping(Resource):
