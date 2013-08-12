@@ -5,6 +5,7 @@ from .resource.tenant import Tenant
 from .resource.account import AccountList
 from .resource.group import GroupList
 from .resource.group_membership import GroupMembershipList
+from .resource.account_store_mapping import AccountStoreMappingList
 
 
 class Client(object):
@@ -70,3 +71,7 @@ class Client(object):
     @property
     def group_memberships(self):
         return GroupMembershipList(self, href='/groupMemberships')
+
+    @property
+    def account_store_mappings(self):
+        return AccountStoreMappingList(self, href='/accountStoreMappings')
