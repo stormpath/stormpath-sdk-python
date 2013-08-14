@@ -42,7 +42,7 @@ class Application(Resource, StatusMixin):
         try:
             return self.login_attempts.basic_auth(login, password).account
         except Error as e:
-            if e.status == 400:
+            if e.status_code == 400:
                 return None
             else:
                 raise
@@ -69,7 +69,7 @@ class Application(Resource, StatusMixin):
         try:
             return self.password_reset_tokens[token].account
         except Error as e:
-            if e.status == 404:
+            if e.status_code == 404:
                 return None
             else:
                 raise
