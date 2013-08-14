@@ -69,7 +69,7 @@ class Application(Resource, StatusMixin):
         try:
             return self.password_reset_tokens[token].account
         except Error as e:
-            if e.status_code == 404:
+            if e.status == 404:
                 return None
             else:
                 raise
