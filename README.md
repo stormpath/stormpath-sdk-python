@@ -28,7 +28,7 @@ $ pip install stormpath-sdk
     1.  Take note of the _REST URL_ of the application and of directory
         you just created.
 
-1.  **Create a client** using the API key properties file
+2.  **Create a client** using the API key properties file
 
     ```python
     from stormpath import Client
@@ -36,7 +36,7 @@ $ pip install stormpath-sdk
     client = Client(api_key_file_location="/some/path/to/apiKey.properties")
     ```
 
-1.  **List all your applications and directories**
+3.  **List all your applications and directories**
 
     ```python
     for application in client.applications:
@@ -46,7 +46,7 @@ $ pip install stormpath-sdk
         print("Directory:", directory.name)
     ```
 
-1.  **Get access to the specific application and directory** using the
+4.  **Get access to the specific application and directory** using the
     URLs you acquired above.
 
     ```python
@@ -55,19 +55,19 @@ $ pip install stormpath-sdk
     directory = client.directories.get(directory_url)
     ```
 
-1.  **Create an account for a user** on the directory.
+5.  **Create an account for a user** on the directory.
 
     ```python
-    account = directory.accounts.create(
-            given_name='John',
-            surname='Smith',
-            email='john.smith@example.com',
-            username='johnsmith',
-            password='4P@$$w0rd!'
-            )
+    account = directory.accounts.create({
+            'given_name':'John',
+            'surname':'Smith',
+            'email':'john.smith@example.com',
+            'username':'johnsmith',
+            'password':'4P@$$w0rd!'
+            })
     ```
 
-1.  **Update an account**
+6.  **Update an account**
 
     ```python
     account.given_name = 'Johnathan'
@@ -75,38 +75,31 @@ $ pip install stormpath-sdk
     account.save()
     ```
 
-1.  **Authenticate the Account** for use with an application:
+7.  **Authenticate the Account** for use with an application:
 
     ```python
     try:
         account = application.authenticate_account('johnsmith', '4P@$$w0rd!')
     except stormpath.Error as e:
-        print("Credentials are invalid or account doesn't exist")
+        print(e)
     ```
 
-1.  **Send a password reset request**
+8.  **Send a password reset request**
 
     ```python
     application.send_password_reset_email('john.smith@example.com')
     ```
 
-1.  **Create a group** in a directory
+9.  **Create a group** in a directory
 
     ```python
-    directory.groups.create(name='Admins')
+    directory.groups.create({'name':'Admins'})
     ```
 
-1.  **Add the account to the group**
+10.  **Add the account to the group**
 
     ```python
     group.add_account(account)
-    ```
-
-1. **Check for account inclusion in group** by reloading the account
-
-    ```python
-    account = clients.accounts.get(account.href)
-    is_admin = any('Admin' == group.name for group in account.groups)
     ```
 
 ## Common Uses
@@ -158,23 +151,6 @@ in the hash of values passed on Client initialization:
   })
   ```
 
-* By passing the REST URL of a Stormpath application on your account
-  with the API id and secret embedded. For example, the URL would look
-  like:
-
-  ```
-  http://#{api_key_id}:#{api_key_secret}@api.stormpath.com/v1/applications/#{application_id}
-  ```
-
-  The client could then be created with the above URL:
-
-  ```python
-  client = stormpath.Client(application_url=application_url)
-  ```
-
-  This method will also provide a <code>application</code> property on
-  on the client to directly access that resource.
-
 ### Accessing Resources
 
 Most of the work you do with Stormpath is done through the applications
@@ -212,7 +188,7 @@ ways:
   })
   ```
 
-  This metod can take an additional flag to indicate if the account
+  This method can take an additional flag to indicate if the account
   can skip any registration workflow configured on the directory.
 
   ```python
@@ -243,7 +219,7 @@ complete the workflow. This is done through the
 
 Authentication is accomplished by passing a username or an email and a
 password to <code>authenticate_account</code> of an application we've
-registered on Stormpath. This will either return an <code>Account</code> 
+registered on Stormpath. This will either return an <code>Account</code>
 instance if the credentials are valid, or raise a <code>stormpath.Error</code>
 otherwise. In the former case, you can get the <code>account</code>
 associated with the credentials.
@@ -287,17 +263,13 @@ Memberships of accounts in certain groups can be used as an
 authorization mechanism. As the <code>groups</code> collection property
 on an account instance is <code>iterable</code>, you can use any of
 that module's methods to determine if an account belongs to a specific
-group:
-
-```python
-    any('administrators' == group.name for group in account.groups)
-```
+group.
 
 You can create groups and assign them to accounts using the Stormpath
 web console, or programmatically. Groups are created on directories:
 
 ```python
-group = directory.groups.create(name='administrators')
+group = directory.groups.create({'name':'administrators'})
 ```
 
 Group membership can be created by:
@@ -320,35 +292,45 @@ Group membership can be created by:
   group.add_group(account)
   ```
 
-You will need to reload the account or group resource after these
-operations to ensure they've picked up the changes.
-
 ## Testing
 
 ### Setup
 
-The functional tests of the SDK run against a Stormpath tenant. In that
-account, create:
+The tested versions are Python 2.7, 3.2 and 3.3.
+It may work on other versions but it depends on the changes introduced to Python
+between versions.
 
-* An application reserved for testing.
-* A directory reserved for test accounts. _Be sure to associate this
-  directory to the test application as a login source_.
-* Another directory reserved for test accounts with the account
-  verification workflow turned on. _Be sure to associate this directory
-  to the test application as a login source_.
+Several packages are used in testing the SDK:
 
-The following environment variables need will then need to be set:
+* pytest
+* HTTPretty
+* mock
 
-* <code>STORMPATH_SDK_TEST_API_KEY_ID</code> - The <code>id</code> from
-  your Stormpath API key.
-* <code>STORMPATH_SDK_TEST_API_KEY_SECRET</code> - The
-  <code>secret</code> from your Stormpath API key.
-* <code>STORMPATH_SDK_TEST_APPLICATION_URL</code> - The URL to the
-  application created above.
-* <code>STORMPATH_SDK_TEST_DIRECTORY_URL</code> - The URL to the first
-  directory created above.
-* <code>STORMPATH_SDK_TEST_DIRECTORY_WITH_VERIFICATION_URL</code> - The
-  URL to the second directory created above.
+If you are on a schedule and wish to test immediately you can skip the next
+section and install the above packages:
+
+```sh
+$ pip install mock HTTPretty pytest
+```
+Some of the installations may fail but running the tests may still succeed.
+The following section explains why:
+
+#### Testing requirements on different versions of Python
+Unfortunately, the situation is somewhat complicated when it comes to testing
+between Python 2 and Python 3. Even Python 3.2 and Python 3.3 are different
+enough to cause problems:
+
+What is in common to all version is that our setup.py uses `pytest` to run the
+tests. Python `mock` and `HTTPretty` are also (sometimes) used but there several
+ gotchas:
+
+* In Python 3.3 `mock` became part of the `unittest` module so you don't need to
+install it if you're using Python 3.3. The tests make sure the correct module
+is used.
+* `HTTPretty` isn't compatible with Python 3.2 (problems with unicode literals)
+but it is compatible with Python 2.7 and 3.3. There's no point installing it
+since the tests using it are simply ignored in setup.py when using Python
+versions 3.0, 3.1 and 3.2.
 
 ### Running
 
@@ -375,6 +357,18 @@ $ python setup.py install # if you want to install
 $ python setup.py sdist # if you want to build a package
 ```
 
+## Documentation
+To generate docs from docstrings you need to install `sphinx`:
+
+```sh
+$ pip install sphinx
+```
+
+And then run:
+```sh
+$ python setup.py docs
+```
+
 ## Quick Class Diagram
 
 ```
@@ -384,10 +378,10 @@ $ python setup.py sdist # if you want to build a package
 +-------------+
        + 1
        |
-       |           +-------------+
-       |           | LoginSource |
-       o- - - - - -|             |
-       |           +-------------+
+       |           +--------------+
+       |           | AccountStore |
+       o- - - - - -|              |
+       |           +--------------+
        |
        v 0..*
 +--------------+            +--------------+
@@ -410,7 +404,7 @@ $ python setup.py sdist # if you want to build a package
 
 ## Copyright & Licensing
 
-Copyright &copy; 2012 Stormpath, Inc. and contributors.
+Copyright &copy; 2012, 2013 Stormpath, Inc. and contributors.
 
 This project is licensed under the [Apache 2.0 Open Source License](http://www.apache.org/licenses/LICENSE-2.0).
 
