@@ -1,5 +1,5 @@
 import unittest
-from tests.test_base import BaseTest
+from .test_base import BaseTest
 import httpretty
 from httpretty import HTTPretty
 import json

@@ -22,6 +22,8 @@ import subprocess
 from stormpath import __version__
 
 
+PY_VERSION = sys.version_info[:2]
+
 class BaseCommand(Command):
     user_options = []
 
@@ -36,21 +38,13 @@ class TestCommand(BaseCommand):
 
     description = "run self-tests"
 
-    tests = [
-        'account', 'tenant', 'directory', 'group', 'application', 'expansion',
-        'auth', 'cache', 'data_store', 'error', 'http', 'resource'
-    ]
-
     def run(self):
-        try:
-            ret = subprocess.call("py.test")
-            sys.exit(ret)
-        except OSError:
-            os.chdir('tests')
-            for test in self.tests:
-                ret = os.system('python test_' + test + '.py')
-                if ret != 0:
-                    sys.exit(-1)
+        os.chdir('tests')
+        cmd = ["py.test", "mocks"]
+        if PY_VERSION >= (3, 3) or PY_VERSION < (3, 0):
+            cmd.append("httprettys")
+        ret = subprocess.call(cmd)
+        sys.exit(ret)
 
 class DocCommand(BaseCommand):
 
@@ -70,21 +64,19 @@ class DocCommand(BaseCommand):
 #
 # python setup.py install
 
-if sys.version_info.major == 3:
-    REQUIRES = ["requests>=1.1.0", "httpretty==0.6.1", "pytest"]
-    classifiers = [
-        "Programming Language :: Python",
-        "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.3",
-    ]
-else:
-    REQUIRES = ["requests>=1.1.0", "httpretty>=0.6.1", "mock>=1.0.1", "pytest"]
-    classifiers = [
-        "Programming Language :: Python",
-        "Programming Language :: Python :: 2",
-        "Programming Language :: Python :: 2.7",
-    ]
+REQUIRES = ["requests>=1.1.0", "pytest"]
 
+if PY_VERSION >= (3, 3) or PY_VERSION < (3, 0):
+    REQUIRES.append("httpretty>=0.6.1")
+
+if PY_VERSION < (3, 3):
+    REQUIRES.append("mock>=1.0.1")
+
+classifiers = [
+    "Programming Language :: Python",
+    "Programming Language :: Python :: %d".format(PY_VERSION[0]),
+    "Programming Language :: Python :: %d.%d" % (PY_VERSION[0], PY_VERSION[1]),
+]
 
 setup(
     name="stormpath-sdk",
