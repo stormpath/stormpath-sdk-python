@@ -64,18 +64,10 @@ class DocCommand(BaseCommand):
 #
 # python setup.py install
 
-REQUIRES = ["requests>=1.1.0", "pytest"]
-
-if PY_VERSION >= (3, 3) or PY_VERSION < (3, 0):
-    REQUIRES.append("httpretty>=0.6.1")
-
-if PY_VERSION < (3, 3):
-    REQUIRES.append("mock>=1.0.1")
-
 classifiers = [
     "Programming Language :: Python",
-    "Programming Language :: Python :: %d".format(PY_VERSION[0]),
-    "Programming Language :: Python :: %d.%d" % (PY_VERSION[0], PY_VERSION[1]),
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 2",
 ]
 
 setup(
@@ -87,7 +79,7 @@ setup(
     url="https://github.com/stormpath/stormpath-sdk-python",
     zip_safe=False,
     keywords=["stormpath", "authentication"],
-    install_requires=REQUIRES,
+    install_requires=["requests>=1.1.0"],
     packages=find_packages(),
     classifiers=[
         "Development Status :: 4 - Beta",
