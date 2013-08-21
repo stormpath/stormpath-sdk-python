@@ -22,6 +22,8 @@ import subprocess
 from stormpath import __version__
 
 
+PY_VERSION = sys.version_info[:2]
+
 class BaseCommand(Command):
     user_options = []
 
@@ -36,21 +38,28 @@ class TestCommand(BaseCommand):
 
     description = "run self-tests"
 
-    tests = [
-        'account', 'tenant', 'directory', 'group', 'application', 'expansion',
-        'auth', 'cache', 'data_store', 'error', 'http', 'resource'
-    ]
+    def run(self):
+        os.chdir('tests')
+        cmd = ["py.test", "mocks"]
+        if PY_VERSION >= (3, 3) or PY_VERSION < (3, 0):
+            cmd.append("httprettys")
+        ret = subprocess.call(cmd)
+        sys.exit(ret)
+
+class TestDepCommand(BaseCommand):
+
+    description = "install test dependencies"
 
     def run(self):
-        try:
-            ret = subprocess.call("py.test")
-            sys.exit(ret)
-        except OSError:
-            os.chdir('tests')
-            for test in self.tests:
-                ret = os.system('python test_' + test + '.py')
-                if ret != 0:
-                    sys.exit(-1)
+        cmd = ["pip", "install", "pytest"]
+        if PY_VERSION >= (3, 3) or PY_VERSION < (3, 0):
+            cmd.append("HTTPretty")
+
+        if PY_VERSION < (3, 3):
+            cmd.append("mock")
+
+        ret = subprocess.call(cmd)
+        sys.exit(ret)
 
 class DocCommand(BaseCommand):
 
@@ -70,21 +79,11 @@ class DocCommand(BaseCommand):
 #
 # python setup.py install
 
-if sys.version_info.major == 3:
-    REQUIRES = ["requests>=1.1.0", "httpretty==0.6.1", "pytest"]
-    classifiers = [
-        "Programming Language :: Python",
-        "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.3",
-    ]
-else:
-    REQUIRES = ["requests>=1.1.0", "httpretty>=0.6.1", "mock>=1.0.1", "pytest"]
-    classifiers = [
-        "Programming Language :: Python",
-        "Programming Language :: Python :: 2",
-        "Programming Language :: Python :: 2.7",
-    ]
-
+classifiers = [
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 2",
+]
 
 setup(
     name="stormpath-sdk",
@@ -95,7 +94,7 @@ setup(
     url="https://github.com/stormpath/stormpath-sdk-python",
     zip_safe=False,
     keywords=["stormpath", "authentication"],
-    install_requires=REQUIRES,
+    install_requires=["requests>=1.1.0"],
     packages=find_packages(),
     classifiers=[
         "Development Status :: 4 - Beta",
@@ -108,6 +107,7 @@ setup(
         ].extend(classifiers),
     cmdclass={
         'test': TestCommand,
+        'testdep': TestDepCommand,
         'docs': DocCommand
     },
     long_description="""\

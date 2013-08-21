@@ -1,11 +1,8 @@
 import unittest
-import httpretty
-
 from stormpath.client import Client
 
 
 class BaseTest(unittest.TestCase):
-    @httpretty.activate
     def setUp(self):
 
         self.base_path = "/v1"
