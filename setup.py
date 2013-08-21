@@ -46,6 +46,21 @@ class TestCommand(BaseCommand):
         ret = subprocess.call(cmd)
         sys.exit(ret)
 
+class TestDepCommand(BaseCommand):
+
+    description = "install test dependencies"
+
+    def run(self):
+        cmd = ["pip", "install", "pytest"]
+        if PY_VERSION >= (3, 3) or PY_VERSION < (3, 0):
+            cmd.append("HTTPretty")
+
+        if PY_VERSION < (3, 3):
+            cmd.append("mock")
+
+        ret = subprocess.call(cmd)
+        sys.exit(ret)
+
 class DocCommand(BaseCommand):
 
     description = "generate documentation"
@@ -92,6 +107,7 @@ setup(
         ].extend(classifiers),
     cmdclass={
         'test': TestCommand,
+        'testdep': TestDepCommand,
         'docs': DocCommand
     },
     long_description="""\

@@ -4,7 +4,7 @@ python:
   - "3.2"
   - "3.3"
 install: "pip install . --use-mirrors"
-before_script: python .travis.py
+before_script: python setup.py testdep
 script: python setup.py test
 branches:
   only:
