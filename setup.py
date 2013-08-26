@@ -40,10 +40,7 @@ class TestCommand(BaseCommand):
 
     def run(self):
         os.chdir('tests')
-        cmd = ["py.test", "mocks"]
-        if PY_VERSION >= (3, 3) or PY_VERSION < (3, 0):
-            cmd.append("httprettys")
-        ret = subprocess.call(cmd)
+        ret = subprocess.call("py.test")
         sys.exit(ret)
 
 class TestDepCommand(BaseCommand):
@@ -51,15 +48,11 @@ class TestDepCommand(BaseCommand):
     description = "install test dependencies"
 
     def run(self):
-        cmd = ["pip", "install", "pytest"]
-        if PY_VERSION >= (3, 3) or PY_VERSION < (3, 0):
-            cmd.append("HTTPretty")
 
         if PY_VERSION < (3, 3):
-            cmd.append("mock")
-
-        ret = subprocess.call(cmd)
-        sys.exit(ret)
+            cmd = ["pip", "install", "mock"]
+            ret = subprocess.call(cmd)
+            sys.exit(ret)
 
 class DocCommand(BaseCommand):
 

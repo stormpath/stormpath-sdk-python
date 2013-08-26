@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 
 import unittest
 from .test_base import BaseTest
@@ -405,7 +406,7 @@ class TestAccount(BaseTest):
             content_type="application/json")
 
         application = self.client.applications.get(self.app_href)
-        account = application.authenticate_account("USERNAME", u"PAŠVORD")
+        account = application.authenticate_account("USERNAME", "PAŠVORD")
 
         self.assertEqual(HTTPretty.last_request.method, "POST")
         self.assertEqual(HTTPretty.last_request.path,
