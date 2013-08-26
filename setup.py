@@ -48,11 +48,11 @@ class TestDepCommand(BaseCommand):
     description = "install test dependencies"
 
     def run(self):
-
+        cmd = ["pip", "install", "pytest", "HTTPretty"]
         if PY_VERSION < (3, 3):
-            cmd = ["pip", "install", "mock"]
-            ret = subprocess.call(cmd)
-            sys.exit(ret)
+            cmd.append("mock")
+        ret = subprocess.call(cmd)
+        sys.exit(ret)
 
 class DocCommand(BaseCommand):
 
