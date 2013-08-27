@@ -39,13 +39,7 @@ class Application(Resource, StatusMixin):
         :param password: Unencrypted user password
 
         """
-        try:
-            return self.login_attempts.basic_auth(login, password).account
-        except Error as e:
-            if e.status == 400:
-                return None
-            else:
-                raise
+        return self.login_attempts.basic_auth(login, password).account
 
     def send_password_reset_email(self, email):
         """Send a password reset email.
@@ -65,14 +59,7 @@ class Application(Resource, StatusMixin):
         :param token: password reset token extracted from the url
 
         """
-
-        try:
-            return self.password_reset_tokens[token].account
-        except Error as e:
-            if e.status == 404:
-                return None
-            else:
-                raise
+        return self.password_reset_tokens[token].account
 
 
 class ApplicationList(ResourceList):
