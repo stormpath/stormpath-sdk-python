@@ -70,11 +70,6 @@ class AccountList(ResourceList):
 
         """
         href = '/accounts/emailVerificationTokens/' + token
-        try:
-            data = self._store.create_resource(href, {})
-        except Error as e:
-            if e.status == 404:
-                return None
-            else:
-                raise
+        data = self._store.create_resource(href, {})
+
         return self.resource_class(properties=data, client=self._client)
