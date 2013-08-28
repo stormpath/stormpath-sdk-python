@@ -4,6 +4,7 @@ from .error import Error
 
 from stormpath import __version__ as STORMPATH_VERSION
 
+
 class HttpExecutor(object):
     """Handles the actual HTTP requests to the Stormpath service.
 

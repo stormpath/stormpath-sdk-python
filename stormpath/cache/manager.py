@@ -5,7 +5,7 @@ class CacheManager(object):
     """Handles all the different caches used by the SDK
 
     It keeps track which resource belongs to which cache.\
-    E.g :class:`stormpath.resource.directory.Directory` resource data is stored \
+    E.g :class:`stormpath.resource.directory.Directory` resource data is stored
     in :class:`stormpath.cache.memory_store.MemoryStore` while \
     :class:`stormpath.resource.application.Application` resource data is stored
     in :class:`stormpath.cache.redis_store.RedisStore`.

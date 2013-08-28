@@ -1,7 +1,6 @@
 from .base import Resource, ResourceList, StatusMixin
 from .password_reset_token import PasswordResetTokenList
 from .login_attempt import LoginAttemptList
-from ..error import Error
 
 
 class Application(Resource, StatusMixin):

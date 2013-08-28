@@ -20,6 +20,7 @@ class Directory(Resource, StatusMixin):
             'groups': GroupList
         }
 
+
 class DirectoryList(ResourceList):
     """Directory resource list.
     """
