@@ -1,5 +1,4 @@
 from .base import Resource, ResourceList, StatusMixin
-from ..error import Error
 
 
 class Account(Resource, StatusMixin):
