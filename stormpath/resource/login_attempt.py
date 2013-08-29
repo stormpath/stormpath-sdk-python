@@ -1,6 +1,7 @@
 from base64 import b64encode
 from .base import Resource, ResourceList
 
+
 class LoginAttempt(Resource):
     """Handles Base64-encoded login data.
 

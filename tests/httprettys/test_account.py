@@ -9,6 +9,7 @@ import json
 
 from stormpath.resource import (Directory, GroupList,
     GroupMembership, GroupMembershipList, Resource)
+from stormpath.error import Error
 
 
 class TestAccount(BaseTest):
@@ -368,9 +369,8 @@ class TestAccount(BaseTest):
             body=json.dumps(invalid_token),
             status=404)
 
-        account = directory.accounts.verify_email_token('TOKEN')
-        self.assertIsNone(account)
-
+        with self.assertRaises(Error):
+            directory.accounts.verify_email_token('TOKEN')
 
     @httpretty.activate
     def test_authenticate(self):
