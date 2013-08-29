@@ -1,4 +1,5 @@
 import json
+from collections import OrderedDict
 from requests import Session
 from .error import Error
 
@@ -33,6 +34,9 @@ class HttpExecutor(object):
         })
 
     def request(self, method, url, data=None, params=None):
+        if params:
+            params = OrderedDict(sorted(params.items()))
+
         if not url.startswith(self.base_url):
             url = self.base_url + url
 
