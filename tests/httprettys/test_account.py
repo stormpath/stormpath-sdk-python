@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 
 import unittest
 from .test_base import BaseTest
@@ -8,6 +9,7 @@ import json
 
 from stormpath.resource import (Directory, GroupList,
     GroupMembership, GroupMembershipList, Resource)
+from stormpath.error import Error
 
 
 class TestAccount(BaseTest):
@@ -367,9 +369,8 @@ class TestAccount(BaseTest):
             body=json.dumps(invalid_token),
             status=404)
 
-        account = directory.accounts.verify_email_token('TOKEN')
-        self.assertIsNone(account)
-
+        with self.assertRaises(Error):
+            directory.accounts.verify_email_token('TOKEN')
 
     @httpretty.activate
     def test_authenticate(self):
@@ -405,7 +406,7 @@ class TestAccount(BaseTest):
             content_type="application/json")
 
         application = self.client.applications.get(self.app_href)
-        account = application.authenticate_account("USERNAME", u"PAŠVORD")
+        account = application.authenticate_account("USERNAME", "PAŠVORD")
 
         self.assertEqual(HTTPretty.last_request.method, "POST")
         self.assertEqual(HTTPretty.last_request.path,

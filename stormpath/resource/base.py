@@ -189,7 +189,6 @@ class Resource(ResourceBase):
     """Provides public methods for resource updates and deletions.
     """
 
-
     def save(self):
         if self.is_new():
             raise ValueError("Can't save new resoures, use create instead")

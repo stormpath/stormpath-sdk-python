@@ -210,15 +210,6 @@ class TestDirectory(BaseTest):
             "password": password
         }
 
-        account = directory.create_account(account_dict)
-        self.assertEqual(HTTPretty.last_request.method, 'POST')
-        self.assertEqual(HTTPretty.last_request.path,
-            self.dir_path + '/accounts')
-
-        self.assertIsInstance(account, Account)
-        self.assertEqual(account.email, email)
-        self.assertTrue(account.href)
-
         new_user_body = {
             "href": self.acc_href,
             "username": username,
@@ -251,11 +242,12 @@ class TestDirectory(BaseTest):
             body=json.dumps(new_user_body),
             content_type="application/json")
 
-        account = directory.create_account(account_dict, False)
+        account = directory.accounts.create(account_dict,
+            registration_workflow_enabled=False)
 
         self.assertEqual(HTTPretty.last_request.method, 'POST')
         self.assertEqual(HTTPretty.last_request.path,
-            self.dir_path + '/accounts?registrationWorkflowEnabled=false')
+            self.dir_path + '/accounts?registrationWorkflowEnabled=False')
 
         self.assertIsInstance(account, Account)
         self.assertEqual(account.email, email)

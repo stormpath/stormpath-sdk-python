@@ -1,8 +1,10 @@
 import json
+from collections import OrderedDict
 from requests import Session
 from .error import Error
 
 from stormpath import __version__ as STORMPATH_VERSION
+
 
 class HttpExecutor(object):
     """Handles the actual HTTP requests to the Stormpath service.
@@ -32,6 +34,9 @@ class HttpExecutor(object):
         })
 
     def request(self, method, url, data=None, params=None):
+        if params:
+            params = OrderedDict(sorted(params.items()))
+
         if not url.startswith(self.base_url):
             url = self.base_url + url
 

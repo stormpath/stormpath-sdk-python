@@ -297,45 +297,31 @@ Group membership can be created by:
 ### Setup
 
 The tested versions are Python 2.7, 3.2 and 3.3.
-It may work on other versions but it depends on the changes introduced to Python
-between versions.
 
-Several packages are used in testing the SDK:
-
-* pytest
-* HTTPretty
-* mock
-
-If you are on a schedule and wish to test immediately you can skip the next
-section and install the above packages:
+#### Testing with tox
+The simplest is to install tox. Tox automatically tests the code on multiple versions of Python by creating virtualenvs:
 
 ```sh
-$ pip install mock HTTPretty pytest
+$ pip install tox
 ```
-Some of the installations may fail but running the tests may still succeed.
-The following section explains why:
 
-#### Testing requirements on different versions of Python
-Unfortunately, the situation is somewhat complicated when it comes to testing
-between Python 2 and Python 3. Even Python 3.2 and Python 3.3 are different
-enough to cause problems:
+There is a tox.ini file in the root folder of Stormpath SDK. You can modify it to suit your needs and run:
 
-What is in common to all version is that our setup.py uses `pytest` to run the
-tests. Python `mock` and `HTTPretty` are also (sometimes) used but there several
- gotchas:
+```sh
+$ tox
+```
 
-* In Python 3.3 `mock` became part of the `unittest` module so you don't need to
-install it if you're using Python 3.3. The tests make sure the correct module
-is used.
-* `HTTPretty` isn't compatible with Python 3.2 (problems with unicode literals)
-but it is compatible with Python 2.7 and 3.3. There's no point installing it
-since the tests using it are simply ignored in setup.py when using Python
-versions 3.0, 3.1 and 3.2.
+#### Testing without tox
 
-### Running
+What is common in with all tests is that our setup.py uses `pytest` to run tests and the tests themselves use `HTTPretty` with `unittest`. Python `mock` is also (sometimes) used but in Python 3.3 `mock` became part of the `unittest` module so you don't need to install it if you're using Python 3.3. The tests make sure the correct module is used.
 
-Once properly configured, you can run tests:
+To install those dependencies manually, there is a `testdep` command that checks the Python version and installs required packages accordingly:
 
+```sh
+$ python setup.py testdep
+```
+
+To run tests:
 ```sh
 $ python setup.py test
 ```
