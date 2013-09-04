@@ -51,15 +51,14 @@ class Sauthc1Signer(AuthBase):
             (port == 443 and scheme == 'https')
 
     @staticmethod
-    def _encode_url(value):
-        encoded = quote(value)
+    def _encode_url(query):
         str_dict = {'+': '%20', '*': '%2A', '%7E': '~'}
         for key, value in str_dict.items():
-            if key in encoded:
-                encoded = encoded.replace(key, value)
+            if key in query:
+                query = query.replace(key, value)
         str = '%2F'
-        encoded = encoded.replace(str, '/') if str in encoded else encoded
-        return encoded
+        query = query.replace(str, '/') if str in query else query
+        return query
 
     def __call__(self, r):
         # requests library mixes bytes/string in headers,
@@ -101,7 +100,7 @@ class Sauthc1Signer(AuthBase):
 
         canonical_query_string = ''
         if parsed_url.query:
-            canonical_query_string = parsed_url.query
+            canonical_query_string = self._encode_url(parsed_url.query)
 
         auth_headers = r.headers.copy()
         # FIXME: REST API doesn't want this header in the signature
