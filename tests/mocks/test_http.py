@@ -70,24 +70,23 @@ class HttpTest(TestCase):
 
     @patch('stormpath.http.Session')
     def test_sauthc1_dict(self, Session):
-        def requestor(method, url, data, params, allow_redirects=None):
-            if isinstance(params, OrderedDict):
-                if params == OrderedDict([('email', 'email'),
-                    ('password', 'password'), ('username', 'username')]):
-                        return MagicMock(status_code=200,
-                            json=MagicMock(return_value={'hello': 'World'}))
+        Session.return_value.request.return_value = \
+            MagicMock(status_code=200,
+                json=MagicMock(return_value={'hello': 'World'}))
 
-            return MagicMock(status_code=400)
-
-        Session.return_value = MagicMock(request=requestor)
         ex = HttpExecutor('http://api.stormpath.com/v1', ('user', 'pass'))
         params = OrderedDict([('username', 'username'),
             ('email', 'email'), ('password', 'password')])
-        try:
-            ex.get('/resource', params=params)
-        except Error:
-            self.fail("Request parameters are not sorted. This can cause \
-                sauthc1 to fail.")
+        ex.get('/resource', params=params)
+
+        Session.return_value.request.assert_called_once_with('GET',
+            'http://api.stormpath.com/v1/resource',
+            params=OrderedDict([
+                ('email', 'email'),
+                ('password', 'password'),
+                ('username', 'username')]),
+            allow_redirects=False, data=None)
+
 
 if __name__ == '__main__':
     main()
