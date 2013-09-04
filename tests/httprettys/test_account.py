@@ -363,7 +363,6 @@ class TestAccount(BaseTest):
             "status": 404
         }
 
-
         httpretty.register_uri(httpretty.POST,
             self.base_href + "/accounts/emailVerificationTokens/TOKEN",
             body=json.dumps(invalid_token),

@@ -101,7 +101,6 @@ class TestBaseResource(TestCase):
         ds.get_resource.assert_called_once_with('test/resource', params=None)
         self.assertEqual(name, 'Test Resource')
 
-
     def test_writable_attributes(self):
 
         class Res(Resource):

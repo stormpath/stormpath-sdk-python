@@ -168,7 +168,8 @@ class TestGroup(BaseTest):
         directory.groups.create(self.grp_body)
 
         self.assertEqual(HTTPretty.last_request.method, 'POST')
-        self.assertEqual(HTTPretty.last_request.path, self.dir_path + "/groups")
+        self.assertEqual(HTTPretty.last_request.path,
+            self.dir_path + "/groups")
 
     @httpretty.activate
     def test_add_account(self):

@@ -1,4 +1,5 @@
 from unittest import TestCase, main
+from collections import OrderedDict
 from stormpath.http import HttpExecutor
 from stormpath.error import Error
 
@@ -8,6 +9,7 @@ try:
     from mock import patch, MagicMock
 except ImportError:
     from unittest.mock import patch, MagicMock
+
 
 class HttpTest(TestCase):
 
@@ -65,6 +67,27 @@ class HttpTest(TestCase):
         data = ex.get('/first')
 
         self.assertEqual(data, {'hello': 'World'})
+
+    @patch('stormpath.http.Session')
+    def test_sauthc1_dict(self, Session):
+        def requestor(method, url, data, params, allow_redirects=None):
+            if isinstance(params, OrderedDict):
+                if params == OrderedDict([('email', 'email'),
+                    ('password', 'password'), ('username', 'username')]):
+                        return MagicMock(status_code=200,
+                            json=MagicMock(return_value={'hello': 'World'}))
+
+            return MagicMock(status_code=400)
+
+        Session.return_value = MagicMock(request=requestor)
+        ex = HttpExecutor('http://api.stormpath.com/v1', ('user', 'pass'))
+        params = OrderedDict([('username', 'username'),
+            ('email', 'email'), ('password', 'password')])
+        try:
+            ex.get('/resource', params=params)
+        except Error:
+            self.fail("Request parameters are not sorted. This can cause \
+                sauthc1 to fail.")
 
 if __name__ == '__main__':
     main()

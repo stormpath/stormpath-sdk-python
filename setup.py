@@ -24,6 +24,7 @@ from stormpath import __version__
 
 PY_VERSION = sys.version_info[:2]
 
+
 class BaseCommand(Command):
     user_options = []
 
@@ -43,6 +44,7 @@ class TestCommand(BaseCommand):
         ret = subprocess.call("py.test")
         sys.exit(ret)
 
+
 class TestDepCommand(BaseCommand):
 
     description = "install test dependencies"
@@ -53,6 +55,7 @@ class TestDepCommand(BaseCommand):
             cmd.append("mock")
         ret = subprocess.call(cmd)
         sys.exit(ret)
+
 
 class DocCommand(BaseCommand):
 
@@ -112,10 +115,10 @@ setup(
     the Stormpath user management service for all authentication and
     access control needs.
 
-    When you make SDK method calls, the calls are translated into HTTPS requests
-    to the Stormpath REST+JSON API. The Stormpath Python SDK therefore provides
-    a clean object-oriented paradigm natural to Python developers and alleviates
-    the need to know how to make REST+JSON requests.
+    When you make SDK method calls, the calls are translated into HTTPS
+    requests to the Stormpath REST+JSON API. The Stormpath Python SDK therefore
+    provides a clean object-oriented paradigm natural to Python developers and
+    alleviates the need to know how to make REST+JSON requests.
 
     LICENSE The Stormpath Python SDK is distributed under the
     Apache Software License.
