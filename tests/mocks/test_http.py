@@ -1,4 +1,5 @@
 from unittest import TestCase, main
+from collections import OrderedDict
 from stormpath.http import HttpExecutor
 from stormpath.error import Error
 
@@ -8,6 +9,7 @@ try:
     from mock import patch, MagicMock
 except ImportError:
     from unittest.mock import patch, MagicMock
+
 
 class HttpTest(TestCase):
 
@@ -65,6 +67,26 @@ class HttpTest(TestCase):
         data = ex.get('/first')
 
         self.assertEqual(data, {'hello': 'World'})
+
+    @patch('stormpath.http.Session')
+    def test_sauthc1_dict(self, Session):
+        Session.return_value.request.return_value = \
+            MagicMock(status_code=200,
+                json=MagicMock(return_value={'hello': 'World'}))
+
+        ex = HttpExecutor('http://api.stormpath.com/v1', ('user', 'pass'))
+        params = OrderedDict([('username', 'username'),
+            ('email', 'email'), ('password', 'password')])
+        ex.get('/resource', params=params)
+
+        Session.return_value.request.assert_called_once_with('GET',
+            'http://api.stormpath.com/v1/resource',
+            params=OrderedDict([
+                ('email', 'email'),
+                ('password', 'password'),
+                ('username', 'username')]),
+            allow_redirects=False, data=None)
+
 
 if __name__ == '__main__':
     main()
