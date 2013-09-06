@@ -104,6 +104,7 @@ class AuthTest(TestCase):
                 self.assertTrue(digest.called)
                 self.assertFalse(basic.called)
 
+                digest.reset_mock()
                 client = Client(api_key={'id': 'MyId', 'secret': 'Shush!'},
                     method='digest')
                 session.return_value.request.return_value = tenant_return
@@ -113,6 +114,7 @@ class AuthTest(TestCase):
                 self.assertTrue(digest.called)
                 self.assertFalse(basic.called)
 
+                digest.reset_mock()
                 client = Client(api_key={'id': 'MyId', 'secret': 'Shush!'})
                 session.return_value.request.return_value = tenant_return
                 application = client.applications.get('application_url')
@@ -124,7 +126,6 @@ class AuthTest(TestCase):
                 digest.reset_mock()
                 client = Client(api_key={'id': 'MyId', 'secret': 'Shush!'},
                     method='basic')
-
                 session.return_value.request.return_value = tenant_return
                 application = client.applications.get('application_url')
                 session.return_value.request.return_value = app_return
