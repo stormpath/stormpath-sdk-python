@@ -7,10 +7,9 @@ from requests.auth import HTTPBasicAuth, AuthBase
 from collections import OrderedDict
 from os.path import isfile
 try:
-    from urllib.parse import urlparse, quote
+    from urllib.parse import urlparse
 except ImportError:
     from urlparse import urlparse
-    from urllib2 import quote
 
 HOST_HEADER = "Host"
 AUTHORIZATION_HEADER = "Authorization"
@@ -165,7 +164,7 @@ class Auth(object):
     def __init__(self, api_key_file_location=None,
                  api_key_id_property_name='apiKey.id',
                  api_key_secret_property_name='apiKey.secret',
-                 api_key=None, id=None, secret=None):
+                 api_key=None, id=None, secret=None, method='digest'):
         """
         Initialize authentication using one of the available authentication
         credentials source:
@@ -193,6 +192,7 @@ class Auth(object):
 
         self._id = None
         self._secret = None
+        self._method = method
 
         if self._read_api_key_file(api_key_file_location,
                 api_key_id_property_name, api_key_secret_property_name):
@@ -237,7 +237,7 @@ class Auth(object):
         return (self._id and self._secret)
 
     def __call__(self):
-        return self.digest
+        return self.signer
 
     @property
     def id(self):
@@ -269,3 +269,12 @@ class Auth(object):
 
         """
         return Sauthc1Signer(self._id, self._secret)
+
+    @property
+    def signer(self):
+        if self._method == 'basic':
+            return self.basic
+        elif self._method == 'digest':
+            return self.digest
+        else:
+            raise ValueError("Unsupported auth method " + str(self._method))

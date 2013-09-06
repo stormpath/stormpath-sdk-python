@@ -1,9 +1,10 @@
 from unittest import TestCase, main
 from stormpath.auth import Auth, Sauthc1Signer
+from stormpath.client import Client
 try:
-    from mock import patch, MagicMock
+    from mock import patch, MagicMock, PropertyMock
 except ImportError:
-    from unittest.mock import patch, MagicMock
+    from unittest.mock import patch, MagicMock, PropertyMock
 import datetime
 
 
@@ -80,6 +81,57 @@ class AuthTest(TestCase):
             'SAuthc1 sauthc1Id=MyId/20130701/a43a9d25-ab06-421e-8605-33fd1e760825/sauthc1_request, ' + # noqa
             'sauthc1SignedHeaders=host;x-stormpath-date, ' +
             'sauthc1Signature=fc04c5187cc017bbdf9c0bb743a52a9487ccb91c0996267988ceae3f10314176') # noqa
+
+    @patch('stormpath.http.Session')
+    def test_auth_method(self, session):
+        tenant_return = MagicMock(status_code=200,
+                    json=MagicMock(return_value={'applications':
+                        {'href': 'applications'}}))
+
+        app_return = MagicMock(status_code=200,
+                    json=MagicMock(return_value={'name': 'LCARS'}))
+
+        with patch('stormpath.client.Auth.digest', new_callable=PropertyMock) \
+                as digest:
+            with patch('stormpath.client.Auth.basic',
+                new_callable=PropertyMock) as basic:
+
+                client = Client(api_key={'id': 'MyId', 'secret': 'Shush!'})
+                session.return_value.request.return_value = tenant_return
+                application = client.applications.get('application_url')
+                session.return_value.request.return_value = app_return
+                application.name
+                self.assertTrue(digest.called)
+                self.assertFalse(basic.called)
+
+                client = Client(api_key={'id': 'MyId', 'secret': 'Shush!'},
+                    method='digest')
+                session.return_value.request.return_value = tenant_return
+                application = client.applications.get('application_url')
+                session.return_value.request.return_value = app_return
+                application.name
+                self.assertTrue(digest.called)
+                self.assertFalse(basic.called)
+
+                client = Client(api_key={'id': 'MyId', 'secret': 'Shush!'})
+                session.return_value.request.return_value = tenant_return
+                application = client.applications.get('application_url')
+                session.return_value.request.return_value = app_return
+                application.name
+                self.assertTrue(digest.called)
+                self.assertFalse(basic.called)
+
+                digest.reset_mock()
+                client = Client(api_key={'id': 'MyId', 'secret': 'Shush!'},
+                    method='basic')
+
+                session.return_value.request.return_value = tenant_return
+                application = client.applications.get('application_url')
+                session.return_value.request.return_value = app_return
+                application.name
+                self.assertFalse(digest.called)
+                self.assertTrue(basic.called)
+
 
 if __name__ == '__main__':
     main()
