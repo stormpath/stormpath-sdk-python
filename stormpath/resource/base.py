@@ -329,13 +329,15 @@ class ResourceList(Resource):
         else:
             return self._client.BASE_URL + self.href
 
-    def create(self, properties, **params):
+    def create(self, properties, expand=None, **params):
         data = {}
         for k, v in properties.items():
             if k in self.resource_class.writable_attrs:
                 data[self.to_camel_case(k)] = self._sanitize_property(v)
 
         params = {self.to_camel_case(k): v for k, v in params.items()}
+        if expand:
+            params.update({'expand': expand.get_params()})
 
         return self.resource_class(self._client,
             properties=self._store.create_resource(self._get_create_path(),
