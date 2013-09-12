@@ -11,7 +11,7 @@ class Account(Resource, StatusMixin):
     STATUS_UNVERIFIED = 'UNVERIFIED'
 
     writable_attrs = ('username', 'password', 'email', 'given_name',
-        'middle_name', 'surname', 'full_name', 'status')
+        'middle_name', 'surname', 'status')
 
     def get_resource_attributes(self):
         from .directory import Directory
