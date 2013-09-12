@@ -29,11 +29,11 @@ class Error(RuntimeError):
             except:
                 return -1
 
-        msg = error.get('developerMessage', 'Unknown error' +
+        msg = error.get('message', 'Unknown error' +
             ((' (%d)' % http_status) if http_status else ''))
         super(Error, self).__init__(msg)
         self.status = try_int(error.get('status', http_status))
         self.code = try_int(error.get('code', -1))
-        self.developer_message = msg
+        self.developer_message = error.get('developerMessage')
         self.more_info = error.get('moreInfo')
-        self.message = error.get('message')
+        self.message = msg

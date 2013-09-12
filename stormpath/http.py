@@ -49,7 +49,7 @@ class HttpExecutor(object):
         if r.status_code in [301, 302] and 'location' in r.headers:
             return self.request('GET', r.headers['location'], params=params)
 
-        if r.status_code not in [200, 201, 204]:
+        if r.status_code >= 400 and r.status_code <= 600:
             raise Error(r.json(), http_status=r.status_code)
 
         try:
