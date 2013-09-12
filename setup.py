@@ -41,7 +41,8 @@ class TestCommand(BaseCommand):
 
     def run(self):
         os.chdir('tests')
-        ret = subprocess.call("py.test")
+        ret = subprocess.call(["py.test", "--quiet",
+            "--cov-report=term-missing", "--cov", "stormpath"])
         sys.exit(ret)
 
 
@@ -50,7 +51,7 @@ class TestDepCommand(BaseCommand):
     description = "install test dependencies"
 
     def run(self):
-        cmd = ["pip", "install", "pytest", "HTTPretty"]
+        cmd = ["pip", "install", "pytest", "pytest-cov", "HTTPretty"]
         if PY_VERSION < (3, 3):
             cmd.append("mock")
         ret = subprocess.call(cmd)
