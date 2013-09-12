@@ -27,16 +27,17 @@ class BaseTest(unittest.TestCase):
         self.grp_path = self.base_path + '/groups/GRP_ID'
         self.grp_href = self.base_url + self.grp_path
 
+        self.map_path = self.base_path + '/accountStoreMappings/MAP_ID'
+        self.map_href = self.base_url + self.map_path
+
         self.tenant_body = {
             "href": "TENANT_HREF",
             "name": "TENANT_NAME",
             "key": "TENANT_KEY",
-            "applications":
-                {
+            "applications": {
                     "href": self.tenant_href + "/applications"
                 },
-            "directories":
-                {
+            "directories": {
                     "href": self.tenant_href + "/directories"
                 }
             }
@@ -119,6 +120,19 @@ class BaseTest(unittest.TestCase):
             "groupMemberships": {
                 "href": self.grp_href + "/groupMemberships"
             }
+        }
+
+        self.map_body = {
+            "href": self.map_href,
+            "accountStore": {
+                "href": self.dir_href
+            },
+            "application": {
+                "href": self.app_href
+            },
+            "listIndex": 1,
+            "isDefaultAccountStore": True,
+            "isDefaultGroupStore": True
         }
 
         self.client = Client(api_key={'id': self.id, 'secret': self.secret})

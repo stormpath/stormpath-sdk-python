@@ -34,14 +34,18 @@ class Client(object):
     :py:attr:`group_memberships` -
     :class:`stormpath.resource.group_membership.GroupMembershipList`
 
+    :py:attr:`account_store_mappings` -
+    :class:`stormpath.resource.account_store_mapping.AccountStoreMappingList`
+
     """
 
     BASE_URL = 'https://api.stormpath.com/v1'
 
-    def __init__(self, cache_options=None, **kwargs):
+    def __init__(self, cache_options=None, expand=None, **kwargs):
         executor = HttpExecutor(self.BASE_URL, Auth(**kwargs).signer)
         self.data_store = DataStore(executor, cache_options)
-        self.tenant = Tenant(client=self, href='/tenants/current')
+        self.tenant = Tenant(client=self, href='/tenants/current',
+            expand=expand)
 
         """
         Initialize the client by setting the

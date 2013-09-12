@@ -4,6 +4,7 @@ try:
 except ImportError:
     from unittest.mock import MagicMock
 from stormpath.resource.base import Expansion, Resource, ResourceList
+from stormpath.client import Client
 
 
 class TestExpansion(TestCase):
@@ -310,6 +311,28 @@ class TestResourceList(TestCase):
         self.assertTrue(r.href, 'test/resource')
         self.assertTrue(r.name, 'Test Resource')
 
+    def test_creation_with_expansion(self):
+        ds = MagicMock()
+        ds.create_resource.return_value = {
+            'href': 'test/resource',
+            'name': 'Test Resource',
+        }
+
+        rl = ResourceList(
+            client=MagicMock(data_store=ds,
+                BASE_URL='http://www.example.com'),
+            properties={
+                'href': '/',
+            })
+
+        e = Expansion()
+        e.add_property('bar', limit=5)
+
+        rl.create({}, expand=e, some_param=True)
+
+        ds.create_resource.assert_called_once_with('http://www.example.com/',
+            {}, params={'someParam': True, 'expand': 'bar(limit:5)'})
+
     def test_get_single_app_by_indexing_and_get(self):
         rl = ResourceList(client=MagicMock(), properties={
             'href': '/',
@@ -328,6 +351,13 @@ class TestResourceList(TestCase):
         self.assertEqual(a.href, 'test/resource')
         self.assertEqual(b.href, 'test/resource')
         self.assertEqual(c.href, 'another/resource')
+
+    def test_tenant_expansion(self):
+        e = Expansion()
+        e.add_property('bar', limit=5)
+        client = Client(api_key={'id': 'MyId', 'secret': 'Shush!'}, expand=e)
+
+        self.assertIsInstance(client.tenant._expand, Expansion)
 
 if __name__ == '__main__':
     main()

@@ -13,7 +13,7 @@ class DataStore(object):
     """
 
     CACHE_REGIONS = ('applications', 'directories', 'accounts', 'groups',
-        'groupMemberships', 'tenants')
+        'groupMemberships', 'tenants', 'accountStoreMappings')
 
     def __init__(self, executor, cache_options=None):
         """
