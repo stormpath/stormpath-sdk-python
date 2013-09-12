@@ -4,6 +4,7 @@ try:
 except ImportError:
     from unittest.mock import MagicMock
 from stormpath.resource.base import Expansion, Resource, ResourceList
+from stormpath.client import Client
 
 
 class TestExpansion(TestCase):
@@ -350,6 +351,13 @@ class TestResourceList(TestCase):
         self.assertEqual(a.href, 'test/resource')
         self.assertEqual(b.href, 'test/resource')
         self.assertEqual(c.href, 'another/resource')
+
+    def test_tenant_expansion(self):
+        e = Expansion()
+        e.add_property('bar', limit=5)
+        client = Client(api_key={'id': 'MyId', 'secret': 'Shush!'}, expand=e)
+
+        self.assertIsInstance(client.tenant._expand, Expansion)
 
 if __name__ == '__main__':
     main()
