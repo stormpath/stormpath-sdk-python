@@ -1,3 +1,14 @@
+Version 1.0.0
+
+- Complete rewrite of codebase
+- Support for Python 2.7
+- Added self-contained tests
+- Account store resources added
+- Implemented caching
+- Added ability to autocreate directory
+- Added entity expansion to create method and tenant resource
+
+
 Version 0.2.0
 -------------
 
