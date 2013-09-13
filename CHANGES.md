@@ -1,3 +1,12 @@
+Version 1.0.0
+
+- Complete rewrite of codebase
+- Account store resources added
+- Implemented caching
+- Added ability to autocreate directory
+- Added entity expansion to create method and tenant resource
+
+
 Version 0.2.0
 -------------
 

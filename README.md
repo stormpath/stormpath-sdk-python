@@ -21,13 +21,6 @@ $ pip install stormpath-sdk
         downloading the <code>apiKey.properties</code> file into a <code>.stormpath</code>
         folder under your local home directory.
 
-    1.  Create an application and a directory to store your users'
-        accounts. Make sure the directory is assigned as a login source
-        to the application.
-
-    1.  Take note of the _REST URL_ of the application and of directory
-        you just created.
-
 2.  **Create a client** using the API key properties file
 
     ```python
@@ -50,15 +43,24 @@ $ pip install stormpath-sdk
     URLs you acquired above.
 
     ```python
-    application = client.applications.get(application_url)
+    application = client.applications.get("https://api.stormpath.com/v1/applications/APP_UID")
 
-    directory = client.directories.get(directory_url)
+    directory = client.directories.get("https://api.stormpath.com/v1/directories/DIR_UID")
     ```
 
-5.  **Create an account for a user** on the directory.
+5.  **Create an applications for and autocreate a directory as the login source.
 
     ```python
-    account = directory.accounts.create({
+    account = client.applications.create({
+            'name':'Holodeck',
+            'description': "Recreational facility",
+            }, create_directory=True)
+    ```
+
+6.  **Create an account for a user** on the directory.
+
+    ```python
+    account = appliation.accounts.create({
             'given_name':'John',
             'surname':'Smith',
             'email':'john.smith@example.com',
@@ -67,7 +69,7 @@ $ pip install stormpath-sdk
             })
     ```
 
-6.  **Update an account**
+7.  **Update an account**
 
     ```python
     account.given_name = 'Johnathan'
@@ -75,7 +77,7 @@ $ pip install stormpath-sdk
     account.save()
     ```
 
-7.  **Authenticate the Account** for use with an application:
+8.  **Authenticate the Account** for use with an application:
 
     ```python
     try:
@@ -84,19 +86,19 @@ $ pip install stormpath-sdk
         print(e)
     ```
 
-8.  **Send a password reset request**
+9.  **Send a password reset request**
 
     ```python
     application.send_password_reset_email('john.smith@example.com')
     ```
 
-9.  **Create a group** in a directory
+10.  **Create a group** in a directory
 
     ```python
     directory.groups.create({'name':'Admins'})
     ```
 
-10.  **Add the account to the group**
+11.  **Add the account to the group**
 
     ```python
     group.add_account(account)
@@ -120,14 +122,14 @@ in the hash of values passed on Client initialization:
   ```
 
   You can even identify the names of the properties to use as the API
-  key id and secret. For example, suppose your properties was:
+  key id and secret. For example, suppose your properties were:
 
   ```
   foo=APIKEYID
   bar=APIKEYSECRET
   ```
 
-  You could load it with the following:
+  You could load it with the following parameters:
 
   ```python
   client = stormpath.Client(
@@ -136,13 +138,13 @@ in the hash of values passed on Client initialization:
       api_key_secret_property_name='bar')
   ```
 
-* Passing in a stormpath.APIKey instance:
+* By explicitly setting the API key id and secret:
 
   ```python
   client = stormpath.Client(id=api_id, secret=api_secret)
   ```
 
-* By explicitly setting the API key id and secret:
+* Passing in an APIKey dictionary:
 
   ```python
   client = stormpath.Client(api_key={
@@ -164,40 +166,16 @@ directory = client.directories.get(directory_url)
 ```
 
 The <code>applications</code> and <code>directories</code> property on a
-client instance also you to iterate
+client instance allows you to iterate
 and scan for resources via that interface.
 
 Additional resources are <code>accounts</code>, <code>groups</code>,
-<code>group_membership</code>, and the single reference to your
+<code>group_memberships</code>, <code>account_store_mappings</code>, and the single reference to your
 <code>tenant</code>.
 
 ### Registering Accounts
 
-Accounts are created on a directory instance. They can be created in two
-ways:
-
-* With the <code>create_account</code> method:
-
-  ```python
-  account = directory.create_account({
-    given_name: 'John',
-    surname: 'Smith',
-    email: 'john.smith@example.com',
-    username: 'johnsmith',
-    password: '4P@$$w0rd!'
-  })
-  ```
-
-  This method can take an additional flag to indicate if the account
-  can skip any registration workflow configured on the directory.
-
-  ```python
-  ## Will skip workflow, if any
-  account = directory.create_account(account_props, False)
-  ```
-
-* Creating it directly on the <code>accounts</code> collection property
-  on the directory:
+Accounts are created on a directory instance:
 
   ```python
   account = directory.accounts.create({
@@ -207,6 +185,20 @@ ways:
     username: 'johnsmith',
     password: '4P@$$w0rd!'
   })
+  ```
+
+  Directory account creation can take an additional flag to indicate if the account
+  can skip any registration workflow configured on the directory.
+
+  ```python
+  ## Will skip workflow, if any
+  account = directory.accounts.create({
+    given_name: 'John',
+    surname: 'Smith',
+    email: 'john.smith@example.com',
+    username: 'johnsmith',
+    password: '4P@$$w0rd!'
+  }, registration_workflow_enabled=False)
   ```
 
 If the directory has been configured with an email verification workflow
@@ -289,7 +281,7 @@ Group membership can be created by:
 * Using the <code>add_account</code> method on the group instance:
 
   ```python
-  group.add_group(account)
+  group.add_account(account)
   ```
 
 ## Testing
@@ -299,7 +291,7 @@ Group membership can be created by:
 The tested versions are Python 2.7, 3.2 and 3.3.
 
 #### Testing with tox
-The simplest is to install tox. Tox automatically tests the code on multiple versions of Python by creating virtualenvs:
+The simplest way is to install tox. Tox automatically tests the code on multiple versions of Python by creating virtualenvs:
 
 ```sh
 $ pip install tox
@@ -313,7 +305,7 @@ $ tox
 
 #### Testing without tox
 
-What is common in with all tests is that our setup.py uses `pytest` to run tests and the tests themselves use `HTTPretty` with `unittest`. Python `mock` is also (sometimes) used but in Python 3.3 `mock` became part of the `unittest` module so you don't need to install it if you're using Python 3.3. The tests make sure the correct module is used.
+What is common in all tests is that our setup.py uses `pytest` to run tests and the tests themselves use `HTTPretty` with `unittest`. Python `mock` is also (sometimes) used but in Python 3.3 `mock` became part of the `unittest` module so you don't have to install it if you're using Python 3.3. The tests make sure the correct module is used.
 
 To install those dependencies manually, there is a `testdep` command that checks the Python version and installs required packages accordingly:
 
@@ -364,28 +356,33 @@ $ python setup.py docs
 +-------------+
        + 1
        |
-       |           +--------------+
-       |           | AccountStore |
-       o- - - - - -|              |
-       |           +--------------+
-       |
-       v 0..*
-+--------------+            +--------------+
-|  Directory   | 1        1 |   Account    |1
-|              |<----------+|              |+----------+
-|              |            |              |           |
-|              | 1     0..* |              |0..*       |
-|              |+---------->|              |+-----+    |
-|              |            +--------------+      |    |         +-----------------+
-|              |                                  |    |         | GroupMembership |
-|              |                                  o- - o - - - - |                 |
-|              |            +--------------+      |    |         +-----------------+
-|              | 1     0..* |    Group     |1     |    |
-|              |+---------->|              |<-----+    |
-|              |            |              |           |
-|              | 1        1 |              |0..*       |
-|              |<----------+|              |<----------+
-+--------------+            +--------------+
+       |        +------------------------+
+       |        |     AccountStore       |
+       o- - - - |                        |
+       |        +------------------------+
+       |                     ^ 1..*
+       |                     |
+       |                     |
+       |          +---------OR---------+
+       |          |                    |
+       |          |                    |
+       v 0..*   1 +                    + 1
++---------------------+            +--------------+
+|      Directory      | 1        1 |    Group     |1
+|                     |<----------+|              |+----------+
+|                     |            |              |           |
+|                     | 1     0..* |              |0..*       |
+|                     |+---------->|              |+-----+    |
+|                     |            +--------------+      |    |         +-----------------+
+|                     |                                  |    |         | GroupMembership |
+|                     |                                  o- - o - - - - |                 |
+|                     |            +--------------+      |    |         +-----------------+
+|                     | 1     0..* |   Account    |1     |    |
+|                     |+---------->|              |<-----+    |
+|                     |            |              |           |
+|                     | 1        1 |              |0..*       |
+|                     |<----------+|              |<----------+
++---------------------+            +--------------+
 ```
 
 ## Copyright & Licensing
