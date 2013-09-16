@@ -1,6 +1,6 @@
 import os
 import unittest
-import random
+from uuid import uuid4
 
 from stormpath.client import Client
 from stormpath.error import Error
@@ -10,13 +10,8 @@ from stormpath.resource.base import Expansion
 
 class LiveTest(unittest.TestCase):
 
-    def generate_name(self, prefix, search_region):
-        random.seed()
-        random_number = random.randint(0, 100000000)
-        if (len(search_region.search(prefix + '_' + str(random_number))) == 0):
-            return prefix + '_' + str(random_number)
-        else:
-            return self.generate_name(prefix, search_region)
+    def generate_name(self, prefix):
+        return prefix + '_' + str(uuid4())
 
     def setUp(self):
         self.apiKeyId = os.getenv("STORMPATH_SDK_TEST_API_KEY_ID")
@@ -33,7 +28,7 @@ class LiveTest(unittest.TestCase):
 
     def test_live(self):
         # test directory creation
-        name = self.generate_name("my_dir", self.client.directories)
+        name = self.generate_name("my_dir")
         directory = self.client.directories.create({
             'name': name,
             'description': "This is my raindir!"
@@ -49,7 +44,7 @@ class LiveTest(unittest.TestCase):
             self.created_applications.append(application)
 
         # test directory group creation
-        group_name = self.generate_name("my_group_1", directory.groups)
+        group_name = self.generate_name("my_group_1")
         group = directory.groups.create({
             "name": group_name,
             "description": "This is my support group",
@@ -62,7 +57,7 @@ class LiveTest(unittest.TestCase):
         self.assertTrue(group.is_enabled())
 
         # test directory account creation
-        username = self.generate_name("william", directory.accounts)
+        username = self.generate_name("william")
         account = directory.accounts.create({
             'username': username,
             'email': username + "@titan.com",
@@ -75,7 +70,7 @@ class LiveTest(unittest.TestCase):
         self.assertTrue(account.is_enabled())
 
         # test application creation
-        name = self.generate_name("my_app", self.client.applications)
+        name = self.generate_name("my_app")
         application = self.client.applications.create({
             "name": name,
             "description": "This is my rainapp",
@@ -88,8 +83,8 @@ class LiveTest(unittest.TestCase):
             account = application.authenticate_account(username, "xaiK3auc")
 
         # test application creation with directory
-        app_name = self.generate_name("my_app", self.client.applications)
-        dir_name = self.generate_name("my_dir", self.client.directories)
+        app_name = self.generate_name("my_app")
+        dir_name = self.generate_name("my_dir")
         application2 = self.client.applications.create({
             "name": app_name,
             "description": "This is my rainapp",
@@ -126,7 +121,7 @@ class LiveTest(unittest.TestCase):
         self.assertEqual(account.middle_name, "Thomas")
 
         # test unsuccesful account creation on application
-        username2 = self.generate_name("ltcmdata", application.accounts)
+        username2 = self.generate_name("ltcmdata")
         with self.assertRaises(Error):
             application.accounts.create({
                 'username': username2,
@@ -151,8 +146,7 @@ class LiveTest(unittest.TestCase):
         self.assertIsNone(account2.middle_name, None)
 
         # test unsuccesful group creation on application
-        group2_name = self.generate_name("Android civil rights group",
-            application.groups)
+        group2_name = self.generate_name("Android civil rights group")
         with self.assertRaises(Error):
             application.groups.create({
                 'name': group2_name

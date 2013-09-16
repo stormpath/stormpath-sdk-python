@@ -46,6 +46,17 @@ class TestCommand(BaseCommand):
         sys.exit(ret)
 
 
+class LiveTestCommand(BaseCommand):
+
+    description = "run live-tests"
+
+    def run(self):
+        os.chdir("tests")
+        ret = subprocess.call(["py.test", "--quiet",
+            "--cov-report=term-missing", "--cov", "stormpath", "test_live.py"])
+        sys.exit(ret)
+
+
 class TestDepCommand(BaseCommand):
 
     description = "install test dependencies"
@@ -104,6 +115,7 @@ setup(
         ].extend(classifiers),
     cmdclass={
         'test': TestCommand,
+        'livetest': LiveTestCommand,
         'testdep': TestDepCommand,
         'docs': DocCommand
     },
