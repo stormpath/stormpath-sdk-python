@@ -318,6 +318,23 @@ To run tests:
 $ python setup.py test
 ```
 
+#### Live testing
+
+All of the above methods use `mock` and `HTTPretty` and don't query Stormpath. That makes them fast and self-reliant. If you want to run tests that don't patch any of the methods, you have to set the following environment variables to working Stormpath credentials:
+
+```sh
+$ export STORMPATH_SDK_TEST_API_KEY_ID=YOUR_APIKEY_ID
+$ export STORMPATH_SDK_TEST_API_KEY_SECRET=YOUR_APIKEY_SECRET
+```
+
+To run tests
+```sh
+$ python setup.py livetest
+```
+
+WARNING: Since the tests make live changes to Stormpath data, DO NOT run these tests in a production environment!
+
+
 ## Contributing
 
 You can make your own contributions by forking the <code>development</code>

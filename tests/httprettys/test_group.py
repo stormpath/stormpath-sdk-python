@@ -31,8 +31,7 @@ class TestGroup(BaseTest):
             body=json.dumps(self.grp_body),
             content_type="application/json")
 
-        directory = self.client.directories.get(self.dir_href)
-        group = directory.groups.get(self.grp_href)
+        group = self.client.groups.get(self.grp_href)
 
         self.assertEqual(group.href, self.grp_href)
         self.assertEqual(group.name, self.grp_body['name'])

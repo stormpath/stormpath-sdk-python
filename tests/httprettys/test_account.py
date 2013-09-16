@@ -48,6 +48,7 @@ class TestAccount(BaseTest):
         self.assertEqual(account.username, username)
         self.assertEqual(account.email, email)
         self.assertEqual(account.given_name, given_name)
+        self.assertEqual(str(account), username)
 
         self.assertEqual(HTTPretty.last_request.path, self.acc_path)
 

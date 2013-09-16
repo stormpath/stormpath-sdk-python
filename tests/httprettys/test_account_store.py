@@ -64,7 +64,5 @@ class TestAccountStore(BaseTest):
         self.assertEqual(HTTPretty.last_request.method, 'DELETE')
         self.assertEqual(HTTPretty.last_request.path, self.map_path)
 
-
-
 if __name__ == '__main__':
     unittest.main()
