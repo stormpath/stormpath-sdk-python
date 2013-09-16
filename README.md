@@ -332,7 +332,7 @@ To run tests
 $ python setup.py livetest
 ```
 
-WARNING: Since the tests make live changes to Stormpath data, if for any reason the tests terminate before cleaning up after themselves, you will have leftover changes like new directories, accounts etc. DO NOT run these tests in a production environment!
+WARNING: Since the tests make live changes to Stormpath data, DO NOT run these tests in a production environment!
 
 
 ## Contributing
