@@ -48,7 +48,7 @@ $ pip install stormpath-sdk
     directory = client.directories.get("https://api.stormpath.com/v1/directories/DIR_UID")
     ```
 
-5.  **Create an applications for and autocreate a directory as the login source.
+5.  **Create an application** and autocreate a directory as the login source.
 
     ```python
     account = client.applications.create({
