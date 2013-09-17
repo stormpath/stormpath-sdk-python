@@ -42,7 +42,8 @@ class TestCommand(BaseCommand):
     def run(self):
         os.chdir('tests')
         ret = subprocess.call(["py.test", "--quiet",
-            "--cov-report=term-missing", "--cov", "stormpath"])
+            "--cov-report=term-missing", "--cov", "stormpath",
+            "--ignore", "test_live.py"])
         sys.exit(ret)
 
 
