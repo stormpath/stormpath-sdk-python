@@ -16,6 +16,8 @@ pip-log.txt
 # tools
 .idea
 *.iml
+*.ipr
+*.iws
 
 # Distutils
 MANIFEST
