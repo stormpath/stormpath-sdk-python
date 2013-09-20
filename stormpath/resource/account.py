@@ -1,7 +1,8 @@
-from .base import Resource, ResourceList, StatusMixin
+from .base import (Resource, CollectionResource, StatusMixin,
+    SaveMixin, DeleteMixin)
 
 
-class Account(Resource, StatusMixin):
+class Account(Resource, StatusMixin, SaveMixin, DeleteMixin):
     """Account resource.
 
     More info in documentation:
@@ -57,7 +58,7 @@ class Account(Resource, StatusMixin):
         return self.get_status() == self.STATUS_UNVERIFIED
 
 
-class AccountList(ResourceList):
+class AccountList(CollectionResource):
     """Account resource list.
     """
     resource_class = Account

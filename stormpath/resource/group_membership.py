@@ -1,7 +1,7 @@
-from .base import Resource, ResourceList
+from .base import Resource, CollectionResource, DeleteMixin
 
 
-class GroupMembership(Resource):
+class GroupMembership(Resource, DeleteMixin):
     """GroupMembership resource.
 
     More info in documentation:
@@ -19,7 +19,7 @@ class GroupMembership(Resource):
         }
 
 
-class GroupMembershipList(ResourceList):
+class GroupMembershipList(CollectionResource):
     """Group membership resource list.
     """
     resource_class = GroupMembership

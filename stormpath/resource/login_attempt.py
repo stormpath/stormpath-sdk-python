@@ -1,5 +1,5 @@
 from base64 import b64encode
-from .base import Resource, ResourceList
+from .base import Resource, CollectionResource
 
 
 class LoginAttempt(Resource):
@@ -18,7 +18,7 @@ class LoginAttempt(Resource):
         }
 
 
-class LoginAttemptList(ResourceList):
+class LoginAttemptList(CollectionResource):
     """List of login data.
     """
     resource_class = LoginAttempt

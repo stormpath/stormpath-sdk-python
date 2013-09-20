@@ -1,7 +1,7 @@
-from .base import Resource, ResourceList
+from .base import Resource, CollectionResource, SaveMixin, DeleteMixin
 
 
-class AccountStoreMapping(Resource):
+class AccountStoreMapping(Resource, SaveMixin, DeleteMixin):
     """Mapping between an Application and an account store.
 
     Account Store is a generic term for a resource that stores Accounts.
@@ -24,7 +24,7 @@ class AccountStoreMapping(Resource):
         }
 
 
-class AccountStoreMappingList(ResourceList):
+class AccountStoreMappingList(CollectionResource):
     """Account Store Mapping list."""
 
     create_path = '/accountStoreMappings'

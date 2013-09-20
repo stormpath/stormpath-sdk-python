@@ -38,7 +38,7 @@ class Expansion(object):
         return ','.join(ret)
 
 
-class ResourceBase(object):
+class Resource(object):
     """Base class for all Stormpath resource objects.
 
     More information on what a resource object represents can be found in
@@ -69,7 +69,7 @@ class ResourceBase(object):
 
     def __setattr__(self, name, value):
         if name.startswith('_') or name in self.writable_attrs:
-            super(ResourceBase, self).__setattr__(name, value)
+            super(Resource, self).__setattr__(name, value)
         else:
             raise AttributeError("Attribute '%s' of %s is not writable" %
                 (name, self.__class__.__name__))
@@ -90,7 +90,7 @@ class ResourceBase(object):
         return {}
 
     def _wrap_resource_attr(self, cls, value):
-        if isinstance(value, ResourceBase):
+        if isinstance(value, Resource):
             return value
         elif isinstance(value, dict):
             return cls(self._client, properties=value)
@@ -102,7 +102,7 @@ class ResourceBase(object):
 
     @staticmethod
     def _sanitize_property(value):
-        if isinstance(value, ResourceBase) and value.href:
+        if isinstance(value, Resource) and value.href:
             return {'href': value.href}
         else:
             return value
@@ -117,7 +117,7 @@ class ResourceBase(object):
             elif isinstance(value, dict) and 'href' in value:
                 # no idea what kind of resource it is, but let's load it
                 # it anyways
-                value = ResourceBase(self._client, href=value['href'])
+                value = Resource(self._client, href=value['href'])
             self.__dict__[name] = value
 
     @staticmethod
@@ -185,14 +185,15 @@ class ResourceBase(object):
         self._set_properties(data)
 
 
-class Resource(ResourceBase):
-    """Provides public methods for resource updates and deletions.
-    """
+class SaveMixin(object):
 
     def save(self):
         if self.is_new():
             raise ValueError("Can't save new resoures, use create instead")
         self._store.update_resource(self.href, self._get_properties())
+
+
+class DeleteMixin(object):
 
     def delete(self):
         if self.is_new():
@@ -218,7 +219,7 @@ class StatusMixin(object):
         return self.get_status() == self.STATUS_DISABLED
 
 
-class ResourceList(Resource):
+class CollectionResource(Resource):
     """Provides Resource collections/lists.
 
     Every resource can be represented as part of a collection. We need to
@@ -237,7 +238,7 @@ class ResourceList(Resource):
 
     def _set_properties(self, properties):
         items = properties.pop('items', None)
-        super(ResourceList, self)._set_properties(properties)
+        super(CollectionResource, self)._set_properties(properties)
         if items is not None:
             self.__dict__['items'] = [self._wrap_resource_attr(
                 self.resource_class, item) for item in items]

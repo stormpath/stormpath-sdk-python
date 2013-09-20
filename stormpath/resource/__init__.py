@@ -3,5 +3,6 @@ from .group import Group, GroupList
 from .tenant import Tenant
 from .directory import Directory
 from .group_membership import GroupMembership, GroupMembershipList
-from .base import Expansion, Resource, ResourceList
+from .base import (Expansion, Resource, CollectionResource,
+    SaveMixin, DeleteMixin)
 from .password_reset_token import PasswordResetTokenList

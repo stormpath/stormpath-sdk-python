@@ -1,7 +1,8 @@
-from .base import Resource, ResourceList, StatusMixin
+from .base import (Resource, CollectionResource, StatusMixin,
+    SaveMixin, DeleteMixin)
 
 
-class Directory(Resource, StatusMixin):
+class Directory(Resource, StatusMixin, SaveMixin, DeleteMixin):
     """Directory resource.
 
     More info in documentation:
@@ -21,7 +22,7 @@ class Directory(Resource, StatusMixin):
         }
 
 
-class DirectoryList(ResourceList):
+class DirectoryList(CollectionResource):
     """Directory resource list.
     """
     create_path = '/directories'
