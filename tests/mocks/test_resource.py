@@ -3,7 +3,8 @@ try:
     from mock import MagicMock
 except ImportError:
     from unittest.mock import MagicMock
-from stormpath.resource.base import Expansion, Resource, ResourceList
+from stormpath.resource.base import (Expansion, Resource, CollectionResource,
+    SaveMixin, DeleteMixin)
 from stormpath.client import Client
 
 
@@ -163,7 +164,10 @@ class TestBaseResource(TestCase):
         ds = MagicMock()
         ds.delete_resource.return_value.status_code = 204
 
-        r = Resource(MagicMock(data_store=ds), href='test/resource')
+        class Res(Resource, DeleteMixin):
+            pass
+
+        r = Res(MagicMock(data_store=ds), href='test/resource')
         r.delete()
 
         ds.delete_resource.assert_called_once_with('test/resource')
@@ -172,7 +176,7 @@ class TestBaseResource(TestCase):
         ds = MagicMock()
         ds.update_resource.return_value.status_code = 200
 
-        class Res(Resource):
+        class Res(Resource, SaveMixin):
             writable_attrs = ('some_property')
 
         r = Res(MagicMock(data_store=ds), href='test/resource')
@@ -184,10 +188,10 @@ class TestBaseResource(TestCase):
         })
 
 
-class TestResourceList(TestCase):
+class TestCollectionResource(TestCase):
 
     def test_init_by_properties(self):
-        rl = ResourceList(client=MagicMock(), properties={
+        rl = CollectionResource(client=MagicMock(), properties={
             'href': '/',
             'offset': 0,
             'limit': 25,
@@ -216,7 +220,7 @@ class TestResourceList(TestCase):
             'items': []
         }
 
-        rl = ResourceList(client=MagicMock(data_store=ds), href='/')
+        rl = CollectionResource(client=MagicMock(data_store=ds), href='/')
 
         rl2 = rl.query(offset=5, limit=5)
         self.assertEqual(ds.get_resource.call_count, 0)
@@ -237,7 +241,7 @@ class TestResourceList(TestCase):
             'items': []
         }
 
-        rl = ResourceList(client=MagicMock(data_store=ds), href='/')
+        rl = CollectionResource(client=MagicMock(data_store=ds), href='/')
 
         rl2 = rl[2:10]
         self.assertEqual(ds.get_resource.call_count, 0)
@@ -261,7 +265,7 @@ class TestResourceList(TestCase):
             ]
         }
 
-        rl = ResourceList(client=MagicMock(data_store=ds), properties={
+        rl = CollectionResource(client=MagicMock(data_store=ds), properties={
             'href': '/',
             'offset': 0,
             'limit': 2,
@@ -296,7 +300,7 @@ class TestResourceList(TestCase):
             'name': 'Test Resource',
         }
 
-        rl = ResourceList(
+        rl = CollectionResource(
             client=MagicMock(data_store=ds,
                 BASE_URL='http://www.example.com'),
             properties={
@@ -318,7 +322,7 @@ class TestResourceList(TestCase):
             'name': 'Test Resource',
         }
 
-        rl = ResourceList(
+        rl = CollectionResource(
             client=MagicMock(data_store=ds,
                 BASE_URL='http://www.example.com'),
             properties={
@@ -334,7 +338,7 @@ class TestResourceList(TestCase):
             {}, params={'someParam': True, 'expand': 'bar(limit:5)'})
 
     def test_get_single_app_by_indexing_and_get(self):
-        rl = ResourceList(client=MagicMock(), properties={
+        rl = CollectionResource(client=MagicMock(), properties={
             'href': '/',
             'offset': 0,
             'limit': 25,

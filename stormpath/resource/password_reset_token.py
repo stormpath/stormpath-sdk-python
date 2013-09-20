@@ -1,4 +1,4 @@
-from .base import Resource, ResourceList
+from .base import Resource, CollectionResource
 
 
 class PasswordResetToken(Resource):
@@ -26,7 +26,7 @@ class PasswordResetToken(Resource):
         return self.href.split('/')[-1]
 
 
-class PasswordResetTokenList(ResourceList):
+class PasswordResetTokenList(CollectionResource):
     """List of reset tokens.
     """
     resource_class = PasswordResetToken

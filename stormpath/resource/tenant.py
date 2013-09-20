@@ -1,7 +1,7 @@
-from .base import Resource
+from .base import Resource, SaveMixin, DeleteMixin
 
 
-class Tenant(Resource):
+class Tenant(Resource, SaveMixin, DeleteMixin):
     """Tenant resource.
 
     More info in documentation:

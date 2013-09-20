@@ -4,7 +4,7 @@ import httpretty
 from httpretty import HTTPretty
 import json
 
-from stormpath.resource import ResourceList
+from stormpath.resource import CollectionResource
 
 
 class TestTenant(BaseTest):
@@ -56,7 +56,7 @@ class TestTenant(BaseTest):
         for app in applications:
             pass
 
-        self.assertIsInstance(applications, ResourceList)
+        self.assertIsInstance(applications, CollectionResource)
         self.assertEqual(HTTPretty.last_request.method, 'GET')
         self.assertEqual(HTTPretty.last_request.path,
             "%s/applications?q=%s" % (self.tenant_path, self.app_body['name']))
@@ -78,7 +78,7 @@ class TestTenant(BaseTest):
         for directory in directories:
             pass
 
-        self.assertIsInstance(directories, ResourceList)
+        self.assertIsInstance(directories, CollectionResource)
         self.assertEqual(HTTPretty.last_request.method, 'GET')
         self.assertEqual(HTTPretty.last_request.path,
             "%s/directories?q=%s" % (self.tenant_path, self.dir_body['name']))

@@ -1,7 +1,8 @@
-from .base import Resource, ResourceList, StatusMixin
+from .base import (Resource, CollectionResource, StatusMixin,
+    SaveMixin, DeleteMixin)
 
 
-class Group(Resource, StatusMixin):
+class Group(Resource, StatusMixin, SaveMixin, DeleteMixin):
     """Group resource.
 
     More info in documentation:
@@ -38,7 +39,7 @@ class Group(Resource, StatusMixin):
         })
 
 
-class GroupList(ResourceList):
+class GroupList(CollectionResource):
     """Group resource list.
     """
     resource_class = Group

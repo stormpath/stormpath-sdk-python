@@ -1,9 +1,10 @@
-from .base import Resource, ResourceList, StatusMixin
+from .base import (Resource, CollectionResource, StatusMixin,
+    SaveMixin, DeleteMixin)
 from .password_reset_token import PasswordResetTokenList
 from .login_attempt import LoginAttemptList
 
 
-class Application(Resource, StatusMixin):
+class Application(Resource, StatusMixin, SaveMixin, DeleteMixin):
     """Application resource.
 
     More info in documentation:
@@ -61,7 +62,7 @@ class Application(Resource, StatusMixin):
         return self.password_reset_tokens[token].account
 
 
-class ApplicationList(ResourceList):
+class ApplicationList(CollectionResource):
     """Application resource list.
     """
     create_path = '/applications'
