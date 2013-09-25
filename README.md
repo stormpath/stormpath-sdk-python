@@ -60,7 +60,7 @@ $ pip install stormpath-sdk
 6.  **Create an account for a user** on the directory.
 
     ```python
-    account = appliation.accounts.create({
+    account = application.accounts.create({
             'given_name':'John',
             'surname':'Smith',
             'email':'john.smith@example.com',
@@ -192,12 +192,12 @@ Accounts are created on a directory instance:
 
   ```python
   ## Will skip workflow, if any
-  account = directory.accounts.create({
-    given_name: 'John',
-    surname: 'Smith',
-    email: 'john.smith@example.com',
-    username: 'johnsmith',
-    password: '4P@$$w0rd!'
+   account = directory.accounts.create({
+        'given_name': 'John',
+        'surname': 'Smith',
+        'email': 'frank@stormpath.com',
+        'username': 'johnsmith',
+        'password': 'Temp1234'
   }, registration_workflow_enabled=False)
   ```
 
