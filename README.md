@@ -9,7 +9,7 @@ application.
 ## Install
 
 ```sh
-$ pip install stormpath-sdk
+$ pip install stormpath-sdk --pre
 ```
 
 ## Quickstart Guide
