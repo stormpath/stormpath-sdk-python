@@ -1,2 +1,44 @@
+<<<<<<< HEAD
 # https://travis-ci.org/stormpath/stormpath-sdk-python
 language: python
+=======
+language: python
+python:
+  - "2.7"
+  - "3.2"
+  - "3.3"
+install: "pip install . --use-mirrors"
+before_script: python setup.py testdep
+script:
+    - python setup.py test
+    - python setup.py livetest
+branches:
+  only:
+    - development
+env:
+  global:
+  - secure: |-
+      USqTzWnRXTxgwF6wpwT3UHx4hoo5QIWP6bmmJMOIG/jLWTV3cCZ4y3LEuGx/
+      2x4gTyRuAAbVpJD8n9k/h7Vh6xZ8ts715kRL2OCqD+yOEioKG9RTWWzFCsNY
+      V3wic2+25BHgyCcnXtNFTjP/TfIKjVQETQjn3Ast2foThmyLVYo=
+  - secure: |-
+      UDZPetAAzPMtlosw481STlt60UFEei28DlBrHzDS7j/MKgkum9ZECPm4h7Dr
+      MXsDBp3GghLqGWc5+yNvlV2RSSZdI6YCeTSG7dXu3Tb1vTLd8Ia7pVZg3Ut2
+      5Ru3+xBVHZ/4xrc+8bfL2FGpH8T1mT6GZt9BfkY8v4a+rsn8FLA=
+  - secure: |-
+      FRAT9Sjpv2MUmIu9/uaXAa2LRKmsR0vHz3Vc8oCiDIKihqFq4YF9DpHtQ0nF
+      OYwdcprSH5RzV/bFsf6XcPP4IlIhSRj333FJoHXfmon5cdPcpt70O4in+4YI
+      gXPNGgbzCpZ4WRsFbmtVazQwpXBUg2fYK8y0jNrhZoVZ9UK61Zc=
+  - secure: |-
+      WvFXv/1RKdnh/tJFRlCDMKpiNre0+K3qWLf9PaQzjvWyTAVtq3NK7Av3JSoR
+      EoPy/0VCzlBJPfcPa+EmLO518trgsAJ1dmBOSUmNhQOyl9bfOFlzvjqZ20Ru
+      eMksU4t3HbbBdh3LqR9LPxViJGfUk3LvaiuWwp8y0GB5jMjrASg=
+  - secure: |-
+      HggUi1F44G7uHy3PyKcBE54JpBMIjrmROvzrKkCPOmRP5DoeZQ+wU+8zJ89z
+      4YsxOzQjYLwStB4U95LEZgQYvcbdfjkCY4uthb8XbmSeT7KSkMifhNT619+D
+      sTekVOlY9Ei+8O/BUr4ZCE+Fs8/8obFOxooWxxdHlaYsjj/atm4=
+  - secure: |-
+      cJ2ExNmmGSjBHIgjZ6zs+AUEVBSfyTj2qG9SNV0j/P9mnjg32irU/tG7f1yI
+      yvaGCsPr2h6rwtiMb8QHA4tMqHsoay0e9s7jyBtn6amgUaLsV2vdhQTWDuIU
+      cksOE3PMIovYl9ANLb6KrhDWt7ue/fOxEALh0a5rAu50C/tNvgo=
+>>>>>>> development

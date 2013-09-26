@@ -16,9 +16,17 @@ pip-log.txt
 # tools
 .idea
 *.iml
+*.ipr
+*.iws
 
 # Distutils
 MANIFEST
 
 # Other
 .DS_Store
+*.swp
+
+# Sphinx
+/doc/_build/
+/doc/_static/
+/doc/_templates/
