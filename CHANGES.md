@@ -1,4 +1,7 @@
 Version 1.0.0
+-------------
+
+Released on September 26, 2013
 
 - Complete rewrite of codebase
 - Support for Python 2.7
@@ -7,6 +10,13 @@ Version 1.0.0
 - Implemented caching
 - Added ability to autocreate directory
 - Added entity expansion to create method and tenant resource
+
+Version 0.2.1
+-------------
+
+Released on June 27, 2013
+
+- Fixed current tenant redirection handling by adding general redirection support of the Stormpath REST API.
 
 
 Version 0.2.0
