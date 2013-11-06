@@ -39,7 +39,7 @@ class Application(Resource, StatusMixin, SaveMixin, DeleteMixin):
         :param password: Unencrypted user password
 
         """
-        return self.login_attempts.basic_auth(login, password).account
+        return self.login_attempts.basic_auth(login, password)
 
     def send_password_reset_email(self, email):
         """Send a password reset email.
