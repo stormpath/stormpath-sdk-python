@@ -27,6 +27,7 @@ class Expansion(object):
         if limit is not None:
             d['limit'] = limit
         self.items[attr] = d
+        return self
 
     def get_params(self):
         ret = []
