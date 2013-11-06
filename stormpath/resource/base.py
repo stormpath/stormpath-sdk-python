@@ -315,7 +315,7 @@ class CollectionResource(Resource):
         return self.query(q=query)
 
     def order(self, order_by):
-        return self.query(orderBy=order_by)
+        return self.query(orderBy=self.to_camel_case(order_by))
 
     def query(self, **kwargs):
         q = self._query or {}
