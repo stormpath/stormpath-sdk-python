@@ -1,5 +1,6 @@
 from .base import (Resource, CollectionResource, StatusMixin,
     SaveMixin, DeleteMixin)
+from .custom_data import CustomData
 
 
 class Account(Resource, StatusMixin, SaveMixin, DeleteMixin):
@@ -25,7 +26,8 @@ class Account(Resource, StatusMixin, SaveMixin, DeleteMixin):
             'directory': Directory,
             'groups': GroupList,
             'group_memberships': GroupMembershipList,
-            'email_verification_token': Resource
+            'email_verification_token': Resource,
+            'custom_data': CustomData
         }
 
     def __str__(self):
