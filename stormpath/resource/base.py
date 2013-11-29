@@ -202,10 +202,13 @@ class SaveMixin(object):
 
 class DeleteMixin(object):
 
-    def delete(self):
+    def delete(self, value=None):
         if self.is_new():
             return
-        self._store.delete_resource(self.href)
+        if value:
+            self._store.delete_resource("%s/%s" % (self.href, value))
+        else:
+            self._store.delete_resource(self.href)
 
 
 class StatusMixin(object):
