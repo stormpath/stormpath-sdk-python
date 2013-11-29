@@ -69,6 +69,10 @@ class Resource(object):
 
     def __setattr__(self, name, value):
         if name.startswith('_') or name in self.writable_attrs:
+            resource_attributes = self.get_resource_attributes()
+            if name in resource_attributes:
+                raise AttributeError("Attribute '%s' of %s is not writable" %
+                    (name, self.__class__.__name__))
             super(Resource, self).__setattr__(name, value)
         else:
             raise AttributeError("Attribute '%s' of %s is not writable" %
