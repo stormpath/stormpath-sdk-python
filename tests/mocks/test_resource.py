@@ -90,6 +90,15 @@ class TestBaseResource(TestCase):
         with self.assertRaises(AttributeError):
             r.name = 5
 
+    def test_unmaterialized_resource_even_if_local_data_set(self):
+        class Res(Resource):
+            writable_attrs = ('name',)
+
+        r = Res(MagicMock(), href='test/resource')
+        r.name = 'foo'
+
+        self.assertFalse(r.is_materialized())
+
     def test_resource_materialization(self):
         ds = MagicMock()
         ds.get_resource.return_value = {
