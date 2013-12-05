@@ -8,7 +8,7 @@ class CustomData(Resource, SaveMixin, DeleteMixin):
         'ionmeta', 'ion_meta')
 
     def __getitem__(self, key):
-        if key in self.data:
+        if self.is_materialized():
             return self.data[key]
 
         self._ensure_data()
