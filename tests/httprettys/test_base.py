@@ -35,12 +35,12 @@ class BaseTest(unittest.TestCase):
             "name": "TENANT_NAME",
             "key": "TENANT_KEY",
             "applications": {
-                    "href": self.tenant_href + "/applications"
-                },
+                "href": self.tenant_href + "/applications"
+            },
             "directories": {
-                    "href": self.tenant_href + "/directories"
-                }
+                "href": self.tenant_href + "/directories"
             }
+        }
 
         self.dir_body = {
             "href": self.dir_href,
@@ -48,14 +48,14 @@ class BaseTest(unittest.TestCase):
             "status": "ENABLED",
             "tenant": {
                 "href": self.tenant_href
-                },
+            },
             "accounts": {
                 "href": self.dir_href + "/accounts"
-                },
+            },
             "groups": {
                 "href": self.dir_href + "/groups"
-                }
             }
+        }
 
         self.app_body = {
             "href": self.app_href,
@@ -101,7 +101,7 @@ class BaseTest(unittest.TestCase):
                 "href": self.tenant_href
             },
             "emailVerificationToken": None
-            }
+        }
 
         self.grp_body = {
             "href": self.grp_href,
