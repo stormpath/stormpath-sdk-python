@@ -127,7 +127,7 @@ class Resource(object):
             self.__dict__[name] = value
         # if there were more properties than just the href, the resource is
         # materialized
-        if properties.keys() != ['href']:
+        if list(properties.keys()) != ['href']:
             self._is_materialized = True
 
     @staticmethod
