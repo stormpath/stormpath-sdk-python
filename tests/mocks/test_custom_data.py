@@ -1,5 +1,8 @@
 from unittest import TestCase, main
-from mock import MagicMock
+try:
+    from mock import MagicMock
+except ImportError:
+    from unittest.mock import MagicMock
 
 from stormpath.resource.custom_data import CustomData
 
@@ -22,7 +25,6 @@ class TestCustomData(TestCase):
         self.assertTrue(d.is_materialized())
         self.assertEqual(d['foo'], 1)
 
-
     def test_readonly_properties_are_not_exposed_in_dict(self):
         d = CustomData(MagicMock(), properties=self.props)
 
@@ -41,13 +43,13 @@ class TestCustomData(TestCase):
         with self.assertRaises(KeyError):
             d['nonexistent']
 
-        keys = set(d.keys())
+        keys = set(sorted(d.keys(), key=str))
         self.assertEqual(keys, set(d))
         self.assertEqual(keys, {'bar', 'baz', 'foo', 'quux'})
-        values = sorted(list(d.values()))
+        values = sorted(list(d.values()), key=str)
 
         keys_from_items = {k for k, v in d.items()}
-        values_from_items = sorted([v for k, v in d.items()])
+        values_from_items = sorted([v for k, v in d.items()], key=str)
 
         self.assertEqual(keys, keys_from_items)
         self.assertEqual(values, values_from_items)
