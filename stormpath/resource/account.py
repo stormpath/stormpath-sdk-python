@@ -1,6 +1,5 @@
-from .base import (Resource, CollectionResource, StatusMixin,
-    SaveMixin, DeleteMixin)
-from .custom_data import CustomData
+from .base import (
+    Resource, CollectionResource, StatusMixin, SaveMixin, DeleteMixin)
 
 
 class Account(Resource, StatusMixin, SaveMixin, DeleteMixin):
@@ -21,6 +20,7 @@ class Account(Resource, StatusMixin, SaveMixin, DeleteMixin):
         from .group import GroupList
         from .group_membership import GroupMembershipList
         from .tenant import Tenant
+        from .custom_data import CustomData
         return {
             'tenant': Tenant,
             'directory': Directory,
