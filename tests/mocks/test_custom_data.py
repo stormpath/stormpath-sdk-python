@@ -1,8 +1,8 @@
 from unittest import TestCase, main
 try:
-    from mock import MagicMock
+    from mock import MagicMock, patch
 except ImportError:
-    from unittest.mock import MagicMock
+    from unittest.mock import MagicMock, patch
 
 from stormpath.resource.custom_data import CustomData
 
@@ -85,6 +85,31 @@ class TestCustomData(TestCase):
 
         self.assertEqual(d._get_properties(), self.props)
 
+    def test_manually_set_property_has_precedence(self):
+        props = {
+            'bar': '2',
+            'baz': ['one', 'two', 'three'],
+            'quux': {'key': 'value'}
+        }
+
+        d = CustomData(MagicMock(), properties=props)
+
+        d['quux'] = 'a-little-corgi'
+        d._set_properties(props)
+
+        quux = d.data.pop('quux')
+        props.pop('quux')
+
+        # quux property is as set
+        self.assertEqual(quux, 'a-little-corgi')
+        self.assertEqual(d.data, props)
+
+    @patch('stormpath.resource.base.Resource._ensure_data')
+    def test_non_materialized_property_is_ensured(self, _ensure_data):
+        d = CustomData(MagicMock(), properties=self.props)
+        d.get('corge')
+
+        self.assertTrue(_ensure_data.called)
 
 if __name__ == '__main__':
     main()

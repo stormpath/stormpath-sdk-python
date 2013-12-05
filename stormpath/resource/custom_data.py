@@ -8,6 +8,11 @@ class CustomData(Resource, SaveMixin, DeleteMixin):
         'ionmeta', 'ion_meta')
 
     def __getitem__(self, key):
+        if key in self.data:
+            return self.data[key]
+
+        self._ensure_data()
+
         return self.data[key]
 
     def __setitem__(self, key, value):
@@ -36,7 +41,10 @@ class CustomData(Resource, SaveMixin, DeleteMixin):
         return self.data.items()
 
     def get(self, key, default=None):
-        return self.data.get(key, default)
+        try:
+            return self.__getitem__(key)
+        except KeyError:
+            return default
 
     def __iter__(self):
         return iter(self.data)
@@ -45,14 +53,12 @@ class CustomData(Resource, SaveMixin, DeleteMixin):
         return dict((k, self._sanitize_property(v)) for k, v in self.items())
 
     def _set_properties(self, properties):
-        # avoid explicit assignment to self.data because it's not
-        # a writable property
-        self.__dict__['data'] = {}
+        self.__dict__['data'] = self.__dict__.get('data', {})
         for k, v in properties.items():
             kcc = self.from_camel_case(k)
             if kcc in self.readonly_attrs:
                 self.__dict__[kcc] = v
             else:
-                self.__dict__['data'][k] = v
-
+                if k not in self.__dict__['data']:
+                    self.__dict__['data'][k] = v
         self._is_materialized = ('created_at' in self.__dict__)
