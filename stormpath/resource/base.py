@@ -56,6 +56,7 @@ class Resource(object):
         self._store = client.data_store
         self._query = query
         self._expand = expand
+        self._is_materialized = False
 
         if href is not None:
             if not isinstance(href, string_type):
@@ -69,10 +70,6 @@ class Resource(object):
 
     def __setattr__(self, name, value):
         if name.startswith('_') or name in self.writable_attrs:
-            resource_attributes = self.get_resource_attributes()
-            if name in resource_attributes:
-                raise AttributeError("Attribute '%s' of %s is not writable" %
-                    (name, self.__class__.__name__))
             super(Resource, self).__setattr__(name, value)
         else:
             raise AttributeError("Attribute '%s' of %s is not writable" %
@@ -82,7 +79,12 @@ class Resource(object):
         if name == 'href':
             return self.__dict__['href']
 
-        self._ensure_data(name)
+        # if we already have it locally, no need to materialize the rest of
+        # the resource
+        if name in self.__dict__:
+            return self.__dict__[name]
+
+        self._ensure_data()
 
         if name in self.__dict__:
             return self.__dict__[name]
@@ -123,6 +125,10 @@ class Resource(object):
                 # it anyways
                 value = Resource(self._client, href=value['href'])
             self.__dict__[name] = value
+        # if there were more properties than just the href, the resource is
+        # materialized
+        if properties.keys() != ['href']:
+            self._is_materialized = True
 
     @staticmethod
     def to_camel_case(name):
@@ -167,17 +173,14 @@ class Resource(object):
         except AttributeError:
             return repr(self)
 
-    def is_materialized(self, attr=None):
-        if attr is None:
-            return self._get_property_names() != ['href']
-        else:
-            return self.__dict__.get(attr) is not None
+    def is_materialized(self):
+        return self._is_materialized
 
     def is_new(self):
         return self.href is None
 
-    def _ensure_data(self, attr=None):
-        if self.is_new() or self.is_materialized(attr):
+    def _ensure_data(self):
+        if self.is_new() or self.is_materialized():
             return
 
         params = {}
@@ -202,13 +205,10 @@ class SaveMixin(object):
 
 class DeleteMixin(object):
 
-    def delete(self, value=None):
+    def delete(self):
         if self.is_new():
             return
-        if value:
-            self._store.delete_resource("%s/%s" % (self.href, value))
-        else:
-            self._store.delete_resource(self.href)
+        self._store.delete_resource(self.href)
 
 
 class StatusMixin(object):
@@ -219,7 +219,7 @@ class StatusMixin(object):
     STATUS_DISABLED = 'DISABLED'
 
     def get_status(self):
-        self._ensure_data(self.__dict__.get('status'))
+        self._ensure_data()
         return self.__dict__.get('status', self.STATUS_DISABLED).upper()
 
     def is_enabled(self):
@@ -250,6 +250,7 @@ class CollectionResource(Resource):
         items = properties.pop('items', None)
         super(CollectionResource, self)._set_properties(properties)
         if items is not None:
+            self._is_materialized = True
             self.__dict__['items'] = [self._wrap_resource_attr(
                 self.resource_class, item) for item in items]
 

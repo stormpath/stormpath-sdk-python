@@ -90,6 +90,15 @@ class TestBaseResource(TestCase):
         with self.assertRaises(AttributeError):
             r.name = 5
 
+    def test_unmaterialized_resource_even_if_local_data_set(self):
+        class Res(Resource):
+            writable_attrs = ('name',)
+
+        r = Res(MagicMock(), href='test/resource')
+        r.name = 'foo'
+
+        self.assertFalse(r.is_materialized())
+
     def test_resource_materialization(self):
         ds = MagicMock()
         ds.get_resource.return_value = {
@@ -106,7 +115,7 @@ class TestBaseResource(TestCase):
     def test_writable_attributes(self):
 
         class Res(Resource):
-            writable_attrs = ('name')
+            writable_attrs = ('name',)
 
         r = Res(MagicMock(), properties={
             'href': 'test/resource',
@@ -177,7 +186,7 @@ class TestBaseResource(TestCase):
         ds.update_resource.return_value.status_code = 200
 
         class Res(Resource, SaveMixin):
-            writable_attrs = ('some_property')
+            writable_attrs = ('some_property',)
 
         r = Res(MagicMock(data_store=ds), href='test/resource')
         r.some_property = 'hello world'
