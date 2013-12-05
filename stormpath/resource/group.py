@@ -16,12 +16,14 @@ class Group(Resource, StatusMixin, SaveMixin, DeleteMixin):
         from .directory import Directory
         from .account import AccountList
         from .group_membership import GroupMembershipList
+        from .custom_data import CustomData
 
         return {
             'tenant': Tenant,
             'directory': Directory,
             'accounts': AccountList,
-            'account_memberships': GroupMembershipList
+            'account_memberships': GroupMembershipList,
+            'custom_data': CustomData
         }
 
     def add_account(self, account):

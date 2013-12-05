@@ -21,6 +21,7 @@ class Account(Resource, StatusMixin, SaveMixin, DeleteMixin):
         from .group_membership import GroupMembershipList
         from .tenant import Tenant
         from .custom_data import CustomData
+
         return {
             'tenant': Tenant,
             'directory': Directory,
