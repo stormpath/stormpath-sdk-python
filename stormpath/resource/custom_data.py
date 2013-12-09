@@ -23,10 +23,10 @@ class CustomData(Resource, SaveMixin, DeleteMixin):
             self.data[key] = value
 
     def __delitem__(self, key):
-        del self.data[key]
+        if key in self.data:
+            del self.data[key]
 
-        if self.is_materialized():
-            self._store.delete_resource('%s/%s' % (self.href, key))
+        self._store.delete_resource('%s/%s' % (self.href, key))
 
     def __contains__(self, key):
         return key in self.data
