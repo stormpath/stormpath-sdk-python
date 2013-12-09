@@ -12,7 +12,7 @@ class TestCustomData(TestCase):
     def setUp(self):
         self.props = {
             'href': 'test/resource',
-            'created_at': 123,
+            'createdAt': 123,
             'foo': 1,
             'bar': '2',
             'baz': ['one', 'two', 'three'],
@@ -30,6 +30,13 @@ class TestCustomData(TestCase):
 
         self.assertEqual(d.href, 'test/resource')
         self.assertFalse('href' in d)
+
+    def test_readonly_properties_are_not_camels(self):
+        d = CustomData(MagicMock(), properties=self.props)
+
+        with self.assertRaises(AttributeError):
+            self.createdAt
+        self.assertEqual(d.created_at, 123)
 
     def test_custom_data_implements_dict_protocol(self):
         d = CustomData(MagicMock(), properties=self.props)
@@ -81,7 +88,7 @@ class TestCustomData(TestCase):
         d = CustomData(MagicMock(), properties=self.props)
 
         del self.props['href']
-        del self.props['created_at']
+        del self.props['createdAt']
 
         self.assertEqual(d._get_properties(), self.props)
 
@@ -105,10 +112,19 @@ class TestCustomData(TestCase):
         self.assertEqual(d.data, props)
 
     @patch('stormpath.resource.base.Resource._ensure_data')
-    def test_non_materialized_property_is_ensured(self, _ensure_data):
+    def test_materialized_property_isnt_ensured(self, _ensure_data):
         d = CustomData(MagicMock(), properties=self.props)
         d.get('corge')
 
+        self.assertTrue(d.is_materialized())
+        self.assertFalse(_ensure_data.called)
+
+    @patch('stormpath.resource.base.Resource._ensure_data')
+    def test_non_materialized_property_is_ensured(self, _ensure_data):
+        d = CustomData(MagicMock(), href='test/resource')
+
+        self.assertFalse(d.is_materialized())
+        d.get('corge')
         self.assertTrue(_ensure_data.called)
 
 if __name__ == '__main__':

@@ -16,8 +16,8 @@ class LiveTest(unittest.TestCase):
     def setUp(self):
         self.apiKeyId = os.getenv("STORMPATH_SDK_TEST_API_KEY_ID")
         self.apiKeySecret = os.getenv("STORMPATH_SDK_TEST_API_KEY_SECRET")
-        self.client = Client(api_key={'id': self.apiKeyId,
-            'secret': self.apiKeySecret})
+        self.client = Client(
+            api_key={'id': self.apiKeyId, 'secret': self.apiKeySecret})
 
         self.created_accounts = []
         self.created_applications = []
@@ -32,7 +32,7 @@ class LiveTest(unittest.TestCase):
         directory = self.client.directories.create({
             'name': name,
             'description': "This is my raindir!"
-            })
+        })
         self.created_directories.append(directory)
         self.assertEqual(directory.name, name)
         self.assertTrue(directory.is_enabled())
@@ -64,10 +64,31 @@ class LiveTest(unittest.TestCase):
             'given_name': "William",
             'middle_name': "Thomas",
             'surname': "Riker",
-            'password': "xaiK3auc"
+            'password': "xaiK3auc",
+            "custom_data": {
+                "rank": "Captain",
+                "birthDate": "2305-07-13",
+                "birthPlace": "La Barre, France",
+                "favoriteDrink": "Earl Grey tea"
+            }
         })
 
         self.assertTrue(account.is_enabled())
+
+        # test custom data
+        account.custom_data['birthDate'] = 'whenever'
+        self.assertEqual(account.custom_data['rank'], 'Captain')
+        self.assertEqual(account.custom_data['birthDate'], 'whenever')
+        account.custom_data.save()
+
+        account = directory.accounts.get(account.href)
+        self.assertEqual(account.custom_data['birthDate'], 'whenever')
+        del account.custom_data['birthDate']
+        with self.assertRaises(KeyError):
+            account.custom_data['birthDate']
+        account = directory.accounts.get(account.href)
+        with self.assertRaises(KeyError):
+            account.custom_data['birthDate']
 
         # test application creation
         name = self.generate_name("my_app")
@@ -105,8 +126,8 @@ class LiveTest(unittest.TestCase):
         self.created_group_memberships.append(group_membership)
 
         self.assertIsInstance(group_membership, GroupMembership)
-        self.assertEqual(group_membership.account.email,
-            username + "@titan.com")
+        self.assertEqual(
+            group_membership.account.email, username + "@titan.com")
         self.assertEqual(group_membership.group.name, group_name)
 
         # test account store creation
@@ -134,7 +155,8 @@ class LiveTest(unittest.TestCase):
         # test default account store
         account_store_mapping.is_default_account_store = True
         account_store_mapping.save()
-        account2 = application.accounts.create({
+        account2 = application.accounts.create(
+            {
                 'username': username2,
                 'email': username2 + "@enterprise.com",
                 'given_name': "Lieutenant",
@@ -164,8 +186,10 @@ class LiveTest(unittest.TestCase):
         # create multiple groups to test on
         for i in range(0, 8):
             group = directory.groups.create(
-                {'name': "test_groupi_{0}".format(i),
-                'description': 'random_groups'})
+                {
+                    'name': "test_groupi_{0}".format(i),
+                    'description': 'random_groups'
+                })
             self.created_groups.append(group)
 
         # test pagination

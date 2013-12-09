@@ -30,6 +30,9 @@ class BaseTest(unittest.TestCase):
         self.map_path = self.base_path + '/accountStoreMappings/MAP_ID'
         self.map_href = self.base_url + self.map_path
 
+        self.custom_path = self.acc_path + '/customData'
+        self.custom_href = self.base_url + self.custom_path
+
         self.tenant_body = {
             "href": "TENANT_HREF",
             "name": "TENANT_NAME",
@@ -133,6 +136,16 @@ class BaseTest(unittest.TestCase):
             "listIndex": 1,
             "isDefaultAccountStore": True,
             "isDefaultGroupStore": True
+        }
+
+        self.custom_body = {
+            "href": self.custom_href,
+            "createdAt": "2014-07-16T13:48:22.378Z",
+            "modifiedAt": "2014-07-16T13:48:22.378Z",
+            "rank": "Captain",
+            "birthDate": "2305-07-13",
+            "birthPlace": "La Barre, France",
+            "favoriteDrink": "Earl Grey tea"
         }
 
         self.client = Client(api_key={'id': self.id, 'secret': self.secret})
