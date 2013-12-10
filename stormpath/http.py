@@ -22,10 +22,11 @@ class HttpExecutor(object):
 
     USER_AGENT = 'Stormpath-PythonSDK/' + STORMPATH_VERSION
 
-    def __init__(self, base_url, auth):
+    def __init__(self, base_url, auth, proxies=None):
 
         self.session = Session()
         self.base_url = base_url
+        self.session.proxies = proxies or {}
         self.session.auth = auth
         self.session.headers.update({
             'Accept': 'application/json',

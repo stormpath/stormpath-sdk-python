@@ -2,13 +2,14 @@ from unittest import TestCase, main
 from collections import OrderedDict
 from stormpath.http import HttpExecutor
 from stormpath.error import Error
+from stormpath.client import Client
 
 from stormpath import __version__ as STORMPATH_VERSION
 
 try:
-    from mock import patch, MagicMock
+    from mock import patch, MagicMock, PropertyMock
 except ImportError:
-    from unittest.mock import patch, MagicMock
+    from unittest.mock import patch, MagicMock, PropertyMock
 
 
 class HttpTest(TestCase):
@@ -87,6 +88,18 @@ class HttpTest(TestCase):
                 ('username', 'username')]),
             allow_redirects=False, data=None)
 
+    @patch('stormpath.client.Auth.digest', new_callable=PropertyMock)
+    @patch('stormpath.http.Session')
+    def test_proxies(self, session, auth):
+        proxies = {
+            'https': 'https://i-am-so-secure.com',
+            'http': 'http://i-want-to-be.secure.org'}
+        client = Client(api_key={'id': 'MyId', 'secret': 'Shush!'},
+            proxies=proxies)
+        self.assertEqual(client.data_store.executor.session.proxies, proxies)
+
+        client = Client(api_key={'id': 'MyId', 'secret': 'Shush!'})
+        self.assertEqual(client.data_store.executor.session.proxies, {})
 
 if __name__ == '__main__':
     main()
