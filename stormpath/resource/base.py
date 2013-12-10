@@ -78,7 +78,7 @@ class Resource(object):
         if name == 'href':
             return self.__dict__['href']
 
-        self._ensure_data(name)
+        self._ensure_data()
 
         if name in self.__dict__:
             return self.__dict__[name]
@@ -163,11 +163,8 @@ class Resource(object):
         except AttributeError:
             return repr(self)
 
-    def is_materialized(self, attr=None):
-        if attr is None:
-            return self._get_property_names() != ['href']
-        else:
-            return self.__dict__.get(attr) is not None
+    def is_materialized(self):
+        return self._get_property_names() != ['href']
 
     def is_new(self):
         return self.href is None
@@ -212,7 +209,7 @@ class StatusMixin(object):
     STATUS_DISABLED = 'DISABLED'
 
     def get_status(self):
-        self._ensure_data(self.__dict__.get('status'))
+        self._ensure_data()
         return self.__dict__.get('status', self.STATUS_DISABLED).upper()
 
     def is_enabled(self):
