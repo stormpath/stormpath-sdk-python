@@ -23,10 +23,10 @@ class LoginAttemptList(CollectionResource):
     """
     resource_class = LoginAttempt
 
-    def basic_auth(self, login, password):
+    def basic_auth(self, login, password, expand):
         value = login + ':' + password
         value = b64encode(value.encode('utf-8')).decode('ascii')
         return self.create({
             'type': 'basic',
-            'value': value
-        })
+            'value': value,
+        }, expand=expand)
