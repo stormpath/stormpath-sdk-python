@@ -41,8 +41,8 @@ class Client(object):
 
     BASE_URL = 'https://api.stormpath.com/v1'
 
-    def __init__(
-            self, cache_options=None, expand=None, proxies=None, **kwargs):
+    def __init__(self, cache_options=None, expand=None,
+            proxies=None, **kwargs):
         executor = HttpExecutor(self.BASE_URL, Auth(**kwargs).signer, proxies)
         self.data_store = DataStore(executor, cache_options)
         self.tenant = Tenant(client=self, href='/tenants/current',
