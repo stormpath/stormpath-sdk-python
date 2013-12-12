@@ -8,7 +8,7 @@ from httpretty import HTTPretty
 import json
 
 from stormpath.resource import (Directory, GroupList,
-    GroupMembership, GroupMembershipList, Resource)
+    GroupMembership, GroupMembershipList, Resource, Expansion)
 from stormpath.error import Error
 
 
@@ -414,6 +414,14 @@ class TestAccount(BaseTest):
 
         self.assertEqual(application.href, self.app_href)
         self.assertEqual(account.href, self.acc_href)
+
+        expansion = Expansion('account')
+        account = application.authenticate_account("USERNAME", "PAŠVORD",
+            expand=expansion)
+
+        self.assertEqual(HTTPretty.last_request.method, "POST")
+        self.assertEqual(HTTPretty.last_request.path,
+            "%s/%s?expand=account" % (self.app_path, "loginAttempts"))
 
     @httpretty.activate
     def test_add_group(self):
