@@ -20,13 +20,16 @@ class CustomData(Resource, SaveMixin, DeleteMixin):
             raise KeyError(
                 "Custom data property '%s' is not writable" % (key))
         else:
+            if '%s/%s' % (self.href, key) in self._deletes:
+                self._deletes.remove('%s/%s' % (self.href, key))
             self.data[key] = value
 
     def __delitem__(self, key):
         if key in self.data:
             del self.data[key]
 
-        self._store.delete_resource('%s/%s' % (self.href, key))
+        if not self.is_new():
+            self._deletes.add('%s/%s' % (self.href, key))
 
     def __contains__(self, key):
         return key in self.data

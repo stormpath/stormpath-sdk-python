@@ -52,6 +52,7 @@ class Resource(object):
 
     def __init__(self, client, href=None, properties=None, query=None,
             expand=None):
+        self._deletes = set()
         self._client = client
         self._store = client.data_store
         self._query = query
@@ -200,6 +201,11 @@ class SaveMixin(object):
     def save(self):
         if self.is_new():
             raise ValueError("Can't save new resoures, use create instead")
+
+        for href in self._deletes:
+            self._store.delete_resource(href)
+        self._deletes = set()
+
         self._store.update_resource(self.href, self._get_properties())
 
 
