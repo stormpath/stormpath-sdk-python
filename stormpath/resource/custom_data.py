@@ -23,11 +23,15 @@ class CustomData(Resource, SaveMixin, DeleteMixin):
             self.data[key] = value
 
     def __delitem__(self, key):
-        if key in self.data:
-            del self.data[key]
+        if key not in self.data:
+            self._ensure_data()
+            if key in self.data:
+                self._deletes.add('%s/%s' % (self.href, key))
+        else:
+            if not self.is_new():
+                self._deletes.add('%s/%s' % (self.href, key))
 
-        if not self.is_new():
-            self._deletes.add('%s/%s' % (self.href, key))
+        del self.data[key]
 
     def __contains__(self, key):
         return key in self.data
