@@ -87,6 +87,10 @@ class LiveTest(unittest.TestCase):
         with self.assertRaises(KeyError):
             account.custom_data['birthDate']
         account = directory.accounts.get(account.href)
+        self.assertEqual(account.custom_data['birthDate'], "whenever")
+        del account.custom_data['birthDate']
+        account.custom_data.save()
+        account = directory.accounts.get(account.href)
         with self.assertRaises(KeyError):
             account.custom_data['birthDate']
 

@@ -73,7 +73,7 @@ class TestCustomData(TestCase):
         with self.assertRaises(KeyError):
             d['meta'] = 'i-am-so-meta'
 
-    def test_deleting_properties_triggers_resource_delete(self):
+    def test_del_properties_doesnt_trigger_resource_delete(self):
         ds = MagicMock()
         client = MagicMock(data_store=ds)
 
@@ -82,7 +82,7 @@ class TestCustomData(TestCase):
         del d['foo']
         self.assertFalse('foo' in d)
 
-        ds.delete_resource.assert_called_once_with('test/resource/foo')
+        self.assertFalse(ds.delete_resource.called)
 
     def test_serializing_props_only_serializes_custom_data(self):
         d = CustomData(MagicMock(), properties=self.props)
@@ -94,6 +94,7 @@ class TestCustomData(TestCase):
 
     def test_manually_set_property_has_precedence(self):
         props = {
+            'href': 'test/resource',
             'bar': '2',
             'baz': ['one', 'two', 'three'],
             'quux': {'key': 'value'}
@@ -106,18 +107,11 @@ class TestCustomData(TestCase):
 
         quux = d.data.pop('quux')
         props.pop('quux')
+        props.pop('href')
 
         # quux property is as set
         self.assertEqual(quux, 'a-little-corgi')
         self.assertEqual(d.data, props)
-
-    @patch('stormpath.resource.base.Resource._ensure_data')
-    def test_materialized_property_isnt_ensured(self, _ensure_data):
-        d = CustomData(MagicMock(), properties=self.props)
-        d.get('corge')
-
-        self.assertTrue(d.is_materialized())
-        self.assertFalse(_ensure_data.called)
 
     @patch('stormpath.resource.base.Resource._ensure_data')
     def test_non_materialized_property_is_ensured(self, _ensure_data):
@@ -126,6 +120,81 @@ class TestCustomData(TestCase):
         self.assertFalse(d.is_materialized())
         d.get('corge')
         self.assertTrue(_ensure_data.called)
+
+    def test_del_delays_deletion_until_save(self):
+        ds = MagicMock()
+        client = MagicMock(data_store=ds)
+
+        d = CustomData(client, properties=self.props)
+        del d['foo']
+        del d['bar']
+
+        self.assertEqual(d.__dict__['_deletes'],
+            set(['test/resource/foo', 'test/resource/bar']))
+        self.assertFalse(ds.delete_resource.called)
+        d.save()
+        ds.delete_resource.assert_any_call('test/resource/foo')
+        ds.delete_resource.assert_any_call('test/resource/bar')
+        self.assertEqual(ds.delete_resource.call_count, 2)
+
+    @patch('stormpath.resource.base.Resource.is_new')
+    def test_del_doesnt_delete_if_new_resource(self, is_new):
+        is_new.return_value = True
+        ds = MagicMock()
+        client = MagicMock(data_store=ds)
+
+        d = CustomData(client, properties=self.props)
+        del d['foo']
+        self.assertEqual(d.__dict__['_deletes'], set())
+
+    def test_save_empties_delete_list(self):
+        ds = MagicMock()
+        client = MagicMock(data_store=ds)
+
+        d = CustomData(client, properties=self.props)
+        del d['foo']
+        d.save()
+        self.assertEqual(d.__dict__['_deletes'], set())
+
+    def test_setitem_removes_from_delete_list(self):
+        ds = MagicMock()
+        client = MagicMock(data_store=ds)
+
+        d = CustomData(client, properties=self.props)
+        del d['foo']
+        self.assertEqual(d.__dict__['_deletes'],
+            set(['test/resource/foo']))
+        d['foo'] = 'i-was-never-even-gone'
+        self.assertEqual(d.__dict__['_deletes'], set())
+        self.assertFalse(ds.delete_resource.called)
+
+    def test_del_then_read_doesnt_set_deleted(self):
+        props = {
+            'href': 'test/resource',
+            'bar': '2',
+            'baz': ['one', 'two', 'three'],
+            'quux': {'key': 'value'}
+        }
+        ds = MagicMock()
+        ds.get_resource.return_value = self.props
+        client = MagicMock(data_store=ds)
+
+        d = CustomData(client, properties=props)
+        del d['foo']
+        with self.assertRaises(KeyError):
+            d['foo']
+        self.assertTrue('test/resource/foo' in d.__dict__['_deletes'])
+
+    def test_doesnt_schedule_del_if_new_property(self):
+        ds = MagicMock()
+        ds.get_resource.return_value = self.props
+        client = MagicMock(data_store=ds)
+
+        d = CustomData(client, properties=self.props)
+        with self.assertRaises(KeyError):
+            del d['corge']
+        self.assertFalse('test/resource/corge' in d.__dict__['_deletes'])
+
 
 if __name__ == '__main__':
     main()

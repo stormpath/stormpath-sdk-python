@@ -65,6 +65,18 @@ class TestAccount(BaseTest):
             content_type="application/json")
 
         httpretty.register_uri(
+            httpretty.GET,
+            self.custom_href,
+            body=json.dumps(self.custom_body),
+            content_type="application/json")
+
+        httpretty.register_uri(
+            httpretty.POST,
+            self.custom_href,
+            body=json.dumps({}),
+            content_type="application/json")
+
+        httpretty.register_uri(
             httpretty.DELETE,
             self.custom_href,
             body='', status=204)
@@ -81,9 +93,11 @@ class TestAccount(BaseTest):
             body='', status=204)
 
         del custom_data['rank']
-        self.assertEqual(HTTPretty.last_request.method, 'DELETE')
-        self.assertEqual(
-            HTTPretty.last_request.path, self.custom_path + '/rank')
+        self.assertEqual(HTTPretty.last_request.method, 'GET')
+        self.assertEqual(HTTPretty.last_request.path, self.custom_path)
+        custom_data.save()
+        self.assertEqual(HTTPretty.last_request.method, 'POST')
+        self.assertEqual(HTTPretty.last_request.path, self.custom_path)
 
     @httpretty.activate
     def test_update(self):
