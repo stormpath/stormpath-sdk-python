@@ -195,6 +195,15 @@ class TestCustomData(TestCase):
             del d['corge']
         self.assertFalse('test/resource/corge' in d.__dict__['_deletes'])
 
+    def test_dash_not_allowed_at_beggining_of_key(self):
+        ds = MagicMock()
+        client = MagicMock(data_store=ds)
+
+        d = CustomData(client, properties=self.props)
+        with self.assertRaises(KeyError):
+            d['-'] = 'dashing'
+
+
 
 if __name__ == '__main__':
     main()

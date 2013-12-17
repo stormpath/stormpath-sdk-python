@@ -18,6 +18,9 @@ class CustomData(Resource, SaveMixin, DeleteMixin):
             raise KeyError(
                 "Custom data property '%s' is not writable" % (key))
         else:
+            if key.startswith('-'):
+                raise KeyError(
+                    "Usage of '-' at the beggining of key is not allowed")
             if '%s/%s' % (self.href, key) in self._deletes:
                 self._deletes.remove('%s/%s' % (self.href, key))
             self.data[key] = value
