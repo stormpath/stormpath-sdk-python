@@ -129,8 +129,6 @@ class TestCustomData(TestCase):
         del d['foo']
         del d['bar']
 
-        self.assertEqual(d.__dict__['_deletes'],
-            set(['test/resource/foo', 'test/resource/bar']))
         self.assertFalse(ds.delete_resource.called)
         d.save()
         ds.delete_resource.assert_any_call('test/resource/foo')
@@ -145,7 +143,9 @@ class TestCustomData(TestCase):
 
         d = CustomData(client, properties=self.props)
         del d['foo']
-        self.assertEqual(d.__dict__['_deletes'], set())
+        is_new.return_value = False
+        d.save()
+        self.assertFalse(ds.delete_resource.called)
 
     def test_save_empties_delete_list(self):
         ds = MagicMock()
@@ -154,7 +154,9 @@ class TestCustomData(TestCase):
         d = CustomData(client, properties=self.props)
         del d['foo']
         d.save()
-        self.assertEqual(d.__dict__['_deletes'], set())
+        ds.delete_resource.reset_mock()
+        d.save()
+        self.assertFalse(ds.delete_resource.called)
 
     def test_setitem_removes_from_delete_list(self):
         ds = MagicMock()
@@ -162,10 +164,7 @@ class TestCustomData(TestCase):
 
         d = CustomData(client, properties=self.props)
         del d['foo']
-        self.assertEqual(d.__dict__['_deletes'],
-            set(['test/resource/foo']))
-        d['foo'] = 'i-was-never-even-gone'
-        self.assertEqual(d.__dict__['_deletes'], set())
+        d['foo'] = 'i-wasnt-even-gone'
         self.assertFalse(ds.delete_resource.called)
 
     def test_del_then_read_doesnt_set_deleted(self):
@@ -183,7 +182,8 @@ class TestCustomData(TestCase):
         del d['foo']
         with self.assertRaises(KeyError):
             d['foo']
-        self.assertTrue('test/resource/foo' in d.__dict__['_deletes'])
+        d.save()
+        ds.delete_resource.assert_called_once_with('test/resource/foo')
 
     def test_doesnt_schedule_del_if_new_property(self):
         ds = MagicMock()
@@ -193,7 +193,8 @@ class TestCustomData(TestCase):
         d = CustomData(client, properties=self.props)
         with self.assertRaises(KeyError):
             del d['corge']
-        self.assertFalse('test/resource/corge' in d.__dict__['_deletes'])
+        d.save()
+        self.assertFalse(ds.delete_resource.called)
 
     def test_dash_not_allowed_at_beggining_of_key(self):
         ds = MagicMock()
