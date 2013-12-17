@@ -21,23 +21,28 @@ class CustomData(Resource, SaveMixin, DeleteMixin):
             if key.startswith('-'):
                 raise KeyError(
                     "Usage of '-' at the beggining of key is not allowed")
-            if '%s/%s' % (self.href, key) in self._deletes:
-                self._deletes.remove('%s/%s' % (self.href, key))
+
+            key_href = self._get_key_href(key)
+            if key_href in self._deletes:
+                self._deletes.remove(key_href)
             self.data[key] = value
 
     def __delitem__(self, key):
         if key not in self.data:
             self._ensure_data()
             if key in self.data:
-                self._deletes.add('%s/%s' % (self.href, key))
+                self._deletes.add(self._get_key_href(key))
         else:
             if not self.is_new():
-                self._deletes.add('%s/%s' % (self.href, key))
+                self._deletes.add(self._get_key_href(key))
 
         del self.data[key]
 
     def __contains__(self, key):
         return key in self.data
+
+    def _get_key_href(self, key):
+        return '%s/%s' % (self.href, key)
 
     def keys(self):
         return self.data.keys()
