@@ -40,6 +40,12 @@ class CustomData(Resource, SaveMixin, DeleteMixin):
     def _get_key_href(self, key):
         return '%s/%s' % (self.href, key)
 
+    def save(self):
+        try:
+            super(CustomData, self).save()
+        except:
+            pass
+
     def keys(self):
         return self.data.keys()
 
