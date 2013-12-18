@@ -9,7 +9,7 @@ class Group(Resource, StatusMixin, SaveMixin, DeleteMixin):
     https://www.stormpath.com/docs/python/product-guide#Groups
     """
 
-    writable_attrs = ('name', 'description', 'status')
+    writable_attrs = ('name', 'description', 'status', 'custom_data')
 
     def get_resource_attributes(self):
         from .tenant import Tenant
@@ -39,6 +39,11 @@ class Group(Resource, StatusMixin, SaveMixin, DeleteMixin):
             'group': self,
             'account': account
         })
+
+    def save(self):
+        super(Group, self).save()
+        if 'custom_data' in self.__dict__:
+            self.__dict__['custom_data'].save()
 
 
 class GroupList(CollectionResource):
