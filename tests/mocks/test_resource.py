@@ -1,12 +1,10 @@
 from unittest import TestCase, main
 try:
-    from mock import MagicMock
+    from mock import MagicMock, patch
 except ImportError:
-    from unittest.mock import MagicMock
+    from unittest.mock import MagicMock, patch
 from stormpath.resource.base import (Expansion, Resource, CollectionResource,
-    SaveMixin, DeleteMixin)
-from stormpath.resource.account import Account
-from stormpath.resource.group import Group
+    SaveMixin, DeleteMixin, AutoSaveMixin)
 from stormpath.client import Client
 
 
@@ -198,6 +196,64 @@ class TestBaseResource(TestCase):
             'someProperty': 'hello world'
         })
 
+    def test_autosave(self):
+        ds = MagicMock()
+        autosave_ds = MagicMock()
+
+        class Res(Resource, AutoSaveMixin):
+            writable_attrs = ('some_property', 'special_resource')
+            autosaves = ('special_resource',)
+
+        r = Res(MagicMock(data_store=ds), properties={
+            "href": "test/resource",
+            "specialResource": {"href": "test/resource"}})
+        r.special_resource = Res(MagicMock(data_store=autosave_ds),
+            href='test/autosave_resource')
+
+        r.some_property = 'hello world'
+        r.save()
+
+        self.assertTrue(ds.update_resource.called)
+        self.assertTrue(autosave_ds.update_resource.called)
+
+    def test_autosave_checks_list_of_allowed_saves(self):
+        ds = MagicMock()
+        autosave_ds = MagicMock()
+
+        class Res(Resource, AutoSaveMixin):
+            writable_attrs = ('some_property', 'special_resource')
+            autosaves = ()
+
+        r = Res(MagicMock(data_store=ds), properties={
+            "href": "test/resource",
+            "specialResource": {"href": "test/resource"}})
+        r.special_resource = Res(MagicMock(data_store=autosave_ds),
+            href='test/autosave_resource')
+
+        r.some_property = 'hello world'
+        r.save()
+
+        self.assertTrue(ds.update_resource.called)
+        self.assertFalse(autosave_ds.update_resource.called)
+
+    def test_autosave_only_saves_if_materialized(self):
+        ds = MagicMock()
+        autosave_ds = MagicMock()
+
+        class Res(Resource, AutoSaveMixin):
+            writable_attrs = ('some_property', 'special_resource')
+            autosaves = ('special_resource',)
+
+        r = Res(MagicMock(data_store=ds), href='test/resource')
+        r.special_resource = Res(MagicMock(data_store=autosave_ds),
+            href='test/autosave_resource')
+
+        r.some_property = 'hello world'
+        r.save()
+
+        self.assertTrue(ds.update_resource.called)
+        self.assertFalse(autosave_ds.update_resource.called)
+
 
 class TestCollectionResource(TestCase):
 
@@ -373,26 +429,6 @@ class TestCollectionResource(TestCase):
         client = Client(api_key={'id': 'MyId', 'secret': 'Shush!'}, expand=e)
 
         self.assertIsInstance(client.tenant._expand, Expansion)
-
-    def test_acc_save_calls_custom_data_save(self):
-        ds = MagicMock()
-        client = MagicMock(data_store=ds)
-        acc = Account(client, properties={
-            "href": "test/resource", "customData": {"href": "test/resource"}})
-        acc.custom_data = MagicMock()
-
-        acc.save()
-        self.assertTrue(acc.custom_data.save.called)
-
-    def test_grp_save_calls_custom_data_save(self):
-        ds = MagicMock()
-        client = MagicMock(data_store=ds)
-        grp = Group(client, properties={
-            "href": "test/resource", "customData": {"href": "test/resource"}})
-        grp.custom_data = MagicMock()
-
-        grp.save()
-        self.assertTrue(grp.custom_data.save.called)
 
 if __name__ == '__main__':
     main()
