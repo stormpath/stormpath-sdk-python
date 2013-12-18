@@ -5,5 +5,5 @@ from .directory import Directory
 from .group_membership import GroupMembership, GroupMembershipList
 from .custom_data import CustomData
 from .base import (Expansion, Resource, CollectionResource,
-    SaveMixin, DeleteMixin)
+    SaveMixin, DeleteMixin, AutoSaveMixin)
 from .password_reset_token import PasswordResetTokenList

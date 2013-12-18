@@ -1,8 +1,8 @@
 from .base import (
-    Resource, CollectionResource, StatusMixin, SaveMixin, DeleteMixin)
+    Resource, CollectionResource, StatusMixin, AutoSaveMixin, DeleteMixin)
 
 
-class Account(Resource, StatusMixin, SaveMixin, DeleteMixin):
+class Account(Resource, StatusMixin, AutoSaveMixin, DeleteMixin):
     """Account resource.
 
     More info in documentation:
@@ -14,6 +14,8 @@ class Account(Resource, StatusMixin, SaveMixin, DeleteMixin):
     writable_attrs = (
         'username', 'password', 'email', 'given_name',
         'middle_name', 'surname', 'status', 'custom_data')
+
+    autosaves = ('custom_data',)
 
     def get_resource_attributes(self):
         from .directory import Directory
@@ -60,11 +62,6 @@ class Account(Resource, StatusMixin, SaveMixin, DeleteMixin):
 
         """
         return self.get_status() == self.STATUS_UNVERIFIED
-
-    def save(self):
-        super(Account, self).save()
-        if 'custom_data' in self.__dict__:
-            self.__dict__['custom_data'].save()
 
 
 class AccountList(CollectionResource):

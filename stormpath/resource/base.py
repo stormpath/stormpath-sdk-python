@@ -49,6 +49,7 @@ class Resource(object):
     """
 
     writable_attrs = ()
+    autosaves = ()
 
     def __init__(self, client, href=None, properties=None, query=None,
             expand=None):
@@ -207,6 +208,15 @@ class SaveMixin(object):
         self._deletes = set()
 
         self._store.update_resource(self.href, self._get_properties())
+
+
+class AutoSaveMixin(SaveMixin):
+
+    def save(self):
+        super(AutoSaveMixin, self).save()
+        if self.is_materialized():
+            for res in self.autosaves:
+                self.__dict__[res].save()
 
 
 class DeleteMixin(object):
