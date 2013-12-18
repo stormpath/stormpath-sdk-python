@@ -205,6 +205,5 @@ class TestCustomData(TestCase):
             d['-'] = 'dashing'
 
 
-
 if __name__ == '__main__':
     main()

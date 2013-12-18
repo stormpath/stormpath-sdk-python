@@ -5,6 +5,8 @@ except ImportError:
     from unittest.mock import MagicMock
 from stormpath.resource.base import (Expansion, Resource, CollectionResource,
     SaveMixin, DeleteMixin)
+from stormpath.resource.account import Account
+from stormpath.resource.group import Group
 from stormpath.client import Client
 
 
@@ -371,6 +373,26 @@ class TestCollectionResource(TestCase):
         client = Client(api_key={'id': 'MyId', 'secret': 'Shush!'}, expand=e)
 
         self.assertIsInstance(client.tenant._expand, Expansion)
+
+    def test_acc_save_calls_custom_data_save(self):
+        ds = MagicMock()
+        client = MagicMock(data_store=ds)
+        acc = Account(client, properties={
+            "href": "test/resource", "customData": {"href": "test/resource"}})
+        acc.custom_data = MagicMock()
+
+        acc.save()
+        self.assertTrue(acc.custom_data.save.called)
+
+    def test_grp_save_calls_custom_data_save(self):
+        ds = MagicMock()
+        client = MagicMock(data_store=ds)
+        grp = Group(client, properties={
+            "href": "test/resource", "customData": {"href": "test/resource"}})
+        grp.custom_data = MagicMock()
+
+        grp.save()
+        self.assertTrue(grp.custom_data.save.called)
 
 if __name__ == '__main__':
     main()

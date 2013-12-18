@@ -91,6 +91,7 @@ class BaseTest(unittest.TestCase):
             "middleName": "",
             "surname": "ACC_SURNAME",
             "status": "ENABLED",
+            "customData": {"href": self.custom_href},
             "groups": {
                 "href": self.grp_href
             },
@@ -111,6 +112,7 @@ class BaseTest(unittest.TestCase):
             "name": "GRP_NAME",
             "description": "GRP_DESC",
             "status": "ENABLED",
+            "customData": {"href": self.custom_href},
             "directory": {
                 "href": self.dir_href
             },
