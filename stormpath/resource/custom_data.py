@@ -41,10 +41,8 @@ class CustomData(Resource, SaveMixin, DeleteMixin):
         return '%s/%s' % (self.href, key)
 
     def save(self):
-        try:
+        if 'data' in self.__dict__ and len(self.data):
             super(CustomData, self).save()
-        except:
-            pass
 
     def keys(self):
         return self.data.keys()
