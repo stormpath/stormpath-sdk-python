@@ -2,7 +2,16 @@ from .base import Resource, SaveMixin, DeleteMixin
 
 
 class CustomData(Resource, SaveMixin, DeleteMixin):
+    """CustomData Resource for custom user data.
 
+    Resources have predefined fields that are useful to many applications,
+    but you are likely to have your own custom data that you need to associate
+    with a resource as well. It behaves like a Python dictionary.
+
+    More info in documentation:
+    http://docs.stormpath.com/rest/product-guide/#custom-data
+
+    """
     readonly_attrs = (
         'href', 'created_at', 'modified_at', 'meta', 'sp_meta', 'spmeta',
         'ionmeta', 'ion_meta')
