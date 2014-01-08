@@ -392,7 +392,8 @@ class TestAccount(BaseTest):
         body = {
             "account": {
                 "href": self.acc_href
-            }
+            },
+            "attr": {"key": "value"}
         }
 
         httpretty.register_uri(httpretty.POST,
@@ -413,6 +414,7 @@ class TestAccount(BaseTest):
         self.assertEqual(HTTPretty.last_request.path,
             "%s/%s" % (self.app_path, "loginAttempts"))
 
+        self.assertEqual(result.attr, body['attr'])
         self.assertEqual(application.href, self.app_href)
         self.assertEqual(account.href, self.acc_href)
 
