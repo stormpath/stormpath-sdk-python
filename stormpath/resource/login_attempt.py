@@ -2,7 +2,7 @@ from base64 import b64encode
 from .base import Resource, CollectionResource
 
 
-class LoginAttempt(Resource):
+class AuthenticationResult(Resource):
     """Handles Base64-encoded login data.
 
     More info in documentation:
@@ -17,11 +17,18 @@ class LoginAttempt(Resource):
             'account': Account
         }
 
+    def is_materialized(self):
+        return True
+
+    def __repr__(self):
+        return '<%s attributes=%s>' % (self.__class__.__name__,
+            str(self._get_property_names()))
+
 
 class LoginAttemptList(CollectionResource):
     """List of login data.
     """
-    resource_class = LoginAttempt
+    resource_class = AuthenticationResult
 
     def basic_auth(self, login, password):
         value = login + ':' + password

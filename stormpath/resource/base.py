@@ -77,7 +77,7 @@ class Resource(object):
 
     def __getattr__(self, name):
         if name == 'href':
-            return self.__dict__['href']
+            return self.__dict__.get('href')
 
         self._ensure_data()
 
