@@ -17,9 +17,6 @@ class AuthenticationResult(Resource):
             'account': Account
         }
 
-    def is_materialized(self):
-        return True
-
     def __repr__(self):
         return '<%s attributes=%s>' % (self.__class__.__name__,
             str(self._get_property_names()))
