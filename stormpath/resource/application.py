@@ -38,6 +38,9 @@ class Application(Resource, StatusMixin, SaveMixin, DeleteMixin):
 
         :param password: Unencrypted user password
 
+        :param account_store:
+            A :class:`stormpath.resource.account_store.AccountStore` object
+            to authenticate against
         """
         return self.login_attempts.basic_auth(login, password, account_store)
 
