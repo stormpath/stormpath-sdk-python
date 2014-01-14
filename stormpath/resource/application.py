@@ -31,7 +31,7 @@ class Application(Resource, StatusMixin, SaveMixin, DeleteMixin):
             'default_group_store_mapping': AccountStoreMapping,
         }
 
-    def authenticate_account(self, login, password):
+    def authenticate_account(self, login, password, account_store=None):
         """Authenticate Account inside the Application.
 
         :param login: Username or email address
@@ -39,7 +39,7 @@ class Application(Resource, StatusMixin, SaveMixin, DeleteMixin):
         :param password: Unencrypted user password
 
         """
-        return self.login_attempts.basic_auth(login, password)
+        return self.login_attempts.basic_auth(login, password, account_store)
 
     def send_password_reset_email(self, email):
         """Send a password reset email.

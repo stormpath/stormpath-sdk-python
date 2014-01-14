@@ -9,7 +9,7 @@ class AuthenticationResult(Resource):
     https://www.stormpath.com/docs/rest/product-guide#AuthenticateAccounts
     """
 
-    writable_attrs = ('type', 'value')
+    writable_attrs = ('type', 'value', 'account_store')
 
     def get_resource_attributes(self):
         from .account import Account
@@ -27,10 +27,15 @@ class LoginAttemptList(CollectionResource):
     """
     resource_class = AuthenticationResult
 
-    def basic_auth(self, login, password):
+    def basic_auth(self, login, password, account_store=None):
         value = login + ':' + password
         value = b64encode(value.encode('utf-8')).decode('ascii')
-        return self.create({
+        properties = {
             'type': 'basic',
             'value': value
-        })
+        }
+
+        if account_store:
+            properties.update({'account_store': account_store})
+
+        return self.create(properties)
