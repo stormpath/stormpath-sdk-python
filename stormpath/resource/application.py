@@ -39,7 +39,7 @@ class Application(Resource, StatusMixin, SaveMixin, DeleteMixin):
         :param password: Unencrypted user password
 
         :param expand:
-            A :class:`stormpath.resource.base.Expansion` object
+            A :class:`stormpath.resource.base.Expansion` object (optional)
 
         """
         return self.login_attempts.basic_auth(login, password, expand).account
