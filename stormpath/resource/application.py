@@ -40,7 +40,7 @@ class Application(Resource, StatusMixin, SaveMixin, DeleteMixin):
 
         :param account_store:
             A :class:`stormpath.resource.account_store.AccountStore` object
-            to authenticate against
+            to authenticate against (optional)
         """
         return self.login_attempts.basic_auth(login, password, account_store)
 
