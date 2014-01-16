@@ -36,6 +36,6 @@ class LoginAttemptList(CollectionResource):
         }
 
         if account_store:
-            properties.update({'account_store': account_store})
+            properties['account_store'] = account_store
 
         return self.create(properties)
