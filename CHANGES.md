@@ -10,6 +10,7 @@ Released on September 26, 2013
 - Implemented caching
 - Added ability to autocreate directory
 - Added entity expansion to create method and tenant resource
+- Added custom data fields for groups and accounts
 
 Version 0.2.1
 -------------
