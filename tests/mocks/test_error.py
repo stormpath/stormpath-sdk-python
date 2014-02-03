@@ -17,9 +17,11 @@ class ErrorTest(TestCase):
         self.assertEqual(e.status, 404)
         self.assertEqual(e.code, 404)
         self.assertEqual(e.message,
-            "Oops! The application you specified cannot be found.")
+            "The specified Application cannot be found...")
         self.assertEqual(e.developer_message,
             "The specified Application cannot be found...")
+        self.assertEqual(e.user_message,
+            "Oops! The application you specified cannot be found.")
         self.assertEqual(e.more_info,
             "http://www.stormpath.com/docs/errors/404")
 
