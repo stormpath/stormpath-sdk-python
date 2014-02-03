@@ -73,6 +73,15 @@ class TestCustomData(TestCase):
         with self.assertRaises(KeyError):
             d['meta'] = 'i-am-so-meta'
 
+    def test_camelcase_readonly_properties_cant_be_set(self):
+        d = CustomData(MagicMock(), properties=self.props)
+
+        with self.assertRaises(KeyError):
+            d['sp_meta'] = 'i-am-so-sp-meta'
+
+        with self.assertRaises(KeyError):
+            d['spMeta'] = 'i-am-so-sp-meta'
+
     def test_del_properties_doesnt_trigger_resource_delete(self):
         ds = MagicMock()
         client = MagicMock(data_store=ds)

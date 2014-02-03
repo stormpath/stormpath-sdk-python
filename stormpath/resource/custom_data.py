@@ -23,7 +23,8 @@ class CustomData(Resource, SaveMixin, DeleteMixin):
         return self.data[key]
 
     def __setitem__(self, key, value):
-        if key in self.readonly_attrs:
+        if key in self.readonly_attrs or \
+                self.from_camel_case(key) in self.readonly_attrs:
             raise KeyError(
                 "Custom data property '%s' is not writable" % (key))
         else:
