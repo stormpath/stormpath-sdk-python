@@ -306,13 +306,27 @@ Groups and account have custom data fields that act as a dictionary:
   account.custom_data.save()
   group.custom_data['affiliation'] = 'NCC-1701'
   group.custom_data.save()
+  ```
 
 * Deleting a custom data field:
   ```python
   del account.custom_data['rank']
   del group.custom_data['affiliation']
+  ```
 
+* Saving custom data changes (creates, updates and ) to Stormpath:
 When deleting custom fields, the information is not synced with Stormpath until the custom_data object is saved. Also, saving groups and accounts automatically saves their custom data.
+
+  ```python
+  account.custom_data.save()
+  group.custom_data.save()
+  ```
+OR
+
+  ```python
+  account.save()
+  group.save()
+  ```
 
 ## Testing
 
