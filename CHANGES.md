@@ -1,5 +1,9 @@
-Version 1.0.0
--------------
+Version 1.0.0.beta.1
+--------------------
+- Added custom data fields for groups and accounts
+
+Version 1.0.0.beta
+------------------
 
 Released on September 26, 2013
 
@@ -10,7 +14,6 @@ Released on September 26, 2013
 - Implemented caching
 - Added ability to autocreate directory
 - Added entity expansion to create method and tenant resource
-- Added custom data fields for groups and accounts
 
 Version 0.2.1
 -------------
