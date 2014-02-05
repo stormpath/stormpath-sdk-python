@@ -14,6 +14,7 @@ try:
 except ImportError:
     from urlparse import urlparse
 
+
 HOST_HEADER = "Host"
 AUTHORIZATION_HEADER = "Authorization"
 STORMPATH_DATE_HEADER = "X-Stormpath-Date"
