@@ -81,7 +81,7 @@ $ pip install stormpath-sdk --pre
 
     ```python
     try:
-        account = application.authenticate_account('johnsmith', '4P@$$w0rd!')
+        result = application.authenticate_account('johnsmith', '4P@$$w0rd!')
     except stormpath.Error as e:
         print(e)
     ```
@@ -211,14 +211,14 @@ complete the workflow. This is done through the
 
 Authentication is accomplished by passing a username or an email and a
 password to <code>authenticate_account</code> of an application we've
-registered on Stormpath. This will either return an <code>Account</code>
+registered on Stormpath. This will either return an <code>AuthenticationResult</code>
 instance if the credentials are valid, or raise a <code>stormpath.Error</code>
 otherwise. In the former case, you can get the <code>account</code>
 associated with the credentials.
 
 ```python
 try:
-    account = application.authenticate_account('johnsmith', '4P@$$w0rd!')
+    account = application.authenticate_account('johnsmith', '4P@$$w0rd!').account
 except stormpath.Error as e:
   #If credentials are invalid or account doesn't exist
   print(e)
