@@ -176,7 +176,11 @@ class Resource(object):
             return repr(self)
 
     def is_materialized(self):
+<<<<<<< HEAD
         return self._is_materialized
+=======
+        return self._get_property_names() != ['href']
+>>>>>>> development
 
     def is_new(self):
         return self.href is None
