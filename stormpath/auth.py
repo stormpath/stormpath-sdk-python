@@ -41,7 +41,6 @@ class Sauthc1Signer(AuthBase):
 
     def __init__(self, id, secret):
         """Initialize new digest auth mechanism with provided id and secret."""
-
         super(Sauthc1Signer, self).__init__()
         self._id = id
         self._secret = secret
