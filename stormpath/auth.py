@@ -37,7 +37,6 @@ class Sauthc1Signer(AuthBase):
 
     More info in documentation:
     https://www.stormpath.com/docs/rest/api#DigestAuthenticationHTTPS
-
     """
     def __init__(self, id, secret):
         """Initialize new digest auth mechanism with provided id and secret."""
