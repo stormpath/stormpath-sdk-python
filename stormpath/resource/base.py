@@ -170,8 +170,8 @@ class Resource(object):
     def is_new(self):
         return self.href is None
 
-    def _ensure_data(self):
-        if self.is_new() or self.is_materialized():
+    def _ensure_data(self, attr=None):
+        if self.is_new() or self.is_materialized(attr):
             return
 
         params = {}
