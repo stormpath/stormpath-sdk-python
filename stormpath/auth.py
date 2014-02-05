@@ -1,3 +1,6 @@
+"""Authentication library and utilities."""
+
+
 import hashlib
 import hmac
 import binascii
