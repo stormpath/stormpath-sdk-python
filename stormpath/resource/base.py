@@ -49,13 +49,16 @@ class Resource(object):
     """
 
     writable_attrs = ()
+    autosaves = ()
 
     def __init__(self, client, href=None, properties=None, query=None,
             expand=None):
+        self._deletes = set()
         self._client = client
         self._store = client.data_store
         self._query = query
         self._expand = expand
+        self._is_materialized = False
 
         if href is not None:
             if not isinstance(href, string_type):
@@ -77,6 +80,11 @@ class Resource(object):
     def __getattr__(self, name):
         if name == 'href':
             return self.__dict__['href']
+
+        # if we already have it locally, no need to materialize the rest of
+        # the resource
+        if name in self.__dict__:
+            return self.__dict__[name]
 
         self._ensure_data()
 
@@ -119,6 +127,10 @@ class Resource(object):
                 # it anyways
                 value = Resource(self._client, href=value['href'])
             self.__dict__[name] = value
+        # if there were more properties than just the href, the resource is
+        # materialized
+        if list(properties.keys()) != ['href']:
+            self._is_materialized = True
 
     @staticmethod
     def to_camel_case(name):
@@ -164,7 +176,7 @@ class Resource(object):
             return repr(self)
 
     def is_materialized(self):
-        return self._get_property_names() != ['href']
+        return self._is_materialized
 
     def is_new(self):
         return self.href is None
@@ -190,7 +202,21 @@ class SaveMixin(object):
     def save(self):
         if self.is_new():
             raise ValueError("Can't save new resoures, use create instead")
+
+        for href in self._deletes:
+            self._store.delete_resource(href)
+        self._deletes = set()
+
         self._store.update_resource(self.href, self._get_properties())
+
+
+class AutoSaveMixin(SaveMixin):
+
+    def save(self):
+        super(AutoSaveMixin, self).save()
+        if self.is_materialized():
+            for res in self.autosaves:
+                self.__dict__[res].save()
 
 
 class DeleteMixin(object):
@@ -240,6 +266,7 @@ class CollectionResource(Resource):
         items = properties.pop('items', None)
         super(CollectionResource, self)._set_properties(properties)
         if items is not None:
+            self._is_materialized = True
             self.__dict__['items'] = [self._wrap_resource_attr(
                 self.resource_class, item) for item in items]
 

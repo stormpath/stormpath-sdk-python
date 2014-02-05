@@ -1,8 +1,8 @@
-from .base import (Resource, CollectionResource, StatusMixin,
-    SaveMixin, DeleteMixin)
+from .base import (
+    Resource, CollectionResource, StatusMixin, AutoSaveMixin, DeleteMixin)
 
 
-class Account(Resource, StatusMixin, SaveMixin, DeleteMixin):
+class Account(Resource, StatusMixin, AutoSaveMixin, DeleteMixin):
     """Account resource.
 
     More info in documentation:
@@ -11,20 +11,26 @@ class Account(Resource, StatusMixin, SaveMixin, DeleteMixin):
 
     STATUS_UNVERIFIED = 'UNVERIFIED'
 
-    writable_attrs = ('username', 'password', 'email', 'given_name',
-        'middle_name', 'surname', 'status')
+    writable_attrs = (
+        'username', 'password', 'email', 'given_name',
+        'middle_name', 'surname', 'status', 'custom_data')
+
+    autosaves = ('custom_data',)
 
     def get_resource_attributes(self):
         from .directory import Directory
         from .group import GroupList
         from .group_membership import GroupMembershipList
         from .tenant import Tenant
+        from .custom_data import CustomData
+
         return {
             'tenant': Tenant,
             'directory': Directory,
             'groups': GroupList,
             'group_memberships': GroupMembershipList,
-            'email_verification_token': Resource
+            'email_verification_token': Resource,
+            'custom_data': CustomData
         }
 
     def __str__(self):
