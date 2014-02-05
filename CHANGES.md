@@ -15,6 +15,7 @@ Released on September 26, 2013
 - Added ability to autocreate directory
 - Added entity expansion to create method and tenant resource
 
+
 Version 0.2.1
 -------------
 
