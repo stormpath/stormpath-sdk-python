@@ -16,13 +16,18 @@ class Account(Resource, StatusMixin, AutoSaveMixin, DeleteMixin):
     More info in documentation:
     http://docs.stormpath.com/python/product-guide/#accounts
     """
-    STATUS_UNVERIFIED = 'UNVERIFIED'
-
-    writable_attrs = (
-        'username', 'password', 'email', 'given_name',
-        'middle_name', 'surname', 'status', 'custom_data')
-
     autosaves = ('custom_data',)
+    writable_attrs = (
+        'custom_data',
+        'email',
+        'given_name',
+        'middle_name',
+        'password',
+        'status',
+        'surname',
+        'username',
+    )
+    STATUS_UNVERIFIED = 'UNVERIFIED'
 
     def get_resource_attributes(self):
         from .directory import Directory
