@@ -9,7 +9,7 @@ from .base import (
 )
 
 
-class AccountStoreMapping(Resource, SaveMixin, DeleteMixin):
+class AccountStoreMapping(DeleteMixin, Resource, SaveMixin):
     """Mapping between an Application and an account store.
 
     Account Store is a generic term for a resource that stores Accounts.
