@@ -8,7 +8,7 @@ from .base import (
 )
 
 
-class CustomData(DeleteMixin, Resource, SaveMixin):
+class CustomData(Resource, DeleteMixin, SaveMixin):
     """CustomData Resource for custom user data.
 
     Resources have predefined fields that are useful to many applications,
