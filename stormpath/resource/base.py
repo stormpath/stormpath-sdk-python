@@ -270,9 +270,9 @@ class CollectionResource(Resource):
     More info on the logic of collections in documentation:
     http://docs.stormpath.com/rest/product-guide/#search
     """
-    resource_class = Resource
     create_path = None
-    readonly_attrs = ('href', 'offset', 'limit', 'items')
+    readonly_attrs = ('href', 'items', 'limit', 'offset')
+    resource_class = Resource
 
     def _set_properties(self, properties):
         items = properties.pop('items', None)
