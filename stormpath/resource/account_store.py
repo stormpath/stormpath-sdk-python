@@ -2,11 +2,10 @@
 
 
 def AccountStore(client, properties=None):
-    """Account store resource factory
+    """AccountStore resource factory.
 
     Returns either a Group or a Directory resource, based on the resource
     href.
-
     """
     from .directory import Directory
     from .group import Group
