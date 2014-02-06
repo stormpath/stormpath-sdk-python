@@ -72,7 +72,6 @@ class Application(DeleteMixin, Resource, SaveMixin, StatusMixin):
 
 
 class ApplicationList(CollectionResource):
-    """Application resource list.
-    """
+    """Application resource list."""
     create_path = '/applications'
     resource_class = Application
