@@ -1,5 +1,13 @@
-from .base import (Resource, CollectionResource, StatusMixin,
-    SaveMixin, DeleteMixin)
+"""Stormpath Directory resource mappings."""
+
+
+from .base import (
+    CollectionResource,
+    DeleteMixin,
+    Resource,
+    SaveMixin,
+    StatusMixin,
+)
 
 
 class Directory(Resource, StatusMixin, SaveMixin, DeleteMixin):
