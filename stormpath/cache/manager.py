@@ -1,3 +1,6 @@
+"""Cache manager abstraction."""
+
+
 from .cache import Cache
 
 
