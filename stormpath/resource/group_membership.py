@@ -21,9 +21,10 @@ class GroupMembership(Resource, DeleteMixin):
     def get_resource_attributes(self):
         from .account import Account
         from .group import Group
+
         return {
             'account': Account,
-            'group': Group
+            'group': Group,
         }
 
 
