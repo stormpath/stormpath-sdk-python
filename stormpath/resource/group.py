@@ -25,18 +25,18 @@ class Group(Resource, AutoSaveMixin, DeleteMixin, StatusMixin):
     )
 
     def get_resource_attributes(self):
-        from .tenant import Tenant
-        from .directory import Directory
         from .account import AccountList
-        from .group_membership import GroupMembershipList
         from .custom_data import CustomData
+        from .directory import Directory
+        from .group_membership import GroupMembershipList
+        from .tenant import Tenant
 
         return {
-            'tenant': Tenant,
-            'directory': Directory,
             'accounts': AccountList,
             'account_memberships': GroupMembershipList,
-            'custom_data': CustomData
+            'custom_data': CustomData,
+            'directory': Directory,
+            'tenant': Tenant,
         }
 
     def add_account(self, account):
