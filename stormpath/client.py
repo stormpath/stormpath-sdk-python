@@ -1,3 +1,6 @@
+"""Stormpath API client."""
+
+
 from .auth import Auth
 from .http import HttpExecutor
 from .data_store import DataStore
