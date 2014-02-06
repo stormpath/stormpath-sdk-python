@@ -47,13 +47,13 @@ class Client(object):
         self.data_store = DataStore(executor, cache_options)
         self.tenant = Tenant(client=self, href='/tenants/current',
             expand=expand)
-
         """
         Initialize the client by setting the
         :class:`stormpath.data_store.DataStore` and
         :class:`stormpath.resource.tenant.Tenant`.
-        The parameters the Client accepts are those used by
-        :class:`stormpath.http.HttpExecutor`, :class:`stormpath.auth.Auth` and
+
+        The parameters the Client accepts are those used by the
+        :class:`stormpath.http.HttpExecutor`, :class:`stormpath.auth.Auth`, and
         :class:`stormpath.data_store.DataStore` classes.
         """
 
