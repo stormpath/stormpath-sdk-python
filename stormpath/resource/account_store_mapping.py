@@ -1,4 +1,12 @@
-from .base import Resource, CollectionResource, SaveMixin, DeleteMixin
+"""Stormpath AccountStoreMapping resource."""
+
+
+from .base import (
+    CollectionResource,
+    DeleteMixin,
+    Resource,
+    SaveMixin,
+)
 
 
 class AccountStoreMapping(Resource, SaveMixin, DeleteMixin):
