@@ -1,6 +1,9 @@
-from .stats import CacheStats
+"""Cache abstractions."""
+
+
 from .entry import CacheEntry
 from .memory_store import MemoryStore
+from .stats import CacheStats
 
 
 class Cache(object):
