@@ -5,7 +5,7 @@ from .cache.manager import CacheManager
 
 
 class DataStore(object):
-    """ An intermediary between Resource objects and the data they represent.
+    """An intermediary between Resource objects and the data they represent.
 
     It fetches the data either from the Stormpath service by using
     the :class:`stormpath.http.HttpExecutor` if the cache doesn't already have
