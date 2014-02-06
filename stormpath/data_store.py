@@ -14,7 +14,6 @@ class DataStore(object):
     DataStore but implemented separately with the intent of being easily
     replacable without changing the the rest of the codebase.
     """
-
     CACHE_REGIONS = ('applications', 'directories', 'accounts', 'groups',
         'groupMemberships', 'tenants', 'accountStoreMappings')
 
