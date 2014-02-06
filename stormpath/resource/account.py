@@ -49,18 +49,17 @@ class Account(Resource, StatusMixin, AutoSaveMixin, DeleteMixin):
         }
 
     def add_group(self, group):
-        """Associate a Group with the Account
+        """Associate a Group with this Account.
 
         This creates a
-        :class:`stormpath.resource.group_membership.GroupMembership`.
+        :class:`stormpath.resource.group_membership.GroupMembership` resource
+        on the backend.
 
-        :param group: A :class:`stormpath.resource.group.Group` object
-
+        :param group: A :class:`stormpath.resource.group.Group` object.
         """
-
         return self._client.group_memberships.create({
             'account': self,
-            'group': group
+            'group': group,
         })
 
     def is_unverified(self):
