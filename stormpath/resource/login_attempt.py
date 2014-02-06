@@ -31,8 +31,7 @@ class AuthenticationResult(Resource):
 
 
 class LoginAttemptList(CollectionResource):
-    """List of login data.
-    """
+    """List of login data."""
     resource_class = AuthenticationResult
 
     def basic_auth(self, login, password, account_store=None):
