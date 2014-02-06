@@ -46,7 +46,6 @@ class DataStore(object):
                     'ttl': 60}}
             }
         """
-
         self.executor = executor
         self.cache_manager = CacheManager()
 
