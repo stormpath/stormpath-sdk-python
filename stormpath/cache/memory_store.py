@@ -2,8 +2,8 @@
 
 
 class MemoryStore(object):
-    """Simple caching implementation that uses memory as data storage.
-    """
+    """Simple caching implementation that uses memory as data storage."""
+
     def __init__(self):
         self.store = {}
 
