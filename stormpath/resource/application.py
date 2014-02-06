@@ -12,7 +12,7 @@ from .login_attempt import LoginAttemptList
 from .password_reset_token import PasswordResetTokenList
 
 
-class Application(Resource, StatusMixin, SaveMixin, DeleteMixin):
+class Application(DeleteMixin, Resource, SaveMixin, StatusMixin):
     """Application resource.
 
     More info in documentation:
