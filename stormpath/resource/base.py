@@ -161,6 +161,7 @@ class Resource(object):
             else:
                 cs.append('_')
                 cs.append(c.lower())
+
         return ''.join(cs)
 
     def _get_properties(self):
