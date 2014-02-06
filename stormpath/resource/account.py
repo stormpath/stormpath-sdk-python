@@ -69,7 +69,7 @@ class Account(Resource, StatusMixin, AutoSaveMixin, DeleteMixin):
         requires verification before enabling the Account.
 
         More info in documentation:
-        http://docs.stormpath.com/rest/product-guide/#application-accounts
+        http://docs.stormpath.com/console/product-guide/#cloud-directory-workflow-automations
         """
         return self.get_status() == self.STATUS_UNVERIFIED
 
