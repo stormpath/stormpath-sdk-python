@@ -1,3 +1,6 @@
+"""Cache stats."""
+
+
 from collections import namedtuple
 
 
