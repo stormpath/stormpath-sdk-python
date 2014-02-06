@@ -256,7 +256,7 @@ class Auth(object):
         Returns basic http authentication handler which can be used with
         Python Requests library.
 
-        https://www.stormpath.com/docs/rest/api#BaseAuthenticationHTTPS
+        http://docs.stormpath.com/rest/product-guide/#authentication
         """
         return HTTPBasicAuth(self._id, self._secret)
 
