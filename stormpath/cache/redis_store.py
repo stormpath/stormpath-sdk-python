@@ -1,3 +1,6 @@
+"""A redis cache backend."""
+
+
 import json
 from .entry import CacheEntry
 
