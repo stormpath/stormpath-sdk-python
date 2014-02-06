@@ -88,13 +88,13 @@ class DataStore(object):
         return self._get_cache(href).get(href)
 
     def _cache_put(self, href, data, new=True):
-
         resource_data = {}
         for name, value in data.items():
             if isinstance(value, dict) and 'href' in value:
                 v2 = {'href': value['href']}
                 if 'items' in value:
                     v2['items'] = []
+
                     for item in value['items']:
                         self._cache_put(item['href'], item)
                         v2['items'].append({
@@ -105,6 +105,7 @@ class DataStore(object):
                         self._cache_put(value['href'], value)
             else:
                 v2 = value
+
             resource_data[name] = v2
 
         self._get_cache(href).put(href, resource_data, new=new)
@@ -117,16 +118,19 @@ class DataStore(object):
         if data is None:
             data = self.executor.get(href, params=params)
             self._cache_put(href, data)
+
         return data
 
     def create_resource(self, href, data, params=None):
         data = self.executor.post(href, data, params=params)
         self._cache_put(href, data)
+
         return data
 
     def update_resource(self, href, data):
         data = self.executor.post(href, data)
         self._cache_put(href, data, new=False)
+
         return data
 
     def delete_resource(self, href):
