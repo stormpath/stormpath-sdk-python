@@ -21,6 +21,7 @@ class PasswordResetToken(Resource):
 
     def get_resource_attributes(self):
         from .account import Account
+
         return {
             'account': Account
         }
@@ -31,6 +32,5 @@ class PasswordResetToken(Resource):
 
 
 class PasswordResetTokenList(CollectionResource):
-    """List of reset tokens.
-    """
+    """List of reset tokens."""
     resource_class = PasswordResetToken
