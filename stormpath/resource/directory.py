@@ -26,10 +26,11 @@ class Directory(DeleteMixin, Resource, SaveMixin, StatusMixin):
         from .account import AccountList
         from .group import GroupList
         from .tenant import Tenant
+
         return {
-            'tenant': Tenant,
             'accounts': AccountList,
-            'groups': GroupList
+            'groups': GroupList,
+            'tenant': Tenant,
         }
 
 
