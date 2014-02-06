@@ -1,3 +1,6 @@
+"""A memory store cache backend."""
+
+
 class MemoryStore(object):
     """Simple caching implementation that uses memory as data storage.
     """
