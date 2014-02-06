@@ -58,12 +58,12 @@ class Resource(object):
 
     def __init__(self, client, href=None, properties=None, query=None,
             expand=None):
-        self._deletes = set()
         self._client = client
-        self._store = client.data_store
-        self._query = query
+        self._deletes = set()
         self._expand = expand
         self._is_materialized = False
+        self._query = query
+        self._store = client.data_store
 
         if href is not None:
             if not isinstance(href, string_type):
