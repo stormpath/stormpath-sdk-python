@@ -1,3 +1,6 @@
+"""All Stormpath API resources."""
+
+
 from .account import Account, AccountList
 from .group import Group, GroupList
 from .tenant import Tenant
