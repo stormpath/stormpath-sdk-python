@@ -220,8 +220,8 @@ class SaveMixin(object):
 
         for href in self._deletes:
             self._store.delete_resource(href)
-        self._deletes = set()
 
+        self._deletes = set()
         self._store.update_resource(self.href, self._get_properties())
 
 
