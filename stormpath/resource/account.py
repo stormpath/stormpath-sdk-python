@@ -2,7 +2,12 @@
 
 
 from .base import (
-    Resource, CollectionResource, StatusMixin, AutoSaveMixin, DeleteMixin)
+    AutoSaveMixin,
+    CollectionResource,
+    DeleteMixin,
+    Resource,
+    StatusMixin,
+)
 
 
 class Account(Resource, StatusMixin, AutoSaveMixin, DeleteMixin):
