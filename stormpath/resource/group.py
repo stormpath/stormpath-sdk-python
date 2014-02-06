@@ -1,8 +1,16 @@
-from .base import (Resource, CollectionResource, StatusMixin,
-    AutoSaveMixin, DeleteMixin)
+"""Stormpath Directory resource mappings."""
 
 
-class Group(Resource, StatusMixin, AutoSaveMixin, DeleteMixin):
+from .base import (
+    AutoSaveMixin,
+    CollectionResource,
+    DeleteMixin,
+    Resource,
+    StatusMixin,
+)
+
+
+class Group(Resource, AutoSaveMixin, DeleteMixin, StatusMixin):
     """Group resource.
 
     More info in documentation:
