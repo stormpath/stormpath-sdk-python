@@ -22,19 +22,25 @@ class Expansion(object):
 
     def add_property(self, attr, offset=None, limit=None):
         d = {}
+
         if offset is not None:
             d['offset'] = offset
+
         if limit is not None:
             d['limit'] = limit
+
         self.items[attr] = d
 
     def get_params(self):
         ret = []
+
         for k, v in self.items.items():
             v = ','.join('%s:%d' % i for i in v.items())
             if v:
                 v = '(' + v + ')'
+
             ret.append(k + v)
+
         return ','.join(ret)
 
 
