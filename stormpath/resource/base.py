@@ -3,6 +3,7 @@ Contains classes that bear the brunt of Stormpath Python SDK resource handling
 like list access, updates, saves, deletes, attribute fetching, iterations etc.
 """
 
+
 try:
     string_type = basestring
 except NameError:
@@ -13,8 +14,7 @@ class Expansion(object):
     """Handles resource expansions.
 
     More info in documentation:
-    https://www.stormpath.com/docs/rest/product-guide#EntityExpansion
-
+    http://docs.stormpath.com/rest/product-guide/#links-expansion
     """
 
     def __init__(self, *args):
@@ -22,19 +22,25 @@ class Expansion(object):
 
     def add_property(self, attr, offset=None, limit=None):
         d = {}
+
         if offset is not None:
             d['offset'] = offset
+
         if limit is not None:
             d['limit'] = limit
+
         self.items[attr] = d
 
     def get_params(self):
         ret = []
+
         for k, v in self.items.items():
             v = ','.join('%s:%d' % i for i in v.items())
             if v:
                 v = '(' + v + ')'
+
             ret.append(k + v)
+
         return ','.join(ret)
 
 
@@ -43,23 +49,26 @@ class Resource(object):
 
     More information on what a resource object represents can be found in
     documentation:
-    http://www.stormpath.com/docs/python/product-guide#ResourcesAndProxying
+    http://docs.stormpath.com/python/product-guide/#high-level-overview
 
     Most of the methods contained within this class are internal SDK methods.
     """
-
+    autosaves = ()
     writable_attrs = ()
 
     def __init__(self, client, href=None, properties=None, query=None,
             expand=None):
         self._client = client
-        self._store = client.data_store
-        self._query = query
+        self._deletes = set()
         self._expand = expand
+        self._is_materialized = False
+        self._query = query
+        self._store = client.data_store
 
         if href is not None:
             if not isinstance(href, string_type):
                 raise TypeError("'href' must be a string type")
+
             self._set_properties({'href': href})
         elif properties is not None:
             self._set_properties(properties)
@@ -77,6 +86,11 @@ class Resource(object):
     def __getattr__(self, name):
         if name == 'href':
             return self.__dict__['href']
+
+        # If we already have it locally, no need to materialize the rest of
+        # the resource.
+        if name in self.__dict__:
+            return self.__dict__[name]
 
         self._ensure_data()
 
@@ -111,21 +125,30 @@ class Resource(object):
         resource_attrs = self.get_resource_attributes()
         for name, value in properties.items():
             name = self.from_camel_case(name)
+
             if name in resource_attrs:
                 value = self._wrap_resource_attr(resource_attrs[name],
                     value)
             elif isinstance(value, dict) and 'href' in value:
-                # no idea what kind of resource it is, but let's load it
-                # it anyways
+                # No idea what kind of resource it is, but let's load it
+                # it anyways.
                 value = Resource(self._client, href=value['href'])
+
             self.__dict__[name] = value
+
+        # If there were more properties than just the href, the resource is
+        # materialized.
+        if list(properties.keys()) != ['href']:
+            self._is_materialized = True
 
     @staticmethod
     def to_camel_case(name):
         if '_' not in name:
             return name
+
         head, tail = name.split('_', 1)
         tail = tail.title().replace('_', '')
+
         return head + tail
 
     @staticmethod
@@ -138,6 +161,7 @@ class Resource(object):
             else:
                 cs.append('_')
                 cs.append(c.lower())
+
         return ''.join(cs)
 
     def _get_properties(self):
@@ -145,6 +169,7 @@ class Resource(object):
         for k, v in self.__dict__.items():
             if k in self.writable_attrs:
                 data[self.to_camel_case(k)] = self._sanitize_property(v)
+
         return data
 
     def _get_property_names(self):
@@ -164,7 +189,7 @@ class Resource(object):
             return repr(self)
 
     def is_materialized(self):
-        return self._get_property_names() != ['href']
+        return self._is_materialized
 
     def is_new(self):
         return self.href is None
@@ -176,8 +201,10 @@ class Resource(object):
         params = {}
         if self._query:
             params.update(self._query)
+
         if self._expand:
             params.update({'expand': self._expand.get_params()})
+
         if not params:
             params = None
 
@@ -190,7 +217,21 @@ class SaveMixin(object):
     def save(self):
         if self.is_new():
             raise ValueError("Can't save new resoures, use create instead")
+
+        for href in self._deletes:
+            self._store.delete_resource(href)
+
+        self._deletes = set()
         self._store.update_resource(self.href, self._get_properties())
+
+
+class AutoSaveMixin(SaveMixin):
+
+    def save(self):
+        super(AutoSaveMixin, self).save()
+        if self.is_materialized():
+            for res in self.autosaves:
+                self.__dict__[res].save()
 
 
 class DeleteMixin(object):
@@ -198,13 +239,12 @@ class DeleteMixin(object):
     def delete(self):
         if self.is_new():
             return
+
         self._store.delete_resource(self.href)
 
 
 class StatusMixin(object):
-    """Provides a consistent resource status.
-    """
-
+    """Provides a consistent resource status."""
     STATUS_ENABLED = 'ENABLED'
     STATUS_DISABLED = 'DISABLED'
 
@@ -228,24 +268,25 @@ class CollectionResource(Resource):
     when possible.
 
     More info on the logic of collections in documentation:
-    https://www.stormpath.com/docs/rest/product-guide#RESTSearch
-
+    http://docs.stormpath.com/rest/product-guide/#search
     """
-
-    resource_class = Resource
     create_path = None
-    readonly_attrs = ('href', 'offset', 'limit', 'items')
+    readonly_attrs = ('href', 'items', 'limit', 'offset')
+    resource_class = Resource
 
     def _set_properties(self, properties):
         items = properties.pop('items', None)
         super(CollectionResource, self)._set_properties(properties)
+
         if items is not None:
+            self._is_materialized = True
             self.__dict__['items'] = [self._wrap_resource_attr(
                 self.resource_class, item) for item in items]
 
     def _get_next_page(self, offset, limit):
         q = self._query or {}
-        # if the user explicitly asked for a limited set of data, do nothing
+
+        # If the user explicitly asked for a limited set of data, do nothing.
         if 'offset' in q or 'limit' in q:
             return []
 
@@ -258,6 +299,7 @@ class CollectionResource(Resource):
             item) for item in data['items']]
         self.__dict__['items'].extend(items)
         self.__dict__['limit'] += len(items)
+
         return items
 
     def __iter__(self):
@@ -270,14 +312,17 @@ class CollectionResource(Resource):
         while len(items) > 0:
             for item in items:
                 yield item
+
             if len(items) < limit:
                 break
+
             offset += len(items)
             items = self._get_next_page(offset, limit)
 
-        # update self._query so no more pagination is attempted
+        # Update self._query so no more pagination is attempted.
         if self._query is None:
             self._query = {}
+
         self._query['offset'] = self.__dict__['offset']
         self._query['limit'] = self.__dict__['limit']
 
@@ -305,12 +350,14 @@ class CollectionResource(Resource):
     def get(self, href, expand=None):
         if '/' not in href:
             href = self._get_create_path() + '/' + href
+
         return self.resource_class(self._client, href=href,
             expand=expand)
 
     def search(self, query):
         if isinstance(query, dict):
             return self.query(**query)
+
         return self.query(q=query)
 
     def order(self, order_by):
@@ -320,6 +367,7 @@ class CollectionResource(Resource):
         q = self._query or {}
         q.update(kwargs)
         q = {self.to_camel_case(k): v for k, v in q.items()}
+
         return self.__class__(self._client, self.href, query=q)
 
     def _get_create_path(self):
@@ -340,6 +388,11 @@ class CollectionResource(Resource):
         if expand:
             params.update({'expand': expand.get_params()})
 
-        return self.resource_class(self._client,
-            properties=self._store.create_resource(self._get_create_path(),
-                data, params=params))
+        return self.resource_class(
+            self._client,
+            properties = self._store.create_resource(
+                self._get_create_path(),
+                data,
+                params = params
+            )
+        )

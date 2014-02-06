@@ -104,6 +104,13 @@ $ pip install stormpath-sdk --pre
     group.add_account(account)
     ```
 
+12. **Modify your custom data**
+
+    ```python
+    print(account.custom_data['birthDate'])
+    account.custom_data['rank'] = 'Captain'
+    account.custom_data.save()
+
 ## Common Uses
 
 ### Creating a client
@@ -282,6 +289,43 @@ Group membership can be created by:
 
   ```python
   group.add_account(account)
+  ```
+### Managing custom data
+
+Groups and account have custom data fields that act as a dictionary:
+
+* Accessing custom data field:
+  ```python
+  print(account.custom_data['birthDate'])
+  print(group.custom_data['foundationDate'])
+  ```
+
+* Creating or updating a custom data field:
+  ```python
+  account.custom_data['rank'] = 'Captain'
+  account.custom_data.save()
+  group.custom_data['affiliation'] = 'NCC-1701'
+  group.custom_data.save()
+  ```
+
+* Deleting a custom data field:
+  ```python
+  del account.custom_data['rank']
+  del group.custom_data['affiliation']
+  ```
+
+* Saving custom data changes (creates, updates and deletes) to Stormpath:
+When deleting custom fields, the information is not synced with Stormpath until the custom_data object is saved by calling the `save` method. Also, saving groups and accounts automatically saves their custom data.
+
+  ```python
+  account.custom_data.save()
+  group.custom_data.save()
+  ```
+OR
+
+  ```python
+  account.save()
+  group.save()
   ```
 
 ## Testing

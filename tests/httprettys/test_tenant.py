@@ -113,25 +113,23 @@ class TestTenant(BaseTest):
         directory = self.client.directories.get(self.dir_href)
         self.assertEqual(directory.href, self.dir_href)
 
-        # FIXME: accounts and groups are not implemented on server side
-        # although it is in rest api docs
         # accounts
-        #httpretty.register_uri(httpretty.GET,
-            #self.acc_href,
-            #body=json.dumps(self.grp_body),
-            #content_type="application/json")
+        httpretty.register_uri(httpretty.GET,
+            self.acc_href,
+            body=json.dumps(self.grp_body),
+            content_type="application/json")
 
-        #account = self.client.accounts.get(self.acc_href)
-        #self.assertEqual(account.href, self.acc_href)
+        account = self.client.accounts.get(self.acc_href)
+        self.assertEqual(account.href, self.acc_href)
 
         # groups
-        #httpretty.register_uri(httpretty.GET,
-            #self.grp_href,
-            #body=json.dumps(self.grp_body),
-            #content_type="application/json")
+        httpretty.register_uri(httpretty.GET,
+            self.grp_href,
+            body=json.dumps(self.grp_body),
+            content_type="application/json")
 
-        #group = self.client.groups.get(self.grp_href)
-        #self.assertEqual(group.href, self.grp_href)
+        group = self.client.groups.get(self.grp_href)
+        self.assertEqual(group.href, self.grp_href)
 
 if __name__ == '__main__':
     unittest.main()

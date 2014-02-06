@@ -1,22 +1,34 @@
-from .base import Resource, CollectionResource, SaveMixin, DeleteMixin
+"""Stormpath AccountStoreMapping resource."""
 
 
-class AccountStoreMapping(Resource, SaveMixin, DeleteMixin):
-    """Mapping between an Application and an account store.
+from .base import (
+    CollectionResource,
+    DeleteMixin,
+    Resource,
+    SaveMixin,
+)
+
+
+class AccountStoreMapping(DeleteMixin, Resource, SaveMixin):
+    """Mapping between an Application and an Account Store.
 
     Account Store is a generic term for a resource that stores Accounts.
     Currently, this includes Directories and Groups.
 
     More info in documentation:
-    https://www.stormpath.com/docs/python/product-guide#ManageAccountStores
+    http://docs.stormpath.com/python/product-guide/#account-store-mappings
     """
-
-    writable_attrs = ('application', 'account_store', 'list_index',
-        'is_default_account_store', 'is_default_group_store')
+    writable_attrs = (
+        'account_store',
+        'application',
+        'is_default_account_store',
+        'is_default_group_store',
+        'list_index',
+    )
 
     def get_resource_attributes(self):
-        from .application import Application
         from .account_store import AccountStore
+        from .application import Application
 
         return {
             'application': Application,
