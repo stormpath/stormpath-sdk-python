@@ -10,13 +10,13 @@ from .entry import CacheEntry
 
 
 class RedisStore(object):
-    """Caching implementation that uses Redis as data storage.
-    """
+    """Caching implementation that uses Redis as data storage."""
     def __init__(self, host='localhost', port=6379, db=0):
         try:
             from redis import Redis
         except ImportError:
             raise RuntimeError('Redis support is not available')
+
         self.redis = Redis(host=host, port=port, db=db)
 
     def __getitem__(self, key):
