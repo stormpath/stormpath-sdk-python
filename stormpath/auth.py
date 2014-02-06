@@ -15,18 +15,18 @@ except ImportError:
     from urlparse import urlparse
 
 
-HOST_HEADER = "Host"
-AUTHORIZATION_HEADER = "Authorization"
-STORMPATH_DATE_HEADER = "X-Stormpath-Date"
-ID_TERMINATOR = "sauthc1_request"
-ALGORITHM = "HMAC-SHA-256"
-AUTHENTICATION_SCHEME = "SAuthc1"
-SAUTHC1_ID = "sauthc1Id"
-SAUTHC1_SIGNED_HEADERS = "sauthc1SignedHeaders"
-SAUTHC1_SIGNATURE = "sauthc1Signature"
-DATE_FORMAT = "%Y%m%d"
-TIMESTAMP_FORMAT = "%Y%m%dT%H%M%SZ"
-NL = "\n"
+HOST_HEADER = 'Host'
+AUTHORIZATION_HEADER = 'Authorization'
+STORMPATH_DATE_HEADER = 'X-Stormpath-Date'
+ID_TERMINATOR = 'sauthc1_request'
+ALGORITHM = 'HMAC-SHA-256'
+AUTHENTICATION_SCHEME = 'SAuthc1'
+SAUTHC1_ID = 'sauthc1Id'
+SAUTHC1_SIGNED_HEADERS = 'sauthc1SignedHeaders'
+SAUTHC1_SIGNATURE = 'sauthc1Signature'
+DATE_FORMAT = '%Y%m%d'
+TIMESTAMP_FORMAT = '%Y%m%dT%H%M%SZ'
+NL = '\n'
 
 
 class Sauthc1Signer(AuthBase):
@@ -115,24 +115,24 @@ class Sauthc1Signer(AuthBase):
         sorted_headers = OrderedDict(sorted(auth_headers.items()))
         canonical_headers_string = ''
         for key, value in sorted_headers.items():
-            canonical_headers_string += "%s:%s%s" % (key.lower(), value, NL)
+            canonical_headers_string += '%s:%s%s' % (key.lower(), value, NL)
 
         signed_headers_string = ';'.join(sorted_headers.keys()).lower()
 
         request_payload_hash_hex = hashlib.sha256(
             (r.body or '').encode()).hexdigest()
 
-        canonical_request = "%s%s%s%s%s%s%s%s%s%s%s" % (
+        canonical_request = '%s%s%s%s%s%s%s%s%s%s%s' % (
             method, NL, canonical_resource_path, NL, canonical_query_string,
             NL, canonical_headers_string, NL, signed_headers_string,
             NL, request_payload_hash_hex)
 
-        id = "%s/%s/%s/%s" % (self._id, date_stamp, nonce, ID_TERMINATOR)
+        id = '%s/%s/%s/%s' % (self._id, date_stamp, nonce, ID_TERMINATOR)
 
         canonical_request_hash_hex = hashlib.sha256(
             canonical_request.encode()).hexdigest()
 
-        string_to_sign = "%s%s%s%s%s%s%s" % (
+        string_to_sign = '%s%s%s%s%s%s%s' % (
             ALGORITHM, NL, time_stamp, NL, id, NL, canonical_request_hash_hex)
 
         def _sign(data, key):
@@ -145,7 +145,7 @@ class Sauthc1Signer(AuthBase):
 
         # SAuthc1 uses a series of derived keys, formed by hashing different
         # pieces of data.
-        k_secret = "%s%s" % (AUTHENTICATION_SCHEME, self._secret)
+        k_secret = '%s%s' % (AUTHENTICATION_SCHEME, self._secret)
         k_date = _sign(date_stamp, k_secret)
         k_nonce = _sign(nonce, k_date)
         k_signing = _sign(ID_TERMINATOR, k_nonce)
@@ -154,9 +154,9 @@ class Sauthc1Signer(AuthBase):
         signature_hex = binascii.hexlify(signature).decode()
 
         authorization_header = ', '.join((
-            "%s %s=%s" % (AUTHENTICATION_SCHEME, SAUTHC1_ID, id),
-            "%s=%s" % (SAUTHC1_SIGNED_HEADERS, signed_headers_string),
-            "%s=%s" % (SAUTHC1_SIGNATURE, signature_hex),
+            '%s %s=%s' % (AUTHENTICATION_SCHEME, SAUTHC1_ID, id),
+            '%s=%s' % (SAUTHC1_SIGNED_HEADERS, signed_headers_string),
+            '%s=%s' % (SAUTHC1_SIGNATURE, signature_hex),
         ))
 
         r.headers[AUTHORIZATION_HEADER] = authorization_header
@@ -285,4 +285,4 @@ class Auth(object):
         elif self._method == 'digest':
             return self.digest
         else:
-            raise ValueError("Unsupported auth method " + str(self._method))
+            raise ValueError('Unsupported auth method ' + str(self._method))
