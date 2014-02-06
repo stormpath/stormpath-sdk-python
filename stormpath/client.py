@@ -9,7 +9,7 @@ from .resource.account_store_mapping import AccountStoreMappingList
 
 
 class Client(object):
-    """ The root entry point for SDK functionality.
+    """The root entry point for SDK functionality.
 
     Using the client instance, you can access all tenant data, such as
     applications, directories, groups, and accounts.
