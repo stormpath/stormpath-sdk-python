@@ -268,8 +268,7 @@ class Auth(object):
         Python requests library, and which uses Stormpath custom digest
         authentication.
 
-        https://www.stormpath.com/docs/rest/api#DigestAuthenticationHTTPS
-
+        http://docs.stormpath.com/rest/product-guide/#authentication
         """
         return Sauthc1Signer(self._id, self._secret)
 
