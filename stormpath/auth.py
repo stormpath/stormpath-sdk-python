@@ -257,7 +257,6 @@ class Auth(object):
         Python Requests library.
 
         https://www.stormpath.com/docs/rest/api#BaseAuthenticationHTTPS
-
         """
         return HTTPBasicAuth(self._id, self._secret)
 
