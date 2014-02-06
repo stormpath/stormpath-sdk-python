@@ -1,3 +1,6 @@
+"""Stormpath Application resource mappings."""
+
+
 from .base import (Resource, CollectionResource, StatusMixin,
     SaveMixin, DeleteMixin)
 from .password_reset_token import PasswordResetTokenList
