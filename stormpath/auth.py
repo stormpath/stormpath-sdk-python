@@ -195,7 +195,6 @@ class Auth(object):
 
         The `id` and `secret` can be accessed as attributes.
         """
-
         self._id = None
         self._secret = None
         self._method = method
@@ -207,11 +206,13 @@ class Auth(object):
         if api_key and 'id' in api_key and 'secret' in api_key:
             self._id = api_key['id']
             self._secret = api_key['secret']
+
             return
 
         if id and secret:
             self._id = id
             self._secret = secret
+
             return
 
         raise ValueError('No valid authentication sources found')
