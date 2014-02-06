@@ -1,5 +1,12 @@
+"""Stormpath LoginAttempt resource mappings."""
+
+
 from base64 import b64encode
-from .base import Resource, CollectionResource
+
+from .base import (
+    CollectionResource,
+    Resource,
+)
 
 
 class LoginAttempt(Resource):
