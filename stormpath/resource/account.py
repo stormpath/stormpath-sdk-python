@@ -30,11 +30,11 @@ class Account(Resource, StatusMixin, AutoSaveMixin, DeleteMixin):
     STATUS_UNVERIFIED = 'UNVERIFIED'
 
     def get_resource_attributes(self):
+        from .custom_data import CustomData
         from .directory import Directory
         from .group import GroupList
         from .group_membership import GroupMembershipList
         from .tenant import Tenant
-        from .custom_data import CustomData
 
         return {
             'tenant': Tenant,
