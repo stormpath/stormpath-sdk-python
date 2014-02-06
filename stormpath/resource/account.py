@@ -75,8 +75,7 @@ class Account(Resource, StatusMixin, AutoSaveMixin, DeleteMixin):
 
 
 class AccountList(CollectionResource):
-    """Account resource list.
-    """
+    """Stormpath Account resource list."""
     resource_class = Account
 
     def verify_email_token(self, token):
