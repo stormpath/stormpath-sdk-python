@@ -51,8 +51,8 @@ class DataStore(object):
                 },
             }
         """
-        self.executor = executor
         self.cache_manager = CacheManager()
+        self.executor = executor
 
         if cache_options is None:
             cache_options = {}
