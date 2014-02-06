@@ -8,10 +8,10 @@ from .base import (
 
 
 class GroupMembership(Resource, DeleteMixin):
-    """GroupMembership resource.
+    """Stormpath GroupMembership resource.
 
     More info in documentation:
-    https://www.stormpath.com/docs/python/product-guide#AssignAccountGroup
+    http://docs.stormpath.com/python/product-guide/#create-a-group-membership
     """
 
     writable_attrs = ('account', 'group')
