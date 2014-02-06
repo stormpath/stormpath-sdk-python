@@ -55,6 +55,5 @@ class Group(Resource, AutoSaveMixin, DeleteMixin, StatusMixin):
 
 
 class GroupList(CollectionResource):
-    """Group resource list.
-    """
+    """Group resource list."""
     resource_class = Group
