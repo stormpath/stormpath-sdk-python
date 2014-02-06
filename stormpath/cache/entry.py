@@ -1,4 +1,10 @@
-from datetime import datetime, timedelta
+"""Cache entry abstractions."""
+
+
+from datetime import (
+    datetime,
+    timedelta,
+)
 
 
 class CacheEntry(object):
@@ -38,7 +44,7 @@ class CacheEntry(object):
             return val.strftime('%Y-%m-%d %H:%M:%S.%f')
 
         return {
-            'value': self.value,
             'created_at': print_date(self.created_at),
-            'last_accessed_at': print_date(self.last_accessed_at)
+            'last_accessed_at': print_date(self.last_accessed_at),
+            'value': self.value,
         }

@@ -12,7 +12,7 @@ from .login_attempt import LoginAttemptList
 from .password_reset_token import PasswordResetTokenList
 
 
-class Application(DeleteMixin, Resource, SaveMixin, StatusMixin):
+class Application(Resource, DeleteMixin, SaveMixin, StatusMixin):
     """Stormpath Application resource.
 
     More info in documentation:

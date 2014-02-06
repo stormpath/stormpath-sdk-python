@@ -1,20 +1,28 @@
+"""Stormpath LoginAttempt resource mappings."""
+
+
 from base64 import b64encode
-from .base import Resource, CollectionResource
+
+from .base import (
+    CollectionResource,
+    Resource,
+)
 
 
 class AuthenticationResult(Resource):
     """Handles Base64-encoded login data.
 
     More info in documentation:
-    https://www.stormpath.com/docs/rest/product-guide#AuthenticateAccounts
+    http://docs.stormpath.com/rest/product-guide/#authenticate-an-account
     """
 
     writable_attrs = ('type', 'value', 'account_store')
 
     def get_resource_attributes(self):
         from .account import Account
+
         return {
-            'account': Account
+            'account': Account,
         }
 
     def __repr__(self):
