@@ -25,21 +25,23 @@ class Application(DeleteMixin, Resource, SaveMixin, StatusMixin):
     )
 
     def get_resource_attributes(self):
-        from .tenant import Tenant
         from .account import AccountList
+        from .account_store_mapping import (
+            AccountStoreMapping,
+            AccountStoreMappingList,
+        )
         from .group import GroupList
-        from .account_store_mapping import AccountStoreMappingList, \
-            AccountStoreMapping
+        from .tenant import Tenant
 
         return {
-            'tenant': Tenant,
             'accounts': AccountList,
-            'groups': GroupList,
-            'password_reset_tokens': PasswordResetTokenList,
-            'login_attempts': LoginAttemptList,
             'account_store_mappings': AccountStoreMappingList,
             'default_account_store_mapping': AccountStoreMapping,
             'default_group_store_mapping': AccountStoreMapping,
+            'groups': GroupList,
+            'login_attempts': LoginAttemptList,
+            'password_reset_tokens': PasswordResetTokenList,
+            'tenant': Tenant,
         }
 
     def authenticate_account(self, login, password):
