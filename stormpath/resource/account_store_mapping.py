@@ -27,8 +27,8 @@ class AccountStoreMapping(DeleteMixin, Resource, SaveMixin):
     )
 
     def get_resource_attributes(self):
-        from .application import Application
         from .account_store import AccountStore
+        from .application import Application
 
         return {
             'application': Application,
