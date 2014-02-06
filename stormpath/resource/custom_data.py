@@ -19,8 +19,15 @@ class CustomData(DeleteMixin, Resource, SaveMixin):
     http://docs.stormpath.com/rest/product-guide/#custom-data
     """
     readonly_attrs = (
-        'href', 'created_at', 'modified_at', 'meta', 'sp_meta', 'spmeta',
-        'ionmeta', 'ion_meta')
+        'created_at',
+        'href',
+        'ionmeta',
+        'ion_meta',
+        'meta',
+        'modified_at',
+        'spmeta',
+        'sp_meta',
+    )
 
     def __getitem__(self, key):
         if key not in self.data:
