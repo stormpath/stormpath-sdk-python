@@ -66,11 +66,9 @@ class Sauthc1Signer(AuthBase):
         return query
 
     def __call__(self, r):
-        # requests library mixes bytes/string in headers,
-        # it will be changed in future requests release
-        # to native strings.
-        # this is a fix to make it work proper with
-        # stormpath custom auth.
+        # Requests library mixes bytes/string in headers, it will be changed in
+        # future requests release to native strings. This is a fix to make it
+        # work proper with Stormpath custom auth.
         headers = {}
         for k, v in r.headers.items():
             if isinstance(k, bytes):
