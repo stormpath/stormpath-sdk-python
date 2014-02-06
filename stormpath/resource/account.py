@@ -16,7 +16,6 @@ class Account(Resource, StatusMixin, AutoSaveMixin, DeleteMixin):
     More info in documentation:
     http://docs.stormpath.com/python/product-guide/#accounts
     """
-
     STATUS_UNVERIFIED = 'UNVERIFIED'
 
     writable_attrs = (
