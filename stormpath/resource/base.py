@@ -14,8 +14,7 @@ class Expansion(object):
     """Handles resource expansions.
 
     More info in documentation:
-    https://www.stormpath.com/docs/rest/product-guide#EntityExpansion
-
+    http://docs.stormpath.com/rest/product-guide/#links-expansion
     """
 
     def __init__(self, *args):
