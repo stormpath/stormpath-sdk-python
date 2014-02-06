@@ -13,7 +13,7 @@ class LoginAttempt(Resource):
     """Handles Base64-encoded login data.
 
     More info in documentation:
-    https://www.stormpath.com/docs/rest/product-guide#AuthenticateAccounts
+    http://docs.stormpath.com/rest/product-guide/#authenticate-an-account
     """
     writable_attrs = (
         'type',
