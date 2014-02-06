@@ -87,8 +87,8 @@ class Resource(object):
         if name == 'href':
             return self.__dict__['href']
 
-        # if we already have it locally, no need to materialize the rest of
-        # the resource
+        # If we already have it locally, no need to materialize the rest of
+        # the resource.
         if name in self.__dict__:
             return self.__dict__[name]
 
