@@ -22,7 +22,6 @@ class HttpExecutor(object):
     :param auth: Authentication manager, like
         :class:`stormpath.auth.Sauthc1Signer`.
     """
-
     USER_AGENT = 'Stormpath-PythonSDK/' + STORMPATH_VERSION
 
     def __init__(self, base_url, auth):
