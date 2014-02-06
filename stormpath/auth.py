@@ -49,6 +49,7 @@ class Sauthc1Signer(AuthBase):
     def _is_default_port(parsed_url):
         scheme = parsed_url.scheme.lower()
         port = parsed_url.port
+
         return not port or (port == 80 and scheme == 'http') or \
             (port == 443 and scheme == 'https')
 
