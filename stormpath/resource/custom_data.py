@@ -1,6 +1,13 @@
 """Stormpath CustomData resource mappings."""
 
 
+from .base import (
+    DeleteMixin,
+    Resource,
+    SaveMixin,
+)
+
+
 class CustomData(Resource, SaveMixin, DeleteMixin):
     """CustomData Resource for custom user data.
 
