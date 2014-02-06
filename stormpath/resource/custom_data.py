@@ -17,7 +17,6 @@ class CustomData(DeleteMixin, Resource, SaveMixin):
 
     More info in documentation:
     http://docs.stormpath.com/rest/product-guide/#custom-data
-
     """
     readonly_attrs = (
         'href', 'created_at', 'modified_at', 'meta', 'sp_meta', 'spmeta',
