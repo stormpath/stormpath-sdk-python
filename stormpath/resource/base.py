@@ -68,6 +68,7 @@ class Resource(object):
         if href is not None:
             if not isinstance(href, string_type):
                 raise TypeError("'href' must be a string type")
+
             self._set_properties({'href': href})
         elif properties is not None:
             self._set_properties(properties)
