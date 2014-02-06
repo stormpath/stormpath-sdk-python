@@ -56,10 +56,9 @@ class Application(DeleteMixin, Resource, SaveMixin, StatusMixin):
         """Send a password reset email.
 
         More info in documentation:
-        http://www.stormpath.com/docs/rest/product-guide#PasswordReset
+        http://docs.stormpath.com/rest/product-guide/#reset-an-accounts-password
 
-        :param email: Email address to send the email to
-
+        :param email: Email address to send the email to.
         """
         token = self.password_reset_tokens.create({'email': email})
         return token.account
