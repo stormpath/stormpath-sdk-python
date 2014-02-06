@@ -16,10 +16,13 @@ class Group(Resource, AutoSaveMixin, DeleteMixin, StatusMixin):
     More info in documentation:
     http://docs.stormpath.com/python/product-guide/#groups
     """
-
-    writable_attrs = ('name', 'description', 'status', 'custom_data')
-
     autosaves = ('custom_data',)
+    writable_attrs = (
+        'custom_data',
+        'description',
+        'name',
+        'status',
+    )
 
     def get_resource_attributes(self):
         from .tenant import Tenant
