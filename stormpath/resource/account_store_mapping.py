@@ -31,8 +31,8 @@ class AccountStoreMapping(Resource, DeleteMixin, SaveMixin):
         from .application import Application
 
         return {
-            'application': Application,
             'account_store': AccountStore,
+            'application': Application,
         }
 
 
