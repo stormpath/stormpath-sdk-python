@@ -1,6 +1,7 @@
 Version 1.0.0.beta.1
 --------------------
 - Added custom data fields for groups and accounts
+- Support for login attempt expansion
 
 Version 1.0.0.beta
 ------------------
