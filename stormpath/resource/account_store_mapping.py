@@ -18,8 +18,13 @@ class AccountStoreMapping(DeleteMixin, Resource, SaveMixin):
     More info in documentation:
     http://docs.stormpath.com/python/product-guide/#account-store-mappings
     """
-    writable_attrs = ('application', 'account_store', 'list_index',
-        'is_default_account_store', 'is_default_group_store')
+    writable_attrs = (
+        'account_store',
+        'application',
+        'is_default_account_store',
+        'is_default_group_store',
+        'list_index',
+    )
 
     def get_resource_attributes(self):
         from .application import Application
