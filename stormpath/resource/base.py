@@ -244,9 +244,7 @@ class DeleteMixin(object):
 
 
 class StatusMixin(object):
-    """Provides a consistent resource status.
-    """
-
+    """Provides a consistent resource status."""
     STATUS_ENABLED = 'ENABLED'
     STATUS_DISABLED = 'DISABLED'
 
