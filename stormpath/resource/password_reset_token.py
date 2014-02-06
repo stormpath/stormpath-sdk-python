@@ -1,4 +1,10 @@
-from .base import Resource, CollectionResource
+"""Stormpath PasswordResetToken resource mappings."""
+
+
+from .base import (
+    CollectionResource,
+    Resource,
+)
 
 
 class PasswordResetToken(Resource):
