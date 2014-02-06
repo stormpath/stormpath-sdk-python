@@ -13,7 +13,6 @@ class GroupMembership(Resource, DeleteMixin):
     More info in documentation:
     http://docs.stormpath.com/python/product-guide/#create-a-group-membership
     """
-
     writable_attrs = ('account', 'group')
 
     def get_resource_attributes(self):
