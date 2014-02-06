@@ -1,3 +1,6 @@
+"""Custom error classes."""
+
+
 class Error(RuntimeError):
     """Error returned from the StormPath API service.
 
