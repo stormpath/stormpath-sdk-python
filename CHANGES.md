@@ -1,6 +1,7 @@
 Version 1.0.0.beta.1
 --------------------
 - Added custom data fields for groups and accounts
+- Proxy support
 
 Version 1.0.0.beta
 ------------------
