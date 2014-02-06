@@ -169,6 +169,7 @@ class Resource(object):
         for k, v in self.__dict__.items():
             if k in self.writable_attrs:
                 data[self.to_camel_case(k)] = self._sanitize_property(v)
+
         return data
 
     def _get_property_names(self):
