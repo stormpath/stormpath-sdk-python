@@ -18,7 +18,7 @@ class Client(object):
     applications, directories, groups, and accounts.
 
     More info in documentation:
-    https://www.stormpath.com/docs/python/product-guide#Client
+    http://docs.stormpath.com/python/product-guide/#sdk-concepts
 
     The client contains the following attributes that represent resource lists:
 
