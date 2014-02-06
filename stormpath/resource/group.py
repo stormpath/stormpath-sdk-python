@@ -14,7 +14,7 @@ class Group(Resource, AutoSaveMixin, DeleteMixin, StatusMixin):
     """Group resource.
 
     More info in documentation:
-    https://www.stormpath.com/docs/python/product-guide#Groups
+    http://docs.stormpath.com/python/product-guide/#groups
     """
 
     writable_attrs = ('name', 'description', 'status', 'custom_data')
