@@ -79,10 +79,9 @@ class AccountList(CollectionResource):
     resource_class = Account
 
     def verify_email_token(self, token):
-        """Verify account by using a token
+        """Verify this Account by using a token.
 
-        :param token: account verification token
-
+        :param token: Account verification token.
         """
         href = '/accounts/emailVerificationTokens/' + token
         data = self._store.create_resource(href, {})
