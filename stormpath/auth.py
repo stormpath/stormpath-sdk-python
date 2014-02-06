@@ -1,3 +1,6 @@
+"""Authentication library and utilities."""
+
+
 import hashlib
 import hmac
 import binascii
@@ -10,6 +13,7 @@ try:
     from urllib.parse import urlparse
 except ImportError:
     from urlparse import urlparse
+
 
 HOST_HEADER = "Host"
 AUTHORIZATION_HEADER = "Authorization"
@@ -33,11 +37,10 @@ class Sauthc1Signer(AuthBase):
 
     More info in documentation:
     https://www.stormpath.com/docs/rest/api#DigestAuthenticationHTTPS
-
     """
+
     def __init__(self, id, secret):
         """Initialize new digest auth mechanism with provided id and secret."""
-
         super(Sauthc1Signer, self).__init__()
         self._id = id
         self._secret = secret

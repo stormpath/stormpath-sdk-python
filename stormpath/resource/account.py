@@ -1,48 +1,65 @@
-from .base import (Resource, CollectionResource, StatusMixin,
-    SaveMixin, DeleteMixin)
+"""Stormpath Account resource mappings."""
 
 
-class Account(Resource, StatusMixin, SaveMixin, DeleteMixin):
+from .base import (
+    AutoSaveMixin,
+    CollectionResource,
+    DeleteMixin,
+    Resource,
+    StatusMixin,
+)
+
+
+class Account(AutoSaveMixin, DeleteMixin, Resource, StatusMixin):
     """Account resource.
 
     More info in documentation:
-    https://www.stormpath.com/docs/python/product-guide#Accounts
+    http://docs.stormpath.com/python/product-guide/#accounts
     """
-
+    autosaves = ('custom_data',)
+    writable_attrs = (
+        'custom_data',
+        'email',
+        'given_name',
+        'middle_name',
+        'password',
+        'status',
+        'surname',
+        'username',
+    )
     STATUS_UNVERIFIED = 'UNVERIFIED'
 
-    writable_attrs = ('username', 'password', 'email', 'given_name',
-        'middle_name', 'surname', 'status')
+    def __str__(self):
+        return self.username
 
     def get_resource_attributes(self):
+        from .custom_data import CustomData
         from .directory import Directory
         from .group import GroupList
         from .group_membership import GroupMembershipList
         from .tenant import Tenant
+
         return {
             'tenant': Tenant,
             'directory': Directory,
             'groups': GroupList,
             'group_memberships': GroupMembershipList,
-            'email_verification_token': Resource
+            'email_verification_token': Resource,
+            'custom_data': CustomData
         }
 
-    def __str__(self):
-        return self.username
-
     def add_group(self, group):
-        """Associate a Group with the Account
+        """Associate a Group with this Account.
 
         This creates a
-        :class:`stormpath.resource.group_membership.GroupMembership`.
+        :class:`stormpath.resource.group_membership.GroupMembership` resource
+        on the backend.
 
-        :param group: A :class:`stormpath.resource.group.Group` object
-
+        :param group: A :class:`stormpath.resource.group.Group` object.
         """
-
         return self._client.group_memberships.create({
             'account': self,
-            'group': group
+            'group': group,
         })
 
     def is_unverified(self):
@@ -52,24 +69,21 @@ class Account(Resource, StatusMixin, SaveMixin, DeleteMixin):
         requires verification before enabling the Account.
 
         More info in documentation:
-        http://www.stormpath.com/docs/rest/product-guide#AccountRegistration
-
+        http://docs.stormpath.com/console/product-guide/#cloud-directory-workflow-automations
         """
         return self.get_status() == self.STATUS_UNVERIFIED
 
 
 class AccountList(CollectionResource):
-    """Account resource list.
-    """
+    """Stormpath Account resource list."""
     resource_class = Account
 
     def verify_email_token(self, token):
-        """Verify account by using a token
+        """Verify this Account by using a token.
 
-        :param token: account verification token
-
+        :param token: Account verification token.
         """
         href = '/accounts/emailVerificationTokens/' + token
         data = self._store.create_resource(href, {})
 
-        return self.resource_class(properties=data, client=self._client)
+        return self.resource_class(client=self._client, properties=data)

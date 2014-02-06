@@ -30,17 +30,20 @@ class BaseTest(unittest.TestCase):
         self.map_path = self.base_path + '/accountStoreMappings/MAP_ID'
         self.map_href = self.base_url + self.map_path
 
+        self.custom_path = self.acc_path + '/customData'
+        self.custom_href = self.base_url + self.custom_path
+
         self.tenant_body = {
             "href": "TENANT_HREF",
             "name": "TENANT_NAME",
             "key": "TENANT_KEY",
             "applications": {
-                    "href": self.tenant_href + "/applications"
-                },
+                "href": self.tenant_href + "/applications"
+            },
             "directories": {
-                    "href": self.tenant_href + "/directories"
-                }
+                "href": self.tenant_href + "/directories"
             }
+        }
 
         self.dir_body = {
             "href": self.dir_href,
@@ -48,14 +51,14 @@ class BaseTest(unittest.TestCase):
             "status": "ENABLED",
             "tenant": {
                 "href": self.tenant_href
-                },
+            },
             "accounts": {
                 "href": self.dir_href + "/accounts"
-                },
+            },
             "groups": {
                 "href": self.dir_href + "/groups"
-                }
             }
+        }
 
         self.app_body = {
             "href": self.app_href,
@@ -88,6 +91,7 @@ class BaseTest(unittest.TestCase):
             "middleName": "",
             "surname": "ACC_SURNAME",
             "status": "ENABLED",
+            "customData": {"href": self.custom_href},
             "groups": {
                 "href": self.grp_href
             },
@@ -101,13 +105,14 @@ class BaseTest(unittest.TestCase):
                 "href": self.tenant_href
             },
             "emailVerificationToken": None
-            }
+        }
 
         self.grp_body = {
             "href": self.grp_href,
             "name": "GRP_NAME",
             "description": "GRP_DESC",
             "status": "ENABLED",
+            "customData": {"href": self.custom_href},
             "directory": {
                 "href": self.dir_href
             },
@@ -133,6 +138,16 @@ class BaseTest(unittest.TestCase):
             "listIndex": 1,
             "isDefaultAccountStore": True,
             "isDefaultGroupStore": True
+        }
+
+        self.custom_body = {
+            "href": self.custom_href,
+            "createdAt": "2014-07-16T13:48:22.378Z",
+            "modifiedAt": "2014-07-16T13:48:22.378Z",
+            "rank": "Captain",
+            "birthDate": "2305-07-13",
+            "birthPlace": "La Barre, France",
+            "favoriteDrink": "Earl Grey tea"
         }
 
         self.client = Client(api_key={'id': self.id, 'secret': self.secret})

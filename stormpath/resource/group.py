@@ -1,27 +1,31 @@
 from .base import (Resource, CollectionResource, StatusMixin,
-    SaveMixin, DeleteMixin)
+    AutoSaveMixin, DeleteMixin)
 
 
-class Group(Resource, StatusMixin, SaveMixin, DeleteMixin):
+class Group(Resource, StatusMixin, AutoSaveMixin, DeleteMixin):
     """Group resource.
 
     More info in documentation:
     https://www.stormpath.com/docs/python/product-guide#Groups
     """
 
-    writable_attrs = ('name', 'description', 'status')
+    writable_attrs = ('name', 'description', 'status', 'custom_data')
+
+    autosaves = ('custom_data',)
 
     def get_resource_attributes(self):
         from .tenant import Tenant
         from .directory import Directory
         from .account import AccountList
         from .group_membership import GroupMembershipList
+        from .custom_data import CustomData
 
         return {
             'tenant': Tenant,
             'directory': Directory,
             'accounts': AccountList,
-            'account_memberships': GroupMembershipList
+            'account_memberships': GroupMembershipList,
+            'custom_data': CustomData
         }
 
     def add_account(self, account):

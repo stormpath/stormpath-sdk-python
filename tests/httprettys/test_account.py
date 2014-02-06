@@ -43,6 +43,12 @@ class TestAccount(BaseTest):
             body=json.dumps(self.acc_body),
             content_type="application/json")
 
+        httpretty.register_uri(
+            httpretty.POST,
+            self.custom_href,
+            body=json.dumps(self.custom_body),
+            content_type="application/json")
+
         account = self.client.accounts.get(self.acc_href)
 
         self.assertEqual(account.username, username)
@@ -109,6 +115,12 @@ class TestAccount(BaseTest):
             body=json.dumps(self.dir_body),
             content_type="application/json")
 
+        httpretty.register_uri(
+            httpretty.POST,
+            self.custom_href,
+            body=json.dumps(self.custom_body),
+            content_type="application/json")
+
         body = {
             "href": self.acc_href,
             "username": "superuser123",
@@ -118,6 +130,7 @@ class TestAccount(BaseTest):
             "middleName": None,
             "surname": "User",
             "status": "enabled",
+            "customData": {"href": self.custom_href},
             "groups": {
                 "href": self.acc_href + "/groups"
                 },
@@ -150,6 +163,7 @@ class TestAccount(BaseTest):
             "middleName": "middle",
             "surname": "User Changed",
             "status": "disabled",
+            "customData": {"href": self.custom_href},
             "groups": {
                 "href": self.acc_href + "/groups"
                 },
@@ -170,7 +184,7 @@ class TestAccount(BaseTest):
             body=json.dumps(body),
             content_type="application/json")
 
-        username = 'superuser123changed' 'User Changed'
+        username = 'superuser123changed'
         email = 'superuser123changed@superemail.comy'
         given_name = 'Super Changed'
         surname = 'User Changed'

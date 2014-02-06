@@ -3,6 +3,7 @@ Version 1.0.0.beta.1
 
 - authenticate_account no longer returns an account object directly
 - Added support for accountStore specification when authenticating an account
+- Added custom data fields for groups and accounts
 
 Version 1.0.0.beta
 ------------------

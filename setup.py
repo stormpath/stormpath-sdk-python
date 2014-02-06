@@ -63,9 +63,12 @@ class TestDepCommand(BaseCommand):
     description = "install test dependencies"
 
     def run(self):
-        cmd = ["pip", "install", "pytest", "pytest-cov", "HTTPretty"]
-        if PY_VERSION < (3, 3):
+        cmd = ["pip", "install", "pytest", "pytest-cov"]
+        if PY_VERSION >= (3, 2):
             cmd.append("mock")
+            cmd.append("httpretty==0.6.5")
+        else:
+            cmd.append("httpretty")
         ret = subprocess.call(cmd)
         sys.exit(ret)
 
