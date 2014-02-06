@@ -22,8 +22,9 @@ class LoginAttempt(Resource):
 
     def get_resource_attributes(self):
         from .account import Account
+
         return {
-            'account': Account
+            'account': Account,
         }
 
 
