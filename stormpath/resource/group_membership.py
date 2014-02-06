@@ -29,6 +29,5 @@ class GroupMembership(Resource, DeleteMixin):
 
 
 class GroupMembershipList(CollectionResource):
-    """Group membership resource list.
-    """
+    """GroupMembership resource list."""
     resource_class = GroupMembership
