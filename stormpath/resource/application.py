@@ -18,8 +18,11 @@ class Application(DeleteMixin, Resource, SaveMixin, StatusMixin):
     More info in documentation:
     http://docs.stormpath.com/python/product-guide/#applications
     """
-
-    writable_attrs = ('name', 'description', 'status')
+    writable_attrs = (
+        'description',
+        'name',
+        'status',
+    )
 
     def get_resource_attributes(self):
         from .tenant import Tenant
