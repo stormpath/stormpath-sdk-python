@@ -239,6 +239,7 @@ class DeleteMixin(object):
     def delete(self):
         if self.is_new():
             return
+
         self._store.delete_resource(self.href)
 
 
