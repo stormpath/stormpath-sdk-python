@@ -145,8 +145,10 @@ class Resource(object):
     def to_camel_case(name):
         if '_' not in name:
             return name
+
         head, tail = name.split('_', 1)
         tail = tail.title().replace('_', '')
+
         return head + tail
 
     @staticmethod
