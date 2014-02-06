@@ -3,6 +3,7 @@ Contains classes that bear the brunt of Stormpath Python SDK resource handling
 like list access, updates, saves, deletes, attribute fetching, iterations etc.
 """
 
+
 try:
     string_type = basestring
 except NameError:
