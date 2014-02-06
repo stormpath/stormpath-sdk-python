@@ -29,6 +29,9 @@ class Account(Resource, StatusMixin, AutoSaveMixin, DeleteMixin):
     )
     STATUS_UNVERIFIED = 'UNVERIFIED'
 
+    def __str__(self):
+        return self.username
+
     def get_resource_attributes(self):
         from .custom_data import CustomData
         from .directory import Directory
@@ -44,9 +47,6 @@ class Account(Resource, StatusMixin, AutoSaveMixin, DeleteMixin):
             'email_verification_token': Resource,
             'custom_data': CustomData
         }
-
-    def __str__(self):
-        return self.username
 
     def add_group(self, group):
         """Associate a Group with the Account
