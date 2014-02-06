@@ -1,3 +1,6 @@
+"""HTTP request handling utilities."""
+
+
 import json
 from collections import OrderedDict
 from requests import Session
