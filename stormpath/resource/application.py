@@ -13,10 +13,10 @@ from .password_reset_token import PasswordResetTokenList
 
 
 class Application(DeleteMixin, Resource, SaveMixin, StatusMixin):
-    """Application resource.
+    """Stormpath Application resource.
 
     More info in documentation:
-    https://www.stormpath.com/docs/python/product-guide#Applications
+    http://docs.stormpath.com/python/product-guide/#applications
     """
 
     writable_attrs = ('name', 'description', 'status')
