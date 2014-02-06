@@ -35,7 +35,6 @@ class Directory(DeleteMixin, Resource, SaveMixin, StatusMixin):
 
 
 class DirectoryList(CollectionResource):
-    """Directory resource list.
-    """
+    """Directory resource list."""
     create_path = '/directories'
     resource_class = Directory
