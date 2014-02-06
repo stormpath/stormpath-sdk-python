@@ -32,18 +32,23 @@ class DataStore(object):
 
         Example of a dictionary with all available options::
 
-            {'store': MemoryStore,
-            'regions': {
-                'applications': {
-                    'store': RedisStore,
-                    'ttl': 300,
-                    'tti': 300,
-                    'store_opts': {
-                        'host': 'localhost',
-                        'port': 6739}}
-                'directories': {
-                    'store': MemoryStore,
-                    'ttl': 60}}
+            {
+                'store': MemoryStore,
+                'regions': {
+                    'applications': {
+                        'store': RedisStore,
+                        'ttl': 300,
+                        'tti': 300,
+                        'store_opts': {
+                            'host': 'localhost',
+                            'port': 6739,
+                        },
+                    },
+                    'directories': {
+                        'store': MemoryStore,
+                        'ttl': 60,
+                    },
+                },
             }
         """
         self.executor = executor
