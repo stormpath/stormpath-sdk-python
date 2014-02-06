@@ -1,8 +1,8 @@
 """HTTP request handling utilities."""
 
 
-import json
 from collections import OrderedDict
+from json import dumps
 from requests import Session
 
 from stormpath import __version__ as STORMPATH_VERSION
@@ -62,7 +62,7 @@ class HttpExecutor(object):
         return self.request('GET', url, params=params)
 
     def post(self, url, data, params=None):
-        return self.request('POST', url, data=json.dumps(data), params=params)
+        return self.request('POST', url, data=dumps(data), params=params)
 
     def delete(self, url):
         return self.request('DELETE', url)
