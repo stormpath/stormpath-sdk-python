@@ -25,7 +25,6 @@ class HttpExecutor(object):
     USER_AGENT = 'Stormpath-PythonSDK/' + STORMPATH_VERSION
 
     def __init__(self, base_url, auth):
-
         self.session = Session()
         self.base_url = base_url
         self.session.auth = auth
