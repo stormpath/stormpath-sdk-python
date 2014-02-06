@@ -1,19 +1,29 @@
-from .base import Resource, SaveMixin, DeleteMixin
+"""Stormpath Tenant resource mappings."""
 
 
-class Tenant(Resource, SaveMixin, DeleteMixin):
-    """Tenant resource.
+from .base import (
+    DeleteMixin,
+    Resource,
+    SaveMixin,
+)
+
+
+class Tenant(Resource, DeleteMixin, SaveMixin):
+    """Stormpath Tenant resource.
 
     More info in documentation:
     https://www.stormpath.com/docs/python/product-guide#DefaultResources
     """
-
-    writable_attrs = ('name', 'key')
+    writable_attrs = (
+        'key',
+        'name',
+    )
 
     def get_resource_attributes(self):
         from .application import ApplicationList
         from .directory import DirectoryList
+
         return {
             'applications': ApplicationList,
-            'directories': DirectoryList
+            'directories': DirectoryList,
         }
