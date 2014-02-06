@@ -39,9 +39,7 @@ class Client(object):
 
     :py:attr:`account_store_mappings` -
     :class:`stormpath.resource.account_store_mapping.AccountStoreMappingList`
-
     """
-
     BASE_URL = 'https://api.stormpath.com/v1'
 
     def __init__(self, cache_options=None, expand=None, **kwargs):
