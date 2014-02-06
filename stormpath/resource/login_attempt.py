@@ -15,7 +15,6 @@ class LoginAttempt(Resource):
     More info in documentation:
     https://www.stormpath.com/docs/rest/product-guide#AuthenticateAccounts
     """
-
     writable_attrs = ('type', 'value')
 
     def get_resource_attributes(self):
