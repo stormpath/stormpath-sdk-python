@@ -201,8 +201,10 @@ class Resource(object):
         params = {}
         if self._query:
             params.update(self._query)
+
         if self._expand:
             params.update({'expand': self._expand.get_params()})
+
         if not params:
             params = None
 
