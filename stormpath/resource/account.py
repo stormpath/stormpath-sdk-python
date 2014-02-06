@@ -40,12 +40,12 @@ class Account(Resource, AutoSaveMixin, DeleteMixin, StatusMixin):
         from .tenant import Tenant
 
         return {
-            'tenant': Tenant,
+            'custom_data': CustomData,
             'directory': Directory,
+            'email_verification_token': Resource,
             'groups': GroupList,
             'group_memberships': GroupMembershipList,
-            'email_verification_token': Resource,
-            'custom_data': CustomData
+            'tenant': Tenant,
         }
 
     def add_group(self, group):
