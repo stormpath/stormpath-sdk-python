@@ -45,12 +45,10 @@ class Application(DeleteMixin, Resource, SaveMixin, StatusMixin):
         }
 
     def authenticate_account(self, login, password):
-        """Authenticate Account inside the Application.
+        """Authenticate an Account against this Application.
 
-        :param login: Username or email address
-
-        :param password: Unencrypted user password
-
+        :param login: Username or email address.
+        :param password: Unencrypted user password.
         """
         return self.login_attempts.basic_auth(login, password).account
 
