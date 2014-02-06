@@ -29,8 +29,7 @@ class LoginAttempt(Resource):
 
 
 class LoginAttemptList(CollectionResource):
-    """List of login data.
-    """
+    """List of login data."""
     resource_class = LoginAttempt
 
     def basic_auth(self, login, password):
@@ -38,5 +37,5 @@ class LoginAttemptList(CollectionResource):
         value = b64encode(value.encode('utf-8')).decode('ascii')
         return self.create({
             'type': 'basic',
-            'value': value
+            'value': value,
         })
