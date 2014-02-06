@@ -12,7 +12,7 @@ class Tenant(Resource, DeleteMixin, SaveMixin):
     """Stormpath Tenant resource.
 
     More info in documentation:
-    https://www.stormpath.com/docs/python/product-guide#DefaultResources
+    http://docs.stormpath.com/python/product-guide/#tenants
     """
     writable_attrs = (
         'key',
