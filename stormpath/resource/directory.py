@@ -10,13 +10,12 @@ from .base import (
 )
 
 
-class Directory(Resource, StatusMixin, SaveMixin, DeleteMixin):
-    """Directory resource.
+class Directory(DeleteMixin, Resource, SaveMixin, StatusMixin):
+    """Stormpath Directory resource.
 
     More info in documentation:
-    https://www.stormpath.com/docs/python/product-guide#Directories
+    http://docs.stormpath.com/python/product-guide/#directories
     """
-
     writable_attrs = ('name', 'description', 'status')
 
     def get_resource_attributes(self):
