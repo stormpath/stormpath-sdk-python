@@ -79,7 +79,7 @@ class DataStore(object):
             return NoCache()
 
         parts = href.split('/')
-        if parts[-2] in self.CACHE_REGIONS:  # we only care about instances
+        if parts[-2] in self.CACHE_REGIONS:  # We only care about instances.
             return self.cache_manager.get_cache(parts[-2]) or NoCache()
         else:
             return NoCache()
