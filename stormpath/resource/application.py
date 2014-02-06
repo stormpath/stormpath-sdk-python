@@ -1,34 +1,47 @@
-from .base import (Resource, CollectionResource, StatusMixin,
-    SaveMixin, DeleteMixin)
-from .password_reset_token import PasswordResetTokenList
+"""Stormpath Application resource mappings."""
+
+
+from .base import (
+    CollectionResource,
+    DeleteMixin,
+    Resource,
+    SaveMixin,
+    StatusMixin,
+)
 from .login_attempt import LoginAttemptList
+from .password_reset_token import PasswordResetTokenList
 
 
-class Application(Resource, StatusMixin, SaveMixin, DeleteMixin):
-    """Application resource.
+class Application(DeleteMixin, Resource, SaveMixin, StatusMixin):
+    """Stormpath Application resource.
 
     More info in documentation:
-    https://www.stormpath.com/docs/python/product-guide#Applications
+    http://docs.stormpath.com/python/product-guide/#applications
     """
-
-    writable_attrs = ('name', 'description', 'status')
+    writable_attrs = (
+        'description',
+        'name',
+        'status',
+    )
 
     def get_resource_attributes(self):
-        from .tenant import Tenant
         from .account import AccountList
+        from .account_store_mapping import (
+            AccountStoreMapping,
+            AccountStoreMappingList,
+        )
         from .group import GroupList
-        from .account_store_mapping import AccountStoreMappingList, \
-            AccountStoreMapping
+        from .tenant import Tenant
 
         return {
-            'tenant': Tenant,
             'accounts': AccountList,
-            'groups': GroupList,
-            'password_reset_tokens': PasswordResetTokenList,
-            'login_attempts': LoginAttemptList,
             'account_store_mappings': AccountStoreMappingList,
             'default_account_store_mapping': AccountStoreMapping,
             'default_group_store_mapping': AccountStoreMapping,
+            'groups': GroupList,
+            'login_attempts': LoginAttemptList,
+            'password_reset_tokens': PasswordResetTokenList,
+            'tenant': Tenant,
         }
 
     def authenticate_account(self, login, password, expand=None):
@@ -40,7 +53,6 @@ class Application(Resource, StatusMixin, SaveMixin, DeleteMixin):
 
         :param expand:
             A :class:`stormpath.resource.base.Expansion` object (optional)
-
         """
         return self.login_attempts.basic_auth(login, password, expand).account
 
@@ -48,10 +60,9 @@ class Application(Resource, StatusMixin, SaveMixin, DeleteMixin):
         """Send a password reset email.
 
         More info in documentation:
-        http://www.stormpath.com/docs/rest/product-guide#PasswordReset
+        http://docs.stormpath.com/rest/product-guide/#reset-an-accounts-password
 
-        :param email: Email address to send the email to
-
+        :param email: Email address to send the email to.
         """
         token = self.password_reset_tokens.create({'email': email})
         return token.account
@@ -59,14 +70,12 @@ class Application(Resource, StatusMixin, SaveMixin, DeleteMixin):
     def verify_password_reset_token(self, token):
         """Verify password reset by using a token.
 
-        :param token: password reset token extracted from the url
-
+        :param token: password reset token extracted from the URL.
         """
         return self.password_reset_tokens[token].account
 
 
 class ApplicationList(CollectionResource):
-    """Application resource list.
-    """
+    """Application resource list."""
     create_path = '/applications'
     resource_class = Application
