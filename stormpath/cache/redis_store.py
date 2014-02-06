@@ -1,7 +1,11 @@
 """A redis cache backend."""
 
 
-import json
+from json import (
+    dumps,
+    loads,
+)
+
 from .entry import CacheEntry
 
 
@@ -20,11 +24,11 @@ class RedisStore(object):
         if entry is None:
             return None
 
-        entry = json.loads(entry.decode('utf-8'))
+        entry = loads(entry.decode('utf-8'))
         return CacheEntry.parse(entry)
 
     def __setitem__(self, key, entry):
-        data = json.dumps(entry.to_dict()).encode('utf-8')
+        data = dumps(entry.to_dict()).encode('utf-8')
         self.redis.set(key, data)
 
     def __delitem__(self, key):
