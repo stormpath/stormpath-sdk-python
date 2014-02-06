@@ -10,13 +10,13 @@ from .base import (
 
 
 class AccountStoreMapping(DeleteMixin, Resource, SaveMixin):
-    """Mapping between an Application and an account store.
+    """Mapping between an Application and an Account Store.
 
     Account Store is a generic term for a resource that stores Accounts.
     Currently, this includes Directories and Groups.
 
     More info in documentation:
-    https://www.stormpath.com/docs/python/product-guide#ManageAccountStores
+    http://docs.stormpath.com/python/product-guide/#account-store-mappings
     """
 
     writable_attrs = ('application', 'account_store', 'list_index',
