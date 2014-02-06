@@ -49,7 +49,7 @@ class Resource(object):
 
     More information on what a resource object represents can be found in
     documentation:
-    http://www.stormpath.com/docs/python/product-guide#ResourcesAndProxying
+    http://docs.stormpath.com/python/product-guide/#high-level-overview
 
     Most of the methods contained within this class are internal SDK methods.
     """
