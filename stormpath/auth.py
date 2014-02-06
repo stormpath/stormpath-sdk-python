@@ -59,8 +59,10 @@ class Sauthc1Signer(AuthBase):
         for key, value in str_dict.items():
             if key in query:
                 query = query.replace(key, value)
+
         str = '%2F'
         query = query.replace(str, '/') if str in query else query
+
         return query
 
     def __call__(self, r):
