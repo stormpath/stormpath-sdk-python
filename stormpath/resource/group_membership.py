@@ -1,4 +1,10 @@
-from .base import Resource, CollectionResource, DeleteMixin
+"""Stormpath Directory resource mappings."""
+
+from .base import (
+    CollectionResource,
+    DeleteMixin,
+    Resource,
+)
 
 
 class GroupMembership(Resource, DeleteMixin):
