@@ -129,12 +129,12 @@ class Resource(object):
                 value = self._wrap_resource_attr(resource_attrs[name],
                     value)
             elif isinstance(value, dict) and 'href' in value:
-                # no idea what kind of resource it is, but let's load it
-                # it anyways
+                # No idea what kind of resource it is, but let's load it
+                # it anyways.
                 value = Resource(self._client, href=value['href'])
             self.__dict__[name] = value
-        # if there were more properties than just the href, the resource is
-        # materialized
+        # If there were more properties than just the href, the resource is
+        # materialized.
         if list(properties.keys()) != ['href']:
             self._is_materialized = True
 
