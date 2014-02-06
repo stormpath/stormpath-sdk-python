@@ -53,9 +53,8 @@ class Resource(object):
 
     Most of the methods contained within this class are internal SDK methods.
     """
-
-    writable_attrs = ()
     autosaves = ()
+    writable_attrs = ()
 
     def __init__(self, client, href=None, properties=None, query=None,
             expand=None):
