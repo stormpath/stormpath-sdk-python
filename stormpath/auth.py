@@ -231,8 +231,10 @@ class Auth(object):
                     line = line.strip()
                     if line.startswith('#') or '=' not in line:
                         continue
+
                     k, v = line.split('=', 1)
                     props[k.strip()] = v.strip()
+
             return props
         except UnicodeDecodeError:
             return {}
@@ -241,6 +243,7 @@ class Auth(object):
         cred = self._load_properties(fname)
         self._id = cred.get(id_name)
         self._secret = cred.get(secret_name)
+
         return (self._id and self._secret)
 
     def __call__(self):
