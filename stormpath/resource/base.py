@@ -268,10 +268,8 @@ class CollectionResource(Resource):
     when possible.
 
     More info on the logic of collections in documentation:
-    https://www.stormpath.com/docs/rest/product-guide#RESTSearch
-
+    http://docs.stormpath.com/rest/product-guide/#search
     """
-
     resource_class = Resource
     create_path = None
     readonly_attrs = ('href', 'offset', 'limit', 'items')
