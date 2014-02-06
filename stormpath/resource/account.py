@@ -1,3 +1,6 @@
+"""Stormpath Account resource mappings."""
+
+
 from .base import (
     Resource, CollectionResource, StatusMixin, AutoSaveMixin, DeleteMixin)
 
