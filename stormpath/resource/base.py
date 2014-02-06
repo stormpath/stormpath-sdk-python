@@ -277,6 +277,7 @@ class CollectionResource(Resource):
     def _set_properties(self, properties):
         items = properties.pop('items', None)
         super(CollectionResource, self)._set_properties(properties)
+
         if items is not None:
             self._is_materialized = True
             self.__dict__['items'] = [self._wrap_resource_attr(
@@ -284,7 +285,8 @@ class CollectionResource(Resource):
 
     def _get_next_page(self, offset, limit):
         q = self._query or {}
-        # if the user explicitly asked for a limited set of data, do nothing
+
+        # If the user explicitly asked for a limited set of data, do nothing.
         if 'offset' in q or 'limit' in q:
             return []
 
@@ -297,6 +299,7 @@ class CollectionResource(Resource):
             item) for item in data['items']]
         self.__dict__['items'].extend(items)
         self.__dict__['limit'] += len(items)
+
         return items
 
     def __iter__(self):
@@ -309,8 +312,10 @@ class CollectionResource(Resource):
         while len(items) > 0:
             for item in items:
                 yield item
+
             if len(items) < limit:
                 break
+
             offset += len(items)
             items = self._get_next_page(offset, limit)
 
