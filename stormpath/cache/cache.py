@@ -31,13 +31,16 @@ class Cache(object):
             if entry.is_expired(self.ttl, self.tti):
                 self.stats.miss(expired=True)
                 del self.store[key]
+
                 return None
             else:
                 self.stats.hit()
                 entry.touch()
+
                 return entry.value
         else:
             self.stats.miss()
+
             return None
 
     def put(self, key, value, new=True):
