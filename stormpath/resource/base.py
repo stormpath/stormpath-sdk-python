@@ -133,6 +133,7 @@ class Resource(object):
                 # it anyways.
                 value = Resource(self._client, href=value['href'])
             self.__dict__[name] = value
+
         # If there were more properties than just the href, the resource is
         # materialized.
         if list(properties.keys()) != ['href']:
