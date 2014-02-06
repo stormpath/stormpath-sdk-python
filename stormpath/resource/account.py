@@ -10,7 +10,7 @@ from .base import (
 )
 
 
-class Account(Resource, StatusMixin, AutoSaveMixin, DeleteMixin):
+class Account(AutoSaveMixin, DeleteMixin, Resource, StatusMixin):
     """Account resource.
 
     More info in documentation:
