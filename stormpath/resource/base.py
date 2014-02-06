@@ -125,6 +125,7 @@ class Resource(object):
         resource_attrs = self.get_resource_attributes()
         for name, value in properties.items():
             name = self.from_camel_case(name)
+
             if name in resource_attrs:
                 value = self._wrap_resource_attr(resource_attrs[name],
                     value)
@@ -132,6 +133,7 @@ class Resource(object):
                 # No idea what kind of resource it is, but let's load it
                 # it anyways.
                 value = Resource(self._client, href=value['href'])
+
             self.__dict__[name] = value
 
         # If there were more properties than just the href, the resource is
