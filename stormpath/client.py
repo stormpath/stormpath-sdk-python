@@ -2,13 +2,13 @@
 
 
 from .auth import Auth
-from .http import HttpExecutor
 from .data_store import DataStore
-from .resource.tenant import Tenant
+from .http import HttpExecutor
 from .resource.account import AccountList
+from .resource.account_store_mapping import AccountStoreMappingList
 from .resource.group import GroupList
 from .resource.group_membership import GroupMembershipList
-from .resource.account_store_mapping import AccountStoreMappingList
+from .resource.tenant import Tenant
 
 
 class Client(object):
