@@ -1,7 +1,10 @@
 """Cache entry abstractions."""
 
 
-from datetime import datetime, timedelta
+from datetime import (
+    datetime,
+    timedelta,
+)
 
 
 class CacheEntry(object):
