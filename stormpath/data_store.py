@@ -61,6 +61,7 @@ class DataStore(object):
             opts = cache_options.get(region, {})
             if 'store' not in opts and 'store' in cache_options:
                 opts['store'] = cache_options['store']
+
             self.cache_manager.create_cache(region, **opts)
 
     def _get_cache(self, href):
