@@ -4,9 +4,9 @@
 import json
 from collections import OrderedDict
 from requests import Session
-from .error import Error
 
 from stormpath import __version__ as STORMPATH_VERSION
+from .error import Error
 
 
 class HttpExecutor(object):
