@@ -1,4 +1,4 @@
-from .base import Resource, SaveMixin, DeleteMixin
+"""Stormpath CustomData resource mappings."""
 
 
 class CustomData(Resource, SaveMixin, DeleteMixin):
