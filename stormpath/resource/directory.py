@@ -10,7 +10,7 @@ from .base import (
 )
 
 
-class Directory(DeleteMixin, Resource, SaveMixin, StatusMixin):
+class Directory(Resource, DeleteMixin, SaveMixin, StatusMixin):
     """Stormpath Directory resource.
 
     More info in documentation:
