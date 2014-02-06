@@ -49,8 +49,8 @@ class Group(Resource, AutoSaveMixin, DeleteMixin, StatusMixin):
         :param account: A :class:`stormpath.resource.account.Account` object.
         """
         return self._client.group_memberships.create({
+            'account': account,
             'group': self,
-            'account': account
         })
 
 
