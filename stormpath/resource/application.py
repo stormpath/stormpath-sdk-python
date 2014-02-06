@@ -66,8 +66,7 @@ class Application(DeleteMixin, Resource, SaveMixin, StatusMixin):
     def verify_password_reset_token(self, token):
         """Verify password reset by using a token.
 
-        :param token: password reset token extracted from the url
-
+        :param token: password reset token extracted from the URL.
         """
         return self.password_reset_tokens[token].account
 
