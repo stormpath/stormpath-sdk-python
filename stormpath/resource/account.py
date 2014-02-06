@@ -14,7 +14,7 @@ class Account(Resource, StatusMixin, AutoSaveMixin, DeleteMixin):
     """Account resource.
 
     More info in documentation:
-    https://www.stormpath.com/docs/python/product-guide#Accounts
+    http://docs.stormpath.com/python/product-guide/#accounts
     """
 
     STATUS_UNVERIFIED = 'UNVERIFIED'
