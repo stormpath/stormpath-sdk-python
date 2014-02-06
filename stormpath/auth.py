@@ -73,7 +73,9 @@ class Sauthc1Signer(AuthBase):
         for k, v in r.headers.items():
             if isinstance(k, bytes):
                 k = k.decode('utf-8')
+
             headers[k] = v
+
         r.headers.clear()
         r.headers.update(headers)
 
@@ -82,7 +84,6 @@ class Sauthc1Signer(AuthBase):
         date_stamp = time.strftime(DATE_FORMAT)
 
         nonce = str(uuid4())
-
         parsed_url = urlparse(r.url)
 
         # SAuthc1 requires that we sign the Host header so we
@@ -106,7 +107,8 @@ class Sauthc1Signer(AuthBase):
             canonical_query_string = self._encode_url(parsed_url.query)
 
         auth_headers = r.headers.copy()
-        # FIXME: REST API doesn't want this header in the signature
+
+        # FIXME: REST API doesn't want this header in the signature.
         if 'Content-Length' in auth_headers:
             del auth_headers['Content-Length']
 
@@ -142,7 +144,7 @@ class Sauthc1Signer(AuthBase):
             return hmac.new(byte_key, data.encode(), hashlib.sha256).digest()
 
         # SAuthc1 uses a series of derived keys, formed by hashing different
-        # pieces of data
+        # pieces of data.
         k_secret = "%s%s" % (AUTHENTICATION_SCHEME, self._secret)
         k_date = _sign(date_stamp, k_secret)
         k_nonce = _sign(nonce, k_date)
