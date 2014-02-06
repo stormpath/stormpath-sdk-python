@@ -86,4 +86,4 @@ class AccountList(CollectionResource):
         href = '/accounts/emailVerificationTokens/' + token
         data = self._store.create_resource(href, {})
 
-        return self.resource_class(properties=data, client=self._client)
+        return self.resource_class(client=self._client, properties=data)
