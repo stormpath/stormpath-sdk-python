@@ -350,12 +350,14 @@ class CollectionResource(Resource):
     def get(self, href, expand=None):
         if '/' not in href:
             href = self._get_create_path() + '/' + href
+
         return self.resource_class(self._client, href=href,
             expand=expand)
 
     def search(self, query):
         if isinstance(query, dict):
             return self.query(**query)
+
         return self.query(q=query)
 
     def order(self, order_by):
@@ -365,6 +367,7 @@ class CollectionResource(Resource):
         q = self._query or {}
         q.update(kwargs)
         q = {self.to_camel_case(k): v for k, v in q.items()}
+
         return self.__class__(self._client, self.href, query=q)
 
     def _get_create_path(self):
@@ -385,6 +388,11 @@ class CollectionResource(Resource):
         if expand:
             params.update({'expand': expand.get_params()})
 
-        return self.resource_class(self._client,
-            properties=self._store.create_resource(self._get_create_path(),
-                data, params=params))
+        return self.resource_class(
+            self._client,
+            properties = self._store.create_resource(
+                self._get_create_path(),
+                data,
+                params = params
+            )
+        )
