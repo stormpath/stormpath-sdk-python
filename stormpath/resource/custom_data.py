@@ -48,12 +48,13 @@ class CustomData(DeleteMixin, Resource, SaveMixin):
             key_href = self._get_key_href(key)
             if key_href in self._deletes:
                 self._deletes.remove(key_href)
+
             self.data[key] = value
 
     def __delitem__(self, key):
         self._ensure_data()
-
         del self.data[key]
+
         if not self.is_new():
             self._deletes.add(self._get_key_href(key))
 
@@ -97,4 +98,5 @@ class CustomData(DeleteMixin, Resource, SaveMixin):
             else:
                 if k not in self.__dict__['data']:
                     self.__dict__['data'][k] = v
+
         self._is_materialized = ('created_at' in self.__dict__)
