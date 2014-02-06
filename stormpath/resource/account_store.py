@@ -1,3 +1,6 @@
+"""Stormpath AccountStore resource mappings."""
+
+
 def AccountStore(client, properties=None):
     """Account store resource factory
 
