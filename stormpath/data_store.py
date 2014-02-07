@@ -1,8 +1,11 @@
+"""Data store abstractions."""
+
+
 from .cache.manager import CacheManager
 
 
 class DataStore(object):
-    """ An intermediary between Resource objects and the data they represent.
+    """An intermediary between Resource objects and the data they represent.
 
     It fetches the data either from the Stormpath service by using
     the :class:`stormpath.http.HttpExecutor` if the cache doesn't already have
@@ -11,9 +14,15 @@ class DataStore(object):
     DataStore but implemented separately with the intent of being easily
     replacable without changing the the rest of the codebase.
     """
-
-    CACHE_REGIONS = ('applications', 'directories', 'accounts', 'groups',
-        'groupMemberships', 'tenants', 'accountStoreMappings')
+    CACHE_REGIONS = (
+        'accounts',
+        'accountStoreMappings',
+        'applications',
+        'directories',
+        'groups',
+        'groupMemberships',
+        'tenants',
+    )
 
     def __init__(self, executor, cache_options=None):
         """
@@ -23,7 +32,8 @@ class DataStore(object):
 
         Example of a dictionary with all available options::
 
-                {'store': MemoryStore,
+            {
+                'store': MemoryStore,
                 'regions': {
                     'applications': {
                         'store': RedisStore,
@@ -31,15 +41,18 @@ class DataStore(object):
                         'tti': 300,
                         'store_opts': {
                             'host': 'localhost',
-                            'port': 6739}}
+                            'port': 6739,
+                        },
+                    },
                     'directories': {
                         'store': MemoryStore,
-                        'ttl': 60}}
-                }
+                        'ttl': 60,
+                    },
+                },
+            }
         """
-
-        self.executor = executor
         self.cache_manager = CacheManager()
+        self.executor = executor
 
         if cache_options is None:
             cache_options = {}
@@ -48,6 +61,7 @@ class DataStore(object):
             opts = cache_options.get(region, {})
             if 'store' not in opts and 'store' in cache_options:
                 opts['store'] = cache_options['store']
+
             self.cache_manager.create_cache(region, **opts)
 
     def _get_cache(self, href):
@@ -65,7 +79,7 @@ class DataStore(object):
             return NoCache()
 
         parts = href.split('/')
-        if parts[-2] in self.CACHE_REGIONS:  # we only care about instances
+        if parts[-2] in self.CACHE_REGIONS:  # We only care about instances.
             return self.cache_manager.get_cache(parts[-2]) or NoCache()
         else:
             return NoCache()
@@ -74,13 +88,13 @@ class DataStore(object):
         return self._get_cache(href).get(href)
 
     def _cache_put(self, href, data, new=True):
-
         resource_data = {}
         for name, value in data.items():
             if isinstance(value, dict) and 'href' in value:
                 v2 = {'href': value['href']}
                 if 'items' in value:
                     v2['items'] = []
+
                     for item in value['items']:
                         self._cache_put(item['href'], item)
                         v2['items'].append({
@@ -91,6 +105,7 @@ class DataStore(object):
                         self._cache_put(value['href'], value)
             else:
                 v2 = value
+
             resource_data[name] = v2
 
         self._get_cache(href).put(href, resource_data, new=new)
@@ -103,16 +118,19 @@ class DataStore(object):
         if data is None:
             data = self.executor.get(href, params=params)
             self._cache_put(href, data)
+
         return data
 
     def create_resource(self, href, data, params=None):
         data = self.executor.post(href, data, params=params)
         self._cache_put(href, data)
+
         return data
 
     def update_resource(self, href, data):
         data = self.executor.post(href, data)
         self._cache_put(href, data, new=False)
+
         return data
 
     def delete_resource(self, href):

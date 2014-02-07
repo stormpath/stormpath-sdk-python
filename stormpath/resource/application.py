@@ -12,7 +12,7 @@ from .login_attempt import LoginAttemptList
 from .password_reset_token import PasswordResetTokenList
 
 
-class Application(DeleteMixin, Resource, SaveMixin, StatusMixin):
+class Application(Resource, DeleteMixin, SaveMixin, StatusMixin):
     """Stormpath Application resource.
 
     More info in documentation:
@@ -44,13 +44,18 @@ class Application(DeleteMixin, Resource, SaveMixin, StatusMixin):
             'tenant': Tenant,
         }
 
-    def authenticate_account(self, login, password):
-        """Authenticate an Account against this Application.
+    def authenticate_account(self, login, password, account_store=None):
+        """Authenticate Account inside the Application.
 
-        :param login: Username or email address.
-        :param password: Unencrypted user password.
+        :param login: Username or email address
+
+        :param password: Unencrypted user password
+
+        :param account_store:
+            A specific :class:`stormpath.resource.account_store.AccountStore`
+            object to authenticate against (optional)
         """
-        return self.login_attempts.basic_auth(login, password).account
+        return self.login_attempts.basic_auth(login, password, account_store)
 
     def send_password_reset_email(self, email):
         """Send a password reset email.

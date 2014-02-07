@@ -1,7 +1,14 @@
-from .base import Resource, SaveMixin, DeleteMixin
+"""Stormpath CustomData resource mappings."""
 
 
-class CustomData(Resource, SaveMixin, DeleteMixin):
+from .base import (
+    DeleteMixin,
+    Resource,
+    SaveMixin,
+)
+
+
+class CustomData(Resource, DeleteMixin, SaveMixin):
     """CustomData Resource for custom user data.
 
     Resources have predefined fields that are useful to many applications,
@@ -10,11 +17,17 @@ class CustomData(Resource, SaveMixin, DeleteMixin):
 
     More info in documentation:
     http://docs.stormpath.com/rest/product-guide/#custom-data
-
     """
     readonly_attrs = (
-        'href', 'created_at', 'modified_at', 'meta', 'sp_meta', 'spmeta',
-        'ionmeta', 'ion_meta')
+        'created_at',
+        'href',
+        'ionmeta',
+        'ion_meta',
+        'meta',
+        'modified_at',
+        'spmeta',
+        'sp_meta',
+    )
 
     def __getitem__(self, key):
         if key not in self.data:
@@ -35,12 +48,13 @@ class CustomData(Resource, SaveMixin, DeleteMixin):
             key_href = self._get_key_href(key)
             if key_href in self._deletes:
                 self._deletes.remove(key_href)
+
             self.data[key] = value
 
     def __delitem__(self, key):
         self._ensure_data()
-
         del self.data[key]
+
         if not self.is_new():
             self._deletes.add(self._get_key_href(key))
 
@@ -84,4 +98,5 @@ class CustomData(Resource, SaveMixin, DeleteMixin):
             else:
                 if k not in self.__dict__['data']:
                     self.__dict__['data'][k] = v
+
         self._is_materialized = ('created_at' in self.__dict__)
