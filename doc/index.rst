@@ -3,8 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to stormpath-sdk-python's documentation!
-================================================
+Welcome to Stormpath Python SDK documentation!
+==============================================
 
 The Stormpath Python SDK allows any Python-based application to easily use the
 Stormpath user management service for all authentication and access control needs.
