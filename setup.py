@@ -98,7 +98,7 @@ classifiers = [
 ]
 
 setup(
-    name="stormpath-sdk",
+    name="stormpath",
     version=__version__,
     description="Stormpath SDK used to interact with the Stormpath REST API",
     author="Elder Crisostomo",
