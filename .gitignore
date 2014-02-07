@@ -27,6 +27,6 @@ MANIFEST
 *.swp
 
 # Sphinx
-/doc/_build/
-/doc/_static/
-/doc/_templates/
+docs/_build/
+docs/_static/
+docs/_templates/
