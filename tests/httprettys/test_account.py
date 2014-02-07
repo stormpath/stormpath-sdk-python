@@ -8,7 +8,7 @@ from httpretty import HTTPretty
 import json
 
 from stormpath.resource import (Directory, GroupList,
-    GroupMembership, GroupMembershipList, Resource)
+    GroupMembership, GroupMembershipList, Resource, Expansion)
 from stormpath.error import Error
 
 
@@ -432,6 +432,14 @@ class TestAccount(BaseTest):
         self.assertEqual(application.href, self.app_href)
         self.assertEqual(account.href, self.acc_href)
 
+        expansion = Expansion('account')
+        account = application.authenticate_account("USERNAME", "PAŠVORD",
+            expand=expansion)
+
+        self.assertEqual(HTTPretty.last_request.method, "POST")
+        self.assertEqual(HTTPretty.last_request.path,
+            "%s/%s?expand=account" % (self.app_path, "loginAttempts"))
+
         httpretty.register_uri(httpretty.GET,
             self.dir_href,
             body=json.dumps(self.dir_body),
@@ -439,7 +447,7 @@ class TestAccount(BaseTest):
 
         directory = self.client.directories.get(self.dir_href)
         account = application.authenticate_account(
-            "USERNAME", "PAŠVORD", directory)
+            "USERNAME", "PAŠVORD", account_store=directory)
 
         if isinstance(HTTPretty.last_request.body, bytes):
             req_body = json.loads(HTTPretty.last_request.body.decode())

@@ -44,18 +44,23 @@ class Application(Resource, DeleteMixin, SaveMixin, StatusMixin):
             'tenant': Tenant,
         }
 
-    def authenticate_account(self, login, password, account_store=None):
+    def authenticate_account(self, login, password, expand=None,
+            account_store=None):
         """Authenticate Account inside the Application.
 
         :param login: Username or email address
 
         :param password: Unencrypted user password
 
+        :param expand:
+            A :class:`stormpath.resource.base.Expansion` object (optional)
+
         :param account_store:
             A specific :class:`stormpath.resource.account_store.AccountStore`
             object to authenticate against (optional)
         """
-        return self.login_attempts.basic_auth(login, password, account_store)
+        return self.login_attempts.basic_auth(login, password, expand,
+            account_store)
 
     def send_password_reset_email(self, email):
         """Send a password reset email.

@@ -34,15 +34,15 @@ class LoginAttemptList(CollectionResource):
     """List of login data."""
     resource_class = AuthenticationResult
 
-    def basic_auth(self, login, password, account_store=None):
+    def basic_auth(self, login, password, expand, account_store=None):
         value = login + ':' + password
         value = b64encode(value.encode('utf-8')).decode('ascii')
         properties = {
             'type': 'basic',
-            'value': value
+            'value': value,
         }
 
         if account_store:
             properties['account_store'] = account_store
 
-        return self.create(properties)
+        return self.create(properties, expand=expand)
