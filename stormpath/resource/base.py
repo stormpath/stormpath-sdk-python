@@ -30,6 +30,7 @@ class Expansion(object):
             d['limit'] = limit
 
         self.items[attr] = d
+        return self
 
     def get_params(self):
         ret = []
@@ -85,7 +86,7 @@ class Resource(object):
 
     def __getattr__(self, name):
         if name == 'href':
-            return self.__dict__['href']
+            return self.__dict__.get('href')
 
         # If we already have it locally, no need to materialize the rest of
         # the resource.
@@ -361,7 +362,7 @@ class CollectionResource(Resource):
         return self.query(q=query)
 
     def order(self, order_by):
-        return self.query(orderBy=order_by)
+        return self.query(orderBy=self.to_camel_case(order_by))
 
     def query(self, **kwargs):
         q = self._query or {}

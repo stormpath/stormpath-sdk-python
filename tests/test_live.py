@@ -141,7 +141,8 @@ class LiveTest(unittest.TestCase):
         self.assertFalse(account_store_mapping.is_default_account_store)
 
         # test valid application authentication
-        account = application.authenticate_account(username, "xaiK3auc")
+        login_attempt = application.authenticate_account(username, "xaiK3auc")
+        account = login_attempt.account
         self.assertEqual(account.email, username + "@titan.com")
         self.assertEqual(account.middle_name, "Thomas")
 

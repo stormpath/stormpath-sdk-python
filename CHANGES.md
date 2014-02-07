@@ -1,5 +1,8 @@
 Version 1.0.0.beta.1
 --------------------
+
+- authenticate_account no longer returns an account object directly
+- Added support for accountStore specification when authenticating an account
 - Added custom data fields for groups and accounts
 
 Version 1.0.0.beta
@@ -14,7 +17,6 @@ Released on September 26, 2013
 - Implemented caching
 - Added ability to autocreate directory
 - Added entity expansion to create method and tenant resource
-
 
 Version 0.2.1
 -------------
