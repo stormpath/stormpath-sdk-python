@@ -21,6 +21,8 @@ If you'd like to view our more comprehensive Python guide (which walks through
 every possible use case), you should probably check out the official
 `Python SDK Product Guide <http://docs.stormpath.com/python/product-guide/>`_.
 
+For reference, the official Stormpath website can be found here:
+https://stormpath.com
 
 .. toctree::
    :maxdepth: 3
