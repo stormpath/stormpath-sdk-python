@@ -134,6 +134,11 @@ class LiveTest(unittest.TestCase):
             group_membership.account.email, username + "@titan.com")
         self.assertEqual(group_membership.group.name, group_name)
 
+        # test account group check
+        self.assertTrue(account.in_group(group.name))
+        self.assertTrue(account.in_group(group.href.split('/')[-1]))
+        self.assertFalse(account.in_group('omghax'))
+
         # test account store creation
         account_store_mapping = self.client.account_store_mappings.create({
             'application': application, 'account_store': directory})
@@ -141,7 +146,8 @@ class LiveTest(unittest.TestCase):
         self.assertFalse(account_store_mapping.is_default_account_store)
 
         # test valid application authentication
-        account = application.authenticate_account(username, "xaiK3auc")
+        login_attempt = application.authenticate_account(username, "xaiK3auc")
+        account = login_attempt.account
         self.assertEqual(account.email, username + "@titan.com")
         self.assertEqual(account.middle_name, "Thomas")
 

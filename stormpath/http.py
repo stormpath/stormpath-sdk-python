@@ -1,12 +1,12 @@
 """HTTP request handling utilities."""
 
 
-import json
 from collections import OrderedDict
+from json import dumps
 from requests import Session
-from .error import Error
 
 from stormpath import __version__ as STORMPATH_VERSION
+from .error import Error
 
 
 class HttpExecutor(object):
@@ -22,18 +22,18 @@ class HttpExecutor(object):
     :param auth: Authentication manager, like
         :class:`stormpath.auth.Sauthc1Signer`.
     """
-
     USER_AGENT = 'Stormpath-PythonSDK/' + STORMPATH_VERSION
 
-    def __init__(self, base_url, auth):
+    def __init__(self, base_url, auth, proxies=None):
 
-        self.session = Session()
         self.base_url = base_url
+        self.session = Session()
+        self.session.proxies = proxies or {}
         self.session.auth = auth
         self.session.headers.update({
             'Accept': 'application/json',
             'Content-Type': 'application/json',
-            'User-Agent': self.USER_AGENT
+            'User-Agent': self.USER_AGENT,
         })
 
     def request(self, method, url, data=None, params=None):
@@ -64,7 +64,7 @@ class HttpExecutor(object):
         return self.request('GET', url, params=params)
 
     def post(self, url, data, params=None):
-        return self.request('POST', url, data=json.dumps(data), params=params)
+        return self.request('POST', url, data=dumps(data), params=params)
 
     def delete(self, url):
         return self.request('DELETE', url)

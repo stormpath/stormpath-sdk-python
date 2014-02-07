@@ -406,7 +406,8 @@ class TestAccount(BaseTest):
         body = {
             "account": {
                 "href": self.acc_href
-            }
+            },
+            "attr": {"key": "value"}
         }
 
         httpretty.register_uri(httpretty.POST,
@@ -420,12 +421,14 @@ class TestAccount(BaseTest):
             content_type="application/json")
 
         application = self.client.applications.get(self.app_href)
-        account = application.authenticate_account("USERNAME", "PAŠVORD")
+        result = application.authenticate_account("USERNAME", "PAŠVORD")
+        account = result.account
 
         self.assertEqual(HTTPretty.last_request.method, "POST")
         self.assertEqual(HTTPretty.last_request.path,
             "%s/%s" % (self.app_path, "loginAttempts"))
 
+        self.assertEqual(result.attr, body['attr'])
         self.assertEqual(application.href, self.app_href)
         self.assertEqual(account.href, self.acc_href)
 
@@ -436,6 +439,25 @@ class TestAccount(BaseTest):
         self.assertEqual(HTTPretty.last_request.method, "POST")
         self.assertEqual(HTTPretty.last_request.path,
             "%s/%s?expand=account" % (self.app_path, "loginAttempts"))
+
+        httpretty.register_uri(httpretty.GET,
+            self.dir_href,
+            body=json.dumps(self.dir_body),
+            content_type="application/json")
+
+        directory = self.client.directories.get(self.dir_href)
+        account = application.authenticate_account(
+            "USERNAME", "PAŠVORD", account_store=directory)
+
+        if isinstance(HTTPretty.last_request.body, bytes):
+            req_body = json.loads(HTTPretty.last_request.body.decode())
+        elif isinstance(HTTPretty.last_request.body, str):
+            req_body = json.loads(HTTPretty.last_request.body)
+
+        self.assertEqual(req_body['accountStore'], {'href': directory.href})
+        self.assertEqual(HTTPretty.last_request.method, "POST")
+        self.assertEqual(HTTPretty.last_request.path,
+            "%s/%s" % (self.app_path, "loginAttempts"))
 
     @httpretty.activate
     def test_add_group(self):

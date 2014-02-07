@@ -10,7 +10,7 @@ from .base import (
 )
 
 
-class Account(AutoSaveMixin, DeleteMixin, Resource, StatusMixin):
+class Account(Resource, AutoSaveMixin, DeleteMixin, StatusMixin):
     """Account resource.
 
     More info in documentation:
@@ -40,13 +40,26 @@ class Account(AutoSaveMixin, DeleteMixin, Resource, StatusMixin):
         from .tenant import Tenant
 
         return {
-            'tenant': Tenant,
+            'custom_data': CustomData,
             'directory': Directory,
+            'email_verification_token': Resource,
             'groups': GroupList,
             'group_memberships': GroupMembershipList,
-            'email_verification_token': Resource,
-            'custom_data': CustomData
+            'tenant': Tenant,
         }
+
+    def in_group(self, group_name_or_id):
+        """Check to see if this Account is a member of the given Group.
+
+        :param group: A string representing either the Group name or Group ID.
+        """
+        for group in self.groups:
+            if group_name_or_id == group.name:
+                return True
+            elif '/' + group_name_or_id in group.href:
+                return True
+
+        return False
 
     def add_group(self, group):
         """Associate a Group with this Account.
