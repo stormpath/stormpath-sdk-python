@@ -136,6 +136,8 @@ class LiveTest(unittest.TestCase):
 
         # test account group check
         self.assertTrue(account.in_group(group.name))
+        self.assertTrue(account.in_group(group.href))
+        self.assertFalse(account.in_group('omghax'))
 
         # test account store creation
         account_store_mapping = self.client.account_store_mappings.create({
