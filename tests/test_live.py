@@ -136,7 +136,7 @@ class LiveTest(unittest.TestCase):
 
         # test account group check
         self.assertTrue(account.in_group(group.name))
-        self.assertTrue(account.in_group(group.href))
+        self.assertTrue(account.in_group(group.href.split('/')[-1]))
         self.assertFalse(account.in_group('omghax'))
 
         # test account store creation
