@@ -134,6 +134,9 @@ class LiveTest(unittest.TestCase):
             group_membership.account.email, username + "@titan.com")
         self.assertEqual(group_membership.group.name, group_name)
 
+        # test account group check
+        self.assertTrue(account.in_group(group.name))
+
         # test account store creation
         account_store_mapping = self.client.account_store_mappings.create({
             'application': application, 'account_store': directory})
