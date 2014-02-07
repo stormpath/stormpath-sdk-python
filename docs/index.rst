@@ -3,18 +3,19 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Stormpath Python SDK documentation!
-==============================================
 
-The Stormpath Python SDK allows any Python-based application to easily use the
+Welcome to the Stormpath Python SDK's Documentation!
+====================================================
+
+The Stormpath Python SDK allows any Python based application to easily use the
 Stormpath user management service for all authentication and access control needs.
 
-This documentation goes through the codebase of the SDK.
-The official web documentation that explains how to use the SDK can be found at
-https://www.stormpath.com/docs/python/product-guide.
+This documentation will walk you through everything you need to know to start
+using Stormpath in your Python application!
 
-A small quickstart is available at
-https://www.stormpath.com/docs/python/quickstart.
+If you'd like to view our more comprehensive Python guide (which walks through
+every possible use case), you should probably check out the official
+`Python SDK Product Guide <http://docs.stormpath.com/python/product-guide/>`_.
 
 
 .. toctree::
@@ -22,10 +23,10 @@ https://www.stormpath.com/docs/python/quickstart.
 
    stormpath
 
-Indices and tables
+
+Indices and Tables
 ==================
 
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-
