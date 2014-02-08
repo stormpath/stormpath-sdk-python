@@ -101,7 +101,7 @@ setup(
     name="stormpath",
     version=__version__,
     description="Stormpath SDK used to interact with the Stormpath REST API",
-    author="Elder Crisostomo",
+    author="Stormpath, Inc.",
     author_email="elder@stormpath.com",
     url="https://github.com/stormpath/stormpath-sdk-python",
     zip_safe=False,
