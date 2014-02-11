@@ -3,9 +3,14 @@ Version 1.0.0
 
 Released on February 11th, 2014.
 
+- Library no longer in BETA!
 - Added custom data support.
 - Added custom data for Group support.
 - PEP-8 fixes.
+- Error object now has a `user_message` attribute, which contains the
+  user-friendly error message from the API service.
+- Error object's `message` attribute now contains the developer friendly
+  message.
 - Adding HTTP proxy support to Clients.
 - Renaming PyPI package from stormpath-sdk -> stormpath.
 - Updating copyright notices.
