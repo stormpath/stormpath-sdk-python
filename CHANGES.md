@@ -4,8 +4,6 @@ Version 1.0.0
 Released on February 11th, 2014.
 
 - Library no longer in BETA!
-- Added custom data support.
-- Added custom data for Group support.
 - PEP-8 fixes.
 - Error object now has a `user_message` attribute, which contains the
   user-friendly error message from the API service.
@@ -15,16 +13,10 @@ Released on February 11th, 2014.
 - Renaming PyPI package from stormpath-sdk -> stormpath.
 - Updating copyright notices.
 - Updating PyPI contact information.
-
-
-Version 1.0.0.beta.1
---------------------
-
-- authenticate_account no longer returns an account object directly
-- Added support for accountStore specification when authenticating an account
-- Added custom data fields for groups and accounts
-- Support for login attempt expansion
-- Proxy support
+- `authenticate_account` no longer returns an account object directly.
+- Added support for accountStore specification when authenticating an account.
+- Added custom data fields for groups and accounts.
+- Added support for login attempt expansion.
 
 
 Version 1.0.0.beta
