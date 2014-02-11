@@ -7,7 +7,7 @@ import httpretty
 from httpretty import HTTPretty
 import json
 
-from stormpath.resource import (Directory, GroupList,
+from stormpath.resources import (Directory, GroupList,
     GroupMembership, GroupMembershipList, Resource, Expansion)
 from stormpath.error import Error
 

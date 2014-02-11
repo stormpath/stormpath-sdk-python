@@ -4,7 +4,7 @@ import httpretty
 from httpretty import HTTPretty
 import json
 
-from stormpath.resource import (AccountList, Directory, GroupMembership)
+from stormpath.resources import (AccountList, Directory, GroupMembership)
 
 
 class TestGroup(BaseTest):

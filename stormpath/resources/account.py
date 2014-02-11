@@ -65,10 +65,10 @@ class Account(Resource, AutoSaveMixin, DeleteMixin, StatusMixin):
         """Associate a Group with this Account.
 
         This creates a
-        :class:`stormpath.resource.group_membership.GroupMembership` resource
+        :class:`stormpath.resources.group_membership.GroupMembership` resource
         on the backend.
 
-        :param group: A :class:`stormpath.resource.group.Group` object.
+        :param group: A :class:`stormpath.resources.group.Group` object.
         """
         return self._client.group_memberships.create({
             'account': self,

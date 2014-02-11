@@ -5,7 +5,7 @@ from httpretty import HTTPretty
 import json
 import re
 
-from stormpath.resource import Expansion
+from stormpath.resources import Expansion
 
 
 class TestExpansion(BaseTest):

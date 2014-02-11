@@ -46,5 +46,4 @@ Subpackages
 .. toctree::
 
     stormpath.cache
-    stormpath.resource
-
+    stormpath.resources

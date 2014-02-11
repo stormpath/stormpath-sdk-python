@@ -4,7 +4,7 @@ import httpretty
 from httpretty import HTTPretty
 import json
 
-from stormpath.resource import CollectionResource
+from stormpath.resources import CollectionResource
 
 
 class TestTenant(BaseTest):
