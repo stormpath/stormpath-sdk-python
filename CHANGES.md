@@ -1,3 +1,16 @@
+Version 1.0.0
+-------------
+
+Released on February 11th, 2014.
+
+- Added custom data support.
+- Added custom data for Group support.
+- PEP-8 fixes.
+- Adding HTTP proxy support to Clients.
+- Renaming PyPI package from stormpath-sdk -> stormpath.
+- Updating copyright notices.
+- Updating PyPI contact information.
+
 Version 1.0.0.beta.1
 --------------------
 
