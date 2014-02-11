@@ -48,19 +48,6 @@ class Account(Resource, AutoSaveMixin, DeleteMixin, StatusMixin):
             'tenant': Tenant,
         }
 
-    def in_group(self, group_name_or_id):
-        """Check to see if this Account is a member of the given Group.
-
-        :param group: A string representing either the Group name or Group ID.
-        """
-        for group in self.groups:
-            if group_name_or_id == group.name:
-                return True
-            elif '/' + group_name_or_id in group.href:
-                return True
-
-        return False
-
     def add_group(self, group):
         """Associate a Group with this Account.
 
