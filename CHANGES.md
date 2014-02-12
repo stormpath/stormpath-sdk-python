@@ -1,3 +1,12 @@
+Version 1.0.1
+-------------
+
+Released on February 12, 2014.
+
+- Upgrading all documentation in the README.md.
+- Rewriting large portion of docs for clarity.
+
+
 Version 1.0.0
 -------------
 
