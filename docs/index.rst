@@ -22,6 +22,8 @@ https://stormpath.com
 What is Stormpath?
 ------------------
 
+TODO: Rewrite this.
+
 If you have no idea what Stormpath is -- don't worry!  Read the story below.
 
 A long time ago, in a galaxy far, far away, there lived a programmer named John.
