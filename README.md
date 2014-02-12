@@ -24,7 +24,7 @@ for more information.
 ## Quickstart Guide
 
 If you have not already done so, register as a developer on
-[Stormpath][https://stormpath.com/], and create (and download) an API Key pair
+[Stormpath](https://stormpath.com/), and create (and download) an API Key pair
 (this consists of an `APIKeyID` and an `APIKeySecret`).
 
 When you first create your API Key pair using the Stormpath interface, you'll be
