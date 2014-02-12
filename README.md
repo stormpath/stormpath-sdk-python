@@ -541,83 +541,118 @@ that act as a dictionary:
 
 ## Testing
 
-### Setup
+The Stormpath Python SDK is well tested.  Don't take our word on it though, run
+our test suite and see for yourself!
 
-The tested versions are Python 2.7, 3.2 and 3.3.
+We currently test against Python 2.7, 3.2 and 3.3.
 
-#### Testing with tox
-The simplest way is to install tox. Tox automatically tests the code on multiple versions of Python by creating virtualenvs:
 
-```sh
+### Testing with tox
+
+The simplest way is to run the test suite is to install
+[tox](http://tox.readthedocs.org/en/latest/).  Tox automatically tests the code
+on multiple versions of Python by creating virtualenvs.
+
+To get started, installed `tox`:
+
+```bash
 $ pip install tox
 ```
 
-There is a tox.ini file in the root folder of Stormpath SDK. You can modify it to suit your needs and run:
+There is a `tox.ini` file in the root folder of Stormpath SDK.  You can modify
+it to suit your needs, then run:
 
-```sh
+```bash
 $ tox
 ```
 
-#### Testing without tox
+To run the test suite.
 
-What is common in all tests is that our setup.py uses `pytest` to run tests and the tests themselves use `HTTPretty` with `unittest`. Python `mock` is also (sometimes) used but in Python 3.3 `mock` became part of the `unittest` module so you don't have to install it if you're using Python 3.3. The tests make sure the correct module is used.
 
-To install those dependencies manually, there is a `testdep` command that checks the Python version and installs required packages accordingly:
+### Testing without tox
 
-```sh
+What is common in all tests is that our `setup.py` uses
+[pytest](http://pytest.org/latest/) to run tests and the tests themselves use
+`HTTPretty` with `unittest`.  Python `mock` is also (sometimes) used, but in
+Python 3.3, `mock` became part of the `unittest` module so you don't have to
+install it if you're using Python 3.3.  The tests make sure the correct module
+is used.
+
+To install those dependencies manually, there is a `testdep` command that
+checks the Python version and installs required packages accordingly:
+
+```bash
 $ python setup.py testdep
 ```
 
 To run tests:
-```sh
+```bash
 $ python setup.py test
 ```
 
-#### Live testing
 
-All of the above methods use `mock` and `HTTPretty` and don't query Stormpath. That makes them fast and self-reliant. If you want to run tests that don't patch any of the methods, you have to set the following environment variables to working Stormpath credentials:
+### Live Testing
 
-```sh
+All of the above methods use `mock` and `HTTPretty` and don't query Stormpath.
+That makes them fast and self-reliant.  If you want to run tests that don't
+patch any of the methods, you have to set the following environment variables
+to working Stormpath credentials:
+
+```bash
 $ export STORMPATH_SDK_TEST_API_KEY_ID=YOUR_APIKEY_ID
 $ export STORMPATH_SDK_TEST_API_KEY_SECRET=YOUR_APIKEY_SECRET
 ```
 
-To run tests
-```sh
+To run the live tests against the Stormpath service, you can then run:
+
+```bash
 $ python setup.py livetest
 ```
 
-WARNING: Since the tests make live changes to Stormpath data, DO NOT run these tests in a production environment!
+**WARNING**: Since the tests make live changes to Stormpath data, **DO NOT** run
+these tests in a production environment!
 
 
 ## Contributing
 
-You can make your own contributions by forking the <code>development</code>
-branch, making your changes, and issuing pull-requests on the
-<code>development</code> branch.
+You can make your own contributions by forking the `development` branch of this
+repository, making your changes, and issuing pull requests on the `development`
+branch.
 
-### Building and installing package
+We regularly maintain our GitHub repostiory, and are quick about reviewing pull
+requests and accepting changes!
 
-To build and install the development branch yourself from the latest source:
 
-```
+### Building and Installing the Development Package
+
+To build and install the development branch yourself, you can do the following:
+
+```bash
 $ git clone git@github.com:stormpath/stormpath-sdk-python.git
 $ cd stormpath-sdk-python
-$ python setup.py install # if you want to install
-$ python setup.py sdist # if you want to build a package
+$ python setup.py develop # If you want to install the package for development.
 ```
 
-## Documentation
-To generate docs from docstrings you need to install `sphinx`:
 
-```sh
+## Documentation
+
+To generate our [Sphinx](http://sphinx-doc.org/) documentation, you'll need to
+first install `sphinx`:
+
+```bash
 $ pip install sphinx
 ```
 
-And then run:
-```sh
+Next, you'll want to run:
+
+```bash
 $ python setup.py docs
 ```
+
+To build the HTML documentation.  You can then open your browser and navigate to
+`docs/_build/html/index.html`, which should open the fully built HTML
+documentation!
+
 
 ## Quick Class Diagram
 
@@ -657,13 +692,13 @@ $ python setup.py docs
 +---------------------+            +--------------+
 ```
 
+
 ## Copyright & Licensing
 
 Copyright &copy; 2012, 2013, 2014 Stormpath, Inc. and contributors.
 
-This project is licensed under the [Apache 2.0 Open Source License](http://www.apache.org/licenses/LICENSE-2.0).
+This project is licensed under the
+[Apache 2.0 Open Source License](http://www.apache.org/licenses/LICENSE-2.0).
 
-For additional information, please see the full [Project Documentation](https://www.stormpath.com/docs/python/product-guide).
-
-  [stormpath]: http://stormpath.com/
-  [create-api-keys]: http://www.stormpath.com/docs/python/product-guide#AssignAPIkeys
+For additional information, please see the full
+[Project Documentation](https://www.stormpath.com/docs/python/product-guide).
