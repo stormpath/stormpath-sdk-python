@@ -338,153 +338,206 @@ instance, you can iterate through the following objects:
   [Tenant](http://docs.stormpath.com/rest/product-guide/#tenants).
 
 
-### Registering Accounts
+### Registering New Accounts
 
-Accounts are created on a directory instance:
+When creating new
+[Accounts](http://docs.stormpath.com/rest/product-guide/#accounts) in Stormpath,
+you have several options.
 
-  ```python
-  account = directory.accounts.create({
-    given_name: 'John',
-    surname: 'Smith',
-    email: 'john.smith@example.com',
-    username: 'johnsmith',
-    password: '4P@$$w0rd!'
-  })
-  ```
+There are only 4 required fields for each new
+[Account](http://docs.stormpath.com/rest/product-guide/#accounts) you create:
 
-  Directory account creation can take an additional flag to indicate if the account
-  can skip any registration workflow configured on the directory.
+- `given_name` - The user's first name.
+- `surname` - The user's last name.
+- `email` - The user's email address.
+- `password` - The user's plain text password -- this will be hashed and
+  securely stored when sent to Stormpath.
 
-  ```python
-  ## Will skip workflow, if any
-   account = directory.accounts.create({
-        'given_name': 'John',
-        'surname': 'Smith',
-        'email': 'frank@stormpath.com',
-        'username': 'johnsmith',
-        'password': 'Temp1234'
-  }, registration_workflow_enabled=False)
-  ```
+There are several other optional fields which can be used:
 
-If the directory has been configured with an email verification workflow
-and a non-Stormpath URL, you have to pass the verification token sent to
-the URL in a <code>sptoken</code> query parameter back to Stormpath to
-complete the workflow. This is done through the
-<code>verify_email_token</code> on the <code>accounts</code> collection.
+- `middle_name` - The user's middle name.
+- `status` - The user's status (can be one of: 'enabled', 'disabled',
+  'unverified').
+- `custom_data` - A dictionary of custom user data (up to 10MB, per user).
+- `username` - A username.
+
+If you have custom Stormpath workflows configured (rules that say what passwords
+are allowed, if email verification is required, etc.), you can optionally choose
+to create a new user account and **skip applying these workflow rules** by using
+the `registration_workflow_enabled` flag:
+
+```python
+# This example will skip over the normal workflow you've got configured, and
+# just create the user.
+account = directory.accounts.create({
+    'given_name': 'Michael',
+    'surname': 'Bay',
+    'middle_name': 'BOOM!',
+    'email': 'michael@bay.com',
+    'password': 'ILOVE3xpl0si0ns!!!!!',
+}, registration_workflow_enabled=False)
+```
+
+If the [Directory](http://docs.stormpath.com/rest/product-guide/#directories)
+has been configured with an email verification workflow and a non-Stormpath
+URL, you have to pass the verification token sent to the URL in a `sptoken`
+query parameter back to Stormpath to complete the workflow.  This is done
+through the `verify_email_token` on the `accounts` collection.
+
 
 ### Authentication
 
-Authentication is accomplished by passing a username or an email and a
-password to <code>authenticate_account</code> of an application we've
-registered on Stormpath. This will either return an <code>AuthenticationResult</code>
-instance if the credentials are valid, or raise a <code>stormpath.Error</code>
-otherwise. In the former case, you can get the <code>account</code>
-associated with the credentials.
+When you authenticate users, you can provide either the `username` OR `email`,
+and `password` fields.  This way you can accept registration using *only* email
+and password, username and password, or email, username, and password.
+
+When users are successfully authenticated, an `AuthenticationResult` object will
+be return, with the
+[Account](http://docs.stormpath.com/rest/product-guide/#accounts) attached.
+
+To check for successful authentication, you should do something like the
+following:
 
 ```python
+from stormpath.error import Error as StormpathError
+
 try:
-    account = application.authenticate_account('johnsmith', '4P@$$w0rd!').account
-except stormpath.Error as e:
-  #If credentials are invalid or account doesn't exist
-  print(e)
+    account = application.authenticate_account('username_or_email',
+    'password').account
+except StormpathError, err:
+    print 'Human friendly error message:', err.message
+    print 'Developer friendly error message:', err.developer_message
+except Exception, err:
+    print 'Something unexpected happened:', err
 ```
+
 
 ### Password Reset
 
-A password reset workflow, if configured on the directory the account is
-registered on, can be kicked off with the
-<code>send_password_reset_email</code> method on an application:
+A password reset workflow, if configured on the
+[Directory](http://docs.stormpath.com/rest/product-guide/#directories) the
+[Account](http://docs.stormpath.com/rest/product-guide/#accounts) is registered
+on, can be kicked off with the `send_password_reset_email` method on an
+[Application](http://docs.stormpath.com/rest/product-guide/#applications):
 
 ```python
 application.send_password_reset_email('john.smith@example.com')
 ```
 
-If the workflow has been configured to verify through a non-Stormpath
-URL, you can verify the token sent in the query parameter
-<code>sptoken</code> with the <code>verify_password_reset_token</code>
-method on the application.
+If the workflow has been configured to verify through a non-Stormpath URL, you
+can verify the token sent in the query parameter `sptoken` with the
+`verify_password_reset_token` method on the
+[Application](http://docs.stormpath.com/rest/product-guide/#applications).
 
-With the account acquired you can then update the password:
+With the [Account](http://docs.stormpath.com/rest/product-guide/#accounts)
+acquired you can then update the password:
 
 ```python
-  account.password = new_password
-  account.save()
+account.password = new_password
+account.save()
 ```
 
-_NOTE :_ Confirming a new password is left up to the web application
-code calling the Stormpath SDK. The SDK does not require confirmation.
+**NOTE**: Confirming a new password is left up to the web application code
+calling the Stormpath SDK.  The SDK does not require confirmation.
 
-### ACL through Groups
 
-Memberships of accounts in certain groups can be used as an
-authorization mechanism. As the <code>groups</code> collection property
-on an account instance is <code>iterable</code>, you can use any of
-that module's methods to determine if an account belongs to a specific
-group.
+### ACL Through Groups
 
-You can create groups and assign them to accounts using the Stormpath
-web console, or programmatically. Groups are created on directories:
+Memberships of [Accounts](http://docs.stormpath.com/rest/product-guide/#accounts)
+in certain [Groups](http://docs.stormpath.com/rest/product-guide/#groups) can be
+used as an authorization mechanism.  As the `groups` collection property on an
+[Account](http://docs.stormpath.com/rest/product-guide/#accounts) instance is
+iterable, you can use any of that module's methods to determine if an
+[Account](http://docs.stormpath.com/rest/product-guide/#accounts) belongs to a
+specific [Group](http://docs.stormpath.com/rest/product-guide/#groups).
+
+You can create [Groups](http://docs.stormpath.com/rest/product-guide/#groups)
+and assign them to
+[Accounts](http://docs.stormpath.com/rest/product-guide/#accounts) using the
+Stormpath web console, or programmatically 
+
+Creating a [Group](http://docs.stormpath.com/rest/product-guide/#groups) is
+easy, just call the `create` method from your
+[Directory](http://docs.stormpath.com/rest/product-guide/#directories) instance:
 
 ```python
-group = directory.groups.create({'name':'administrators'})
+group = directory.groups.create({'name': 'Administrators'})
 ```
 
 Group membership can be created by:
 
-* Explicitly creating a group membership resource with your client:
+* Explicitly creating a
+  [GroupMembership](http://docs.stormpath.com/rest/product-guide/#group-memberships)
+  resource with your client:
 
   ```python
   group_memebership = client.group_memberships.create(group, account)
   ```
 
-* Using the <code>add_group</code> method on the account instance:
+* Using the `add_group` method on the
+  [Account](http://docs.stormpath.com/rest/product-guide/#accounts) instance:
 
   ```python
   account.add_group(group)
   ```
 
-* Using the <code>add_account</code> method on the group instance:
+* Using the `add_account` method on the
+  [Group](http://docs.stormpath.com/rest/product-guide/#groups) instance:
 
   ```python
   group.add_account(account)
   ```
-### Managing custom data
 
-Groups and account have custom data fields that act as a dictionary:
+
+### Managing Custom Data
+
+[Groups](http://docs.stormpath.com/rest/product-guide/#groups) and
+[Accounts](http://docs.stormpath.com/rest/product-guide/#accounts) have
+[CustomData](http://docs.stormpath.com/rest/product-guide/#custom-data) fields
+that act as a dictionary:
 
 * Accessing custom data field:
+
   ```python
-  print(account.custom_data['birthDate'])
-  print(group.custom_data['foundationDate'])
+  print account.custom_data['favorite_color']
+  print group.custom_data['favorite_api_company']
   ```
 
-* Creating or updating a custom data field:
+* Creating or updating a
+  [CustomData](http://docs.stormpath.com/rest/product-guide/#custom-data) field:
+
   ```python
   account.custom_data['rank'] = 'Captain'
   account.custom_data.save()
+
   group.custom_data['affiliation'] = 'NCC-1701'
   group.custom_data.save()
   ```
 
-* Deleting a custom data field:
+* Deleting a
+  [CustomData](http://docs.stormpath.com/rest/product-guide/#custom-data) field:
+
   ```python
   del account.custom_data['rank']
   del group.custom_data['affiliation']
   ```
 
-* Saving custom data changes (creates, updates and deletes) to Stormpath:
-When deleting custom fields, the information is not synced with Stormpath until the custom_data object is saved by calling the `save` method. Also, saving groups and accounts automatically saves their custom data.
+* Saving [CustomData](http://docs.stormpath.com/rest/product-guide/#custom-data)
+  changes (creates, updates and deletes) to Stormpath only take place when `save()`
+  is explicitly called.
 
   ```python
   account.custom_data.save()
   group.custom_data.save()
   ```
-OR
+
+  OR
 
   ```python
   account.save()
   group.save()
   ```
+
 
 ## Testing
 
