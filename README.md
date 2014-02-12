@@ -251,25 +251,92 @@ until the `.save()` method is called.
 
 ## Common Uses
 
+Below you'll find information on using our Python SDK to accomplish commonly
+requested tasks.
+
+
 ### Accessing Resources
 
-Most of the work you do with Stormpath is done through the applications
-and directories you have registered. You use the client to access them
-with their REST URL:
+Most of the work you do with Stormpath is done through the
+[Applications](http://docs.stormpath.com/rest/product-guide/#applications) and
+[Directories](http://docs.stormpath.com/rest/product-guide/#directories) you
+have created.
+
+If you know what your
+[Application](http://docs.stormpath.com/rest/product-guide/#applications) or
+[Directory](http://docs.stormpath.com/rest/product-guide/#directories) `href`
+is, you can fetch the instance directly:
 
 ```python
 application = client.applications.get(application_url)
-
 directory = client.directories.get(directory_url)
 ```
 
-The <code>applications</code> and <code>directories</code> property on a
-client instance allows you to iterate
-and scan for resources via that interface.
+The `applications` and `directories` properties on the `client` instance allow
+you to iterate through *all* existing
+[Applications](http://docs.stormpath.com/rest/product-guide/#applications) and
+[Directories](http://docs.stormpath.com/rest/product-guide/#directories),
+respectively.
 
-Additional resources are <code>accounts</code>, <code>groups</code>,
-<code>group_memberships</code>, <code>account_store_mappings</code>, and the single reference to your
-<code>tenant</code>.
+```python
+for application in client.applications:
+    print '%s (%s)' % (application.name, application.href)
+```
+
+**NOTE**: If you have a lot of
+[Applications](http://docs.stormpath.com/rest/product-guide/#applications), the
+above code snippet will take a while to run, as it will iterate through *all*
+applications.
+
+There are, of course, other resources available to iterate through, as well!
+
+If you're on a [Client](http://docs.stormpath.com/rest/product-guide/#clients)
+instance, you can iterate through the following objects:
+
+- `applications` - Iterate through all
+  [Applications](http://docs.stormpath.com/rest/product-guide/#applications).
+
+- `directories` - Iterate through all
+  [Directories](http://docs.stormpath.com/rest/product-guide/#directories).
+
+- `tenant` - A **single** link to your current
+  [Tenant](http://docs.stormpath.com/rest/product-guide/#tenants).
+
+If you're on an
+[Application](http://docs.stormpath.com/rest/product-guide/#applications)
+instance, you can iterate through the following objects:
+
+- `accounts` - Iterate through all
+  [Accounts](http://docs.stormpath.com/rest/product-guide/#accounts).
+
+- `groups` - Iterate through all
+  [Groups](http://docs.stormpath.com/rest/product-guide/#groups).
+
+- `tenant` - A **single** link to your current
+  [Tenant](http://docs.stormpath.com/rest/product-guide/#tenants).
+
+If you're on a
+[Directory](http://docs.stormpath.com/rest/product-guide/#directories) instance,
+you can iterate through the following objects:
+
+- `accounts` - Iterate through all
+  [Accounts](http://docs.stormpath.com/rest/product-guide/#accounts).
+
+- `groups` - Iterate through all
+  [Groups](http://docs.stormpath.com/rest/product-guide/#groups).
+
+- `tenant` - A **single** link to your current
+  [Tenant](http://docs.stormpath.com/rest/product-guide/#tenants).
+
+If you're on a [Group](http://docs.stormpath.com/rest/product-guide/#groups)
+instance, you can iterate through the following objects:
+
+- `accounts` - Iterate through all
+  [Accounts](http://docs.stormpath.com/rest/product-guide/#accounts).
+
+- `tenant` - A **single** link to your current
+  [Tenant](http://docs.stormpath.com/rest/product-guide/#tenants).
+
 
 ### Registering Accounts
 
