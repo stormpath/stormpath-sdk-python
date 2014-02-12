@@ -23,151 +23,233 @@ for more information.
 
 ## Quickstart Guide
 
-1.  If you have not already done so, register as a developer on
-    [Stormpath][stormpath] and set up your API credentials and resources:
+If you have not already done so, register as a developer on
+[Stormpath][https://stormpath.com/], and create (and download) an API Key pair
+(this consists of an `APIKeyID` and an `APIKeySecret`).
 
-    1.  Create a [Stormpath][stormpath] developer account and [create your API Keys][create-api-keys]
-        downloading the <code>apiKey.properties</code> file into a <code>.stormpath</code>
-        folder under your local home directory.
+When you first create your API Key pair using the Stormpath interface, you'll be
+prompted to download a file named `apiKey.properties`.  This file contains your
+API Key pair information, which you'll need below.
 
-2.  **Create a client** using the API key properties file
 
-    ```python
-    from stormpath import Client
+### Create a Client
 
-    client = Client(api_key_file_location="/some/path/to/apiKey.properties")
-    ```
+Next, you'll want to create a Stormpath API client.  You can do this in one of
+two ways:
 
-3.  **List all your applications and directories**
+```python
+from stormpath.client import Client
 
-    ```python
-    for application in client.applications:
-        print("Application: ", application.name)
+# 1) By using the apiKey.properties file you previously downloaded.
+client = Client(api_key_file_location='/path/to/apiKey.properties')
 
-    for directory in client.directories:
-        print("Directory:", directory.name)
-    ```
+# 2) By specifying your API Key pair credentials manually.
+client = Client(
+    id = STORMPATH_API_KEY_ID,
+    secret = STORMPATH_API_KEY_SECRET,
+)
+```
 
-4.  **Get access to the specific application and directory** using the
-    URLs you acquired above.
+**NOTE**: Once you've created a client, you can use it for the life of your
+application.  There's no need to recreate a new client for each new request --
+the client is smart, and will smartly handle SDK requests.
 
-    ```python
-    application = client.applications.get("https://api.stormpath.com/v1/applications/APP_UID")
 
-    directory = client.directories.get("https://api.stormpath.com/v1/directories/DIR_UID")
-    ```
+### List Your Applications and Directories
 
-5.  **Create an application** and autocreate a directory as the login source.
+To view a list of all your Stormpath
+[Applications](http://docs.stormpath.com/rest/product-guide/#applications) and
+[Directories](http://docs.stormpath.com/rest/product-guide/#directories), you
+can easily iterate through the `client.applications` and `client.directories`
+generators show below:
 
-    ```python
-    account = client.applications.create({
-            'name':'Holodeck',
-            'description': "Recreational facility",
-            }, create_directory=True)
-    ```
+```python
+for application in client.applications:
+    print 'Application (name):', application.name
+    print 'Application (href):', application.href
 
-6.  **Create an account for a user** on the directory.
+for directory in client.directories:
+    print 'Directory (name):', directory.name
+    print 'Directory (href):', directory.href
+```
 
-    ```python
-    account = application.accounts.create({
-            'given_name':'John',
-            'surname':'Smith',
-            'email':'john.smith@example.com',
-            'username':'johnsmith',
-            'password':'4P@$$w0rd!'
-            })
-    ```
 
-7.  **Update an account**
+### Retrieve a Given Application and Directory
 
-    ```python
-    account.given_name = 'Johnathan'
-    account.middle_name = 'A.'
-    account.save()
-    ```
+If you know the full
+[Application](http://docs.stormpath.com/rest/product-guide/#applications) and
+[Directory](http://docs.stormpath.com/rest/product-guide/#directories) `href`
+(like the ones show in the previous example), you can easily retrieve the
+`application` and `directory` objects directly, like so:
 
-8.  **Authenticate the Account** for use with an application:
+```python
+application = client.applications.get('https://api.stormpath.com/v1/application/<uid>')
+directory = client.directories.get('https://api.stormpath.com/v1/directories/<uid>')
+```
 
-    ```python
-    try:
-        result = application.authenticate_account('johnsmith', '4P@$$w0rd!')
-    except stormpath.Error as e:
-        print(e)
-    ```
+Easy, right?
 
-9.  **Send a password reset request**
 
-    ```python
-    application.send_password_reset_email('john.smith@example.com')
-    ```
+### Create an Application
 
-10.  **Create a group** in a directory
+As you can probably guess, creating an
+[Application](http://docs.stormpath.com/rest/product-guide/#applications) is
+also simple business.
 
-    ```python
-    directory.groups.create({'name':'Admins'})
-    ```
+The example below shows you how to create an
+[Application](http://docs.stormpath.com/rest/product-guide/#applications) by
+itself, **or**, if you want, an
+[Application](http://docs.stormpath.com/rest/product-guide/#applications) and a
+[Directory](http://docs.stormpath.com/rest/product-guide/#directories) together!
 
-11.  **Add the account to the group**
+The benefits to creating them at the same time is that all the association stuff
+is handled automatically!
 
-    ```python
-    group.add_account(account)
-    ```
+```python
+# Create an Application by itself.
+application = client.applications.create({
+    'name': 'Instagram',
+    'description': 'A place to post photos of your food.',
+})
 
-12. **Modify your custom data**
+# Create an Application AND Directory.
+application = client.applications.create({
+    'name': 'Instagram',
+    'description': 'A place to post photos of your food.',
+}, create_directory=True)
+```
 
-    ```python
-    print(account.custom_data['birthDate'])
-    account.custom_data['rank'] = 'Captain'
-    account.custom_data.save()
+
+### Create an Account in an Application
+
+Now that you've (hopefully!) already created an
+[Application](http://docs.stormpath.com/rest/product-guide/#applications) and
+associated
+[Directory](http://docs.stormpath.com/rest/product-guide/#directories), we can
+now move on to creating a user
+[Account](http://docs.stormpath.com/rest/product-guide/#accounts).
+
+You can create a new
+[Account](http://docs.stormpath.com/rest/product-guide/#accounts) on either an
+[Application](http://docs.stormpath.com/rest/product-guide/#applications) or
+[Directory](http://docs.stormpath.com/rest/product-guide/#directories) instance:
+
+```python
+# Create a new Account on an Application instance.
+emusk = application.accounts.create({
+    'given_name': 'Elon',
+    'surname': 'Musk',
+    'email': 'emusk@spacex.com',
+    'password': 'KINGofSPACE!W00',
+})
+
+# Create a new Account on a Directory instance.
+pgraham = directory.accounts.create({
+    'given_name': 'Paul',
+    'surname': 'Graham',
+    'email': 'paul@ycombinator.com',
+    'username': 'pg',
+    'password': 'STARTUPSar3th3b3sT!',
+})
+```
+
+
+### Update an Account
+
+Once you have a few
+[Accounts](http://docs.stormpath.com/rest/product-guide/#accounts) created,
+updating them is equally simple:
+
+```python
+pgraham.middle_name = 'Iceman'
+pgraham.save()
+```
+
+
+### Authenticate an Account
+
+Now that you have some user
+[Accounts](http://docs.stormpath.com/rest/product-guide/#accounts), we'll cover
+how you can securely check a user's credentials:
+
+```python
+from stormpath.error import Error as StormpathError
+
+try:
+    auth_attempt = applicatoin.authenticate_account('pg', 'STARTUPSar3th3b3sT!')
+except StormpathError, err:
+    print 'Human friendly error message:', err.message
+    print 'Developer friendly error message:', err.developer_message
+```
+
+
+### Send a Password Reset Email
+
+It's often very useful to be able to reset a user's account password.  Doing
+this is simple using the `send_password_reset_email` method:
+
+```python
+application.send_password_reset_email('emusk@spacex.com')
+```
+
+
+### Create a Group
+
+In Stormpath, the best way to think about roles and permissions is with
+[Groups](http://docs.stormpath.com/rest/product-guide/#groups).
+[Groups](http://docs.stormpath.com/rest/product-guide/#groups) allow you to
+categorize [Accounts](http://docs.stormpath.com/rest/product-guide/#accounts),
+and build complex permissions systems.
+
+Creating a new [Group](http://docs.stormpath.com/rest/product-guide/#groups) is
+easy:
+
+```python
+directory.groups.create({
+    'name': 'Administrators',
+    'description': 'This group holds all Administrator accounts with *full* system access.',
+})
+```
+
+
+### Add an Account to a Group
+
+To add an [Account](http://docs.stormpath.com/rest/product-guide/#accounts) to a
+[Group](http://docs.stormpath.com/rest/product-guide/#groups), just do the
+following:
+
+```python
+group.add_account(pgraham)
+```
+
+**NOTE**: An [Account](http://docs.stormpath.com/rest/product-guide/#accounts)
+may belong to an infinite number of
+[Groups](http://docs.stormpath.com/rest/product-guide/#groups).
+
+
+### Store Custom Account Data
+
+One of the newest (and most popular) of Stormpath's features is the ability to
+store variable data with each
+[Account](http://docs.stormpath.com/rest/product-guide/#accounts) instance.
+
+The example below stores some custom data:
+
+```python
+pgraham.custom_data['favorite_company'] = 'Stormpath'
+pgraham.custom_data['millions_invested'] = 99.999999
+pgraham.custom_data['billions_acquired'] = 5
+pgraham.custom_data['favorite_movie'] = 'The Lion King'
+pgraham.custom_data.save()
+
+print 'All custom data:', dict(pgraham.custom_data)
+```
+
+**NOTE**: None of the custom data entered above is actually saved to Stormpath
+until the `.save()` method is called.
+
 
 ## Common Uses
-
-### Creating a client
-
-All Stormpath features are accessed through a
-<code>stormpath.Client</code> instance, or a resource
-created from one. A client needs an API key (made up of an _id_ and a
-_secret_) from your Stormpath developer account to manage resources
-on that account. That API key can be specified any number of ways
-in the hash of values passed on Client initialization:
-
-* The location of API key properties file:
-
-  ```python
-  client = stormpath.Client(api_key_file_location='/some/path/to/apiKey.properties')
-  ```
-
-  You can even identify the names of the properties to use as the API
-  key id and secret. For example, suppose your properties were:
-
-  ```
-  foo=APIKEYID
-  bar=APIKEYSECRET
-  ```
-
-  You could load it with the following parameters:
-
-  ```python
-  client = stormpath.Client(
-      api_key_file_location='/some/path/to/apiKey.properties',
-      api_key_id_property_name='foo',
-      api_key_secret_property_name='bar')
-  ```
-
-* By explicitly setting the API key id and secret:
-
-  ```python
-  client = stormpath.Client(id=api_id, secret=api_secret)
-  ```
-
-* Passing in an APIKey dictionary:
-
-  ```python
-  client = stormpath.Client(api_key={
-      'id': api_id,
-      'secret': api_secret
-  })
-  ```
 
 ### Accessing Resources
 
