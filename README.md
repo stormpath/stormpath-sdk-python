@@ -9,9 +9,17 @@ your application a painless, and even enjoyable process.
 
 ## Install
 
-```sh
+To get started, install the `stormpath` library using
+[Pip](http://www.pip-installer.org/en/latest/).
+
+```bash
 $ pip install stormpath
 ```
+
+If this doesn't work, you might need to install `pip` on your computer.  See the
+[Pip installation guide](http://www.pip-installer.org/en/latest/installing.html)
+for more information.
+
 
 ## Quickstart Guide
 
