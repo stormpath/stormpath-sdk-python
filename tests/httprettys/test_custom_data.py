@@ -5,7 +5,7 @@ import httpretty
 from httpretty import HTTPretty
 import json
 
-from stormpath.resource import CustomData
+from stormpath.resources import CustomData
 
 
 class TestAccount(BaseTest):

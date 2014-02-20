@@ -3,7 +3,7 @@ try:
     from mock import MagicMock, patch
 except ImportError:
     from unittest.mock import MagicMock, patch
-from stormpath.resource.base import (Expansion, Resource, CollectionResource,
+from stormpath.resources.base import (Expansion, Resource, CollectionResource,
     SaveMixin, DeleteMixin, AutoSaveMixin)
 from stormpath.client import Client
 

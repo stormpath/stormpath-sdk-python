@@ -4,8 +4,8 @@ from uuid import uuid4
 
 from stormpath.client import Client
 from stormpath.error import Error
-from stormpath.resource.group_membership import GroupMembership
-from stormpath.resource.base import Expansion
+from stormpath.resources.group_membership import GroupMembership
+from stormpath.resources.base import Expansion
 
 
 class LiveTest(unittest.TestCase):
@@ -133,11 +133,6 @@ class LiveTest(unittest.TestCase):
         self.assertEqual(
             group_membership.account.email, username + "@titan.com")
         self.assertEqual(group_membership.group.name, group_name)
-
-        # test account group check
-        self.assertTrue(account.in_group(group.name))
-        self.assertTrue(account.in_group(group.href.split('/')[-1]))
-        self.assertFalse(account.in_group('omghax'))
 
         # test account store creation
         account_store_mapping = self.client.account_store_mappings.create({

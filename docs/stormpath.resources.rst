@@ -1,17 +1,17 @@
-resource Package
-================
+resources Package
+=================
 
-:mod:`resource` Package
------------------------
+:mod:`resources` Package
+------------------------
 
-.. automodule:: stormpath.resource
+.. automodule:: stormpath.resources
     :members:
     :show-inheritance:
 
 :mod:`account` Module
 ---------------------
 
-.. automodule:: stormpath.resource.account
+.. automodule:: stormpath.resources.account
     :members:
     :show-inheritance:
 
@@ -25,7 +25,7 @@ resource Package
 :mod:`application` Module
 -------------------------
 
-.. automodule:: stormpath.resource.application
+.. automodule:: stormpath.resources.application
     :members:
     :show-inheritance:
 
@@ -39,42 +39,42 @@ resource Package
 :mod:`directory` Module
 -----------------------
 
-.. automodule:: stormpath.resource.directory
+.. automodule:: stormpath.resources.directory
     :members:
     :show-inheritance:
 
 :mod:`group` Module
 -------------------
 
-.. automodule:: stormpath.resource.group
+.. automodule:: stormpath.resources.group
     :members:
     :show-inheritance:
 
 :mod:`group_membership` Module
 ------------------------------
 
-.. automodule:: stormpath.resource.group_membership
+.. automodule:: stormpath.resources.group_membership
     :members:
     :show-inheritance:
 
 :mod:`login_attempt` Module
 ---------------------------
 
-.. automodule:: stormpath.resource.login_attempt
+.. automodule:: stormpath.resources.login_attempt
     :members:
     :show-inheritance:
 
 :mod:`password_reset_token` Module
 ----------------------------------
 
-.. automodule:: stormpath.resource.password_reset_token
+.. automodule:: stormpath.resources.password_reset_token
     :members:
     :show-inheritance:
 
 :mod:`tenant` Module
 --------------------
 
-.. automodule:: stormpath.resource.tenant
+.. automodule:: stormpath.resources.tenant
     :members:
     :show-inheritance:
 

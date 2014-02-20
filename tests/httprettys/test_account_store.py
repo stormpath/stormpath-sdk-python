@@ -4,9 +4,9 @@ import httpretty
 from httpretty import HTTPretty
 import json
 
-from stormpath.resource.account_store_mapping import AccountStoreMapping
-from stormpath.resource.application import Application
-from stormpath.resource.directory import Directory
+from stormpath.resources.account_store_mapping import AccountStoreMapping
+from stormpath.resources.application import Application
+from stormpath.resources.directory import Directory
 
 
 class TestAccountStore(BaseTest):

@@ -1,5 +1,5 @@
 #
-# Copyright 2012, 2013 Stormpath, Inc.
+# Copyright 2012 - 2014 Stormpath, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -92,51 +92,54 @@ class DocCommand(BaseCommand):
 # python setup.py install
 
 classifiers = [
-    "Programming Language :: Python",
-    "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 2",
+    'Programming Language :: Python',
+    'Programming Language :: Python :: 2',
+    'Programming Language :: Python :: 3',
 ]
 
 setup(
-    name="stormpath-sdk",
-    version=__version__,
-    description="Stormpath SDK used to interact with the Stormpath REST API",
-    author="Elder Crisostomo",
-    author_email="elder@stormpath.com",
-    url="https://github.com/stormpath/stormpath-sdk-python",
-    zip_safe=False,
-    keywords=["stormpath", "authentication"],
-    install_requires=["requests>=1.1.0"],
-    packages=find_packages(),
-    classifiers=[
-        "Development Status :: 4 - Beta",
-        "Intended Audience :: Developers",
-        "License :: OSI Approved :: Apache Software License",
-        "Operating System :: OS Independent",
-        "Topic :: Security",
-        "Topic :: Software Development :: Libraries :: Python Modules",
-        "Topic :: Software Development :: Libraries",
-        ].extend(classifiers),
-    cmdclass={
+    name = 'stormpath',
+    version = __version__,
+    description = 'Official Stormpath SDK, used to interact with the Stormpath REST API.',
+    author = 'Stormpath, Inc.',
+    author_email = 'python@stormpath.com',
+    url = 'https://github.com/stormpath/stormpath-sdk-python',
+    zip_safe = False,
+    keywords = ['stormpath', 'authentication', 'users', 'security'],
+    install_requires = ['requests>=1.1.0'],
+    packages = find_packages(),
+    classifiers = [
+        'Development Status :: 5 - Production/Stable',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: Apache Software License',
+        'Operating System :: OS Independent',
+        'Topic :: Security',
+        'Topic :: Software Development :: Libraries :: Python Modules',
+        'Topic :: Software Development :: Libraries',
+    ].extend(classifiers),
+    cmdclass = {
         'test': TestCommand,
         'livetest': LiveTestCommand,
         'testdep': TestDepCommand,
-        'docs': DocCommand
+        'docs': DocCommand,
     },
     long_description="""\
     Stormpath SDK
     -------------
 
     DESCRIPTION
+
     The Stormpath Python SDK allows any Python-based application to easily use
     the Stormpath user management service for all authentication and
     access control needs.
 
     When you make SDK method calls, the calls are translated into HTTPS
-    requests to the Stormpath REST+JSON API. The Stormpath Python SDK therefore
-    provides a clean object-oriented paradigm natural to Python developers and
+    requests to the Stormpath REST+JSON API. The Stormpath Python SDK provides
+    a clean object-oriented paradigm natural to Python developers and
     alleviates the need to know how to make REST+JSON requests.
 
-    LICENSE The Stormpath Python SDK is distributed under the
-    Apache Software License.
-    """)
+    LICENSE
+
+    The Stormpath Python SDK is distributed under the Apache Software License.
+    """,
+)

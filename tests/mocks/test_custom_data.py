@@ -4,7 +4,7 @@ try:
 except ImportError:
     from unittest.mock import MagicMock, patch
 
-from stormpath.resource.custom_data import CustomData
+from stormpath.resources.custom_data import CustomData
 
 
 class TestCustomData(TestCase):
@@ -122,7 +122,7 @@ class TestCustomData(TestCase):
         self.assertEqual(quux, 'a-little-corgi')
         self.assertEqual(d.data, props)
 
-    @patch('stormpath.resource.base.Resource._ensure_data')
+    @patch('stormpath.resources.base.Resource._ensure_data')
     def test_non_materialized_property_is_ensured(self, _ensure_data):
         d = CustomData(MagicMock(), href='test/resource')
 
@@ -144,7 +144,7 @@ class TestCustomData(TestCase):
         ds.delete_resource.assert_any_call('test/resource/bar')
         self.assertEqual(ds.delete_resource.call_count, 2)
 
-    @patch('stormpath.resource.base.Resource.is_new')
+    @patch('stormpath.resources.base.Resource.is_new')
     def test_del_doesnt_delete_if_new_resource(self, is_new):
         is_new.return_value = True
         ds = MagicMock()

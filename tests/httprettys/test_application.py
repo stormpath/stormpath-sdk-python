@@ -4,7 +4,7 @@ import httpretty
 from httpretty import HTTPretty
 import json
 
-from stormpath.resource import (Account, AccountList,
+from stormpath.resources import (Account, AccountList,
     GroupList, PasswordResetTokenList)
 from stormpath.error import Error as StormpathError
 
