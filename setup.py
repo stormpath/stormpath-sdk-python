@@ -79,7 +79,7 @@ class DocCommand(BaseCommand):
 
     def run(self):
         try:
-            os.chdir('doc')
+            os.chdir('docs')
             ret = os.system('make html')
             sys.exit(ret)
         except OSError as e:

@@ -18,7 +18,7 @@ resources Package
 :mod:`account_store` Module
 ---------------------------
 
-.. automodule:: stormpath.resource.account_store
+.. automodule:: stormpath.resources.account_store
     :members:
     :show-inheritance:
 
@@ -32,7 +32,7 @@ resources Package
 :mod:`custom_data` Module
 -------------------------
 
-.. automodule:: stormpath.resource.custom_data
+.. automodule:: stormpath.resources.custom_data
     :members:
     :show-inheritance:
 
