@@ -15,10 +15,24 @@ resources Package
     :members:
     :show-inheritance:
 
+:mod:`account_store` Module
+---------------------------
+
+.. automodule:: stormpath.resources.account_store
+    :members:
+    :show-inheritance:
+
 :mod:`application` Module
 -------------------------
 
 .. automodule:: stormpath.resources.application
+    :members:
+    :show-inheritance:
+
+:mod:`custom_data` Module
+-------------------------
+
+.. automodule:: stormpath.resources.custom_data
     :members:
     :show-inheritance:
 
