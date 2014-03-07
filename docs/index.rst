@@ -74,7 +74,7 @@ Over time, John received more and more requests from the client:
 - Requests for user data were becoming slow due to increased usage.
 
 After spending many days customizing his user management software, John couldn't
-help but think "Wow, this user management stuff is quite tricky."
+help but think *"Wow, this user management stuff is harder than I thought."*
 
 After spending a lot of time customizing the client's user management software,
 John found `Stormpath <https://stormpath.com>`_, and was happy.
