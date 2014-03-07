@@ -56,8 +56,8 @@ slowness.
 When John looked into the issue, he realized that each user request was hitting the
 `users` table to check the user's credentials, so John implemented a new `sessions`
 table, and used his framework's libraries to support user sessions to lessen the load
-on the database, and speed up user requests -- and the client was happy.  "This
-is becoming a bit of a pain.", John thought.
+on the database, and speed up user requests -- and the client was happy.  *"This
+is becoming a bit of a pain."*, John thought.
 
 As time passed, and the client continued to have more and more users sign up for
 the website.  Before too long, the client asked John for help: users needed to
