@@ -94,10 +94,20 @@ and the client was happy that their website was now faster, more secure, and
 site).
 
 
-.. toctree::
-   :maxdepth: 3
+Table of Contents
+=================
 
-   stormpath
+.. toctree::
+    :maxdepth: 3
+
+
+API Documentation
+=================
+
+.. toctree::
+    :maxdepth: 3
+
+    stormpath
 
 
 Indices and Tables
