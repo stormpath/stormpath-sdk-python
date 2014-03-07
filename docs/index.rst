@@ -40,8 +40,8 @@ user accounts on the website was to create a new database table for the users
 and their data.
 
 John developed a new `users` table, then used his framework's built in
-authentication library to log users in and out of the website.  "This is not so
-bad.", John thought.
+authentication library to log users in and out of the website.  *"This is not so
+bad."*, John thought.
 
 Then John started working on the email verification problem.  After a while,
 John decided the best way to handle email verification was to modify his `users`
