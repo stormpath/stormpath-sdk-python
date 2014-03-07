@@ -21,7 +21,7 @@ https://stormpath.com
 
 
 What is Stormpath?
-------------------
+==================
 
 If you have no idea what Stormpath is -- don't worry!  Read the story below.
 
