@@ -47,8 +47,8 @@ Then John started working on the email verification problem.  After a while,
 John decided the best way to handle email verification was to modify his `users`
 table and add two new columns: `verified` and `verification_token`.  John then
 implemented a custom solution, and within a few days was able to ship the new
-user system into production -- and the client was happy.  "This was a bit more
-work, but not so bad.", John thought.
+user system into production -- and the client was happy.  *"This was a bit more
+work, but not so bad."*, John thought.
 
 Several days later, the client told John that users were complaining about website
 slowness.
