@@ -41,3 +41,28 @@ keys that allow you to communicate with Stormpath.
 Stormpath allows you to have as many API key pairs as you'd like -- you can add
 and remove them at any time.  This allows you to maintain high levels of access
 security by periodically rotating API key pairs.
+
+
+Create a Client
+---------------
+
+The first step in actually connecting to Stormpath and getting stuff done is to
+create a ``client`` object.  This object is responsible for handling all
+connections to Stormpath -- and it does this very well!
+
+Create a client like so::
+
+    from os import environ
+    from os.path import expanduser
+
+    from stormpath.client import Client
+
+
+    # Method 1: Create the client with your apiKey.properties file.
+    client = Client(api_key_file_location=expanduser('~/.stormpath/apiKey.properties'))
+
+    # Method 2: Create the client using environment variables.
+    client = Client(
+        id = environ.get('STORMPATH_API_KEY_ID'),
+        secret = environ.get('STORMPATH_API_KEY_SECRET'),
+    )
