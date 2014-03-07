@@ -44,7 +44,7 @@ class Client(object):
 
     def __init__(self, cache_options=None, expand=None,
             proxies=None, **auth_kwargs):
-        executor = HttpExecutor(self.BASE_URL, Auth(**auth_kwargs).signer,
+        executor = HttpExecutor(self.BASE_URL, Auth(**auth_kwargs).scheme,
             proxies)
         self.data_store = DataStore(executor, cache_options)
         self.tenant = Tenant(client=self, href='/tenants/current',
