@@ -3,7 +3,8 @@ Stormpath Python SDK (stormpath)
 
 *The official Stormpath SDK for Pythonistas!*
 
-**<logo here>**
+.. image:: assets/images/stormpath-logo.png
+    :alt: Stormpath Logo
 
 The Stormpath Python SDK allows any Python based application to easily use the
 Stormpath user management service for all authentication and access control needs.
