@@ -109,6 +109,8 @@ advanced users.  Regardless of your user needs, Stormpath can help.
 .. toctree::
     :maxdepth: 3
 
+    installation
+
 
 API Documentation
 =================
