@@ -50,7 +50,7 @@ The first step in actually connecting to Stormpath and getting stuff done is to
 create a ``client`` object.  This object is responsible for handling all
 connections to Stormpath -- and it does this very well!
 
-Create a client like so::
+Create a ``client`` like so::
 
     from os import environ
     from os.path import expanduser
