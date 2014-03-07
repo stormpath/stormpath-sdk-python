@@ -37,3 +37,7 @@ keys that allow you to communicate with Stormpath.
       directory (``~/.stormpath/apiKey.properties``).
     - Store these credentials as environment variables named
       ``STORMPATH_API_KEY_ID`` and ``STORMPATH_API_KEY_SECRET``.
+
+Stormpath allows you to have as many API key pairs as you'd like -- you can add
+and remove them at any time.  This allows you to maintain high levels of access
+security by periodically rotating API key pairs.
