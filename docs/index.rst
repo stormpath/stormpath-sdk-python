@@ -93,6 +93,9 @@ and the client was happy that their website was now faster, more secure, and
 *more affordable* (since they required less of John's time to maintain their
 site).
 
+**Stormpath is a secure user management and authentication API service that can
+be easily plugged into any Python application.**
+
 
 Table of Contents
 =================
