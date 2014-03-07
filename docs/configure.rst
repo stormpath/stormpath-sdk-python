@@ -1,5 +1,5 @@
-Configuration
-=============
+Configure
+=========
 
 Now that you've got ``stormpath`` installed, let's get you set up!
 
