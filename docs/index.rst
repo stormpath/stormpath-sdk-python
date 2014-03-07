@@ -30,7 +30,7 @@ If you have no idea what Stormpath is -- don't worry!  Read the story below.
 A long time ago, in a galaxy far, far away, there lived a programmer named John.
 John was a happy developer, and built many websites for his clients.
 
-One day, John got a reauest from a client to build user account support into
+One day, John got a request from a client to build user account support into
 their application.  This client wanted to allow users on the website to create
 accounts, verify these accounts via email, and securely manage these users
 (login, logout, etc.).
