@@ -65,8 +65,8 @@ store various bits of application information.
 
 John took a look at the system, and added a new table to his database, named
 `user_data`.  John then added the data fields the client wanted, and deployed
-his changes -- and the client was happy.  "This is becoming a bit tricky to
-maintain.", John thought.
+his changes -- and the client was happy.  *"This is becoming a bit tricky to
+maintain."*, John thought.
 
 Over time, John received more and more reqeusts from the client:
 
