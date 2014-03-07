@@ -1,5 +1,5 @@
-Stormpath Python SDK (stormpath)
-================================
+Stormpath Python SDK
+====================
 
 *The official Stormpath SDK for Pythonistas!*
 
