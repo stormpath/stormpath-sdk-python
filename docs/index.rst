@@ -104,6 +104,10 @@ Table of Contents
 API Documentation
 =================
 
+This section of the docs links to our auto-generated API documentation.  If you
+have any questions, don't hesitate to email the Stormpath support team:
+`support@stormpath.com <mailto:support@stormpath.com>`_
+
 .. toctree::
     :maxdepth: 3
 
