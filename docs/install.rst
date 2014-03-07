@@ -1,5 +1,5 @@
-Installation
-============
+Install
+=======
 
 The Stormpath Python SDK is best installed through `PyPI
 <https://pypi.python.org/pypi/stormpath>`_.
@@ -30,8 +30,8 @@ These two tools making installing Python packages much simpler in complex
 environments.
 
 
-Upgrading
----------
+Upgrade
+-------
 
 If you'd like to upgrade to the latest version of the ``stormpath`` library, you
 can also use ``pip``, with the ``-U`` flag, like so::
