@@ -100,6 +100,12 @@ be easily plugged into any Python application.**
 Table of Contents
 =================
 
+Getting started with Stormpath is incredibly easy.  The guide below will walk
+you through everything you need to know to get started with Stormpath quickly.
+
+Once the basics have been covered, we'll then dive into more complex topics for
+advanced users.  Regardless of your user needs, Stormpath can help.
+
 .. toctree::
     :maxdepth: 3
 
