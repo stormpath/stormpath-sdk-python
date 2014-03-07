@@ -41,5 +41,6 @@ can also use ``pip``, with the ``-U`` flag, like so::
 This will automatically fetch and install the latest release.
 
 .. note::
-    Before upgrading the library, please refer to the changelog to ensure the
-    new release won't break anything.
+    Before upgrading the library, please refer to the `changelog
+    <https://github.com/stormpath/stormpath-sdk-python/blob/master/CHANGES.md>`_
+    to ensure the new release won't break anything.
