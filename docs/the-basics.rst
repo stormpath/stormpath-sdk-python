@@ -118,3 +118,55 @@ iterating over each user's groups::
     ...     print group.name, group.description
     ...
     minions Otherwise known as the expendables.
+
+
+Store Custom Data for User Accounts
+-----------------------------------
+
+Ok, so you get the idea by now: making users is really easy with Stormpath.  *But
+what about the HARD stuff?  How can I store data with my users?*
+
+I'm glad you asked!
+
+Let's take a closer look::
+
+    professor.custom_data['birthday'] = '06/28/1988'
+    professor.custom_data['favorite_places'] = [
+        {
+            'city': 'Southpark',
+            'state': 'Colorado',
+        },
+        {
+            'city': 'Los Angeles',
+            'state': 'California',
+        },
+    ]
+    professor.save()
+
+    >>> from json import dumps
+    >>> print dumps(dict(professor.custom_data), indent=2, sort_keys=True)
+    {
+      "birthday": "06/28/1988",
+      "favorite_places": [
+        {
+          "city": "Southpark",
+          "state": "Colorado"
+        },
+        {
+          "city": "Los Angeles",
+          "state": "California"
+        }
+      ]
+    }
+
+Not bad, right?
+
+By accessing a user's ``custom_data`` attribute, you can store any sort of
+key-value data you want (up to 10MB per user account).  Regardless of the type
+of data (nested JSON, arrays, etc.), Stormpath will efficiently store, protect,
+and hold onto this data.
+
+Stormpath's custom data is a great way to securely (and quickly) store important
+user information (including billing tokens, etc.) -- allowing you to scale your
+application to support millions of users, without the need to grow your users
+database or change a single line of code!
