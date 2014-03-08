@@ -77,3 +77,22 @@ Try the following, and see for yourself::
     except StormpathError, err:
         print 'Human friendly error message:', err.message
         print 'Developer friendly error message:', err.developer_message
+
+
+Create User Groups
+------------------
+
+So, we've got a couple of users created.  Let's create groups to organize them::
+
+    # NOTE: The description field is optional.
+    admins = app.groups.create({
+        'name': 'admins',
+        'description': 'The highest level super villains.',
+    })
+
+    minions = app.groups.create({
+        'name': 'minions',
+        'description': 'Otherwise known as the expendables.',
+    })
+
+Wow, that was easy!  We've now got two groups.
