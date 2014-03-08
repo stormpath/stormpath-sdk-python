@@ -58,8 +58,8 @@ Stormpath makes this incredibly simple::
 
     professor = app.accounts.authenticate_account(
         'theprofessor',
-        'MUAHAUahahah2342352!!!@%'.account,
-    )
+        'MUAHAUahahah2342352!!!@%',
+    ).account
 
 The ``authenticate_account`` method returns a valid user object (if the
 credentials supplied are valid) -- otherwise it raises an exception.
@@ -72,8 +72,8 @@ Try the following, and see for yourself::
     try:
         professor = app.accounts.authenticate_account(
             'theprofessor',
-            'MUAHAUahahah2342352!!!@%'.account,
-        )
+            'MUAHAUahahah2342352!!!@%',
+        ).account
     except StormpathError, err:
         print 'Human friendly error message:', err.message
         print 'Developer friendly error message:', err.developer_message
