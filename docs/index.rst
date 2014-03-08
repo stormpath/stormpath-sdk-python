@@ -111,6 +111,7 @@ advanced users.  Regardless of your user needs, Stormpath can help.
 
     install
     configure
+    the-basics
 
 
 API Documentation
