@@ -96,3 +96,23 @@ So, we've got a couple of users created.  Let's create groups to organize them::
     })
 
 Wow, that was easy!  We've now got two groups.
+
+
+Put Users Into Groups
+---------------------
+
+Ok, so let's move our ``vader`` user into the ``admins`` group, and our
+``professor`` user into the ``minions`` group (sorry Butters!)::
+
+    admins.add_account(vader)
+    minions.add_account(professor)
+
+Now we've got our two users assigned to their own groups.  We can verify this by
+iterating over each user's groups::
+
+    >>> for group in vader.groups:
+            print group.name, group.description
+    admins The highest level super villains.
+    >>> for group in professor.groups:
+            print group.name, group.description
+    minions Otherwise known as the expendables.
