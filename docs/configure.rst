@@ -111,3 +111,6 @@ to make things simple)::
     }, create_directory=True)
 
 The ``create_directory`` argument will automatically create a directory for you!
+
+Now that you've created a ``client`` and ``application``, you're ready to do
+some cool stuff!
