@@ -62,6 +62,21 @@ class Account(Resource, AutoSaveMixin, DeleteMixin, StatusMixin):
             'group': group,
         })
 
+    def in_group(self, group):
+        """Check to see whether or not this Account is a member of the
+        specified Group.
+
+        :param group: A :class:`stormpath.resources.group.Group` object.
+
+        :returns: True if the Account is a member of the Group, False
+            otherwise.
+        """
+        for g in self.groups.search(group.name):
+            if g.name == group.name:
+                return True
+
+        return False
+
     def is_unverified(self):
         """Check if Account is unverified.
 
