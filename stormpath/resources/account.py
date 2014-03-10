@@ -77,6 +77,31 @@ class Account(Resource, AutoSaveMixin, DeleteMixin, StatusMixin):
 
         return False
 
+    def in_groups(self, groups, all=True):
+        """Check to see whether or not this Account is a member of a list of
+        Groups.
+
+        :param groups: A list of :class:`stormpath.resources.group.Group`
+            objects to check.
+        :param all: A boolean (default: True) which controls how Group
+            assertions are handled.  If all is set to True (default), then
+            we'll check to ensure that this Account is a member of ALL Groups
+            before returning True.  If all is False, we'll return True if this
+            Account is a member of ANY of the Groups in the list.
+
+        :returns: True if the Group checks pass, False otherwise.
+        """
+        total_checks = 0
+
+        for group in groups:
+            if self.in_group(group):
+                total_checks += 1
+
+                if not all:
+                    return True
+
+        return True if all and total_checks == len(groups) else False
+
     def is_unverified(self):
         """Check if Account is unverified.
 
