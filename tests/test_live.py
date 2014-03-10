@@ -228,6 +228,18 @@ class LiveTest(unittest.TestCase):
         account.add_group(group)
         self.assertTrue(account.in_group(group))
 
+        # test in_groups assertion
+        group1 = directory.groups.search({"description": "random_groups", "name": "test_groupi_1"})[0]
+        group2 = directory.groups.search({"description": "random_groups", "name": "test_groupi_2"})[0]
+        group3 = directory.groups.search({"description": "random_groups", "name": "test_groupi_2"})[0]
+        self.assertFalse(account.in_groups([group1, group2, group3]))
+        self.assertTrue(account.in_groups([group1, group2, group3], all=False))
+        account.add_group(group2)
+        account.add_group(group3)
+        self.assertTrue(account.in_groups([group1, group2, group3]))
+        self.assertTrue(account.in_groups([group1, group2, group3], all=False))
+
+
     def tearDown(self):
         for grp_ms in self.created_group_memberships:
             grp_ms.delete()
