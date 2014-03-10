@@ -222,6 +222,12 @@ class LiveTest(unittest.TestCase):
         self.assertEqual(len(groups), 1)
         self.assertEqual(groups[0].name, "test_groupi_1")
 
+        # test in_group assertion
+        group = directory.groups.search({"description": "random_groups", "name": "test_groupi_1"})[0]
+        self.assertFalse(account.in_group(group))
+        account.add_group(group)
+        self.assertTrue(account.in_group(group))
+
     def tearDown(self):
         for grp_ms in self.created_group_memberships:
             grp_ms.delete()
