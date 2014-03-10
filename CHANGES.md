@@ -1,3 +1,17 @@
+Version 1.1.0
+-------------
+
+Released on March 10, 2014.
+
+- Adding docs.
+- Adding customizable authentication methods to the Client.
+- Deprecating the `signer` property in favor of `scheme`.
+- Adding `Account.in_group()` helper method, to make asserting group membership
+  simpler.
+- Adding `Account.in_groups()` helper method, to make asserting multiple group
+  memberships simpler.
+
+
 Version 1.0.1
 -------------
 
