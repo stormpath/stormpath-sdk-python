@@ -272,6 +272,71 @@ class LiveTest(unittest.TestCase):
         self.assertRaises(ValueError, group._resolve_account, 'https://api.stormpath.com/omgtest')
         self.assertRaises(ValueError, group._resolve_account, 'omgtest')
 
+        # test add_account
+        group = directory.groups.query(name='test_groupi_5')[0]
+        account = directory.accounts.query(username=username)[0]
+        self.assertFalse(account.in_group(group))
+
+        group.add_account(account)
+        self.assertTrue(account.in_group(group))
+
+        username = self.generate_name("william")
+        account = directory.accounts.create({
+            'username': username,
+            'email': username + "@titan.com",
+            'given_name': "William",
+            'middle_name': "Thomas",
+            'surname': "Riker",
+            'password': "xaiK3auc",
+            "custom_data": {
+                "rank": "Captain",
+                "birthDate": "2305-07-13",
+                "birthPlace": "La Barre, France",
+                "favoriteDrink": "Earl Grey tea"
+            }
+        })
+
+        group.add_account(account.href)
+        self.assertTrue(account.in_group(group))
+
+        username = self.generate_name("william")
+        account = directory.accounts.create({
+            'username': username,
+            'email': username + "@titan.com",
+            'given_name': "William",
+            'middle_name': "Thomas",
+            'surname': "Riker",
+            'password': "xaiK3auc",
+            "custom_data": {
+                "rank": "Captain",
+                "birthDate": "2305-07-13",
+                "birthPlace": "La Barre, France",
+                "favoriteDrink": "Earl Grey tea"
+            }
+        })
+
+        group.add_account(account.username)
+        self.assertTrue(account.in_group(group))
+
+        username = self.generate_name("william")
+        account = directory.accounts.create({
+            'username': username,
+            'email': username + "@titan.com",
+            'given_name': "William",
+            'middle_name': "Thomas",
+            'surname': "Riker",
+            'password': "xaiK3auc",
+            "custom_data": {
+                "rank": "Captain",
+                "birthDate": "2305-07-13",
+                "birthPlace": "La Barre, France",
+                "favoriteDrink": "Earl Grey tea"
+            }
+        })
+
+        group.add_account(account.email)
+        self.assertTrue(account.in_group(group))
+
     def tearDown(self):
         for grp_ms in self.created_group_memberships:
             grp_ms.delete()
