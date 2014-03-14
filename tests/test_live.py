@@ -225,6 +225,12 @@ class LiveTest(unittest.TestCase):
         # test in_group assertion
         group = directory.groups.search({"description": "random_groups", "name": "test_groupi_1"})[0]
         self.assertFalse(account.in_group(group))
+        self.assertRaises(TypeError, account.add_group, account)
+        self.assertRaises(ValueError, account.add_group, 'omgtest')
+        self.assertRaises(ValueError, account.add_group, 'https://api.stormpath.com/omgtest')
+
+        group = directory.groups.search({"description": "random_groups", "name": "test_groupi_1"})[0]
+        self.assertFalse(account.in_group(group))
         account.add_group(group)
         self.assertTrue(account.in_group(group))
 
