@@ -10,6 +10,12 @@ Released on March 10, 2014.
   simpler.
 - Adding `Account.in_groups()` helper method, to make asserting multiple group
   memberships simpler.
+- Adding the ability for `Account.add_group()` to support Group objects, hrefs,
+  or names.
+- Adding the ability for `Account.in_group()` to support Group objects, hrefs,
+  or names.
+- Adding the ability for `Account.in_groups()` to support Group objects, hrefs,
+  or names.
 
 
 Version 1.0.1
