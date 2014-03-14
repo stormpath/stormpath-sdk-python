@@ -228,6 +228,16 @@ class LiveTest(unittest.TestCase):
         account.add_group(group)
         self.assertTrue(account.in_group(group))
 
+        group = directory.groups.search({"description": "random_groups", "name": "test_groupi_7"})[0]
+        self.assertFalse(account.in_group(group))
+        account.add_group(group.href)
+        self.assertTrue(account.in_group(group))
+
+        group = directory.groups.search({"description": "random_groups", "name": "test_groupi_6"})[0]
+        self.assertFalse(account.in_group(group))
+        account.add_group(group.name)
+        self.assertTrue(account.in_group(group))
+
         # test in_groups assertion
         group1 = directory.groups.search({"description": "random_groups", "name": "test_groupi_1"})[0]
         group2 = directory.groups.search({"description": "random_groups", "name": "test_groupi_2"})[0]
