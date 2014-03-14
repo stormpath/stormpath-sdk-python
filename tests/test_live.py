@@ -258,6 +258,20 @@ class LiveTest(unittest.TestCase):
         self.assertTrue(account.in_groups([group1, group2, group3]))
         self.assertTrue(account.in_groups([group1, group2, group3], all=False))
 
+        # test _resolve_account helper
+        group = directory.groups.query(name='test_groupi_4')[0]
+        account = directory.accounts.query(username=username)[0]
+        account.add_group(group)
+        self.assertEqual(account.directory.href, group.directory.href)
+
+        self.assertEqual(group._resolve_account(account).href, account.href)
+        self.assertEqual(group._resolve_account(account.href).href, account.href)
+        self.assertEqual(group._resolve_account(account.username).href, account.href)
+        self.assertEqual(group._resolve_account(account.email).href, account.href)
+        self.assertRaises(TypeError, group._resolve_account, group)
+        self.assertRaises(ValueError, group._resolve_account, 'https://api.stormpath.com/omgtest')
+        self.assertRaises(ValueError, group._resolve_account, 'omgtest')
+
     def tearDown(self):
         for grp_ms in self.created_group_memberships:
             grp_ms.delete()
