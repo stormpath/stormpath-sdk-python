@@ -102,14 +102,28 @@ class Group(Resource, AutoSaveMixin, DeleteMixin, StatusMixin):
 
         return account
 
+    def add_account(self, account_object_or_href_or_name):
         """Associate an Account with this Group.
 
         This creates a
         :class:`stormpath.resources.group_membership.GroupMembership` object in
         the backend.
 
-        :param account: A :class:`stormpath.resources.account.Account` object.
+        :param account_object_or_href_or_name: This could be any one of the
+            following:
+
+            - An :class:`stormpath.resources.account.Account` object.
+            - An Account href, ex:
+                'https://api.stormpath.com/v1/accounts/3wzkqr03K8WxRp8NQuYSs3'
+            - An Account username, ex: 'rdegges'.
+            - An Account email, ex: 'randall@stormpath.com'.
+
+        .. note::
+            Passing in a :class:`stormpath.resources.account.Account` object
+            will always be the quickest way to add an Account, as it doesn't
+            require any additional API calls.
         """
+        account = self._resolve_account(account_object_or_href_or_name)
         return self._client.group_memberships.create({
             'account': account,
             'group': self,
