@@ -48,15 +48,46 @@ class Account(Resource, AutoSaveMixin, DeleteMixin, StatusMixin):
             'tenant': Tenant,
         }
 
-    def add_group(self, group):
+    def add_group(self, group_object_or_href_or_name):
         """Associate a Group with this Account.
 
         This creates a
         :class:`stormpath.resources.group_membership.GroupMembership` resource
         on the backend.
 
-        :param group: A :class:`stormpath.resources.group.Group` object.
+        :param group_object_or_href_or_name: This could be any one of the following:
+            - A :class:`stormpath.resources.group.Group` object.
+            - A Group href, ex: 'https://api.stormpath.com/v1/groups/3wzkqr03K8WxRp8NQuYSs3'
+            - A Group name, ex: 'admins'.
+
+        .. note::
+            Passing in a :class:`stormpath.resources.group.Group` object will
+            always be the quickest way to add a Group, as it doesn't require
+            any additional API calls.
         """
+        from .group import Group
+
+        # First, we'll check to see whether or not this is a string.
+        group = group_object_or_href_or_name
+        if isinstance(group, basestring):
+
+            # If this Group is an href, we'll just use that.
+            if group.startswith('https://api.stormpath.com/'):
+                group = self.groups.get(group)
+
+            # Otherwise, we'll assume this is a Group name, and try to query
+            # it.
+            else:
+                for g in self.directory.groups.query(name=group):
+                    if g.name == group:
+                        group = g
+                        break
+
+        # If this is not a Group instance, something horrible was given to us,
+        # so bail.
+        elif not isinstance(group, Group):
+            raise TypeError('Unsupported type. Group object required.')
+
         return self._client.group_memberships.create({
             'account': self,
             'group': group,
