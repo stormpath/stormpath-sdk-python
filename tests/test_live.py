@@ -337,6 +337,8 @@ class LiveTest(unittest.TestCase):
         group.add_account(account.email)
         self.assertTrue(account.in_group(group))
 
+        self.assertRaises(Error, group.add_account, account.email)
+
     def tearDown(self):
         for grp_ms in self.created_group_memberships:
             grp_ms.delete()
