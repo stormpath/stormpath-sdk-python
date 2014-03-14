@@ -137,27 +137,44 @@ class Account(Resource, AutoSaveMixin, DeleteMixin, StatusMixin):
             'group': group,
         })
 
-    def in_group(self, group):
+    def in_group(self, group_object_or_href_or_name):
         """Check to see whether or not this Account is a member of the
         specified Group.
 
-        :param group: A :class:`stormpath.resources.group.Group` object.
+        :param group_object_or_href_or_name: This could be any one of the
+            following:
+
+            - A :class:`stormpath.resources.group.Group` object.
+            - A Group href, ex:
+                'https://api.stormpath.com/v1/groups/3wzkqr03K8WxRp8NQuYSs3'
+            - A Group name, ex: 'admins'.
+
+        .. note::
+            Passing in a :class:`stormpath.resources.group.Group` object will
+            always be the quickest way to check a Group's membership, since it
+            doesn't require any additional API calls.
 
         :returns: True if the Account is a member of the Group, False
             otherwise.
         """
+        group = self._resolve_group(group_object_or_href_or_name)
+
         for g in self.groups.search(group.name):
             if g.name == group.name:
                 return True
 
         return False
 
-    def in_groups(self, groups, all=True):
+    def in_groups(self, group_objects_or_hrefs_or_names, all=True):
         """Check to see whether or not this Account is a member of a list of
         Groups.
 
-        :param groups: A list of :class:`stormpath.resources.group.Group`
-            objects to check.
+        :param group_objects_or_hrefs_or_names: A list of either:
+            - :class:`stormpath.resources.group.Group` objects.
+            - Group hrefs, ex:
+                'https://api.stormpath.com/v1/groups/3wzkqr03K8WxRp8NQuYSs3'
+            - Group names, ex: 'admins'.
+
         :param all: A boolean (default: True) which controls how Group
             assertions are handled.  If all is set to True (default), then
             we'll check to ensure that this Account is a member of ALL Groups
@@ -168,6 +185,7 @@ class Account(Resource, AutoSaveMixin, DeleteMixin, StatusMixin):
         """
         total_checks = 0
 
+        groups = group_objects_or_hrefs_or_names
         for group in groups:
             if self.in_group(group):
                 total_checks += 1
