@@ -3,6 +3,7 @@
 
 from six import string_types
 
+from stormpath.error import Error as StormpathError
 from .base import (
     AutoSaveMixin,
     CollectionResource,
@@ -10,7 +11,6 @@ from .base import (
     Resource,
     StatusMixin,
 )
-from stormpath.error import Error as StormpathError
 
 
 class Account(Resource, AutoSaveMixin, DeleteMixin, StatusMixin):
