@@ -10,6 +10,7 @@ from .base import (
     Resource,
     StatusMixin,
 )
+from stormpath.error import Error as StormpathError
 
 
 class Account(Resource, AutoSaveMixin, DeleteMixin, StatusMixin):
@@ -62,6 +63,9 @@ class Account(Resource, AutoSaveMixin, DeleteMixin, StatusMixin):
             - A Group href, ex: 'https://api.stormpath.com/v1/groups/3wzkqr03K8WxRp8NQuYSs3'
             - A Group name, ex: 'admins'.
 
+        :raises: ValueError if a value specified is invalid -- or TypeError if
+            a non-Group object is passed.
+
         .. note::
             Passing in a :class:`stormpath.resources.group.Group` object will
             always be the quickest way to add a Group, as it doesn't require
@@ -75,12 +79,24 @@ class Account(Resource, AutoSaveMixin, DeleteMixin, StatusMixin):
 
             # If this Group is an href, we'll just use that.
             if group.startswith('https://api.stormpath.com/'):
-                group = self.groups.get(group)
+                try:
+                    group = self.groups.get(group)
+
+                    # We're accessing group.name here to force evaluation of
+                    # this Group -- this allows us to check and see whether or
+                    # not this Group is actually valid.
+                    group.name
+                except StormpathError:
+                    raise ValueError('Invalid Group href specified.')
 
             # Otherwise, we'll assume this is a Group name, and try to query
             # it.
             else:
-                for g in self.directory.groups.query(name=group):
+                groups = self.directory.groups.query(name=group)
+                if len(groups) == 0:
+                    raise ValueError('Invalid Group name specified.')
+
+                for g in groups:
                     if g.name == group:
                         group = g
                         break
