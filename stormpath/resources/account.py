@@ -1,6 +1,8 @@
 """Stormpath Account resource mappings."""
 
 
+from six import string_types
+
 from .base import (
     AutoSaveMixin,
     CollectionResource,
@@ -69,7 +71,7 @@ class Account(Resource, AutoSaveMixin, DeleteMixin, StatusMixin):
 
         # First, we'll check to see whether or not this is a string.
         group = group_object_or_href_or_name
-        if isinstance(group, basestring):
+        if isinstance(group, string_types):
 
             # If this Group is an href, we'll just use that.
             if group.startswith('https://api.stormpath.com/'):

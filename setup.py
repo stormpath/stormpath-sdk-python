@@ -106,7 +106,7 @@ setup(
     url = 'https://github.com/stormpath/stormpath-sdk-python',
     zip_safe = False,
     keywords = ['stormpath', 'authentication', 'users', 'security'],
-    install_requires = ['requests>=1.1.0'],
+    install_requires = ['requests>=1.1.0', 'six==1.6.1'],
     packages = find_packages(),
     classifiers = [
         'Development Status :: 5 - Production/Stable',
