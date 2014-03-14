@@ -16,6 +16,8 @@ Released on March 10, 2014.
   or names.
 - Adding the ability for `Account.in_groups()` to support Group objects, hrefs,
   or names.
+- Adding the ability for `Group.add_account()` to support Account objects, hrefs,
+  usernames or emails.
 
 
 Version 1.0.1
