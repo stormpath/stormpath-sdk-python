@@ -222,13 +222,16 @@ class LiveTest(unittest.TestCase):
         self.assertEqual(len(groups), 1)
         self.assertEqual(groups[0].name, "test_groupi_1")
 
-        # test in_group assertion
+        # test _resolve_group helper
         group = directory.groups.search({"description": "random_groups", "name": "test_groupi_1"})[0]
-        self.assertFalse(account.in_group(group))
-        self.assertRaises(TypeError, account.add_group, account)
-        self.assertRaises(ValueError, account.add_group, 'omgtest')
-        self.assertRaises(ValueError, account.add_group, 'https://api.stormpath.com/omgtest')
+        self.assertEqual(account._resolve_group(group).href, group.href)
+        self.assertEqual(account._resolve_group(group.href).href, group.href)
+        self.assertEqual(account._resolve_group(group.name).href, group.href)
+        self.assertRaises(TypeError, account._resolve_group, account)
+        self.assertRaises(ValueError, account._resolve_group, 'https://api.stormpath.com/omgtest')
+        self.assertRaises(ValueError, account._resolve_group, 'omgtest')
 
+        # test in_group assertion
         group = directory.groups.search({"description": "random_groups", "name": "test_groupi_1"})[0]
         self.assertFalse(account.in_group(group))
         account.add_group(group)
