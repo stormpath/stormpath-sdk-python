@@ -18,6 +18,8 @@ Released on March 10, 2014.
   or names.
 - Adding the ability for `Group.add_account()` to support Account objects, hrefs,
   usernames or emails.
+- Adding new method, `Account.remove_group(group_object_or_href_or_name)`. This
+  lets users easily remove Groups from an Account.
 
 
 Version 1.0.1
