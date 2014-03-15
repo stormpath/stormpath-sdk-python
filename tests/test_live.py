@@ -361,6 +361,34 @@ class LiveTest(unittest.TestCase):
         account = directory.accounts.get(account.href)
         self.assertRaises(Error, account.remove_group, group)
 
+        # test remove_account
+        group.add_account(account)
+        self.assertTrue(account.in_group(group))
+
+        group.remove_account(account)
+        self.assertFalse(account.in_group(group))
+
+        group = directory.groups.get(group.href)
+        group.add_account(account)
+        self.assertTrue(account.in_group(group))
+        group.remove_account(account.href)
+        self.assertFalse(account.in_group(group))
+
+        group = directory.groups.get(group.href)
+        group.add_account(account)
+        self.assertTrue(account.in_group(group))
+        group.remove_account(account.username)
+        self.assertFalse(account.in_group(group))
+
+        group = directory.groups.get(group.href)
+        group.add_account(account)
+        self.assertTrue(account.in_group(group))
+        group.remove_account(account.email)
+        self.assertFalse(account.in_group(group))
+
+        group = directory.groups.get(group.href)
+        self.assertRaises(Error, account.remove_group, group)
+
     def tearDown(self):
         for grp_ms in self.created_group_memberships:
             grp_ms.delete()
