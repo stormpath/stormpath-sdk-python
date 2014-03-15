@@ -20,6 +20,9 @@ Released on March 10, 2014.
   usernames or emails.
 - Adding new method, `Account.remove_group(group_object_or_href_or_name)`. This
   lets users easily remove Groups from an Account.
+- Adding new method,
+  `Group.remove_account(account_object_or_href_or_username_or_email)`. This lets
+  users easily remove Accounts from a Group.
 
 
 Version 1.0.1
