@@ -206,6 +206,36 @@ class Account(Resource, AutoSaveMixin, DeleteMixin, StatusMixin):
         """
         return self.get_status() == self.STATUS_UNVERIFIED
 
+    def remove_group(self, group_object_or_href_or_name):
+        """Remove this Account from the specified Group.
+
+        :param group_object_or_href_or_name: This could be any one of the
+            following:
+
+            - A :class:`stormpath.resources.group.Group` object.
+            - A Group href, ex:
+                'https://api.stormpath.com/v1/groups/3wzkqr03K8WxRp8NQuYSs3'
+            - A Group name, ex: 'admins'.
+
+        :raises: :class:`stormpath.error.StormpathError` if the Group specified
+            does not contain this Account.
+
+        .. note::
+            Passing in a :class:`stormpath.resources.group.Group` object will
+            always be the quickest way to check a Group's membership, since it
+            doesn't require any additional API calls.
+        """
+        group = self._resolve_group(group_object_or_href_or_name)
+
+        for membership in self.group_memberships:
+            if membership.group.href == group.href:
+                membership.delete()
+                return
+
+        raise StormpathError({
+            'developerMessage': 'This user is not part of Group %s.' % group.name,
+        })
+
 
 class AccountList(CollectionResource):
     """Stormpath Account resource list."""
