@@ -69,12 +69,15 @@ class CustomData(Resource, DeleteMixin, SaveMixin):
             super(CustomData, self).save()
 
     def keys(self):
+        self._ensure_data()
         return self.data.keys()
 
     def values(self):
+        self._ensure_data()
         return self.data.values()
 
     def items(self):
+        self._ensure_data()
         return self.data.items()
 
     def get(self, key, default=None):
@@ -84,6 +87,7 @@ class CustomData(Resource, DeleteMixin, SaveMixin):
             return default
 
     def __iter__(self):
+        self._ensure_data()
         return iter(self.data)
 
     def _get_properties(self):
