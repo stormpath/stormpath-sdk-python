@@ -84,7 +84,7 @@ class Group(Resource, AutoSaveMixin, DeleteMixin, StatusMixin):
         if isinstance(href_or_name, string_types):
 
             # If this Account is an href, we'll just use that.
-            if href_or_name.startswith('https://api.stormpath.com/'):
+            if href_or_name.startswith(self._client.BASE_URL):
                 href = href_or_name
 
                 try:
