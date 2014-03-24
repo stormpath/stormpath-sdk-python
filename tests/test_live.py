@@ -228,7 +228,7 @@ class LiveTest(unittest.TestCase):
         self.assertEqual(account._resolve_group(group.href).href, group.href)
         self.assertEqual(account._resolve_group(group.name).href, group.href)
         self.assertRaises(TypeError, account._resolve_group, account)
-        self.assertRaises(ValueError, account._resolve_group, 'https://api.stormpath.com/omgtest')
+        self.assertRaises(ValueError, account._resolve_group, 'https://api.stormpath.com/v1/groups/omgtest')
         self.assertRaises(ValueError, account._resolve_group, 'omgtest')
 
         # test in_group assertion
@@ -271,7 +271,7 @@ class LiveTest(unittest.TestCase):
         self.assertEqual(group._resolve_account(account.username).href, account.href)
         self.assertEqual(group._resolve_account(account.email).href, account.href)
         self.assertRaises(TypeError, group._resolve_account, group)
-        self.assertRaises(ValueError, group._resolve_account, 'https://api.stormpath.com/omgtest')
+        self.assertRaises(ValueError, group._resolve_account, 'https://api.stormpath.com/v1/groups/omgtest')
         self.assertRaises(ValueError, group._resolve_account, 'omgtest')
 
         # test add_account
