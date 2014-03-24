@@ -4,8 +4,8 @@ from uuid import uuid4
 
 from stormpath.client import Client
 from stormpath.error import Error
-from stormpath.resources.group_membership import GroupMembership
 from stormpath.resources.base import Expansion
+from stormpath.resources.group_membership import GroupMembership
 
 
 class LiveTest(unittest.TestCase):
