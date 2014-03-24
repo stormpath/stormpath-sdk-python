@@ -27,9 +27,6 @@ class Group(Resource, AutoSaveMixin, DeleteMixin, StatusMixin):
         'name',
         'status',
     )
-    unique_attrs = (
-        'name',
-    )
 
     def get_resource_attributes(self):
         from .account import AccountList
