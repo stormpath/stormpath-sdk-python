@@ -66,8 +66,12 @@ class Account(Resource, AutoSaveMixin, DeleteMixin, StatusMixin):
                 'https://api.stormpath.com/v1/groups/3wzkqr03K8WxRp8NQuYSs3'
             - A Group name, ex: 'admins'.
 
-        :raises: ValueError if an invalid href or name is specified, or
-            TypeError if a non-Group object is specified.
+        :raises:
+            - ValueError if an invalid href or name is specified.
+            - TypeError if a non-Group object is specified.
+
+        :rtype: obj
+        :returns: A matching Group object.
 
         .. note::
             Passing in a :class:`stormpath.resources.group.Group` object will
@@ -76,14 +80,22 @@ class Account(Resource, AutoSaveMixin, DeleteMixin, StatusMixin):
         """
         from .group import Group
 
-        # First, we'll check to see whether or not this is a string.
-        group = group_object_or_href_or_name
-        if isinstance(group, string_types):
+        # If this is a Group object already, we have no work to do!
+        if isinstance(group_object_or_href_or_name, Group):
+            return group_object_or_href_or_name
+
+        # We now know this isn't a Group object.
+        href_or_name = group_object_or_href_or_name
+
+        # Check to see whether or not this is a string.
+        if isinstance(group_object_or_href_or_name, string_types):
 
             # If this Group is an href, we'll just use that.
-            if group.startswith('https://api.stormpath.com/'):
+            if href_or_name.startswith('https://api.stormpath.com/'):
+                href = href_or_name
+
                 try:
-                    group = self.groups.get(group)
+                    group = self.directory.groups.get(href)
 
                     # We're accessing group.name here to force evaluation of
                     # this Group -- this allows us to check and see whether or
@@ -92,24 +104,23 @@ class Account(Resource, AutoSaveMixin, DeleteMixin, StatusMixin):
                 except StormpathError:
                     raise ValueError('Invalid Group href specified.')
 
+                return group
+
             # Otherwise, we'll assume this is a Group name, and try to query
             # it.
             else:
-                groups = self.directory.groups.query(name=group)
-                if len(groups) == 0:
-                    raise ValueError('Invalid Group name specified.')
+                name = href_or_name
+                groups = self.directory.groups.query(name=name)
 
                 for g in groups:
-                    if g.name == group:
-                        group = g
-                        break
+                    if g.name == name:
+                        return g
 
-        # If this is not a Group instance, something horrible was given to us,
+                raise ValueError('Invalid Group name specified.')
+
+        # If this is not a string instance, something horrible was given to us,
         # so bail.
-        elif not isinstance(group, Group):
-            raise TypeError('Unsupported type. Group object required.')
-
-        return group
+        raise TypeError('Unsupported type. Group object required.')
 
     def add_group(self, group_object_or_href_or_name):
         """Associate a Group with this Account.
@@ -159,7 +170,7 @@ class Account(Resource, AutoSaveMixin, DeleteMixin, StatusMixin):
         """
         group = self._resolve_group(group_object_or_href_or_name)
 
-        for g in self.groups.search(group.name):
+        for g in self.groups.query(name=group.name):
             if g.name == group.name:
                 return True
 

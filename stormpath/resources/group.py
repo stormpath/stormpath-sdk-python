@@ -27,6 +27,9 @@ class Group(Resource, AutoSaveMixin, DeleteMixin, StatusMixin):
         'name',
         'status',
     )
+    unique_attrs = (
+        'name',
+    )
 
     def get_resource_attributes(self):
         from .account import AccountList
@@ -59,8 +62,12 @@ class Group(Resource, AutoSaveMixin, DeleteMixin, StatusMixin):
             - An Account username, ex: 'rdegges'.
             - An Account email, ex: 'randall@stormpath.com'.
 
-        :raises: ValueError if an invalid href or name is specified, or
-            TypeError if a non-Account object is specified.
+        :raises:
+            - ValueError if an invalid href or name is specified.
+            - TypeError if a non-Account object is specified.
+
+        :rtype: obj
+        :returns: A matching Account object.
 
         .. note::
             Passing in an :class:`stormpath.resources.account.Account` object
@@ -69,14 +76,22 @@ class Group(Resource, AutoSaveMixin, DeleteMixin, StatusMixin):
         """
         from .account import Account
 
-        # First, we'll check to see whether or not this is a string.
-        account = account_object_or_href_or_name
-        if isinstance(account, string_types):
+        # If this is an Account object already, we have no work to do!
+        if isinstance(account_object_or_href_or_name, Account):
+            return account_object_or_href_or_name
+
+        # We now know this isn't an Account object.
+        href_or_name = account_object_or_href_or_name
+
+        # Check to see whether or not this is a string.
+        if isinstance(href_or_name, string_types):
 
             # If this Account is an href, we'll just use that.
-            if account.startswith('https://api.stormpath.com/'):
+            if href_or_name.startswith('https://api.stormpath.com/'):
+                href = href_or_name
+
                 try:
-                    account = self.directory.accounts.get(account)
+                    account = self.directory.accounts.get(href)
 
                     # We're accessing account.username here to force evaluation
                     # of this Account -- this allows us to check and see
@@ -85,22 +100,23 @@ class Group(Resource, AutoSaveMixin, DeleteMixin, StatusMixin):
                 except StormpathError:
                     raise ValueError('Invalid Account href specified.')
 
+                return account
+
             # Otherwise, we'll assume this is an Account username or email, and
             # try to query it.
             else:
+                name = href_or_name
+
                 for attr in ['username', 'email']:
-                    for a in self.directory.accounts.search({attr: account}):
-                        if getattr(a, attr) == account:
+                    for a in self.directory.accounts.search({attr: name}):
+                        if getattr(a, attr) == name:
                             return a
 
                 raise ValueError('Invalid Account %s specified.' % attr)
 
-        # If this is not a Group instance, something horrible was given to us,
+        # If this is not a string instance, something horrible was given to us,
         # so bail.
-        elif not isinstance(account, Account):
-            raise TypeError('Unsupported type. Account object required.')
-
-        return account
+        raise TypeError('Unsupported type. Account object required.')
 
     def add_account(self, account_object_or_href_or_name):
         """Associate an Account with this Group.
