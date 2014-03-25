@@ -175,6 +175,12 @@ class Group(Resource, AutoSaveMixin, DeleteMixin, StatusMixin):
             'developerMessage': 'This user is not part of Group %s.' % self.name,
         })
 
+    def has_account(self, account_object_or_href_or_username_or_email):
+        pass
+
+    def has_accounts(self, account_object_or_href_or_username_or_email):
+        pass
+
 
 class GroupList(CollectionResource):
     """Group resource list."""
