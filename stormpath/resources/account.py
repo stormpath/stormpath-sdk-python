@@ -61,9 +61,10 @@ class Account(Resource, AutoSaveMixin, DeleteMixin, StatusMixin):
         :param group_object_or_href_or_name: This could be any one of the
             following:
 
-            - A :class:`stormpath.resources.group.Group` object.
+            - A :class:`stormpath.resources.group.Group` object, that already
+              exists in Stormpath.
             - A Group href, ex:
-                'https://api.stormpath.com/v1/groups/3wzkqr03K8WxRp8NQuYSs3'
+              'https://api.stormpath.com/v1/groups/3wzkqr03K8WxRp8NQuYSs3'
             - A Group name, ex: 'admins'.
 
         :raises:

@@ -53,9 +53,10 @@ class Group(Resource, AutoSaveMixin, DeleteMixin, StatusMixin):
         :param account_object_or_href_or_username_or_email: This could be any
             one of the following:
 
-            - An :class:`stormpath.resources.account.Account` object.
+            - An :class:`stormpath.resources.account.Account` object, that
+              already exists in Stormpath.
             - An Account href, ex:
-                'https://api.stormpath.com/v1/accounts/3wzkqr03K8WxRp8NQuYSs3'
+              'https://api.stormpath.com/v1/accounts/3wzkqr03K8WxRp8NQuYSs3'
             - An Account username, ex: 'rdegges'.
             - An Account email, ex: 'randall@stormpath.com'.
 
