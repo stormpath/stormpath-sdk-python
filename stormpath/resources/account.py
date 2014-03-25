@@ -120,7 +120,7 @@ class Account(Resource, AutoSaveMixin, DeleteMixin, StatusMixin):
 
         # If this is not a string instance, something horrible was given to us,
         # so bail.
-        raise TypeError('Unsupported type. Group object required.')
+        raise TypeError('Unsupported type. Group object, href, or name required.')
 
     def add_group(self, group_object_or_href_or_name):
         """Associate a Group with this Account.
