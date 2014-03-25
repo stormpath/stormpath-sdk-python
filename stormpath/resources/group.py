@@ -198,8 +198,38 @@ class Group(Resource, AutoSaveMixin, DeleteMixin, StatusMixin):
         """
         pass
 
-    def has_accounts(self, account_object_or_href_or_username_or_email):
-        pass
+    def has_accounts(self, account_objects_or_hrefs_or_usernames_or_emails):
+        """Check to see whether or not this Group contains the specified list
+        of Accounts.
+
+        :param account_objects_or_hrefs_or_usernames_or_emails: A list of
+            either:
+
+            - :class:`stormpath.resources.group.Account` objects.
+            - Account hrefs, ex:
+                'https://api.stormpath.com/v1/accounts/3wzkqr03K8WxRp8NQuYSs3'
+            - Account usernames, ex: 'admins'.
+            - Account emails, ex: 'randall@stormpath.com'.
+
+        :param all: A boolean (default: True) which controls how Account
+            assertions are handled.  If all is set to True (default), then
+            we'll check to ensure that this Group contains ALL Accounts
+            before returning True.  If all is False, we'll return True if this
+            Group contains ANY of the Accounts in the list.
+
+        :returns: True if the Account checks pass, False otherwise.
+        """
+        total_checks = 0
+
+        accounts = account_objects_or_hrefs_or_usernames_or_emails
+        for account in accounts:
+            if self.has_account(account):
+                total_checks += 1
+
+                if not all:
+                    return True
+
+        return True if all and total_checks == len(accounts) else False
 
 
 class GroupList(CollectionResource):
