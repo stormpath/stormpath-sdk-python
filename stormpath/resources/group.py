@@ -196,7 +196,13 @@ class Group(Resource, AutoSaveMixin, DeleteMixin, StatusMixin):
             always be the quickest way to check an Account's membership, since
             it doesn't require any additional API calls.
         """
-        pass
+        account = self._resolve_group(account_object_or_href_or_username_or_email)
+
+        for a in self.accounts.query(username=account.username):
+            if a.username == account.username:
+                return True
+
+        return False
 
     def has_accounts(self, account_objects_or_hrefs_or_usernames_or_emails):
         """Check to see whether or not this Group contains the specified list
