@@ -220,7 +220,7 @@ class Group(Resource, AutoSaveMixin, DeleteMixin, StatusMixin):
 
             This could look something like:
             [
-                group,
+                account,
                 'https://api.stormpath.com/v1/accounts/3wzkqr03K8WxRp8NQuYSs3',
                 'admins',
             ]
