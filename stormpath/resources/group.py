@@ -215,14 +215,15 @@ class Group(Resource, AutoSaveMixin, DeleteMixin, StatusMixin):
             - :class:`stormpath.resources.group.Account` objects.
             - Account hrefs, ex:
                 'https://api.stormpath.com/v1/accounts/3wzkqr03K8WxRp8NQuYSs3'
-            - Account usernames, ex: 'admins'.
+            - Account usernames, ex: 'rdegges'.
             - Account emails, ex: 'randall@stormpath.com'.
 
             This could look something like:
             [
                 account,
                 'https://api.stormpath.com/v1/accounts/3wzkqr03K8WxRp8NQuYSs3',
-                'admins',
+                'rdegges',
+                'randall@stormpath.com',
             ]
 
         :param all: A boolean (default: True) which controls how Account
