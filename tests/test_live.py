@@ -389,6 +389,76 @@ class LiveTest(unittest.TestCase):
         group = directory.groups.get(group.href)
         self.assertRaises(Error, account.remove_group, group)
 
+    def test_group_has_account(self):
+        application = self.client.applications.create({
+            'name': self.generate_name('my_app'),
+        }, create_directory=True)
+        self.created_applications.append(application)
+
+        account = application.accounts.create({
+            'given_name': 'Darth',
+            'surname': 'Vader',
+            'email': 'd@vader.io',
+            'password': 'j0inthed4rkSIDE!',
+        })
+        self.created_accounts.append(account)
+
+        group = application.groups.create({
+            'name': self.generate_name('group1'),
+        })
+        self.created_groups.append(group)
+
+        self.assertFalse(group.has_account(account))
+        group.add_account(account)
+        self.assertTrue(group.has_account(account))
+
+    def test_group_has_accounts(self):
+        application = self.client.applications.create({
+            'name': self.generate_name('my_app'),
+        }, create_directory=True)
+        self.created_applications.append(application)
+
+        account1 = application.accounts.create({
+            'given_name': 'Darth',
+            'surname': 'Vader',
+            'email': 'd@vader.io',
+            'password': 'j0inthed4rkSIDE!',
+        })
+        self.created_accounts.append(account1)
+
+        account2 = application.accounts.create({
+            'given_name': 'Darth',
+            'surname': 'Vader',
+            'email': 'd2@vader.io',
+            'password': 'j0inthed4rkSIDE!',
+        })
+        self.created_accounts.append(account2)
+
+        account3 = application.accounts.create({
+            'given_name': 'Darth',
+            'surname': 'Vader',
+            'email': 'd3@vader.io',
+            'password': 'j0inthed4rkSIDE!',
+        })
+        self.created_accounts.append(account3)
+
+        group = application.groups.create({
+            'name': self.generate_name('group'),
+        })
+        self.created_groups.append(group)
+
+        self.assertFalse(group.has_accounts([account1, account2, account3]))
+        self.assertFalse(group.has_accounts([account1, account2, account3], all=False))
+
+        group.add_account(account1)
+        group.add_account(account2)
+        self.assertFalse(group.has_accounts([account1, account2, account3]))
+        self.assertTrue(group.has_accounts([account1, account2, account3], all=False))
+
+        group.add_account(account3)
+        self.assertTrue(group.has_accounts([account1, account2, account3]))
+        self.assertTrue(group.has_accounts([account1, account2, account3], all=True))
+
     def tearDown(self):
         for grp_ms in self.created_group_memberships:
             grp_ms.delete()
