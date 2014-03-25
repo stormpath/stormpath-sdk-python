@@ -176,6 +176,26 @@ class Group(Resource, AutoSaveMixin, DeleteMixin, StatusMixin):
         })
 
     def has_account(self, account_object_or_href_or_username_or_email):
+        """Check to see whether or not this Group contains the specified
+        Account.
+
+        :param account_object_or_href_or_username_or_email: This could be any
+            one of the following:
+
+            - An :class:`stormpath.resources.account.Account` object.
+            - An Account href, ex:
+                'https://api.stormpath.com/v1/accounts/3wzkqr03K8WxRp8NQuYSs3'
+            - An account username, ex: 'rdegges'.
+            - An account email, ex: 'randall@stormpath.com'.
+
+        :returns: True if the Account is a member of this Group, False
+            otherwise.
+
+        .. note::
+            Passing in a :class:`stormpath.resources.group.Account` object will
+            always be the quickest way to check an Account's membership, since
+            it doesn't require any additional API calls.
+        """
         pass
 
     def has_accounts(self, account_object_or_href_or_username_or_email):
