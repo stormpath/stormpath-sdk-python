@@ -218,6 +218,13 @@ class Group(Resource, AutoSaveMixin, DeleteMixin, StatusMixin):
             - Account usernames, ex: 'admins'.
             - Account emails, ex: 'randall@stormpath.com'.
 
+            This could look something like:
+            [
+                group,
+                'https://api.stormpath.com/v1/accounts/3wzkqr03K8WxRp8NQuYSs3',
+                'admins',
+            ]
+
         :param all: A boolean (default: True) which controls how Account
             assertions are handled.  If all is set to True (default), then
             we'll check to ensure that this Group contains ALL Accounts

@@ -187,6 +187,13 @@ class Account(Resource, AutoSaveMixin, DeleteMixin, StatusMixin):
                 'https://api.stormpath.com/v1/groups/3wzkqr03K8WxRp8NQuYSs3'
             - Group names, ex: 'admins'.
 
+            This could look something like:
+            [
+                group,
+                'https://api.stormpath.com/v1/groups/3wzkqr03K8WxRp8NQuYSs3',
+                'admins',
+            ]
+
         :param all: A boolean (default: True) which controls how Group
             assertions are handled.  If all is set to True (default), then
             we'll check to ensure that this Account is a member of ALL Groups
