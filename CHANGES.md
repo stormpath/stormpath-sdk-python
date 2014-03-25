@@ -1,7 +1,7 @@
 Version 1.1.0
 -------------
 
-Released on March 10, 2014.
+Not yet released.
 
 - Adding docs.
 - Adding customizable authentication methods to the Client.
@@ -12,9 +12,9 @@ Released on March 10, 2014.
   memberships simpler.
 - Adding the ability for `Account.add_group()` to support Group objects, hrefs,
   or names.
-- Adding the ability for `Account.in_group()` to support Group objects, hrefs,
+- Adding the ability for `Account.has_group()` to support Group objects, hrefs,
   or names.
-- Adding the ability for `Account.in_groups()` to support Group objects, hrefs,
+- Adding the ability for `Account.has_groups()` to support Group objects, hrefs,
   or names.
 - Adding the ability for `Group.add_account()` to support Account objects, hrefs,
   usernames or emails.
@@ -23,6 +23,13 @@ Released on March 10, 2014.
 - Adding new method,
   `Group.remove_account(account_object_or_href_or_username_or_email)`. This lets
   users easily remove Accounts from a Group.
+- Adding new method,
+  `Group.has_account(account_object_or_href_or_username_or_email)`. This lets
+  users easily check to see whether an Account is in a Group.
+- Adding new method,
+  `Group.has_accounts(account_objects_or_hrefs_or_usernames_or_emails)`. This lets
+  users easily check to see whether a list of Accounts are part of a Group or
+  not.
 
 
 Version 1.0.1
