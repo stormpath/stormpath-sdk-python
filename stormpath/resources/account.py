@@ -148,7 +148,7 @@ class Account(Resource, AutoSaveMixin, DeleteMixin, StatusMixin):
             'group': group,
         })
 
-    def in_group(self, group_object_or_href_or_name):
+    def has_group(self, group_object_or_href_or_name):
         """Check to see whether or not this Account is a member of the
         specified Group.
 
@@ -176,7 +176,7 @@ class Account(Resource, AutoSaveMixin, DeleteMixin, StatusMixin):
 
         return False
 
-    def in_groups(self, group_objects_or_hrefs_or_names, all=True):
+    def has_groups(self, group_objects_or_hrefs_or_names, all=True):
         """Check to see whether or not this Account is a member of a list of
         Groups.
 
@@ -198,7 +198,7 @@ class Account(Resource, AutoSaveMixin, DeleteMixin, StatusMixin):
 
         groups = group_objects_or_hrefs_or_names
         for group in groups:
-            if self.in_group(group):
+            if self.has_group(group):
                 total_checks += 1
 
                 if not all:

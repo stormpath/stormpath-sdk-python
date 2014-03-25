@@ -231,34 +231,34 @@ class LiveTest(unittest.TestCase):
         self.assertRaises(ValueError, account._resolve_group, 'https://api.stormpath.com/v1/groups/omgtest')
         self.assertRaises(ValueError, account._resolve_group, 'omgtest')
 
-        # test in_group assertion
+        # test has_group assertion
         group = directory.groups.search({"description": "random_groups", "name": "test_groupi_1"})[0]
-        self.assertFalse(account.in_group(group))
+        self.assertFalse(account.has_group(group))
         account.add_group(group)
-        self.assertTrue(account.in_group(group))
+        self.assertTrue(account.has_group(group))
 
         group = directory.groups.search({"description": "random_groups", "name": "test_groupi_7"})[0]
-        self.assertFalse(account.in_group(group))
+        self.assertFalse(account.has_group(group))
         account.add_group(group.href)
-        self.assertTrue(account.in_group(group))
+        self.assertTrue(account.has_group(group))
 
         group = directory.groups.search({"description": "random_groups", "name": "test_groupi_6"})[0]
-        self.assertFalse(account.in_group(group))
+        self.assertFalse(account.has_group(group))
         account.add_group(group.name)
-        self.assertTrue(account.in_group(group))
+        self.assertTrue(account.has_group(group))
 
         self.assertRaises(Error, account.add_group, group)
 
-        # test in_groups assertion
+        # test has_groups assertion
         group1 = directory.groups.search({"description": "random_groups", "name": "test_groupi_1"})[0]
         group2 = directory.groups.search({"description": "random_groups", "name": "test_groupi_2"})[0]
         group3 = directory.groups.search({"description": "random_groups", "name": "test_groupi_3"})[0]
-        self.assertFalse(account.in_groups([group1, group2, group3]))
-        self.assertTrue(account.in_groups([group1, group2, group3], all=False))
+        self.assertFalse(account.has_groups([group1, group2, group3]))
+        self.assertTrue(account.has_groups([group1, group2, group3], all=False))
         account.add_group(group2)
         account.add_group(group3)
-        self.assertTrue(account.in_groups([group1, group2, group3]))
-        self.assertTrue(account.in_groups([group1, group2, group3], all=False))
+        self.assertTrue(account.has_groups([group1, group2, group3]))
+        self.assertTrue(account.has_groups([group1, group2, group3], all=False))
 
         # test _resolve_account helper
         group = directory.groups.query(name='test_groupi_4')[0]
@@ -277,10 +277,10 @@ class LiveTest(unittest.TestCase):
         # test add_account
         group = directory.groups.query(name='test_groupi_5')[0]
         account = directory.accounts.query(username=username)[0]
-        self.assertFalse(account.in_group(group))
+        self.assertFalse(account.has_group(group))
 
         group.add_account(account)
-        self.assertTrue(account.in_group(group))
+        self.assertTrue(account.has_group(group))
 
         username = self.generate_name("william")
         account = directory.accounts.create({
@@ -299,7 +299,7 @@ class LiveTest(unittest.TestCase):
         })
 
         group.add_account(account.href)
-        self.assertTrue(account.in_group(group))
+        self.assertTrue(account.has_group(group))
 
         username = self.generate_name("william")
         account = directory.accounts.create({
@@ -318,7 +318,7 @@ class LiveTest(unittest.TestCase):
         })
 
         group.add_account(account.username)
-        self.assertTrue(account.in_group(group))
+        self.assertTrue(account.has_group(group))
 
         username = self.generate_name("william")
         account = directory.accounts.create({
@@ -337,54 +337,54 @@ class LiveTest(unittest.TestCase):
         })
 
         group.add_account(account.email)
-        self.assertTrue(account.in_group(group))
+        self.assertTrue(account.has_group(group))
 
         self.assertRaises(Error, group.add_account, account.email)
 
         # test remove_group
-        self.assertTrue(account.in_group(group))
+        self.assertTrue(account.has_group(group))
         account.remove_group(group)
-        self.assertFalse(account.in_group(group))
+        self.assertFalse(account.has_group(group))
 
         account = directory.accounts.get(account.href)
         account.add_group(group)
-        self.assertTrue(account.in_group(group))
+        self.assertTrue(account.has_group(group))
         account.remove_group(group.href)
-        self.assertFalse(account.in_group(group))
+        self.assertFalse(account.has_group(group))
 
         account = directory.accounts.get(account.href)
         account.add_group(group)
-        self.assertTrue(account.in_group(group))
+        self.assertTrue(account.has_group(group))
         account.remove_group(group.name)
-        self.assertFalse(account.in_group(group))
+        self.assertFalse(account.has_group(group))
 
         account = directory.accounts.get(account.href)
         self.assertRaises(Error, account.remove_group, group)
 
         # test remove_account
         group.add_account(account)
-        self.assertTrue(account.in_group(group))
+        self.assertTrue(account.has_group(group))
 
         group.remove_account(account)
-        self.assertFalse(account.in_group(group))
+        self.assertFalse(account.has_group(group))
 
         group = directory.groups.get(group.href)
         group.add_account(account)
-        self.assertTrue(account.in_group(group))
+        self.assertTrue(account.has_group(group))
         group.remove_account(account.href)
-        self.assertFalse(account.in_group(group))
+        self.assertFalse(account.has_group(group))
 
         group = directory.groups.get(group.href)
         group.add_account(account)
-        self.assertTrue(account.in_group(group))
+        self.assertTrue(account.has_group(group))
         group.remove_account(account.username)
-        self.assertFalse(account.in_group(group))
+        self.assertFalse(account.has_group(group))
 
         group = directory.groups.get(group.href)
         group.add_account(account)
-        self.assertTrue(account.in_group(group))
+        self.assertTrue(account.has_group(group))
         group.remove_account(account.email)
-        self.assertFalse(account.in_group(group))
+        self.assertFalse(account.has_group(group))
 
         group = directory.groups.get(group.href)
         self.assertRaises(Error, account.remove_group, group)
