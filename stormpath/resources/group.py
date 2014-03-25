@@ -43,15 +43,15 @@ class Group(Resource, AutoSaveMixin, DeleteMixin, StatusMixin):
             'tenant': Tenant,
         }
 
-    def _resolve_account(self, account_object_or_href_or_name):
+    def _resolve_account(self, account_object_or_href_or_username_or_email):
         """Given an Account object or href or name, return a functional Account
         object.
 
         This helper method allows us to easily accept Account arguments in
         multiple ways.
 
-        :param account_object_or_href_or_name: This could be any one of the
-            following:
+        :param account_object_or_href_or_username_or_email: This could be any
+            one of the following:
 
             - An :class:`stormpath.resources.account.Account` object.
             - An Account href, ex:
@@ -74,18 +74,18 @@ class Group(Resource, AutoSaveMixin, DeleteMixin, StatusMixin):
         from .account import Account
 
         # If this is an Account object already, we have no work to do!
-        if isinstance(account_object_or_href_or_name, Account):
-            return account_object_or_href_or_name
+        if isinstance(account_object_or_href_or_username_or_email, Account):
+            return account_object_or_href_or_username_or_email
 
         # We now know this isn't an Account object.
-        href_or_name = account_object_or_href_or_name
+        href_or_username_or_email = account_object_or_href_or_username_or_email
 
         # Check to see whether or not this is a string.
-        if isinstance(href_or_name, string_types):
+        if isinstance(href_or_username_or_email, string_types):
 
             # If this Account is an href, we'll just use that.
-            if href_or_name.startswith(self._client.BASE_URL):
-                href = href_or_name
+            if href_or_username_or_email.startswith(self._client.BASE_URL):
+                href = href_or_username_or_email
 
                 try:
                     account = self.directory.accounts.get(href)
@@ -102,11 +102,13 @@ class Group(Resource, AutoSaveMixin, DeleteMixin, StatusMixin):
             # Otherwise, we'll assume this is an Account username or email, and
             # try to query it.
             else:
-                name = href_or_name
+                username_or_email = href_or_username_or_email
 
                 for attr in ['username', 'email']:
-                    for a in self.directory.accounts.search({attr: name}):
-                        if getattr(a, attr) == name:
+                    for a in self.directory.accounts.search({
+                        attr: username_or_email,
+                    }):
+                        if getattr(a, attr) == username_or_email:
                             return a
 
                 raise ValueError('Invalid Account %s specified.' % attr)
@@ -115,15 +117,15 @@ class Group(Resource, AutoSaveMixin, DeleteMixin, StatusMixin):
         # so bail.
         raise TypeError('Unsupported type. Account object required.')
 
-    def add_account(self, account_object_or_href_or_name):
+    def add_account(self, account_object_or_href_or_username_or_email):
         """Associate an Account with this Group.
 
         This creates a
         :class:`stormpath.resources.group_membership.GroupMembership` object in
         the backend.
 
-        :param account_object_or_href_or_name: This could be any one of the
-            following:
+        :param account_object_or_href_or_username_or_email: This could be any
+            one of the following:
 
             - An :class:`stormpath.resources.account.Account` object.
             - An Account href, ex:
@@ -136,17 +138,17 @@ class Group(Resource, AutoSaveMixin, DeleteMixin, StatusMixin):
             will always be the quickest way to add an Account, as it doesn't
             require any additional API calls.
         """
-        account = self._resolve_account(account_object_or_href_or_name)
+        account = self._resolve_account(account_object_or_href_or_username_or_email)
         return self._client.group_memberships.create({
             'account': account,
             'group': self,
         })
 
-    def remove_account(self, account_object_or_href_or_name):
+    def remove_account(self, account_object_or_href_or_username_or_email):
         """Remove this Account from the specified Group.
 
-        :param account_object_or_href_or_name: This could be any one of the
-            following:
+        :param account_object_or_href_or_username_or_email: This could be any
+            one of the following:
 
             - An :class:`stormpath.resources.account.Account` object.
             - An Account href, ex:
@@ -162,7 +164,7 @@ class Group(Resource, AutoSaveMixin, DeleteMixin, StatusMixin):
             always be the quickest way to remove an Account, since it doesn't
             require any additional API calls.
         """
-        account = self._resolve_account(account_object_or_href_or_name)
+        account = self._resolve_account(account_object_or_href_or_username_or_email)
 
         for membership in self.account_memberships:
             if membership.account.href == account.href:
