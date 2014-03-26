@@ -4,8 +4,8 @@ from uuid import uuid4
 
 from stormpath.client import Client
 from stormpath.error import Error
-from stormpath.resources.group_membership import GroupMembership
 from stormpath.resources.base import Expansion
+from stormpath.resources.group_membership import GroupMembership
 
 
 class LiveTest(unittest.TestCase):
@@ -222,22 +222,242 @@ class LiveTest(unittest.TestCase):
         self.assertEqual(len(groups), 1)
         self.assertEqual(groups[0].name, "test_groupi_1")
 
-        # test in_group assertion
+        # test _resolve_group helper
         group = directory.groups.search({"description": "random_groups", "name": "test_groupi_1"})[0]
-        self.assertFalse(account.in_group(group))
-        account.add_group(group)
-        self.assertTrue(account.in_group(group))
+        self.assertEqual(account._resolve_group(group).href, group.href)
+        self.assertEqual(account._resolve_group(group.href).href, group.href)
+        self.assertEqual(account._resolve_group(group.name).href, group.href)
+        self.assertRaises(TypeError, account._resolve_group, account)
+        self.assertRaises(ValueError, account._resolve_group, 'https://api.stormpath.com/v1/groups/omgtest')
+        self.assertRaises(ValueError, account._resolve_group, 'omgtest')
 
-        # test in_groups assertion
+        # test has_group assertion
+        group = directory.groups.search({"description": "random_groups", "name": "test_groupi_1"})[0]
+        self.assertFalse(account.has_group(group))
+        account.add_group(group)
+        self.assertTrue(account.has_group(group))
+
+        group = directory.groups.search({"description": "random_groups", "name": "test_groupi_7"})[0]
+        self.assertFalse(account.has_group(group))
+        account.add_group(group.href)
+        self.assertTrue(account.has_group(group))
+
+        group = directory.groups.search({"description": "random_groups", "name": "test_groupi_6"})[0]
+        self.assertFalse(account.has_group(group))
+        account.add_group(group.name)
+        self.assertTrue(account.has_group(group))
+
+        self.assertRaises(Error, account.add_group, group)
+
+        # test has_groups assertion
         group1 = directory.groups.search({"description": "random_groups", "name": "test_groupi_1"})[0]
         group2 = directory.groups.search({"description": "random_groups", "name": "test_groupi_2"})[0]
         group3 = directory.groups.search({"description": "random_groups", "name": "test_groupi_3"})[0]
-        self.assertFalse(account.in_groups([group1, group2, group3]))
-        self.assertTrue(account.in_groups([group1, group2, group3], all=False))
+        self.assertFalse(account.has_groups([group1, group2, group3]))
+        self.assertTrue(account.has_groups([group1, group2, group3], all=False))
         account.add_group(group2)
         account.add_group(group3)
-        self.assertTrue(account.in_groups([group1, group2, group3]))
-        self.assertTrue(account.in_groups([group1, group2, group3], all=False))
+        self.assertTrue(account.has_groups([group1, group2, group3]))
+        self.assertTrue(account.has_groups([group1, group2, group3], all=False))
+
+        # test _resolve_account helper
+        group = directory.groups.query(name='test_groupi_4')[0]
+        account = directory.accounts.query(username=username)[0]
+        account.add_group(group)
+        self.assertEqual(account.directory.href, group.directory.href)
+
+        self.assertEqual(group._resolve_account(account).href, account.href)
+        self.assertEqual(group._resolve_account(account.href).href, account.href)
+        self.assertEqual(group._resolve_account(account.username).href, account.href)
+        self.assertEqual(group._resolve_account(account.email).href, account.href)
+        self.assertRaises(TypeError, group._resolve_account, group)
+        self.assertRaises(ValueError, group._resolve_account, 'https://api.stormpath.com/v1/groups/omgtest')
+        self.assertRaises(ValueError, group._resolve_account, 'omgtest')
+
+        # test add_account
+        group = directory.groups.query(name='test_groupi_5')[0]
+        account = directory.accounts.query(username=username)[0]
+        self.assertFalse(account.has_group(group))
+
+        group.add_account(account)
+        self.assertTrue(account.has_group(group))
+
+        username = self.generate_name("william")
+        account = directory.accounts.create({
+            'username': username,
+            'email': username + "@titan.com",
+            'given_name': "William",
+            'middle_name': "Thomas",
+            'surname': "Riker",
+            'password': "xaiK3auc",
+            "custom_data": {
+                "rank": "Captain",
+                "birthDate": "2305-07-13",
+                "birthPlace": "La Barre, France",
+                "favoriteDrink": "Earl Grey tea"
+            }
+        })
+
+        group.add_account(account.href)
+        self.assertTrue(account.has_group(group))
+
+        username = self.generate_name("william")
+        account = directory.accounts.create({
+            'username': username,
+            'email': username + "@titan.com",
+            'given_name': "William",
+            'middle_name': "Thomas",
+            'surname': "Riker",
+            'password': "xaiK3auc",
+            "custom_data": {
+                "rank": "Captain",
+                "birthDate": "2305-07-13",
+                "birthPlace": "La Barre, France",
+                "favoriteDrink": "Earl Grey tea"
+            }
+        })
+
+        group.add_account(account.username)
+        self.assertTrue(account.has_group(group))
+
+        username = self.generate_name("william")
+        account = directory.accounts.create({
+            'username': username,
+            'email': username + "@titan.com",
+            'given_name': "William",
+            'middle_name': "Thomas",
+            'surname': "Riker",
+            'password': "xaiK3auc",
+            "custom_data": {
+                "rank": "Captain",
+                "birthDate": "2305-07-13",
+                "birthPlace": "La Barre, France",
+                "favoriteDrink": "Earl Grey tea"
+            }
+        })
+
+        group.add_account(account.email)
+        self.assertTrue(account.has_group(group))
+
+        self.assertRaises(Error, group.add_account, account.email)
+
+        # test remove_group
+        self.assertTrue(account.has_group(group))
+        account.remove_group(group)
+        self.assertFalse(account.has_group(group))
+
+        account = directory.accounts.get(account.href)
+        account.add_group(group)
+        self.assertTrue(account.has_group(group))
+        account.remove_group(group.href)
+        self.assertFalse(account.has_group(group))
+
+        account = directory.accounts.get(account.href)
+        account.add_group(group)
+        self.assertTrue(account.has_group(group))
+        account.remove_group(group.name)
+        self.assertFalse(account.has_group(group))
+
+        account = directory.accounts.get(account.href)
+        self.assertRaises(Error, account.remove_group, group)
+
+        # test remove_account
+        group.add_account(account)
+        self.assertTrue(account.has_group(group))
+
+        group.remove_account(account)
+        self.assertFalse(account.has_group(group))
+
+        group = directory.groups.get(group.href)
+        group.add_account(account)
+        self.assertTrue(account.has_group(group))
+        group.remove_account(account.href)
+        self.assertFalse(account.has_group(group))
+
+        group = directory.groups.get(group.href)
+        group.add_account(account)
+        self.assertTrue(account.has_group(group))
+        group.remove_account(account.username)
+        self.assertFalse(account.has_group(group))
+
+        group = directory.groups.get(group.href)
+        group.add_account(account)
+        self.assertTrue(account.has_group(group))
+        group.remove_account(account.email)
+        self.assertFalse(account.has_group(group))
+
+        group = directory.groups.get(group.href)
+        self.assertRaises(Error, account.remove_group, group)
+
+    def test_group_has_account(self):
+        application = self.client.applications.create({
+            'name': self.generate_name('my_app'),
+        }, create_directory=True)
+        self.created_applications.append(application)
+
+        account = application.accounts.create({
+            'given_name': 'Darth',
+            'surname': 'Vader',
+            'email': 'd@vader.io',
+            'password': 'j0inthed4rkSIDE!',
+        })
+        self.created_accounts.append(account)
+
+        group = application.groups.create({
+            'name': self.generate_name('group1'),
+        })
+        self.created_groups.append(group)
+
+        self.assertFalse(group.has_account(account))
+        group.add_account(account)
+        self.assertTrue(group.has_account(account))
+
+    def test_group_has_accounts(self):
+        application = self.client.applications.create({
+            'name': self.generate_name('my_app'),
+        }, create_directory=True)
+        self.created_applications.append(application)
+
+        account1 = application.accounts.create({
+            'given_name': 'Darth',
+            'surname': 'Vader',
+            'email': 'd@vader.io',
+            'password': 'j0inthed4rkSIDE!',
+        })
+        self.created_accounts.append(account1)
+
+        account2 = application.accounts.create({
+            'given_name': 'Darth',
+            'surname': 'Vader',
+            'email': 'd2@vader.io',
+            'password': 'j0inthed4rkSIDE!',
+        })
+        self.created_accounts.append(account2)
+
+        account3 = application.accounts.create({
+            'given_name': 'Darth',
+            'surname': 'Vader',
+            'email': 'd3@vader.io',
+            'password': 'j0inthed4rkSIDE!',
+        })
+        self.created_accounts.append(account3)
+
+        group = application.groups.create({
+            'name': self.generate_name('group'),
+        })
+        self.created_groups.append(group)
+
+        self.assertFalse(group.has_accounts([account1, account2, account3]))
+        self.assertFalse(group.has_accounts([account1, account2, account3], all=False))
+
+        group.add_account(account1)
+        group.add_account(account2)
+        self.assertFalse(group.has_accounts([account1, account2, account3]))
+        self.assertTrue(group.has_accounts([account1, account2, account3], all=False))
+
+        group.add_account(account3)
+        self.assertTrue(group.has_accounts([account1, account2, account3]))
+        self.assertTrue(group.has_accounts([account1, account2, account3], all=True))
 
     def tearDown(self):
         for grp_ms in self.created_group_memberships:
