@@ -91,12 +91,6 @@ class DocCommand(BaseCommand):
 #
 # python setup.py install
 
-classifiers = [
-    'Programming Language :: Python',
-    'Programming Language :: Python :: 2',
-    'Programming Language :: Python :: 3',
-]
-
 setup(
     name = 'stormpath',
     version = __version__,
@@ -113,6 +107,9 @@ setup(
         'Intended Audience :: Developers',
         'License :: OSI Approved :: Apache Software License',
         'Operating System :: OS Independent',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3.2',
         'Programming Language :: Python :: 3.3',
@@ -123,7 +120,7 @@ setup(
         'Topic :: Security :: Cryptography',
         'Topic :: Software Development :: Libraries :: Python Modules',
         'Topic :: Software Development :: Libraries',
-    ].extend(classifiers),
+    ],
     cmdclass = {
         'test': TestCommand,
         'livetest': LiveTestCommand,
