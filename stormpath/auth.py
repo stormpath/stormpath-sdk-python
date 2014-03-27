@@ -170,7 +170,8 @@ class Auth(object):
     def __init__(self, api_key_file_location=None,
                  api_key_id_property_name='apiKey.id',
                  api_key_secret_property_name='apiKey.secret',
-                 api_key=None, id=None, secret=None, method='digest'):
+                 api_key=None, id=None, secret=None, scheme='SAuthc1',
+                 method=None):
         """
         Initialize authentication using one of the available authentication
         credentials source:
@@ -185,6 +186,8 @@ class Auth(object):
             `secret` keys mapped to the API ID and secret respectively
         :param id: ID (if directly provided; default is None)
         :param secret: secret (if directly provided; default is None)
+        :param scheme: authentication scheme (`Sauthc1` or `basic`, default is
+            `Sauthc1`)
 
         All available authentication credentials sources are checked, in this
         priority:
@@ -194,10 +197,22 @@ class Auth(object):
         3. API key `secret` and `id` parameters
 
         The `id` and `secret` can be accessed as attributes.
+
+        The default authentication scheme is `Sauthc1`, and is strongly
+        recommended. In cases where it can't be used (for example, in Google
+        App Engine), basic authentication can be selected instead by supplying
+        `basic` as the authentication scheme.
+
+        Once initialized, `scheme` property will return the authentication
+        scheme implementation selected.
         """
         self._id = None
         self._secret = None
-        self._method = method
+        self._scheme = scheme
+
+        # backwards compatibility, in case anyone used it
+        if method is not None:
+            self._scheme = 'basic' if method == 'basic' else 'SAuthc1'
 
         if self._read_api_key_file(api_key_file_location,
                 api_key_id_property_name, api_key_secret_property_name):
@@ -280,9 +295,15 @@ class Auth(object):
 
     @property
     def signer(self):
-        if self._method == 'basic':
+        """Deprecated, use Auth.scheme instead."""
+        return self.scheme
+
+    @property
+    def scheme(self):
+        """Selected authentication scheme implementation."""
+        if self._scheme == 'basic':
             return self.basic
-        elif self._method == 'digest':
+        elif self._scheme == 'SAuthc1':
             return self.digest
         else:
-            raise ValueError('Unsupported auth method ' + str(self._method))
+            raise ValueError('Unsupported auth scheme ' + str(self._scheme))

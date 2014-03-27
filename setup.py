@@ -79,7 +79,7 @@ class DocCommand(BaseCommand):
 
     def run(self):
         try:
-            os.chdir('doc')
+            os.chdir('docs')
             ret = os.system('make html')
             sys.exit(ret)
         except OSError as e:
@@ -91,12 +91,6 @@ class DocCommand(BaseCommand):
 #
 # python setup.py install
 
-classifiers = [
-    'Programming Language :: Python',
-    'Programming Language :: Python :: 2',
-    'Programming Language :: Python :: 3',
-]
-
 setup(
     name = 'stormpath',
     version = __version__,
@@ -106,17 +100,27 @@ setup(
     url = 'https://github.com/stormpath/stormpath-sdk-python',
     zip_safe = False,
     keywords = ['stormpath', 'authentication', 'users', 'security'],
-    install_requires = ['requests>=1.1.0'],
+    install_requires = ['requests>=1.1.0', 'six>=1.6.1'],
     packages = find_packages(),
     classifiers = [
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: Apache Software License',
         'Operating System :: OS Independent',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.2',
+        'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: Implementation :: CPython',
+        'Programming Language :: Python :: Implementation :: PyPy',
+        'Topic :: Internet :: WWW/HTTP :: Site Management',
         'Topic :: Security',
+        'Topic :: Security :: Cryptography',
         'Topic :: Software Development :: Libraries :: Python Modules',
         'Topic :: Software Development :: Libraries',
-    ].extend(classifiers),
+    ],
     cmdclass = {
         'test': TestCommand,
         'livetest': LiveTestCommand,
