@@ -1,7 +1,7 @@
 Version 1.1.0
 -------------
 
-Not yet released.
+Released on March 27, 2014.
 
 - Adding docs.
 - Adding customizable authentication methods to the Client.
