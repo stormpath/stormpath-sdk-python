@@ -568,6 +568,18 @@ $ tox
 
 To run the test suite.
 
+Running a single environment (Python 2.7)
+
+```bash
+$ tox  -e py27
+```
+
+Running a single test in that environment:
+
+```bash
+$ tox  -e py27 -- -k test_name_of_the_test
+```
+
 
 ### Testing without tox
 
