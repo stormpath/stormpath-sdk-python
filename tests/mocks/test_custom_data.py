@@ -24,7 +24,6 @@ class TestCustomData(TestCase):
     def test_custom_data_created_with_properties(self):
         d = CustomData(MagicMock(), properties=self.props)
 
-        self.assertTrue(d.is_materialized())
         self.assertEqual(d['foo'], 1)
 
     def test_readonly_properties_are_not_exposed_in_dict(self):
@@ -124,14 +123,6 @@ class TestCustomData(TestCase):
         # quux property is as set
         self.assertEqual(quux, 'a-little-corgi')
         self.assertEqual(d.data, props)
-
-    @patch('stormpath.resources.base.Resource._ensure_data')
-    def test_non_materialized_property_is_ensured(self, _ensure_data):
-        d = CustomData(MagicMock(), href='test/resource')
-
-        self.assertFalse(d.is_materialized())
-        d.get('corge')
-        self.assertTrue(_ensure_data.called)
 
     def test_del_delays_deletion_until_save(self):
         ds = MagicMock()

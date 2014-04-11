@@ -580,6 +580,81 @@ class TestApplication(BaseTest):
         except:
             self.fail('Exception should not be raised!')
 
+    @httpretty.activate
+    def test_explicit_refresh(self):
+
+        tenant_applications_body_one_app = {
+            "href": self.tenant_href + '/applications',
+            "offset": 10,
+            "limit": 40,
+            "items" : [
+                self.app_body
+            ]
+        }
+
+        tenant_applications_body_no_apps = {
+            "href": self.tenant_href + '/applications',
+            "offset": 10,
+            "limit": 40,
+            "items" : [
+            ]
+        }
+
+
+        error = {'moreInfo': 'https://www.stormpath.com/docs/errors/2000',
+            'status': 400,
+            'code': 2000,
+            'message': 'createDirectory query parameter value cannot be ' +
+                'null, empty, or blank.',
+            'developerMessage': 'createDirectory query parameter value ' +
+                'cannot be null, empty, or blank.'
+        }
+
+
+        httpretty.register_uri(httpretty.GET,
+            self.base_href + "/tenants/current",
+            location=self.tenant_href,
+            responses=[
+                httpretty.Response(json.dumps(self.tenant_body)),
+                httpretty.Response(json.dumps(self.tenant_body))
+            ],
+            status=302)
+
+        httpretty.register_uri(httpretty.GET,
+            self.tenant_href,
+            responses=[
+                httpretty.Response(json.dumps(self.tenant_body)),
+                httpretty.Response(json.dumps(self.tenant_body))
+            ],
+            content_type="application/json")
+
+
+        httpretty.register_uri(httpretty.GET,
+            self.tenant_href + "/applications",
+            responses=[
+                httpretty.Response(json.dumps(tenant_applications_body_one_app)),
+                httpretty.Response(json.dumps(tenant_applications_body_no_apps)),
+            ],
+            content_type="application/json")
+
+        httpretty.register_uri(httpretty.GET,
+            self.app_href,
+            responses=[
+                httpretty.Response(json.dumps(self.app_body)),
+                httpretty.Response(body=json.dumps(error), status=404)
+            ],
+            content_type="application/json")
+
+        httpretty.register_uri(httpretty.DELETE,
+            self.app_href,
+            body='', status=204)
+
+        applications = self.client.applications
+        # Test that we have one app
+        self.assertEquals(1, len(self.client.applications))
+        self.client.applications.refresh()
+        self.assertEquals(0, len(self.client.applications))
+
 
 if __name__ == '__main__':
     unittest.main()

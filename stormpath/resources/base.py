@@ -61,7 +61,6 @@ class Resource(object):
             expand=None):
         self._client = client
         self._expand = expand
-        self._is_materialized = False
         self._query = query
         self._store = client.data_store
 
@@ -86,11 +85,6 @@ class Resource(object):
     def __getattr__(self, name):
         if name == 'href':
             return self.__dict__.get('href')
-
-        # If we already have it locally, no need to materialize the rest of
-        # the resource.
-        if name in self.__dict__:
-            return self.__dict__[name]
 
         self._ensure_data()
 
@@ -143,10 +137,6 @@ class Resource(object):
 
             self.__dict__[name] = value
 
-        # If there were more properties than just the href, the resource is
-        # materialized.
-        if list(properties.keys()) != ['href']:
-            self._is_materialized = True
 
     @staticmethod
     def to_camel_case(name):
@@ -195,14 +185,11 @@ class Resource(object):
         except AttributeError:
             return repr(self)
 
-    def is_materialized(self):
-        return self._is_materialized
-
     def is_new(self):
         return self.href is None
 
     def _ensure_data(self):
-        if self.is_new() or self.is_materialized():
+        if self.is_new():
             return
 
         params = {}
@@ -218,6 +205,22 @@ class Resource(object):
         data = self._store.get_resource(self.href, params=params)
         self._set_properties(data)
 
+    def refresh(self):
+        """Refreshes the local copy of a Resource or Resource List from the API
+
+        Example refreshing an application list after delete::
+
+            myapp = client.applications[0]
+            myapp.delete()
+
+            client.applications.refresh()
+
+        .. note::
+            This will ignore all changes made on a resource if it has not been saved previously.
+        """
+
+        self._store.uncache_resource(self.href)
+        self._ensure_data()
 
 class SaveMixin(object):
 
@@ -232,8 +235,8 @@ class AutoSaveMixin(SaveMixin):
 
     def save(self):
         super(AutoSaveMixin, self).save()
-        if self.is_materialized():
-            for res in self.autosaves:
+        for res in self.autosaves:
+            if res in self.__dict__:
                 self.__dict__[res].save()
 
 
@@ -313,7 +316,6 @@ class CollectionResource(Resource):
         super(CollectionResource, self)._set_properties(properties)
 
         if items is not None:
-            self._is_materialized = True
             self.__dict__['items'] = [self._wrap_resource_attr(
                 self.resource_class, item) for item in items]
 
@@ -330,7 +332,7 @@ class CollectionResource(Resource):
         data = self._store.get_resource(self.href, params=q)
 
         items = [self._wrap_resource_attr(self.resource_class,
-            item) for item in data['items']]
+            item) for item in data.get('items', [])]
         self.__dict__['items'].extend(items)
         self.__dict__['limit'] += len(items)
 
