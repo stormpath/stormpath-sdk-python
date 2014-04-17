@@ -116,8 +116,14 @@ class Resource(object):
 
     @staticmethod
     def _sanitize_property(value):
-        if isinstance(value, Resource) and value.href:
-            return {'href': value.href}
+        if isinstance(value, Resource):
+            if value.href:
+                return {'href': value.href}
+            else:
+                return value._get_properties()
+        elif isinstance(value, dict):
+            return {Resource.to_camel_case(k):Resource._sanitize_property(v)
+                for k, v in value.items()}
         else:
             return value
 
