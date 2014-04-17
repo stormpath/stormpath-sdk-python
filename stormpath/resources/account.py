@@ -36,6 +36,10 @@ class Account(Resource, AutoSaveMixin, DeleteMixin, StatusMixin):
     def __str__(self):
         return self.username
 
+    @property
+    def is_new_account(self):
+        return self.sp_http_status == 201
+
     def get_resource_attributes(self):
         from .custom_data import CustomData
         from .directory import Directory

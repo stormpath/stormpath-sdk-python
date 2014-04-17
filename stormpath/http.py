@@ -62,7 +62,9 @@ class HttpExecutor(object):
             raise Error(r.json(), http_status=r.status_code)
 
         try:
-            return r.json()
+            d = r.json()
+            d['sp_http_status'] = r.status_code
+            return d
         except:
             return {}
 
