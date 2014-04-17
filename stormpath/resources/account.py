@@ -19,13 +19,14 @@ class Account(Resource, AutoSaveMixin, DeleteMixin, StatusMixin):
     More info in documentation:
     http://docs.stormpath.com/python/product-guide/#accounts
     """
-    autosaves = ('custom_data',)
+    autosaves = ('custom_data', 'provider_data')
     writable_attrs = (
         'custom_data',
         'email',
         'given_name',
         'middle_name',
         'password',
+        'provider_data',
         'status',
         'surname',
         'username',
@@ -40,6 +41,7 @@ class Account(Resource, AutoSaveMixin, DeleteMixin, StatusMixin):
         from .directory import Directory
         from .group import GroupList
         from .group_membership import GroupMembershipList
+        from .provider_data import ProviderData
         from .tenant import Tenant
 
         return {
@@ -48,6 +50,7 @@ class Account(Resource, AutoSaveMixin, DeleteMixin, StatusMixin):
             'email_verification_token': Resource,
             'groups': GroupList,
             'group_memberships': GroupMembershipList,
+            'provider_data': ProviderData,
             'tenant': Tenant,
         }
 
