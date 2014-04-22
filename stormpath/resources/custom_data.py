@@ -56,7 +56,6 @@ class CustomData(Resource, DeleteMixin, SaveMixin):
             self.data[key] = value
 
     def __delitem__(self, key):
-        # import pdb; pdb.set_trace()
         self._ensure_data()
         del self.data[key]
 
