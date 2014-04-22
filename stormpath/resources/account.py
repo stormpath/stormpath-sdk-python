@@ -189,17 +189,21 @@ class Account(Resource, AutoSaveMixin, DeleteMixin, StatusMixin):
         Groups.
 
         :param group_objects_or_hrefs_or_names: A list of either:
+
             - :class:`stormpath.resources.group.Group` objects.
             - Group hrefs, ex:
                 'https://api.stormpath.com/v1/groups/3wzkqr03K8WxRp8NQuYSs3'
             - Group names, ex: 'admins'.
 
-            This could look something like:
-            [
-                group,
-                'https://api.stormpath.com/v1/groups/3wzkqr03K8WxRp8NQuYSs3',
-                'admins',
-            ]
+                This could look something like:
+
+                [
+                    group,
+
+                    'https://api.stormpath.com/v1/groups/3wzkqr03K8WxRp8NQuYSs3',
+
+                    'admins',
+                ]
 
         :param all: A boolean (default: True) which controls how Group
             assertions are handled.  If all is set to True (default), then
