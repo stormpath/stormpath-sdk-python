@@ -62,17 +62,36 @@ class Application(Resource, DeleteMixin, SaveMixin, StatusMixin):
         return self.login_attempts.basic_auth(login, password, expand,
             account_store)
 
-    def get_provider_account(self, provider_id, **provider_kwargs):
+    def get_provider_account(self, provider, **provider_kwargs):
         """Used for getting account data from 3rd party Providers
         (ie. Google, Facebook)
 
-        :param provider_id: :class:`stormpath.resources.Provider`: GOOGLE, FACEBOOK or STORMPATH
+        :param provider: Can be one of the following Constants:
 
-        :param provider_kwargs: {'code': ..., 'access_token': ..., 'client_id', 'client_secret': ...}
+            * :const:`stormpath.resources.provider.Provider.GOOGLE`
+
+            * :const:`stormpath.resources.provider.Provider.FACEBOOK`
+
+            * :const:`stormpath.resources.provider.Provider.STORMPATH`
+
+
+        :param provider_kwargs: Which specific kwargs are needed depends on the chosen Provider.
+
+            {
+                'code': '...',
+
+                'access_token': '...',
+
+                'client_id': '...',
+
+                'client_secret': '...'
+            }
+
+
 
         """
         provider_data = provider_kwargs.copy()
-        provider_data['provider_id'] = provider_id
+        provider_data['provider_id'] = provider
 
         return self.accounts.create({
             'provider_data': provider_data
