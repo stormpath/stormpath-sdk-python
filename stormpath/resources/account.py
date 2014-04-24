@@ -19,7 +19,7 @@ class Account(Resource, AutoSaveMixin, DeleteMixin, StatusMixin):
     More info in documentation:
     http://docs.stormpath.com/python/product-guide/#accounts
     """
-    autosaves = ('custom_data', 'provider_data')
+    autosaves = ('custom_data',)
     writable_attrs = (
         'custom_data',
         'email',
