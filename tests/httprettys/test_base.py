@@ -24,6 +24,8 @@ class BaseTest(unittest.TestCase):
         self.acc_path = self.base_path + '/accounts/ACC_ID'
         self.acc_href = self.base_url + self.acc_path
 
+        self.provider_data_href = self.acc_href + '/providerData'
+
         self.grp_path = self.base_path + '/groups/GRP_ID'
         self.grp_href = self.base_url + self.grp_path
 
@@ -43,6 +45,15 @@ class BaseTest(unittest.TestCase):
             "directories": {
                 "href": self.tenant_href + "/directories"
             }
+        }
+
+        self.provider_data_body = {
+            "accessToken": "ACCESS_TOKEN",
+            "createdAt": "2014-04-01T17:00:09.154Z",
+            "href": self.provider_data_href,
+            "modifiedAt": "2014-04-01T17:00:09.189Z",
+            "providerId": "google",
+            "refreshToken": "REFRESH_TOKEN"
         }
 
         self.dir_body = {

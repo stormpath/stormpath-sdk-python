@@ -1,11 +1,14 @@
 from unittest import TestCase, main
 try:
-    from mock import MagicMock, patch
+    from mock import MagicMock, patch, create_autospec
 except ImportError:
-    from unittest.mock import MagicMock, patch
+    from unittest.mock import MagicMock, patch, create_autospec
 from stormpath.resources.base import (Expansion, Resource, CollectionResource,
     SaveMixin, DeleteMixin, AutoSaveMixin)
 from stormpath.client import Client
+
+from stormpath.resources.application import Application
+from stormpath.resources import Provider
 
 
 class TestExpansion(TestCase):
@@ -429,6 +432,15 @@ class TestCollectionResource(TestCase):
         client = Client(api_key={'id': 'MyId', 'secret': 'Shush!'}, expand=e)
 
         self.assertIsInstance(client.tenant._expand, Expansion)
+
+    def test_getting_user_data_from_3rd_party_providers(self):
+        from stormpath.resources.application import Application
+        from stormpath.resources import Provider
+        app = create_autospec(Application)
+        app.get_provider_account(provider=Provider.GOOGLE, access_token='FAKETOKEN')
+        app.get_provider_account.assert_called_with(access_token='FAKETOKEN', provider='google')
+        app.get_provider_account(provider=Provider.FACEBOOK, access_token='FAKETOKEN')
+        app.get_provider_account.assert_called_with(access_token='FAKETOKEN', provider='facebook')
 
 if __name__ == '__main__':
     main()
