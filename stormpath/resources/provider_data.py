@@ -11,8 +11,3 @@ class ProviderData(Resource):
     http://docs.stormpath.com/python/product-guide/#integrating-with-google
     http://docs.stormpath.com/python/product-guide/#integrating-with-facebook
     """
-    writable_attrs = (
-        'access_token',
-        'code',
-        'provider_id',
-    )
