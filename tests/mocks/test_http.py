@@ -67,7 +67,7 @@ class HttpTest(TestCase):
 
         data = ex.get('/first')
 
-        self.assertEqual(data, {'hello': 'World'})
+        self.assertEqual(data, {'hello': 'World', 'sp_http_status': 200})
 
     @patch('stormpath.http.Session')
     def test_sauthc1_dict(self, Session):

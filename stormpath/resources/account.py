@@ -26,6 +26,7 @@ class Account(Resource, AutoSaveMixin, DeleteMixin, StatusMixin):
         'given_name',
         'middle_name',
         'password',
+        'provider_data',
         'status',
         'surname',
         'username',
@@ -35,11 +36,16 @@ class Account(Resource, AutoSaveMixin, DeleteMixin, StatusMixin):
     def __str__(self):
         return self.username
 
+    @property
+    def is_new_account(self):
+        return self.sp_http_status == 201
+
     def get_resource_attributes(self):
         from .custom_data import CustomData
         from .directory import Directory
         from .group import GroupList
         from .group_membership import GroupMembershipList
+        from .provider_data import ProviderData
         from .tenant import Tenant
 
         return {
@@ -48,6 +54,7 @@ class Account(Resource, AutoSaveMixin, DeleteMixin, StatusMixin):
             'email_verification_token': Resource,
             'groups': GroupList,
             'group_memberships': GroupMembershipList,
+            'provider_data': ProviderData,
             'tenant': Tenant,
         }
 
@@ -182,17 +189,21 @@ class Account(Resource, AutoSaveMixin, DeleteMixin, StatusMixin):
         Groups.
 
         :param group_objects_or_hrefs_or_names: A list of either:
+
             - :class:`stormpath.resources.group.Group` objects.
             - Group hrefs, ex:
                 'https://api.stormpath.com/v1/groups/3wzkqr03K8WxRp8NQuYSs3'
             - Group names, ex: 'admins'.
 
-            This could look something like:
-            [
-                group,
-                'https://api.stormpath.com/v1/groups/3wzkqr03K8WxRp8NQuYSs3',
-                'admins',
-            ]
+                This could look something like:
+
+                [
+                    group,
+
+                    'https://api.stormpath.com/v1/groups/3wzkqr03K8WxRp8NQuYSs3',
+
+                    'admins',
+                ]
 
         :param all: A boolean (default: True) which controls how Group
             assertions are handled.  If all is set to True (default), then

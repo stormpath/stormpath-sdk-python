@@ -7,6 +7,7 @@ import json
 from stormpath.resources import (Account, AccountList,
     GroupList, PasswordResetTokenList)
 from stormpath.error import Error as StormpathError
+from stormpath.resources.provider import Provider
 
 
 class TestApplication(BaseTest):
@@ -430,6 +431,89 @@ class TestApplication(BaseTest):
 
         # tenant
         self.assertEqual(application.tenant.name, self.tenant_body["name"])
+
+
+    @httpretty.activate
+    def test_fetching_provider_data(self):
+
+        tenant_applications_body_one_app = {
+            "href": self.tenant_href + '/applications',
+            "offset": 10,
+            "limit": 40,
+            "items" : [
+                self.app_body
+            ]
+        }
+
+        httpretty.register_uri(httpretty.GET,
+            self.base_href + "/tenants/current",
+            location=self.tenant_href,
+            responses=[
+                httpretty.Response(json.dumps(self.tenant_body)),
+            ],
+            status=302)
+
+        httpretty.register_uri(httpretty.GET,
+            self.tenant_href,
+            responses=[
+                httpretty.Response(json.dumps(self.tenant_body)),
+            ],
+            content_type="application/json")
+
+
+        httpretty.register_uri(httpretty.GET,
+            self.tenant_href + "/applications",
+            responses=[
+                httpretty.Response(json.dumps(tenant_applications_body_one_app)),
+            ],
+            content_type="application/json")
+
+        httpretty.register_uri(httpretty.GET,
+            self.app_href,
+            responses=[
+                httpretty.Response(json.dumps(self.app_body)),
+            ],
+            content_type="application/json")
+
+        self.acc_body['provider_data'] = {'href': self.acc_href + '/providerData'}
+
+        httpretty.register_uri(httpretty.POST,
+            self.app_href + '/accounts',
+            responses=[
+                httpretty.Response(json.dumps(self.acc_body)),
+            ],
+            content_type="application/json")
+
+
+        httpretty.register_uri(httpretty.GET,
+            self.acc_href,
+            responses=[
+                httpretty.Response(json.dumps(self.acc_body)),
+            ],
+            content_type="application/json")
+
+
+        httpretty.register_uri(httpretty.GET,
+            self.provider_data_href,
+            responses=[
+                httpretty.Response(json.dumps(self.provider_data_body)),
+            ],
+            content_type="application/json")
+
+        # We don't actually need any provider data
+
+        applications = self.client.applications
+        app = self.client.applications[0]
+        acc = app.get_provider_account(provider=Provider.GOOGLE, access_token='FAKETOKEN')
+        self.assertEqual(acc.email, self.acc_body['email'])
+        self.assertEqual(acc.provider_data.href, self.acc_body['provider_data']['href'])
+
+        acc = app.get_provider_account(provider=Provider.FACEBOOK, access_token='FAKETOKEN')
+        self.assertEqual(acc.email, self.acc_body['email'])
+        self.assertEqual(acc.provider_data.href, self.acc_body['provider_data']['href'])
+
+        self.assertEqual(acc.provider_data.access_token,
+            self.provider_data_body['accessToken'])
 
 if __name__ == '__main__':
     unittest.main()

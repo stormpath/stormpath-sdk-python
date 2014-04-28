@@ -2,6 +2,7 @@
 
 
 from .account import Account, AccountList
+from .provider import Provider
 from .group import Group, GroupList
 from .tenant import Tenant
 from .directory import Directory

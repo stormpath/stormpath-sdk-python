@@ -43,11 +43,17 @@ class HttpExecutor(object):
         if not url.startswith(self.base_url):
             url = self.base_url + url
 
+        import logging
+        log = logging.getLogger(__name__)
+
         try:
             r = self.session.request(method, url, data=data, params=params,
                 allow_redirects=False)
         except Exception as ex:
             raise Error({'developerMessage': str(ex)})
+
+        log.debug('HttpExecutor.request(method=%s, url=%s, params=%s, data=%s) -> [%d] %s' %
+            (method, url, repr(params), repr(data), r.status_code, r.text))
 
         if r.status_code in [301, 302] and 'location' in r.headers:
             return self.request('GET', r.headers['location'], params=params)
@@ -56,7 +62,9 @@ class HttpExecutor(object):
             raise Error(r.json(), http_status=r.status_code)
 
         try:
-            return r.json()
+            d = r.json()
+            d['sp_http_status'] = r.status_code
+            return d
         except:
             return {}
 

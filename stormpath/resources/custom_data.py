@@ -29,6 +29,10 @@ class CustomData(Resource, DeleteMixin, SaveMixin):
         'sp_meta',
     )
 
+    def __init__(self, *args, **kwargs):
+        super(CustomData, self).__init__(*args, **kwargs)
+        self._deletes = set([])
+
     def __getitem__(self, key):
         if key not in self.data:
             self._ensure_data()
@@ -43,7 +47,7 @@ class CustomData(Resource, DeleteMixin, SaveMixin):
         else:
             if key.startswith('-'):
                 raise KeyError(
-                    "Usage of '-' at the beggining of key is not allowed")
+                    "Usage of '-' at the beginning of key is not allowed")
 
             key_href = self._get_key_href(key)
             if key_href in self._deletes:
@@ -63,10 +67,6 @@ class CustomData(Resource, DeleteMixin, SaveMixin):
 
     def _get_key_href(self, key):
         return '%s/%s' % (self.href, key)
-
-    def save(self):
-        if 'data' in self.__dict__ and len(self.data):
-            super(CustomData, self).save()
 
     def keys(self):
         self._ensure_data()
@@ -104,3 +104,11 @@ class CustomData(Resource, DeleteMixin, SaveMixin):
                     self.__dict__['data'][k] = v
 
         self._is_materialized = ('created_at' in self.__dict__)
+
+    def save(self):
+        for href in self._deletes:
+            self._store.delete_resource(href)
+        self._deletes = set()
+
+        if 'data' in self.__dict__ and len(self.data):
+            super(CustomData, self).save()

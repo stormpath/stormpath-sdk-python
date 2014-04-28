@@ -60,7 +60,6 @@ class Resource(object):
     def __init__(self, client, href=None, properties=None, query=None,
             expand=None):
         self._client = client
-        self._deletes = set()
         self._expand = expand
         self._is_materialized = False
         self._query = query
@@ -117,8 +116,14 @@ class Resource(object):
 
     @staticmethod
     def _sanitize_property(value):
-        if isinstance(value, Resource) and value.href:
-            return {'href': value.href}
+        if isinstance(value, Resource):
+            if value.href:
+                return {'href': value.href}
+            else:
+                return value._get_properties()
+        elif isinstance(value, dict):
+            return {Resource.to_camel_case(k):Resource._sanitize_property(v)
+                for k, v in value.items()}
         else:
             return value
 
@@ -217,12 +222,8 @@ class SaveMixin(object):
 
     def save(self):
         if self.is_new():
-            raise ValueError("Can't save new resoures, use create instead")
+            raise ValueError("Can't save new resources, use create instead")
 
-        for href in self._deletes:
-            self._store.delete_resource(href)
-
-        self._deletes = set()
         self._store.update_resource(self.href, self._get_properties())
 
 
