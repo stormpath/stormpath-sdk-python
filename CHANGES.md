@@ -1,3 +1,15 @@
+Version 1.2.0
+-------------
+
+Released on May 2, 2014.
+
+- Adding debugging abilities to HttpExecutor (to make finding issues simpler).
+- Adding support for social identity providers (Facebook, Google).
+- Fixing custom data deletion issue.  Previously custom data wasn't deleted on
+  the server-side when a `del user.custom_data['field']` command was excecuted
+  and saved.
+
+
 Version 1.1.0
 -------------
 
