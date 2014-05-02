@@ -28,7 +28,7 @@ class LiveTest(unittest.TestCase):
 
     def test_live(self):
         # test directory creation
-        name = self.generate_name("my_dir")
+        name = self.generate_name('my_dir')
         directory = self.client.directories.create({
             'name': name,
             'description': "This is my raindir!"
@@ -44,7 +44,7 @@ class LiveTest(unittest.TestCase):
             self.created_applications.append(application)
 
         # test directory group creation
-        group_name = self.generate_name("my_group_1")
+        group_name = self.generate_name('my_group_1')
         group = directory.groups.create({
             "name": group_name,
             "description": "This is my support group",
@@ -57,7 +57,7 @@ class LiveTest(unittest.TestCase):
         self.assertTrue(group.is_enabled())
 
         # test directory account creation
-        username = self.generate_name("william")
+        username = self.generate_name('william')
         account = directory.accounts.create({
             'username': username,
             'email': username + "@titan.com",
