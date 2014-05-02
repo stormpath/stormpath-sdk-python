@@ -12,7 +12,7 @@ script:
 branches:
   only:
   - master
-  - development
+  - develop
 env:
   global:
   - secure: Gcwdd75RqfnUDV8A0ba/UWTGXLBCOUA5K9IUq7A7wijACAnfWxkOt1mrCvUQVYVmTjwvtoUzSYEUADP98dSENOhMJdulczcnsGdH8SfZxXIGIhfYK5Ukccq1MazK0Hh8TUJO/lwGyJS1o9hi/fBHt6MlTFz3c622Sc4nnYoxjiw=
