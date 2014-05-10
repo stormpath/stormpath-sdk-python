@@ -12,6 +12,7 @@ class TestCustomData(TestCase):
     def setUp(self):
         self.props = {
             'href': 'test/resource',
+            'sp_http_status': 200,
             'createdAt': 123,
             'foo': 1,
             'bar': '2',
@@ -98,6 +99,7 @@ class TestCustomData(TestCase):
 
         del self.props['href']
         del self.props['createdAt']
+        del self.props['sp_http_status']
 
         self.assertEqual(d._get_properties(), self.props)
 
