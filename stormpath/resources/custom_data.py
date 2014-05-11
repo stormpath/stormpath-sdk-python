@@ -27,6 +27,7 @@ class CustomData(Resource, DeleteMixin, SaveMixin):
         'modified_at',
         'spmeta',
         'sp_meta',
+        'sp_http_status',
     )
 
     def __init__(self, *args, **kwargs):
