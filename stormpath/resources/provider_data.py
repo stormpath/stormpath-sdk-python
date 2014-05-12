@@ -1,10 +1,10 @@
 """Stormpath Provider Data resource mappings."""
 
 
-from .base import Resource
+from .base import Resource, DictMixin
 
 
-class ProviderData(Resource):
+class ProviderData(Resource, DictMixin):
     """Stormpath Provider Data resource.
 
     More info in documentation:

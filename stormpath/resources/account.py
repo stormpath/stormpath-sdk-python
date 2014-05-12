@@ -8,12 +8,13 @@ from .base import (
     AutoSaveMixin,
     CollectionResource,
     DeleteMixin,
+    DictMixin,
     Resource,
     StatusMixin,
 )
 
 
-class Account(Resource, AutoSaveMixin, DeleteMixin, StatusMixin):
+class Account(Resource, AutoSaveMixin, DictMixin, DeleteMixin, StatusMixin):
     """Account resource.
 
     More info in documentation:

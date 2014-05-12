@@ -4,13 +4,14 @@
 from .base import (
     CollectionResource,
     DeleteMixin,
+    DictMixin,
     Resource,
     SaveMixin,
     StatusMixin,
 )
 
 
-class Directory(Resource, DeleteMixin, SaveMixin, StatusMixin):
+class Directory(Resource, DeleteMixin, DictMixin, SaveMixin, StatusMixin):
     """Stormpath Directory resource.
 
     More info in documentation:

@@ -3,12 +3,13 @@
 
 from .base import (
     DeleteMixin,
+    DictMixin,
     Resource,
     SaveMixin,
 )
 
 
-class Provider(Resource, DeleteMixin, SaveMixin):
+class Provider(Resource, DeleteMixin, DictMixin, SaveMixin):
     """Stormpath Provider resource.
 
     More info in documentation:

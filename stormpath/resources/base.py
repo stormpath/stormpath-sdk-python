@@ -261,6 +261,31 @@ class StatusMixin(object):
         return self.get_status() == self.STATUS_DISABLED
 
 
+class DictMixin(object):
+    """Provides dict() protocol support for the resource."""
+
+    def __getitem__(self, key):
+        return getattr(self, key)
+
+    def __setitem__(self, key, value):
+        return setattr(self, key, value)
+
+    def __contains__(self, key):
+        return hasattr(self, key)
+
+    def keys(self):
+        return [k for k in self.__dict__.keys() if not k.startswith('_')]
+
+    def values(self):
+        return [self.__dict__[k] for k in self.keys()]
+
+    def items(self):
+        return [(k, self.__dict__[k]) for k in self.keys()]
+
+    def __iter__(self):
+        return iter(self.keys())
+
+
 class CollectionResource(Resource):
     """Provides Resource collections/lists.
 
