@@ -1,3 +1,11 @@
+Version 1.2.1
+-------------
+
+Released on May 13, 2014.
+
+- Fixing minor bug with `sp_http_status` code being written to customData.
+
+
 Version 1.2.0
 -------------
 
