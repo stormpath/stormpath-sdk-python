@@ -18,7 +18,8 @@ class AuthenticationResult(Resource):
 
     writable_attrs = ('type', 'value', 'account_store')
 
-    def get_resource_attributes(self):
+    @staticmethod
+    def get_resource_attributes():
         from .account import Account
 
         return {

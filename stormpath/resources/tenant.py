@@ -19,7 +19,8 @@ class Tenant(Resource, DeleteMixin, SaveMixin):
         'name',
     )
 
-    def get_resource_attributes(self):
+    @staticmethod
+    def get_resource_attributes():
         from .application import ApplicationList
         from .directory import DirectoryList
 

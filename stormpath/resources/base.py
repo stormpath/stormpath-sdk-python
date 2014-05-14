@@ -100,7 +100,8 @@ class Resource(object):
             raise AttributeError("%s has no attribute '%s'" %
                 (self.__class__.__name__, name))
 
-    def get_resource_attributes(self):
+    @staticmethod
+    def get_resource_attributes():
         return {}
 
     def _wrap_resource_attr(self, cls, value):

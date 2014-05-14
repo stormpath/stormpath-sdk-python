@@ -19,7 +19,8 @@ class PasswordResetToken(Resource):
     """
     writable_attrs = ('email',)
 
-    def get_resource_attributes(self):
+    @staticmethod
+    def get_resource_attributes():
         from .account import Account
 
         return {
