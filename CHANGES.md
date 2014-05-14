@@ -1,3 +1,11 @@
+Version 1.2.2
+-------------
+
+Released on May 14, 2014.
+
+- Fixing bug with customData fields being automatically camelCased.
+
+
 Version 1.2.1
 -------------
 
