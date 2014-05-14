@@ -382,8 +382,13 @@ class CollectionResource(Resource):
             return self._client.BASE_URL + self.href
 
     def create(self, properties, expand=None, **params):
+        resource_attrs = self.resource_class.get_resource_attributes()
         data = {}
+
         for k, v in properties.items():
+            if isinstance(v, dict) and k in resource_attrs:
+                v = self._wrap_resource_attr(resource_attrs[k], v)
+
             if k in self.resource_class.writable_attrs:
                 data[self.to_camel_case(k)] = self._sanitize_property(v)
 
