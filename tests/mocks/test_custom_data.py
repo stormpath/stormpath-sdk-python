@@ -221,6 +221,15 @@ class TestCustomData(TestCase):
             'href': 'test/resource',
             'foo_with_underscores': 1,
             'camelCaseBar': 2,
+            'baz': {
+                'baz_value': True,
+                'bazCamelCase': False,
+                'quux': [
+                    'one',
+                    'two',
+                    {'value_three': 3, 'valueThreeCamel': 3}
+                ]
+            }
         }
         ds = MagicMock()
         client = MagicMock(data_store=ds)
@@ -234,7 +243,16 @@ class TestCustomData(TestCase):
             'foo_with_underscores': 1,
             'camelCaseBar': 2,
             'another_underscores': 3,
-            'anotherCamelCase': 4
+            'anotherCamelCase': 4,
+            'baz': {
+                'baz_value': True,
+                'bazCamelCase': False,
+                'quux': [
+                    'one',
+                    'two',
+                    {'value_three': 3, 'valueThreeCamel': 3}
+                ]
+            }
         })
 
     def test_creation_with_custom_data_does_not_mangle_cd_keys(self):
@@ -255,11 +273,19 @@ class TestCustomData(TestCase):
             properties={'href': '/'}
         )
 
-        rl.create({'sub_resource': {'foo_value': 42}})
+        cd = {
+            'foo_value': 42,
+            'bar_dict': {
+                'bar_value': True,
+                'barCamelCase': False
+            }
+        }
+
+        rl.create({'sub_resource': cd})
 
         ds.create_resource.assert_called_once_with(
             'http://www.example.com/', {
-                'subResource': {'foo_value': 42}
+                'subResource': cd
             }, params={})
 
 
