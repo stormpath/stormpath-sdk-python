@@ -1,3 +1,12 @@
+Version 1.2.3
+-------------
+
+Released on May 14, 2014.
+
+- Fixing another bug with nested customData fields being automatically
+  camelCased.
+
+
 Version 1.2.2
 -------------
 
