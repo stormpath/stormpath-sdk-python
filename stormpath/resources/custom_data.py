@@ -92,7 +92,7 @@ class CustomData(Resource, DeleteMixin, SaveMixin):
         return iter(self.data)
 
     def _get_properties(self):
-        return dict((k, self._sanitize_property(v)) for k, v in self.items())
+        return self.data
 
     def _set_properties(self, properties):
         self.__dict__['data'] = self.__dict__.get('data', {})
