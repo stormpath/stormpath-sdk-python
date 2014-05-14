@@ -4,6 +4,7 @@ try:
 except ImportError:
     from unittest.mock import MagicMock, patch
 
+from stormpath.resources.base import Resource, CollectionResource
 from stormpath.resources.custom_data import CustomData
 
 
@@ -214,6 +215,52 @@ class TestCustomData(TestCase):
         d = CustomData(client, properties=self.props)
         with self.assertRaises(KeyError):
             d['-'] = 'dashing'
+
+    def test_saving_does_not_mangle_property_names(self):
+        props = {
+            'href': 'test/resource',
+            'foo_with_underscores': 1,
+            'camelCaseBar': 2,
+        }
+        ds = MagicMock()
+        client = MagicMock(data_store=ds)
+        d = CustomData(client, properties=props)
+
+        d['another_underscores'] = 3
+        d['anotherCamelCase'] = 4
+
+        d.save()
+        ds.update_resource.assert_called_once_with('test/resource', {
+            'foo_with_underscores': 1,
+            'camelCaseBar': 2,
+            'another_underscores': 3,
+            'anotherCamelCase': 4
+        })
+
+    def test_creation_with_custom_data_does_not_mangle_cd_keys(self):
+        ds = MagicMock()
+
+        class Res(Resource):
+            writable_attrs = ('sub_resource',)
+
+            @staticmethod
+            def get_resource_attributes():
+                return {'sub_resource': CustomData}
+
+        class ResList(CollectionResource):
+            resource_class = Res
+
+        rl = ResList(
+            client=MagicMock(data_store=ds, BASE_URL='http://www.example.com'),
+            properties={'href': '/'}
+        )
+
+        rl.create({'sub_resource': {'foo_value': 42}})
+
+        ds.create_resource.assert_called_once_with(
+            'http://www.example.com/', {
+                'subResource': {'foo_value': 42}
+            }, params={})
 
 
 if __name__ == '__main__':

@@ -433,6 +433,34 @@ class TestCollectionResource(TestCase):
 
         self.assertIsInstance(client.tenant._expand, Expansion)
 
+    def test_creation_with_sub_resources_sanitizes_their_attribs(self):
+        ds = MagicMock()
+
+        class SubRes(Resource):
+            writable_attrs = ('foo_value',)
+
+        class Res(Resource):
+            writable_attrs = ('sub_resource',)
+
+            @staticmethod
+            def get_resource_attributes():
+                return {'sub_resource': SubRes}
+
+        class ResList(CollectionResource):
+            resource_class = Res
+
+        rl = ResList(
+            client=MagicMock(data_store=ds, BASE_URL='http://www.example.com'),
+            properties={'href': '/'}
+        )
+
+        rl.create({'sub_resource': {'foo_value': 42}})
+
+        ds.create_resource.assert_called_once_with(
+            'http://www.example.com/', {
+                'subResource': {'fooValue': 42}
+            }, params={})
+
 
 if __name__ == '__main__':
     main()
