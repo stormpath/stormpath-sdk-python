@@ -433,14 +433,6 @@ class TestCollectionResource(TestCase):
 
         self.assertIsInstance(client.tenant._expand, Expansion)
 
-    def test_getting_user_data_from_3rd_party_providers(self):
-        from stormpath.resources.application import Application
-        from stormpath.resources import Provider
-        app = create_autospec(Application)
-        app.get_provider_account(provider=Provider.GOOGLE, access_token='FAKETOKEN')
-        app.get_provider_account.assert_called_with(access_token='FAKETOKEN', provider='google')
-        app.get_provider_account(provider=Provider.FACEBOOK, access_token='FAKETOKEN')
-        app.get_provider_account.assert_called_with(access_token='FAKETOKEN', provider='facebook')
 
 if __name__ == '__main__':
     main()
