@@ -286,6 +286,22 @@ class TestBaseResource(TestCase):
         with self.assertRaises(AttributeError):
             r['baz'] = 1
 
+    def test_dict_mixin_update_does_update_on_server(self):
+        ds = MagicMock()
+
+        class Res(Resource, SaveMixin, DictMixin):
+            writable_attrs = ('foo_val', 'bar')
+
+        r = Res(MagicMock(data_store=ds), href='test/resource')
+
+        r.update({
+            'foo_val': True,
+            'bar': False
+        })
+
+        ds.update_resource.assert_called_once_with('test/resource',
+            {'fooVal': True, 'bar': False})
+
 
 class TestCollectionResource(TestCase):
 

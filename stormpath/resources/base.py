@@ -285,6 +285,12 @@ class DictMixin(object):
     def __iter__(self):
         return iter(self.keys())
 
+    def update(self, dct):
+        for k, v in dct.items():
+            setattr(self, k, v)
+        if isinstance(self, SaveMixin):
+            self.save()
+
 
 class CollectionResource(Resource):
     """Provides Resource collections/lists.
