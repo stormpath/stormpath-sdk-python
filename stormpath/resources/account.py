@@ -40,7 +40,8 @@ class Account(Resource, AutoSaveMixin, DeleteMixin, StatusMixin):
     def is_new_account(self):
         return self.sp_http_status == 201
 
-    def get_resource_attributes(self):
+    @staticmethod
+    def get_resource_attributes():
         from .custom_data import CustomData
         from .directory import Directory
         from .group import GroupList

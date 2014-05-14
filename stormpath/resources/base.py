@@ -100,7 +100,8 @@ class Resource(object):
             raise AttributeError("%s has no attribute '%s'" %
                 (self.__class__.__name__, name))
 
-    def get_resource_attributes(self):
+    @staticmethod
+    def get_resource_attributes():
         return {}
 
     def _wrap_resource_attr(self, cls, value):
@@ -381,8 +382,13 @@ class CollectionResource(Resource):
             return self._client.BASE_URL + self.href
 
     def create(self, properties, expand=None, **params):
+        resource_attrs = self.resource_class.get_resource_attributes()
         data = {}
+
         for k, v in properties.items():
+            if isinstance(v, dict) and k in resource_attrs:
+                v = self._wrap_resource_attr(resource_attrs[k], v)
+
             if k in self.resource_class.writable_attrs:
                 data[self.to_camel_case(k)] = self._sanitize_property(v)
 
@@ -392,9 +398,9 @@ class CollectionResource(Resource):
 
         return self.resource_class(
             self._client,
-            properties = self._store.create_resource(
+            properties=self._store.create_resource(
                 self._get_create_path(),
                 data,
-                params = params
+                params=params
             )
         )

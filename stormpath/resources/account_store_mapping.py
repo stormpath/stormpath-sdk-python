@@ -26,7 +26,8 @@ class AccountStoreMapping(Resource, DeleteMixin, SaveMixin):
         'list_index',
     )
 
-    def get_resource_attributes(self):
+    @staticmethod
+    def get_resource_attributes():
         from .account_store import AccountStore
         from .application import Application
 

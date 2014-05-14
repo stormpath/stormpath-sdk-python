@@ -28,7 +28,8 @@ class Group(Resource, AutoSaveMixin, DeleteMixin, StatusMixin):
         'status',
     )
 
-    def get_resource_attributes(self):
+    @staticmethod
+    def get_resource_attributes():
         from .account import AccountList
         from .custom_data import CustomData
         from .directory import Directory

@@ -24,7 +24,8 @@ class Directory(Resource, DeleteMixin, SaveMixin, StatusMixin):
         'status',
     )
 
-    def get_resource_attributes(self):
+    @staticmethod
+    def get_resource_attributes():
         from .account import AccountList
         from .group import GroupList
         from .provider import Provider
