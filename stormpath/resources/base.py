@@ -398,9 +398,9 @@ class CollectionResource(Resource):
 
         return self.resource_class(
             self._client,
-            properties = self._store.create_resource(
+            properties=self._store.create_resource(
                 self._get_create_path(),
                 data,
-                params = params
+                params=params
             )
         )
