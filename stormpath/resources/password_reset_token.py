@@ -35,3 +35,6 @@ class PasswordResetToken(Resource):
 class PasswordResetTokenList(CollectionResource):
     """List of reset tokens."""
     resource_class = PasswordResetToken
+
+    def build_reset_href(self, token):
+        return self._get_create_path() + ('/%s' % token.token)

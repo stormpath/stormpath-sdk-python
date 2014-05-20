@@ -515,5 +515,76 @@ class TestApplication(BaseTest):
         self.assertEqual(acc.provider_data.access_token,
             self.provider_data_body['accessToken'])
 
+    @httpretty.activate
+    def test_resetting_account_password(self):
+        httpretty.register_uri(httpretty.GET,
+            self.base_href + "/tenants/current",
+            location=self.tenant_href,
+            status=302)
+
+        httpretty.register_uri(httpretty.GET,
+            self.tenant_href,
+            body=json.dumps(self.tenant_body),
+            content_type="application/json")
+
+        httpretty.register_uri(httpretty.GET,
+            self.app_href,
+            body=json.dumps(self.app_body),
+            content_type="application/json")
+
+        account_data = {
+            "href": self.app_href + '/accounts',
+            "offset": 25,
+            "limit": 25,
+            "items": [
+                self.acc_body
+            ]
+        }
+
+        httpretty.register_uri(httpretty.GET,
+            self.app_href + '/accounts',
+            responses=[
+                httpretty.Response(json.dumps(account_data)),
+            ],
+            content_type="application/json")
+
+        response = {
+            "account": {
+                "href": self.acc_href,
+                "email": self.acc_body.get('email')
+            },
+            "href": self.app_href + "/passwordResetTokens/TOKEN"
+        }
+
+        httpretty.register_uri(httpretty.POST,
+            "%s/passwordResetTokens" % self.app_href,
+            body=json.dumps(response),
+            content_type="application/json")
+
+        application = self.client.applications.get(self.app_href)
+
+        httpretty.register_uri(httpretty.GET,
+            self.acc_href,
+            body=json.dumps(response),
+            content_type="application/json")
+
+        reset_password_response = {
+            "account": {
+                "href": self.acc_href
+            }
+        }
+
+        httpretty.register_uri(httpretty.POST,
+            "%s/passwordResetTokens/%s" % (self.app_href, 'TOKEN'),
+            body=json.dumps(reset_password_response),
+            content_type="application/json")
+
+        token = application.password_reset_tokens.create({'email': self.acc_body.get('email')})
+        try:
+            application.reset_account_password(token, 'FakePassword123')
+        except:
+            self.fail('Exception should not be raised!')
+
+
 if __name__ == '__main__':
     unittest.main()
