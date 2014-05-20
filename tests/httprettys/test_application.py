@@ -432,7 +432,6 @@ class TestApplication(BaseTest):
         # tenant
         self.assertEqual(application.tenant.name, self.tenant_body["name"])
 
-
     @httpretty.activate
     def test_fetching_provider_data(self):
 
@@ -440,7 +439,7 @@ class TestApplication(BaseTest):
             "href": self.tenant_href + '/applications',
             "offset": 10,
             "limit": 40,
-            "items" : [
+            "items": [
                 self.app_body
             ]
         }
@@ -459,7 +458,6 @@ class TestApplication(BaseTest):
                 httpretty.Response(json.dumps(self.tenant_body)),
             ],
             content_type="application/json")
-
 
         httpretty.register_uri(httpretty.GET,
             self.tenant_href + "/applications",
@@ -484,14 +482,12 @@ class TestApplication(BaseTest):
             ],
             content_type="application/json")
 
-
         httpretty.register_uri(httpretty.GET,
             self.acc_href,
             responses=[
                 httpretty.Response(json.dumps(self.acc_body)),
             ],
             content_type="application/json")
-
 
         httpretty.register_uri(httpretty.GET,
             self.provider_data_href,
@@ -501,7 +497,6 @@ class TestApplication(BaseTest):
             content_type="application/json")
 
         # We don't actually need any provider data
-
         applications = self.client.applications
         app = self.client.applications[0]
         acc = app.get_provider_account(provider=Provider.GOOGLE, access_token='FAKETOKEN')
@@ -514,6 +509,77 @@ class TestApplication(BaseTest):
 
         self.assertEqual(acc.provider_data.access_token,
             self.provider_data_body['accessToken'])
+
+    @httpretty.activate
+    def test_resetting_account_password(self):
+        httpretty.register_uri(httpretty.GET,
+            self.base_href + "/tenants/current",
+            location=self.tenant_href,
+            status=302)
+
+        httpretty.register_uri(httpretty.GET,
+            self.tenant_href,
+            body=json.dumps(self.tenant_body),
+            content_type="application/json")
+
+        httpretty.register_uri(httpretty.GET,
+            self.app_href,
+            body=json.dumps(self.app_body),
+            content_type="application/json")
+
+        account_data = {
+            "href": self.app_href + '/accounts',
+            "offset": 25,
+            "limit": 25,
+            "items": [
+                self.acc_body
+            ]
+        }
+
+        httpretty.register_uri(httpretty.GET,
+            self.app_href + '/accounts',
+            responses=[
+                httpretty.Response(json.dumps(account_data)),
+            ],
+            content_type="application/json")
+
+        response = {
+            "account": {
+                "href": self.acc_href,
+                "email": self.acc_body.get('email')
+            },
+            "href": self.app_href + "/passwordResetTokens/TOKEN"
+        }
+
+        httpretty.register_uri(httpretty.POST,
+            "%s/passwordResetTokens" % self.app_href,
+            body=json.dumps(response),
+            content_type="application/json")
+
+        application = self.client.applications.get(self.app_href)
+
+        httpretty.register_uri(httpretty.GET,
+            self.acc_href,
+            body=json.dumps(response),
+            content_type="application/json")
+
+        reset_password_response = {
+            "account": {
+                "href": self.acc_href
+            }
+        }
+
+        httpretty.register_uri(httpretty.POST,
+            "%s/passwordResetTokens/%s" % (self.app_href, 'TOKEN'),
+            body=json.dumps(reset_password_response),
+            content_type="application/json")
+
+        token = application.password_reset_tokens.create({'email': self.acc_body.get('email')})
+        try:
+            application.reset_account_password(token, 'FakePassword123')
+        except:
+            self.fail('Exception should not be raised!')
+
 
 if __name__ == '__main__':
     unittest.main()
