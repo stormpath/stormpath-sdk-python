@@ -432,7 +432,6 @@ class TestApplication(BaseTest):
         # tenant
         self.assertEqual(application.tenant.name, self.tenant_body["name"])
 
-
     @httpretty.activate
     def test_fetching_provider_data(self):
 
@@ -440,7 +439,7 @@ class TestApplication(BaseTest):
             "href": self.tenant_href + '/applications',
             "offset": 10,
             "limit": 40,
-            "items" : [
+            "items": [
                 self.app_body
             ]
         }
@@ -459,7 +458,6 @@ class TestApplication(BaseTest):
                 httpretty.Response(json.dumps(self.tenant_body)),
             ],
             content_type="application/json")
-
 
         httpretty.register_uri(httpretty.GET,
             self.tenant_href + "/applications",
@@ -484,14 +482,12 @@ class TestApplication(BaseTest):
             ],
             content_type="application/json")
 
-
         httpretty.register_uri(httpretty.GET,
             self.acc_href,
             responses=[
                 httpretty.Response(json.dumps(self.acc_body)),
             ],
             content_type="application/json")
-
 
         httpretty.register_uri(httpretty.GET,
             self.provider_data_href,
@@ -501,7 +497,6 @@ class TestApplication(BaseTest):
             content_type="application/json")
 
         # We don't actually need any provider data
-
         applications = self.client.applications
         app = self.client.applications[0]
         acc = app.get_provider_account(provider=Provider.GOOGLE, access_token='FAKETOKEN')
