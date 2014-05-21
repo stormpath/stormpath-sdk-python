@@ -7,8 +7,33 @@ from uuid import uuid4
 
 from stormpath.client import Client
 from stormpath.error import Error
+from stormpath.resources.account import AccountList
+from stormpath.resources.account_store_mapping import (
+    AccountStoreMapping,
+    AccountStoreMappingList,
+)
 from stormpath.resources.base import Expansion
+from stormpath.resources.group import GroupList
 from stormpath.resources.group_membership import GroupMembership
+from stormpath.resources.login_attempt import LoginAttemptList
+from stormpath.resources.password_reset_token import PasswordResetTokenList
+from stormpath.resources.tenant import Tenant
+
+from .helpers import LiveTestCase
+
+
+class TestApplication(LiveTestCase):
+    """Run all of our Application resource tests."""
+
+    def test_get_resource_attributes(self):
+        self.assertIsInstance(self.application.accounts, AccountList)
+        self.assertIsInstance(self.application.account_store_mappings, AccountStoreMappingList)
+        self.assertIsInstance(self.application.default_account_store_mapping, AccountStoreMapping)
+        self.assertIsInstance(self.application.default_group_store_mapping, AccountStoreMapping)
+        self.assertIsInstance(self.application.groups, GroupList)
+        self.assertIsInstance(self.application.login_attempts, LoginAttemptList)
+        self.assertIsInstance(self.application.password_reset_tokens, PasswordResetTokenList)
+        self.assertIsInstance(self.application.tenant, Tenant)
 
 
 class LiveTest(TestCase):
