@@ -1,7 +1,7 @@
 """Live tests which run against the Stormpath API service."""
 
 
-import os
+from os import getenv
 from unittest import TestCase
 from uuid import uuid4
 
@@ -17,8 +17,8 @@ class LiveTest(TestCase):
         return prefix + '_' + str(uuid4())
 
     def setUp(self):
-        self.apiKeyId = os.getenv("STORMPATH_SDK_TEST_API_KEY_ID")
-        self.apiKeySecret = os.getenv("STORMPATH_SDK_TEST_API_KEY_SECRET")
+        self.apiKeyId = getenv("STORMPATH_SDK_TEST_API_KEY_ID")
+        self.apiKeySecret = getenv("STORMPATH_SDK_TEST_API_KEY_SECRET")
         self.client = Client(id=self.apiKeyId, secret=self.apiKeySecret)
 
         self.created_accounts = []
