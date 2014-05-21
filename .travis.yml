@@ -3,7 +3,7 @@ python:
 - '2.7'
 - '3.2'
 - '3.3'
-- 'pypy'
+- pypy
 install: pip install . --use-mirrors
 before_script: python setup.py testdep
 script:
@@ -15,5 +15,5 @@ branches:
   - develop
 env:
   global:
-  - secure: Gcwdd75RqfnUDV8A0ba/UWTGXLBCOUA5K9IUq7A7wijACAnfWxkOt1mrCvUQVYVmTjwvtoUzSYEUADP98dSENOhMJdulczcnsGdH8SfZxXIGIhfYK5Ukccq1MazK0Hh8TUJO/lwGyJS1o9hi/fBHt6MlTFz3c622Sc4nnYoxjiw=
-  - secure: csnXLRA9AS4ByAxiZruhrJOtwcOpOqziOcR8Awg/vYJ+StGZUyIQPprKYF3JdwC9ehjum3SWvSLTIlRKN/SSH6k+1JIpxJmwshHJtgJnn93iDrMSV3nyWOzXnLd8cuDrbMfcHygnbhnwkj0lqdhr4kog43pKYzYnwTdBS/6bW14=
+  - secure: gko6nu8HDi0hi784QkSKK/PhZZvDqdIeMrsY7+vN6f2xmWlDhxRLJG7TQ9YvAtHVzyhrfYeYZpoAhfD3f4tA/e7R2PdnOx3aJskxYxgMeQYj1wJOYa65+dqpXBQhtDF9BL4hPdC4F74NkDWVEUnxO6j1diLwyXiQwo0u9c3HBHA=
+  - secure: OWcPeI6KxsUulFM7SxcTR2oHhrVJeyWZweBHg9/hZPfKQ7zzLfmsfjYyyXREKXwm4nwOwwwOyQ4Dx+bjwzZJWBBB/or2vCSNV2/gL12MCUnWPNMA9f7NA/6o26ry81FV6TnOca+ogAd+oeYEk/hoB2Ikl4yvKl/sCT15JHWxHj0=
