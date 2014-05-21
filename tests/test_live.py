@@ -42,8 +42,8 @@ class LiveTest(TestCase):
         return prefix + '_' + str(uuid4())
 
     def setUp(self):
-        self.apiKeyId = getenv("STORMPATH_SDK_TEST_API_KEY_ID")
-        self.apiKeySecret = getenv("STORMPATH_SDK_TEST_API_KEY_SECRET")
+        self.apiKeyId = getenv('STORMPATH_API_KEY_ID')
+        self.apiKeySecret = getenv('STORMPATH_API_KEY_SECRET')
         self.client = Client(id=self.apiKeyId, secret=self.apiKeySecret)
 
         self.created_accounts = []
