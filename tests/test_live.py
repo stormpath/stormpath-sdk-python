@@ -1,3 +1,6 @@
+"""Live tests which run against the Stormpath API service."""
+
+
 import os
 import unittest
 from uuid import uuid4
