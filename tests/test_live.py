@@ -2,7 +2,7 @@
 
 
 import os
-import unittest
+from unittest import TestCase
 from uuid import uuid4
 
 from stormpath.client import Client
@@ -11,7 +11,7 @@ from stormpath.resources.base import Expansion
 from stormpath.resources.group_membership import GroupMembership
 
 
-class LiveTest(unittest.TestCase):
+class LiveTest(TestCase):
 
     def generate_name(self, prefix):
         return prefix + '_' + str(uuid4())
@@ -479,6 +479,3 @@ class LiveTest(unittest.TestCase):
 
         for acc_store in self.created_account_stores:
             acc_store.delete()
-
-if __name__ == '__main__':
-    unittest.main()
