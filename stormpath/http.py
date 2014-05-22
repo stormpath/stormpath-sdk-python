@@ -4,6 +4,7 @@
 from collections import OrderedDict
 from json import dumps
 from requests import Session
+from sys import version_info as vi
 
 from stormpath import __version__ as STORMPATH_VERSION
 from .error import Error
@@ -22,9 +23,17 @@ class HttpExecutor(object):
     :param auth: Authentication manager, like
         :class:`stormpath.auth.Sauthc1Signer`.
     """
-    USER_AGENT = 'Stormpath-PythonSDK/' + STORMPATH_VERSION
+    USER_AGENT = 'stormpath-sdk-python/%s (python %s)' % (
+        STORMPATH_VERSION,
+        '%s.%s.%s' % (vi.major, vi.minor, vi.micro)
+    )
 
-    def __init__(self, base_url, auth, proxies=None):
+    def __init__(self, base_url, auth, proxies=None, user_agent=None):
+        # If a custom user agent is specified, we'll append it to the end of
+        # our built-in user agent.  This way we'll get very detailed user agent
+        # strings.
+        if user_agent is not None:
+            self.USER_AGENT = self.USER_AGENT + ' ' + user_agent
 
         self.base_url = base_url
         self.session = Session()
