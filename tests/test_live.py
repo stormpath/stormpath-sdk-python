@@ -7,7 +7,7 @@ from uuid import uuid4
 
 from stormpath.client import Client
 from stormpath.error import Error
-from stormpath.resources.account import AccountList
+from stormpath.resources.account import AccountList, Account
 from stormpath.resources.account_store_mapping import (
     AccountStoreMapping,
     AccountStoreMappingList,
@@ -34,6 +34,22 @@ class TestApplication(LiveTestCase):
         self.assertIsInstance(self.application.login_attempts, LoginAttemptList)
         self.assertIsInstance(self.application.password_reset_tokens, PasswordResetTokenList)
         self.assertIsInstance(self.application.tenant, Tenant)
+
+    def test_authenticate_account(self):
+        account = self.application.accounts.create({
+            'given_name': 'Randall',
+            'surname': 'Degges',
+            'username': 'rdegges',
+            'email': 'randall@stormpath.com',
+            'password': 'w00tILOVEc00kies!',
+            'custom_data': {
+                'test': 'value'
+            },
+        })
+
+        # Ensure both email and username authentication works.
+        self.assertIsInstance(self.application.authenticate_account('randall@stormpath.com', 'w00tILOVEc00kies!').account, Account)
+        self.assertIsInstance(self.application.authenticate_account('rdegges', 'w00tILOVEc00kies!').account, Account)
 
 
 class LiveTest(TestCase):
