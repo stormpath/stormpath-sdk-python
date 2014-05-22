@@ -1,3 +1,11 @@
+Version 1.2.4
+-------------
+
+Relased on May 22, 2014.
+
+- Adding support for custom user agents: `Client` now has `user_agent` param.
+
+
 Version 1.2.3
 -------------
 
