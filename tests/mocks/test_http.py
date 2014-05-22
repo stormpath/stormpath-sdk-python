@@ -1,3 +1,4 @@
+from sys import version_info as vi
 from unittest import TestCase, main
 from collections import OrderedDict
 from stormpath.http import HttpExecutor
@@ -23,8 +24,7 @@ class HttpTest(TestCase):
 
         self.assertEqual(s.auth, ('user', 'pass'))
         self.assertEqual(s.headers['Content-Type'], 'application/json')
-        self.assertEqual(s.headers['User-Agent'], 'Stormpath-PythonSDK/' +
-            STORMPATH_VERSION)
+        self.assertEqual(s.headers['User-Agent'], 'stormpath-sdk-python/' + STORMPATH_VERSION + ' (python %s.%s.%s)' % (vi.major, vi.minor, vi.micro))
 
     @patch('stormpath.http.Session')
     def test_get_request(self, Session):
