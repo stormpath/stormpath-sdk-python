@@ -42,12 +42,7 @@ class Client(object):
     """
     BASE_URL = 'https://api.stormpath.com/v1'
 
-    def __init__(self, cache_options=None, expand=None, proxies=None, **auth_kwargs):
-        executor = HttpExecutor(self.BASE_URL, Auth(**auth_kwargs).scheme,
-            proxies)
-        self.data_store = DataStore(executor, cache_options)
-        self.tenant = Tenant(client=self, href='/tenants/current',
-            expand=expand)
+    def __init__(self, cache_options=None, expand=None, proxies=None, user_agent=None, **auth_kwargs):
         """
         Initialize the client by setting the
         :class:`stormpath.data_store.DataStore` and
@@ -56,7 +51,12 @@ class Client(object):
         The parameters the Client accepts are those used by the
         :class:`stormpath.http.HttpExecutor`, :class:`stormpath.auth.Auth`, and
         :class:`stormpath.data_store.DataStore` classes.
+
+        :param str user_agent: (optional) The custom user agent to set.
         """
+        executor = HttpExecutor(self.BASE_URL, Auth(**auth_kwargs).scheme, proxies, user_agent=user_agent)
+        self.data_store = DataStore(executor, cache_options)
+        self.tenant = Tenant(client=self, href='/tenants/current', expand=expand)
 
     @property
     def applications(self):
