@@ -130,7 +130,8 @@ class TestCache(TestCase):
 
     def test_cache_init_creates_store_and_stats(self, CacheStats):
         store = MagicMock()
-        c = Cache(store=store, ttl=100, tti=10, foo=1, bar=2, baz=3)
+        c = Cache(store=store, ttl=100, tti=10,
+                store_opts={'foo': 1, 'bar': 2, 'baz': 3})
 
         CacheStats.assert_called_once_with()
         store.assert_called_once_with(foo=1, bar=2, baz=3)
@@ -263,7 +264,7 @@ class TestRedisStore(TestCase):
         def get(self, key):
             return self.data.get(key)
 
-        def set(self, key, data):
+        def setex(self, key, data, ttl):
             self.data[key] = data
 
         def delete(self, key):
