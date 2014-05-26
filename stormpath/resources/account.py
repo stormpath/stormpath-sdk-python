@@ -48,6 +48,7 @@ class Account(Resource, AutoSaveMixin, DeleteMixin, StatusMixin):
         from .group_membership import GroupMembershipList
         from .provider_data import ProviderData
         from .tenant import Tenant
+        from .api_key import ApiKeyList
 
         return {
             'custom_data': CustomData,
@@ -57,6 +58,7 @@ class Account(Resource, AutoSaveMixin, DeleteMixin, StatusMixin):
             'group_memberships': GroupMembershipList,
             'provider_data': ProviderData,
             'tenant': Tenant,
+            'api_keys': ApiKeyList,
         }
 
     def _resolve_group(self, group_object_or_href_or_name):

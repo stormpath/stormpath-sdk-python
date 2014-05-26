@@ -33,9 +33,11 @@ class Application(Resource, DeleteMixin, SaveMixin, StatusMixin):
         )
         from .group import GroupList
         from .tenant import Tenant
+        from .api_key import ApiKeyList
 
         return {
             'accounts': AccountList,
+            'api_keys': ApiKeyList,
             'account_store_mappings': AccountStoreMappingList,
             'default_account_store_mapping': AccountStoreMapping,
             'default_group_store_mapping': AccountStoreMapping,
