@@ -1,3 +1,12 @@
+Version 1.2.5
+-------------
+
+**Not yet released.**
+
+- Fixing bugs with the Redis cache implementation.  Key expiration now works as
+  expected, along with optional arguments to the Redis backend.
+
+
 Version 1.2.4
 -------------
 
