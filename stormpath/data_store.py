@@ -59,8 +59,9 @@ class DataStore(object):
 
         for region in self.CACHE_REGIONS:
             opts = cache_options.get(region, {})
-            if 'store' not in opts and 'store' in cache_options:
-                opts['store'] = cache_options['store']
+            for k, v in cache_options.items():
+                if k not in opts and k != 'regions':
+                    opts[k] = v
 
             self.cache_manager.create_cache(region, **opts)
 

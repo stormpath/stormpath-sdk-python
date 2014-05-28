@@ -22,7 +22,8 @@ class Cache(object):
             **kwargs):
         self.ttl = ttl
         self.tti = tti
-        self.store = store(**kwargs)
+        store_opts = kwargs.get('store_opts', {})
+        self.store = store(**store_opts)
         self.stats = CacheStats()
 
     def get(self, key):
