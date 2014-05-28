@@ -5,6 +5,7 @@ Version 1.2.5
 
 - Fixing bugs with the Redis cache implementation.  Key expiration now works as
   expected, along with optional arguments to the Redis backend.
+- Adding python 3.4 support.
 
 
 Version 1.2.4
