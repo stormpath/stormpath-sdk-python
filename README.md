@@ -176,7 +176,7 @@ how you can securely check a user's credentials:
 from stormpath.error import Error as StormpathError
 
 try:
-    auth_attempt = applicatoin.authenticate_account('pg', 'STARTUPSar3th3b3sT!')
+    auth_attempt = application.authenticate_account('pg', 'STARTUPSar3th3b3sT!')
 except StormpathError, err:
     print 'Human friendly error message:', err.message
     print 'Developer friendly error message:', err.developer_message
