@@ -1,3 +1,17 @@
+Version 1.2.5
+-------------
+
+**Not yet released.**
+
+- Fixing bugs with the Redis cache implementation.  Key expiration now works as
+  expected, along with optional arguments to the Redis backend.
+- Adding python 3.4 support.
+- Adding the ability to treat all resources as dictionaries -- you can set
+  fields and update fields in a dict-like manner.
+- Adding the ability to perform updates which instantly propagate changes to the
+  server.
+
+
 Version 1.2.4
 -------------
 

@@ -3,12 +3,13 @@
 
 from .base import (
     DeleteMixin,
+    DictMixin,
     Resource,
     SaveMixin,
 )
 
 
-class Tenant(Resource, DeleteMixin, SaveMixin):
+class Tenant(Resource, DeleteMixin, DictMixin, SaveMixin):
     """Stormpath Tenant resource.
 
     More info in documentation:
