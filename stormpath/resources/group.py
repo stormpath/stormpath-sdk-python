@@ -9,12 +9,13 @@ from .base import (
     AutoSaveMixin,
     CollectionResource,
     DeleteMixin,
+    DictMixin,
     Resource,
     StatusMixin,
 )
 
 
-class Group(Resource, AutoSaveMixin, DeleteMixin, StatusMixin):
+class Group(Resource, AutoSaveMixin, DeleteMixin, DictMixin, StatusMixin):
     """Group resource.
 
     More info in documentation:

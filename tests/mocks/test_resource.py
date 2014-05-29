@@ -4,7 +4,7 @@ try:
 except ImportError:
     from unittest.mock import MagicMock, patch, create_autospec
 from stormpath.resources.base import (Expansion, Resource, CollectionResource,
-    SaveMixin, DeleteMixin, AutoSaveMixin)
+    SaveMixin, DeleteMixin, AutoSaveMixin, DictMixin)
 from stormpath.client import Client
 
 from stormpath.resources.application import Application
@@ -256,6 +256,51 @@ class TestBaseResource(TestCase):
 
         self.assertTrue(ds.update_resource.called)
         self.assertFalse(autosave_ds.update_resource.called)
+
+    def test_dict_mixin(self):
+
+        class Res(Resource, DictMixin):
+            writable_attrs = ('foo_val', 'bar')
+
+        props_raw = {
+            'href': 'test/resource',
+            'fooVal': 'FOO',
+            'baz': 'BAZ'
+        }
+        props = {
+            'href': 'test/resource',
+            'foo_val': 'FOO',
+            'baz': 'BAZ'
+        }
+
+        r = Res(MagicMock(), properties=props_raw)
+        self.assertEqual(dict(r), props)
+
+        self.assertTrue('foo_val' in r)
+        self.assertEqual(set(r.keys()), set(props.keys()))
+        self.assertEqual(set(r.values()), set(props.values()))
+
+        r['foo_val'] = 42
+        self.assertEqual(r.foo_val, 42)
+
+        with self.assertRaises(AttributeError):
+            r['baz'] = 1
+
+    def test_dict_mixin_update_does_update_on_server(self):
+        ds = MagicMock()
+
+        class Res(Resource, SaveMixin, DictMixin):
+            writable_attrs = ('foo_val', 'bar')
+
+        r = Res(MagicMock(data_store=ds), href='test/resource')
+
+        r.update({
+            'foo_val': True,
+            'bar': False
+        })
+
+        ds.update_resource.assert_called_once_with('test/resource',
+            {'fooVal': True, 'bar': False})
 
 
 class TestCollectionResource(TestCase):
