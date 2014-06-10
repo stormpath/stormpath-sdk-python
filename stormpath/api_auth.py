@@ -55,11 +55,14 @@ class AccessToken(object):
         self.api_key = None
 
         # get raw data without validation
-        data = jwt.decode(self.token, verify=False)
-        self.client_id = data.get('client_id', '')
-        self.api_key = self.app.api_keys.get_key(self.client_id)
-        self.exp = data.get('exp', 0)
-        self.scopes = data.get('scope', '').split(' ')
+        try:
+            data = jwt.decode(self.token, verify=False)
+            self.client_id = data.get('client_id', '')
+            self.api_key = self.app.api_keys.get_key(self.client_id)
+            self.exp = data.get('exp', 0)
+            self.scopes = data.get('scope', '').split(' ')
+        except jwt.DecodeError:
+            pass
 
     def __repr__(self):
         return self.token
@@ -152,6 +155,14 @@ def _generate_signed_token(request):
     client_id = request.client.client_id
     key = request.app.api_keys.get_key(client_id)
     token = generate_token()
+
+    # the SP ApiKey is already validated in SPOauth2RequestValidator.validate_client_id
+    # but to prevent time based attacks oauthlib always goes through the entire
+    # flow  even though the entire request will be deemed invalid
+    # in the end. Therefore, it's safe to return the random string generated with the
+    # generate_token function here (or any other string)
+    if not key:
+        return token
 
     now = datetime.datetime.utcnow()
 
