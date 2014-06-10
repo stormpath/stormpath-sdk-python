@@ -133,6 +133,11 @@ class Application(Resource, DeleteMixin, SaveMixin, StatusMixin):
                 data=data
             )
 
+    def authenticate(self, allowed_scopes, http_method, uri, body, headers, **kwargs):
+        from ..api_auth import authenticate as api_authenticate
+
+        return api_authenticate(self, allowed_scopes, http_method, uri, body, headers, **kwargs)
+
 
 class ApplicationList(CollectionResource):
     """Application resource list."""
