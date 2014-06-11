@@ -32,12 +32,9 @@ class SPBasicAuthRequestValidator(object):
         self.client_secret = None
 
     def extract_client_data(self):
-        try:
-            auth_scheme, b64encoded_data = self.authorization.split(' ')
-            decoded_data = base64.decodestring(b64encoded_data)
-            self.client_id, self.client_secret = decoded_data.split(':')
-        except:
-            pass
+        auth_scheme, b64encoded_data = self.authorization.split(b' ')
+        decoded_data = base64.b64decode(b64encoded_data.decode('utf-8'))
+        self.client_id, self.client_secret = decoded_data.split(b':')
 
     def verify_request(self):
         self.extract_client_data()
@@ -45,6 +42,7 @@ class SPBasicAuthRequestValidator(object):
         if self.client_id and self.client_secret:
             key = self.app.api_keys.get_key(self.client_id)
             return (key and key.is_enabled()), DummyRequest(api_key=key)
+        return None, None
 
 
 class AccessToken(object):
@@ -57,7 +55,7 @@ class AccessToken(object):
         # get raw data without validation
         try:
             data = jwt.decode(self.token, verify=False)
-            self.client_id = data.get('client_id', '')
+            self.client_id = data.get('client_id', b'')
             self.api_key = self.app.api_keys.get_key(self.client_id)
             self.exp = data.get('exp', 0)
             self.scopes = data.get('scope', '').split(' ')
@@ -123,10 +121,10 @@ class SPOauth2RequestValidator(Oauth2RequestValidator):
         authorization = request.headers.get('Authorization')
         try:
             auth_scheme, b64encoded_data = authorization.split(' ')
-            decoded_data = base64.decodestring(b64encoded_data)
-            client_id, client_secret = decoded_data.split(':')
+            decoded_data = base64.b64decode(b64encoded_data)
+            client_id, client_secret = decoded_data.split(b':')
             request.client = Oauth2BackendApplicationClient(client_id)
-        except:
+        except Exception as e:
             return False
         if self.validate_client_id(client_id, request):
             return True
@@ -170,7 +168,7 @@ def _generate_signed_token(request):
         'scope': request.scope,
         'exp': now + datetime.timedelta(seconds=request.expires_in),
         'token': token,
-        'client_id': client_id
+        'client_id': client_id.decode('utf-8')
     }
 
     token = jwt.encode(data, key.secret, 'HS256')
@@ -195,27 +193,29 @@ def _get_bearer_token(app, allowed_scopes, http_method, uri, body, headers, ttl=
 
 def _authenticate_request(app, allowed_scopes, http_method, uri, body, headers, ttl=DEFAULT_TTL):
     authorization = headers.get('Authorization')
-    auth_type = authorization.split(' ')[0]
-    if auth_type == 'Basic':
+    auth_type = authorization.split(b' ')[0]
+    if auth_type == b'Basic':
         validator = SPBasicAuthRequestValidator(app=app, headers=headers)
-        return validator.verify_request()
-    if auth_type == 'Bearer':
+        valid, r = validator.verify_request()
+        return valid, r
+    if auth_type == b'Bearer':
         validator = SPOauth2RequestValidator(app=app, allowed_scopes=allowed_scopes, ttl=ttl)
         server = Oauth2BackendApplicationServer(validator)
         valid, r = server.verify_request(uri, http_method, body, headers, allowed_scopes)
         return valid, r
+    return None, None
 
 
 def authenticate(app, allowed_scopes, http_method, uri, body, headers, ttl=DEFAULT_TTL):
     jwt_token = None
     access_token = None
     auth_header = headers.get('Authorization')
-    auth_scheme = auth_header.split(' ')[0]
-    if auth_scheme == 'Basic':
+    auth_scheme = auth_header.split(b' ')[0]
+    if auth_scheme == b'Basic':
         if body.get('grant_type'):
             jwt_token = _get_bearer_token(app, allowed_scopes, http_method, uri, body, headers, ttl=ttl)
-    if auth_scheme == 'Bearer':
-        jwt_token = auth_header.split(' ')[1]
+    if auth_scheme == b'Bearer':
+        jwt_token = auth_header.split(b' ')[1]
     if jwt_token:
         access_token = AccessToken(app, jwt_token)
     valid, r = _authenticate_request(app, allowed_scopes, http_method, uri, body, headers, ttl=ttl)

@@ -24,13 +24,13 @@ class ApiAuthTest(TestCase):
                 id=FAKE_CLIENT_ID, secret=FAKE_CLIENT_SECRET, status=StatusMixin.STATUS_ENABLED)
         app.api_keys = api_keys
 
-        basic_auth = base64.encodestring("{}:{}".format(FAKE_CLIENT_ID, FAKE_CLIENT_SECRET))
+        basic_auth = base64.b64encode("{}:{}".format(FAKE_CLIENT_ID, FAKE_CLIENT_SECRET).encode('utf-8'))
 
         uri = 'https://example.com/get'
         http_method = 'GET'
         body = {}
         headers = {
-            'Authorization': 'Basic {}'.format(basic_auth)
+            'Authorization': b'Basic ' + basic_auth
         }
 
         allowed_scopes = ['test1']
@@ -47,13 +47,13 @@ class ApiAuthTest(TestCase):
                 id=FAKE_CLIENT_ID, secret=FAKE_CLIENT_SECRET, status=StatusMixin.STATUS_ENABLED)
         app.api_keys = api_keys
 
-        basic_auth = base64.encodestring("{}:{}".format(FAKE_CLIENT_ID, FAKE_CLIENT_SECRET))
+        basic_auth = base64.b64encode("{}:{}".format(FAKE_CLIENT_ID, FAKE_CLIENT_SECRET).encode('utf-8'))
 
         uri = 'https://example.com/get'
         http_method = 'GET'
         body = {'grant_type': 'client_credentials', 'scope': 'test1'}
         headers = {
-            'Authorization': 'Basic {}'.format(basic_auth)
+            'Authorization': b'Basic ' + basic_auth
         }
 
         allowed_scopes = ['test1']
@@ -71,13 +71,13 @@ class ApiAuthTest(TestCase):
                 id=FAKE_CLIENT_ID, secret=FAKE_CLIENT_SECRET, status=StatusMixin.STATUS_ENABLED)
         app.api_keys = api_keys
 
-        basic_auth = base64.encodestring("{}:{}".format(FAKE_CLIENT_ID, FAKE_CLIENT_SECRET))
+        basic_auth = base64.b64encode("{}:{}".format(FAKE_CLIENT_ID, FAKE_CLIENT_SECRET).encode('utf-8'))
 
         uri = 'https://example.com/get'
         http_method = 'GET'
         body = {'grant_type': 'client_credentials', 'scope': 'invalid_scope'}
         headers = {
-            'Authorization': 'Basic {}'.format(basic_auth)
+            'Authorization': b'Basic ' + basic_auth
         }
 
         allowed_scopes = ['test1']
@@ -93,14 +93,14 @@ class ApiAuthTest(TestCase):
 
         app.api_keys = api_keys
 
-        basic_auth = base64.encodestring("invalid_client_id:invalid_client_secret")
+        basic_auth = base64.b64encode("invalid_client_id:invalid_client_secret".encode('utf-8'))
 
         uri = 'https://example.com/get'
         http_method = 'GET'
         # body = {}
         body = {'grant_type': 'client_credentials', 'scope': 'test1'}
         headers = {
-            'Authorization': 'Basic {}'.format(basic_auth)
+            'Authorization': b'Basic ' + basic_auth
         }
 
         allowed_scopes = ['test1']
@@ -115,13 +115,13 @@ class ApiAuthTest(TestCase):
                 id=FAKE_CLIENT_ID, secret=FAKE_CLIENT_SECRET, status=StatusMixin.STATUS_ENABLED)
         app.api_keys = api_keys
 
-        basic_auth = base64.encodestring("{}:{}".format(FAKE_CLIENT_ID, FAKE_CLIENT_SECRET))
+        basic_auth = base64.b64encode("{}:{}".format(FAKE_CLIENT_ID, FAKE_CLIENT_SECRET).encode('utf-8'))
 
         uri = 'https://example.com/get'
         http_method = 'GET'
         body = {'grant_type': 'client_credentials', 'scope': 'test1'}
         headers = {
-            'Authorization': 'Basic {}'.format(basic_auth)
+            'Authorization': b'Basic ' + basic_auth
         }
 
         allowed_scopes = ['test1']
@@ -132,25 +132,25 @@ class ApiAuthTest(TestCase):
         token = result.token
         body = {}
         headers = {
-            'Authorization': 'Bearer {}'.format(token)
+            'Authorization': b'Bearer ' + token.token.encode('utf-8')
         }
 
         result = authenticate(app, allowed_scopes, http_method, uri, body, headers)
         self.assertIsNotNone(result)
-        self.assertEquals(result.token.token, token.token)
+        self.assertEquals(result.token.token.decode('utf-8'), token.token)
 
-    # def test_access_token_validity_expired_token(self):
-    #     app = MagicMock()
-    #     api_keys = MagicMock()
-    #     api_keys.get_key = lambda _: MagicMock(
-    #             id=FAKE_CLIENT_ID, secret=FAKE_CLIENT_SECRET, status=StatusMixin.STATUS_ENABLED)
-    #     app.api_keys = api_keys
+    def test_access_token_validity_expired_token(self):
+        app = MagicMock()
+        api_keys = MagicMock()
+        api_keys.get_key = lambda _: MagicMock(
+                id=FAKE_CLIENT_ID, secret=FAKE_CLIENT_SECRET, status=StatusMixin.STATUS_ENABLED)
+        app.api_keys = api_keys
 
-    #     access_token = AccessToken(
-    #             app=app,
-    #             token='eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE0MDI0MTM4NTksInNjb3BlIjoidGVzdDEiLCJjbGllbnRfaWQiOiJmYWtlX2NsaWVudF9pZCIsInRva2VuIjoid3daaGtjWFQxb1duaU82VHFuRUE1QnhyYzV2bFR5In0.fs3w2omDL4Pc-g4NPgXo2fxCcH-IvVkjEDao0kqttw0'
-    #     )
-    #     self.assertFalse(access_token._is_valid())
+        access_token = AccessToken(
+                app=app,
+                token='eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE0MDI0MTM4NTksInNjb3BlIjoidGVzdDEiLCJjbGllbnRfaWQiOiJmYWtlX2NsaWVudF9pZCIsInRva2VuIjoid3daaGtjWFQxb1duaU82VHFuRUE1QnhyYzV2bFR5In0.fs3w2omDL4Pc-g4NPgXo2fxCcH-IvVkjEDao0kqttw0'
+        )
+        self.assertFalse(access_token._is_valid())
 
 
     def test_access_token_scope_check(self):
@@ -187,13 +187,13 @@ class ApiAuthTest(TestCase):
                 id=FAKE_CLIENT_ID, secret=FAKE_CLIENT_SECRET, status=StatusMixin.STATUS_ENABLED)
         app.api_keys = api_keys
 
-        basic_auth = base64.encodestring("{}:{}".format(FAKE_CLIENT_ID, FAKE_CLIENT_SECRET))
+        basic_auth = base64.b64encode("{}:{}".format(FAKE_CLIENT_ID, FAKE_CLIENT_SECRET).encode('utf-8'))
 
         uri = 'https://example.com/get'
         http_method = 'GET'
         body = {'grant_type': 'client_credentials', 'scope': 'test1'}
         headers = {
-            'Authorization': 'Basic {}'.format(basic_auth)
+            'Authorization': b'Basic ' + basic_auth
         }
 
         allowed_scopes = ['test1']
@@ -204,7 +204,7 @@ class ApiAuthTest(TestCase):
         token = result.token
         body = {}
         headers = {
-            'Authorization': 'Bearer {}'.format(token)
+            'Authorization': b'Bearer ' + token.token.encode('utf-8')
         }
 
         api_keys.get_key = lambda _: None
@@ -219,13 +219,13 @@ class ApiAuthTest(TestCase):
                 id=FAKE_CLIENT_ID, secret=FAKE_CLIENT_SECRET, status=StatusMixin.STATUS_ENABLED)
         app.api_keys = api_keys
 
-        basic_auth = base64.encodestring("{}:{}".format(FAKE_CLIENT_ID, FAKE_CLIENT_SECRET))
+        basic_auth = base64.b64encode("{}:{}".format(FAKE_CLIENT_ID, FAKE_CLIENT_SECRET).encode('utf-8'))
 
         uri = 'https://example.com/get'
         http_method = 'GET'
         body = {'grant_type': 'client_credentials', 'scope': 'test1'}
         headers = {
-            'Authorization': 'Basic {}'.format(basic_auth)
+            'Authorization': b'Basic ' + basic_auth
         }
 
         allowed_scopes = ['test1']
@@ -236,7 +236,7 @@ class ApiAuthTest(TestCase):
         token = result.token
         body = {}
         headers = {
-            'Authorization': 'Bearer {}'.format(token)
+            'Authorization': b'Bearer ' + token.token.encode('utf-8')
         }
 
         disabled_api_key = MagicMock(
@@ -255,13 +255,13 @@ class ApiAuthTest(TestCase):
                 id=FAKE_CLIENT_ID, secret=FAKE_CLIENT_SECRET, status=StatusMixin.STATUS_ENABLED)
         app.api_keys = api_keys
 
-        basic_auth = base64.encodestring("{}:{}".format(FAKE_CLIENT_ID, FAKE_CLIENT_SECRET))
+        basic_auth = base64.b64encode("{}:{}".format(FAKE_CLIENT_ID, FAKE_CLIENT_SECRET).encode('utf-8'))
 
         uri = 'https://example.com/get'
         http_method = 'GET'
         body = {'grant_type': 'invalid_grant', 'scope': 'test1'}
         headers = {
-            'Authorization': 'Basic {}'.format(basic_auth)
+            'Authorization': b'Basic ' + basic_auth
         }
 
         allowed_scopes = ['test1']
