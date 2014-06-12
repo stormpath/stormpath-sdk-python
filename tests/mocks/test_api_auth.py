@@ -5,7 +5,7 @@ from stormpath.client import Client
 try:
     from mock import patch, MagicMock, PropertyMock
 except ImportError:
-   from unittest.mock import patch, MagicMock, PropertyMock
+    from unittest.mock import patch, MagicMock, PropertyMock
 
 from stormpath.resources.base import StatusMixin
 from stormpath.resources.api_key import ApiKey
@@ -30,8 +30,8 @@ class ApiAuthTest(TestCase):
         http_method = 'GET'
         body = {}
         headers = {
-            'Authorization': b'Basic ' + basic_auth
-        }
+                'Authorization': b'Basic ' + basic_auth
+                }
 
         allowed_scopes = ['test1']
 
@@ -53,8 +53,8 @@ class ApiAuthTest(TestCase):
         http_method = 'GET'
         body = {'grant_type': 'client_credentials', 'scope': 'test1'}
         headers = {
-            'Authorization': b'Basic ' + basic_auth
-        }
+                'Authorization': b'Basic ' + basic_auth
+                }
 
         allowed_scopes = ['test1']
 
@@ -77,8 +77,8 @@ class ApiAuthTest(TestCase):
         http_method = 'GET'
         body = {'grant_type': 'client_credentials', 'scope': 'invalid_scope'}
         headers = {
-            'Authorization': b'Basic ' + basic_auth
-        }
+                'Authorization': b'Basic ' + basic_auth
+                }
 
         allowed_scopes = ['test1']
 
@@ -100,8 +100,8 @@ class ApiAuthTest(TestCase):
         # body = {}
         body = {'grant_type': 'client_credentials', 'scope': 'test1'}
         headers = {
-            'Authorization': b'Basic ' + basic_auth
-        }
+                'Authorization': b'Basic ' + basic_auth
+                }
 
         allowed_scopes = ['test1']
 
@@ -121,8 +121,8 @@ class ApiAuthTest(TestCase):
         http_method = 'GET'
         body = {'grant_type': 'client_credentials', 'scope': 'test1'}
         headers = {
-            'Authorization': b'Basic ' + basic_auth
-        }
+                'Authorization': b'Basic ' + basic_auth
+                }
 
         allowed_scopes = ['test1']
 
@@ -132,8 +132,8 @@ class ApiAuthTest(TestCase):
         token = result.token
         body = {}
         headers = {
-            'Authorization': b'Bearer ' + token.token.encode('utf-8')
-        }
+                'Authorization': b'Bearer ' + token.token.encode('utf-8')
+                }
 
         result = authenticate(app, allowed_scopes, http_method, uri, body, headers)
         self.assertIsNotNone(result)
@@ -149,7 +149,7 @@ class ApiAuthTest(TestCase):
         access_token = AccessToken(
                 app=app,
                 token='eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE0MDI0MTM4NTksInNjb3BlIjoidGVzdDEiLCJjbGllbnRfaWQiOiJmYWtlX2NsaWVudF9pZCIsInRva2VuIjoid3daaGtjWFQxb1duaU82VHFuRUE1QnhyYzV2bFR5In0.fs3w2omDL4Pc-g4NPgXo2fxCcH-IvVkjEDao0kqttw0'
-        )
+                )
         self.assertFalse(access_token._is_valid())
 
 
@@ -163,7 +163,7 @@ class ApiAuthTest(TestCase):
         access_token = AccessToken(
                 app=app,
                 token='eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE0MDI0MTM4NTksInNjb3BlIjoidGVzdDEiLCJjbGllbnRfaWQiOiJmYWtlX2NsaWVudF9pZCIsInRva2VuIjoid3daaGtjWFQxb1duaU82VHFuRUE1QnhyYzV2bFR5In0.fs3w2omDL4Pc-g4NPgXo2fxCcH-IvVkjEDao0kqttw0'
-        )
+                )
         self.assertFalse(access_token._within_scope(['fake_scope_that_the_token_doesnt_have']))
 
     def test_access_token_invalid_token(self):
@@ -176,7 +176,7 @@ class ApiAuthTest(TestCase):
         access_token = AccessToken(
                 app=app,
                 token='invalid_token_format'
-        )
+                )
         self.assertFalse(access_token._is_valid())
 
 
@@ -193,8 +193,8 @@ class ApiAuthTest(TestCase):
         http_method = 'GET'
         body = {'grant_type': 'client_credentials', 'scope': 'test1'}
         headers = {
-            'Authorization': b'Basic ' + basic_auth
-        }
+                'Authorization': b'Basic ' + basic_auth
+                }
 
         allowed_scopes = ['test1']
 
@@ -204,8 +204,8 @@ class ApiAuthTest(TestCase):
         token = result.token
         body = {}
         headers = {
-            'Authorization': b'Bearer ' + token.token.encode('utf-8')
-        }
+                'Authorization': b'Bearer ' + token.token.encode('utf-8')
+                }
 
         api_keys.get_key = lambda _: None
 
@@ -225,8 +225,8 @@ class ApiAuthTest(TestCase):
         http_method = 'GET'
         body = {'grant_type': 'client_credentials', 'scope': 'test1'}
         headers = {
-            'Authorization': b'Basic ' + basic_auth
-        }
+                'Authorization': b'Basic ' + basic_auth
+                }
 
         allowed_scopes = ['test1']
 
@@ -236,8 +236,8 @@ class ApiAuthTest(TestCase):
         token = result.token
         body = {}
         headers = {
-            'Authorization': b'Bearer ' + token.token.encode('utf-8')
-        }
+                'Authorization': b'Bearer ' + token.token.encode('utf-8')
+                }
 
         disabled_api_key = MagicMock(
                 id=FAKE_CLIENT_ID, secret=FAKE_CLIENT_SECRET, status=StatusMixin.STATUS_DISABLED)
@@ -261,8 +261,8 @@ class ApiAuthTest(TestCase):
         http_method = 'GET'
         body = {'grant_type': 'invalid_grant', 'scope': 'test1'}
         headers = {
-            'Authorization': b'Basic ' + basic_auth
-        }
+                'Authorization': b'Basic ' + basic_auth
+                }
 
         allowed_scopes = ['test1']
 

@@ -33,7 +33,7 @@ class SPBasicAuthRequestValidator(object):
 
     def extract_client_data(self):
         auth_scheme, b64encoded_data = self.authorization.split(b' ')
-        decoded_data = base64.b64decode(b64encoded_data.decode('utf-8'))
+        decoded_data = base64.b64decode(b64encoded_data)
         self.client_id, self.client_secret = decoded_data.split(b':')
 
     def verify_request(self):
@@ -121,7 +121,7 @@ class SPOauth2RequestValidator(Oauth2RequestValidator):
         authorization = request.headers.get('Authorization')
         try:
             auth_scheme, b64encoded_data = authorization.split(' ')
-            decoded_data = base64.b64decode(b64encoded_data)
+            decoded_data = base64.b64decode(b64encoded_data.encode('utf-8'))
             client_id, client_secret = decoded_data.split(b':')
             request.client = Oauth2BackendApplicationClient(client_id)
         except Exception as e:
