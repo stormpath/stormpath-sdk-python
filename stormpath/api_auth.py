@@ -55,7 +55,7 @@ class AccessToken(object):
         # get raw data without validation
         try:
             data = jwt.decode(self.token, verify=False)
-            self.client_id = data.get('client_id', b'')
+            self.client_id = data.get('sub', b'')
             self.api_key = self.app.api_keys.get_key(self.client_id)
             self.exp = data.get('exp', 0)
             self.scopes = data.get('scope', '').split(' ')
@@ -152,26 +152,26 @@ class SPOauth2RequestValidator(Oauth2RequestValidator):
 def _generate_signed_token(request):
     client_id = request.client.client_id
     key = request.app.api_keys.get_key(client_id)
-    token = generate_token()
 
     # the SP ApiKey is already validated in SPOauth2RequestValidator.validate_client_id
     # but to prevent time based attacks oauthlib always goes through the entire
     # flow  even though the entire request will be deemed invalid
-    # in the end. Therefore, it's safe to return the random string generated with the
-    # generate_token function here (or any other string)
-    if not key:
-        return token
+    # in the end.
+    secret = key.secret if key else ''
 
     now = datetime.datetime.utcnow()
 
     data = {
-        'scope': request.scope,
-        'exp': now + datetime.timedelta(seconds=request.expires_in),
-        'token': token,
-        'client_id': client_id.decode('utf-8')
+        'iss': request.app.href.decode('utf-8'),
+        'sub': client_id.decode('utf-8'),
+        'iat': now,
+        'exp': now + datetime.timedelta(seconds=request.expires_in)
     }
 
-    token = jwt.encode(data, key.secret, 'HS256')
+    if hasattr(request, 'scope'):
+        data['scope'] = request.scope
+
+    token = jwt.encode(data, secret, 'HS256')
     token = to_unicode(token, "UTF-8")
 
     return token
