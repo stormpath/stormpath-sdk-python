@@ -611,8 +611,8 @@ patch any of the methods, you have to set the following environment variables
 to working Stormpath credentials:
 
 ```bash
-$ export STORMPATH_SDK_TEST_API_KEY_ID=YOUR_APIKEY_ID
-$ export STORMPATH_SDK_TEST_API_KEY_SECRET=YOUR_APIKEY_SECRET
+$ export STORMPATH_API_KEY_ID=YOUR_APIKEY_ID
+$ export STORMPATH_API_KEY_SECRET=YOUR_APIKEY_SECRET
 ```
 
 To run the live tests against the Stormpath service, you can then run:

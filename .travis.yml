@@ -9,7 +9,7 @@ install: pip install . --use-mirrors
 before_script: python setup.py testdep
 script:
 - python setup.py test
-- test -z "$STORMPATH_SDK_TEST_API_KEY_SECRET" || python setup.py livetest
+- test -z "$STORMPATH_API_KEY_SECRET" || python setup.py livetest
 branches:
   only:
   - master
