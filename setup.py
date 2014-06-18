@@ -43,7 +43,7 @@ class TestCommand(BaseCommand):
         os.chdir('tests')
         ret = subprocess.call(["py.test", "--quiet",
             "--cov-report=term-missing", "--cov", "stormpath",
-            "--ignore", "test_live.py"])
+            "--ignore", "live/*.py"])
         sys.exit(ret)
 
 
@@ -54,7 +54,9 @@ class LiveTestCommand(BaseCommand):
     def run(self):
         os.chdir("tests")
         ret = subprocess.call(["py.test", "--quiet",
-            "--cov-report=term-missing", "--cov", "stormpath", "test_live.py"])
+            "--cov-report=term-missing", "--cov", "stormpath",
+            "live/account.py", "live/appdir.py", "live/client_auth.py",
+            "live/group.py", "live/resource.py"])
         sys.exit(ret)
 
 
