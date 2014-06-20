@@ -31,7 +31,7 @@ class LiveBase(TestCase):
 
 
 class AuthenticatedLiveBase(LiveBase):
-    AUTH_SCHEME = 'SAuthc1'
+    AUTH_SCHEME = 'basic'
 
     def setUp(self):
         self.client = Client(id=self.api_key_id, secret=self.api_key_secret,
