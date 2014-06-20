@@ -99,12 +99,12 @@ class TestCustomData(AccountBase):
             set(acc.custom_data.keys()))
 
         self.assertEqual(
-            sorted(self.data.values()),
-            sorted(acc.custom_data.values()))
+            len(self.data.values()),
+            len(acc.custom_data.values()))
 
         self.assertEqual(
-            sorted(self.data.items()),
-            sorted(acc.custom_data.items()))
+            len(self.data.items()),
+            len(acc.custom_data.items()))
 
         self.assertEqual(set(self.data), set(acc.custom_data))
 
