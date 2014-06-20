@@ -28,6 +28,11 @@ PY_VERSION = sys.version_info[:2]
 class BaseCommand(Command):
     user_options = []
 
+    def pytest(self, *args):
+        ret = subprocess.call(["py.test", "--quiet",
+            "--cov-report=term-missing", "--cov", "stormpath"] + list(args))
+        sys.exit(ret)
+
     def initialize_options(self):
         pass
 
@@ -40,11 +45,7 @@ class TestCommand(BaseCommand):
     description = "run self-tests"
 
     def run(self):
-        os.chdir('tests')
-        ret = subprocess.call(["py.test", "--quiet",
-            "--cov-report=term-missing", "--cov", "stormpath",
-            "--ignore", "live/*.py"])
-        sys.exit(ret)
+        self.pytest('--ignore', 'tests/live', 'tests')
 
 
 class LiveTestCommand(BaseCommand):
@@ -52,12 +53,7 @@ class LiveTestCommand(BaseCommand):
     description = "run live-tests"
 
     def run(self):
-        os.chdir("tests")
-        ret = subprocess.call(["py.test", "--quiet",
-            "--cov-report=term-missing", "--cov", "stormpath",
-            "live/account.py", "live/appdir.py", "live/client_auth.py",
-            "live/group.py", "live/resource.py"])
-        sys.exit(ret)
+        self.pytest('tests/live')
 
 
 class TestDepCommand(BaseCommand):
