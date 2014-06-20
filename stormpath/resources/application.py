@@ -124,13 +124,11 @@ class Application(Resource, DeleteMixin, DictMixin, SaveMixin, StatusMixin):
         :param password: new password
         """
         if token.account.email not in [a.email for a in self.accounts]:
-            raise ValueError('Unrecognized account for this application %s' % repr(token.account))
+            raise ValueError('Unrecognized account for this application %s' %
+                repr(token.account))
         href = self.password_reset_tokens.build_reset_href(token)
         data = {'password': password}
-        self._store.create_resource(
-                href=href,
-                data=data
-            )
+        self._store.create_resource(href=href, data=data)
 
 
 class ApplicationList(CollectionResource):

@@ -165,3 +165,25 @@ class TestApplicationAuthentication(AccountBase):
     def test_authentication_failure(self):
         with self.assertRaises(Error):
             self.app.authenticate_account(self.username, 'x')
+
+
+class TestPasswordReset(AccountBase):
+
+    def setUp(self):
+        super(TestPasswordReset, self).setUp()
+        self.email = 'some@email.com'
+        _, self.acc = self.create_account(self.app.accounts, email=self.email)
+
+    def test_password_reset_workflow(self):
+        token = self.app.password_reset_tokens.create({'email': self.email})
+        self.assertEqual(token.account.href, self.acc.href)
+
+        acc = self.app.verify_password_reset_token(token.token)
+        self.assertEqual(acc.href, self.acc.href)
+
+        new_pwd = 'W00t123!' + self.get_random_name()
+
+        self.app.reset_account_password(token, new_pwd)
+
+        auth = self.app.authenticate_account(self.acc.username, new_pwd)
+        self.assertEqual(auth.account.href, self.acc.href)
