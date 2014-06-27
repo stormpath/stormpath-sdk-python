@@ -90,3 +90,36 @@ class AccountBase(SingleApplicationBase):
 
         account = coll.create(props)
         return username, account
+
+
+class ApiKeyBase(SingleApplicationBase):
+
+    def create_account(self, coll, username=None, email=None, password=None,
+            custom_data=None, given_name=None, surname=None):
+        if username is None:
+            username = self.get_random_name()
+        if email is None:
+            email = username + '@example.com'
+        if given_name is None:
+            given_name = 'Given ' + username
+        if surname is None:
+            surname = 'Sur ' + username
+        if password is None:
+            password = 'W00t123!' + username
+
+        props = {
+            'username': username,
+            'email': email,
+            'given_name': given_name,
+            'surname': surname,
+            'password': password,
+        }
+
+        if custom_data:
+            props['custom_data'] = custom_data
+
+        account = coll.create(props)
+        return username, account
+
+    def create_api_key(self, acc):
+        return acc.api_keys.create()
