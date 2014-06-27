@@ -61,7 +61,7 @@ class TestDepCommand(BaseCommand):
     description = "install test dependencies"
 
     def run(self):
-        cmd = ["pip", "install", "pytest", "pytest-cov"]
+        cmd = ["pip", "install", "pytest", "pytest-cov", "oauthlib", "PyJWT"]
         if PY_VERSION >= (3, 2):
             cmd.append("mock")
             cmd.append("httpretty==0.6.5")

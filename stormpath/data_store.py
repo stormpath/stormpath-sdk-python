@@ -16,6 +16,7 @@ class DataStore(object):
     """
     CACHE_REGIONS = (
         'accounts',
+        'apiKeys'
         'accountStoreMappings',
         'applications',
         'directories',

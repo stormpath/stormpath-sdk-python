@@ -34,9 +34,11 @@ class Application(Resource, DeleteMixin, DictMixin, SaveMixin, StatusMixin):
         )
         from .group import GroupList
         from .tenant import Tenant
+        from .api_key import ApiKeyList
 
         return {
             'accounts': AccountList,
+            'api_keys': ApiKeyList,
             'account_store_mappings': AccountStoreMappingList,
             'default_account_store_mapping': AccountStoreMapping,
             'default_group_store_mapping': AccountStoreMapping,
@@ -129,6 +131,11 @@ class Application(Resource, DeleteMixin, DictMixin, SaveMixin, StatusMixin):
         href = self.password_reset_tokens.build_reset_href(token)
         data = {'password': password}
         self._store.create_resource(href=href, data=data)
+
+    def authenticate(self, allowed_scopes, http_method, uri, body, headers, **kwargs):
+        from ..api_auth import authenticate as api_authenticate
+
+        return api_authenticate(self, allowed_scopes, http_method, uri, body, headers, **kwargs)
 
 
 class ApplicationList(CollectionResource):
