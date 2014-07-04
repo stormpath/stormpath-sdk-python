@@ -23,6 +23,7 @@ class DataStore(object):
         'groups',
         'groupMemberships',
         'tenants',
+        'nonces',
     )
 
     def __init__(self, executor, cache_options=None):
