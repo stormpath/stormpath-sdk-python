@@ -1,7 +1,9 @@
 # Stormpath Python SDK
 
-[![Build Status](https://travis-ci.org/stormpath/stormpath-sdk-python.png?branch=master)](https://travis-ci.org/stormpath/stormpath-sdk-python)
+[![Latest Version](https://pypip.in/version/stormpath/badge.png)](https://pypi.python.org/pypi/stormpath/)
 [![Downloads](https://pypip.in/download/stormpath/badge.png)](https://pypi.python.org/pypi/stormpath/)
+[![Build Status](https://travis-ci.org/stormpath/stormpath-sdk-python.png?branch=master)](https://travis-ci.org/stormpath/stormpath-sdk-python)
+
 
 Stormpath is the first simple and secure user management and authentication
 service for developers *like you*.  This Python SDK makes using Stormpath with
