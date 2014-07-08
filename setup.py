@@ -28,6 +28,11 @@ PY_VERSION = sys.version_info[:2]
 class BaseCommand(Command):
     user_options = []
 
+    def pytest(self, *args):
+        ret = subprocess.call(["py.test", "--quiet",
+            "--cov-report=term-missing", "--cov", "stormpath"] + list(args))
+        sys.exit(ret)
+
     def initialize_options(self):
         pass
 
@@ -40,11 +45,7 @@ class TestCommand(BaseCommand):
     description = "run self-tests"
 
     def run(self):
-        os.chdir('tests')
-        ret = subprocess.call(["py.test", "--quiet",
-            "--cov-report=term-missing", "--cov", "stormpath",
-            "--ignore", "test_live.py"])
-        sys.exit(ret)
+        self.pytest('--ignore', 'tests/live', 'tests')
 
 
 class LiveTestCommand(BaseCommand):
@@ -52,10 +53,7 @@ class LiveTestCommand(BaseCommand):
     description = "run live-tests"
 
     def run(self):
-        os.chdir("tests")
-        ret = subprocess.call(["py.test", "--quiet",
-            "--cov-report=term-missing", "--cov", "stormpath", "test_live.py"])
-        sys.exit(ret)
+        self.pytest('tests/live')
 
 
 class TestDepCommand(BaseCommand):
@@ -63,7 +61,7 @@ class TestDepCommand(BaseCommand):
     description = "install test dependencies"
 
     def run(self):
-        cmd = ["pip", "install", "pytest", "pytest-cov"]
+        cmd = ["pip", "install", "pytest", "pytest-cov", "oauthlib", "PyJWT"]
         if PY_VERSION >= (3, 2):
             cmd.append("mock")
             cmd.append("httpretty==0.6.5")
