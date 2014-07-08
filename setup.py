@@ -61,7 +61,7 @@ class TestDepCommand(BaseCommand):
     description = "install test dependencies"
 
     def run(self):
-        cmd = ["pip", "install", "pytest", "pytest-cov", "oauthlib", "PyJWT"]
+        cmd = ["pip", "install", "pytest", "pytest-cov"]
         if PY_VERSION >= (3, 2):
             cmd.append("mock")
             cmd.append("httpretty==0.6.5")
@@ -98,7 +98,12 @@ setup(
     url = 'https://github.com/stormpath/stormpath-sdk-python',
     zip_safe = False,
     keywords = ['stormpath', 'authentication', 'users', 'security'],
-    install_requires = ['requests>=1.1.0', 'six>=1.6.1'],
+    install_requires = [
+        'PyJWT>=0.2.1',
+        'oauthlib>=0.6.3',
+        'requests>=1.1.0',
+        'six>=1.6.1',
+    ],
     packages = find_packages(),
     classifiers = [
         'Development Status :: 5 - Production/Stable',
