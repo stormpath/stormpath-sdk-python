@@ -6,6 +6,8 @@ We can use (almost) any resource here - Account is a convenient choice.
 from stormpath.resources.base import Expansion
 
 from .base import AccountBase
+from .base import ApiKeyBase
+
 
 
 class TestResource(AccountBase):
@@ -125,4 +127,19 @@ class TestCollectionResource(AccountBase):
         acc = self.app.accounts[href]
 
         self.assertEqual(self.accounts[0].username, acc.username)
+
+
+class TestApiKeys(ApiKeyBase):
+
+    def test_api_key_resource_gets_built_properly_and_cached(self):
+        _, acc = self.create_account(self.app.accounts)
+        api_key = self.create_api_key(acc)
+
+        self.assertTrue('id' in api_key.__dict__)
+        self.assertTrue('secret' in api_key.__dict__)
+
+        k = self.app.api_keys.get_key(api_key.id)
+
+        self.assertEqual(k.id, api_key.id)
+
 
