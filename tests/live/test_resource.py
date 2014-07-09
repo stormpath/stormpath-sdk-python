@@ -2,7 +2,7 @@
 
 We can use (almost) any resource here - Account is a convenient choice.
 """
-
+import jwt
 from stormpath.resources.base import Expansion
 
 from .base import AccountBase
@@ -142,4 +142,55 @@ class TestApiKeys(ApiKeyBase):
 
         self.assertEqual(k.id, api_key.id)
 
+
+class TestIdSite(ApiKeyBase):
+
+    def test_building_id_site_redirect_uri(self):
+        try:
+            from urlparse import urlparse
+        except ImportError:
+            from urllib.parse import urlparse
+
+        _, acc = self.create_account(self.app.accounts)
+        api_key = self.create_api_key(acc)
+
+        ret = self.app.build_id_site_redirect_url(api_key, 'http://testserver/')
+        try:
+            jwt_response = urlparse(ret).query.split('=')[1]
+        except:
+            self.fail("Failed to parse ID site redirect uri")
+
+        try:
+            decoded_data = jwt.decode(jwt_response, verify=False)
+        except jwt.DecodeError:
+            self.fail("Invaid JWT generated.")
+
+        self.assertIsNotNone(decoded_data.get('iat'))
+        self.assertIsNotNone(decoded_data.get('jti'))
+        self.assertIsNotNone(decoded_data.get('iss'))
+        self.assertEqual(decoded_data.get('iss'), api_key.id)
+        self.assertIsNotNone(decoded_data.get('sub'))
+        self.assertIsNotNone(decoded_data.get('cb_uri'))
+        self.assertEqual(decoded_data.get('cb_uri'), 'http://testserver/')
+        self.assertIsNone(decoded_data.get('path'))
+        self.assertIsNone(decoded_data.get('state'))
+
+
+        ret = self.app.build_id_site_redirect_url(
+                api_key,
+                'http://testserver/',
+                path='/#/register',
+                state='test')
+        try:
+            jwt_response = urlparse(ret).query.split('=')[1]
+        except:
+            self.fail("Failed to parse ID site redirect uri")
+
+        try:
+            decoded_data = jwt.decode(jwt_response, verify=False)
+        except jwt.DecodeError:
+            self.fail("Invaid JWT generated.")
+
+        self.assertEqual(decoded_data.get('path'), '/#/register')
+        self.assertEqual(decoded_data.get('state'), 'test')
 
