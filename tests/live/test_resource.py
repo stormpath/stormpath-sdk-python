@@ -154,7 +154,7 @@ class TestIdSite(ApiKeyBase):
         _, acc = self.create_account(self.app.accounts)
         api_key = self.create_api_key(acc)
 
-        ret = self.app.build_id_site_redirect_url(api_key, 'http://testserver/')
+        ret = self.app.build_id_site_redirect_url(api_key, 'http://localhost/')
         try:
             jwt_response = urlparse(ret).query.split('=')[1]
         except:
@@ -171,7 +171,7 @@ class TestIdSite(ApiKeyBase):
         self.assertEqual(decoded_data.get('iss'), api_key.id)
         self.assertIsNotNone(decoded_data.get('sub'))
         self.assertIsNotNone(decoded_data.get('cb_uri'))
-        self.assertEqual(decoded_data.get('cb_uri'), 'http://testserver/')
+        self.assertEqual(decoded_data.get('cb_uri'), 'http://localhost/')
         self.assertIsNone(decoded_data.get('path'))
         self.assertIsNone(decoded_data.get('state'))
 
@@ -194,3 +194,31 @@ class TestIdSite(ApiKeyBase):
         self.assertEqual(decoded_data.get('path'), '/#/register')
         self.assertEqual(decoded_data.get('state'), 'test')
 
+
+    def test_id_site_callback_handler(self):
+        from uuid import uuid4
+        import datetime
+        import jwt
+        from oauthlib.common import to_unicode
+
+        _, acc = self.create_account(self.app.accounts)
+        api_key = self.create_api_key(acc)
+
+        now = datetime.datetime.utcnow()
+
+        fake_jwt_data = {
+                'exp': now + datetime.timedelta(seconds=3600),
+                'aud': api_key.id,
+                'irt': uuid4().get_hex(),
+                'iss': 'Stormpath',
+                'sub': acc.href,
+                'isNewSub': False,
+                'state': None,
+        }
+
+        fake_jwt = to_unicode(jwt.encode(fake_jwt_data, api_key.secret, 'HS256'), 'UTF-8')
+        fake_jwt_response = 'http://localhost/?jwtResponse=%s' % fake_jwt
+        ret = self.app.handle_id_site_callback(fake_jwt_response)
+        self.assertIsNotNone(ret)
+        self.assertEqual(ret.account.href, acc.href)
+        self.assertIsNone(ret.state)
