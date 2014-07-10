@@ -1,7 +1,7 @@
 Version 1.2.5
 -------------
 
-**Not yet released.**
+Released on May 28, 2014.
 
 - Fixing bugs with the Redis cache implementation.  Key expiration now works as
   expected, along with optional arguments to the Redis backend.
