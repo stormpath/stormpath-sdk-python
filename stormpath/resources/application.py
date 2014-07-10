@@ -144,6 +144,26 @@ class Application(Resource, DeleteMixin, DictMixin, SaveMixin, StatusMixin):
         return api_authenticate(self, allowed_scopes, http_method, uri, body, headers, **kwargs)
 
     def build_id_site_redirect_url(self, api_key, callback_uri, path=None, state=None):
+        """Builds a redirect uri for ID site.
+
+        :param api_key: :class:`stormpath.resources.api_key.ApiKey` object used for interacting
+            with the Stormpath API.
+
+        :param callback_uri: Callback URI to witch Stormpaath will redirect after
+            the user has entered their credentials on the ID site. Note: For security reasons
+            this is required to be the same as "Authorized Redirect URI" in the
+            Admin Console's ID Site settings.
+
+        :param path:
+            An optional string indicating to wich template we should redirect the user to.
+            By default it will redirect to the login screen but you can redirect to the
+            registration or forgot password screen with '/#/register' and '/#/forgot' respectively.
+
+        :param state: an optional string that stores information that your application needs
+            after the user is redirected back to your application
+
+        :return: A URI to witch to redirect the user.
+        """
         import jwt
         from oauthlib.common import to_unicode
         SSO_ENDPOINT = "https://api.stormpath.com/sso";
@@ -165,6 +185,16 @@ class Application(Resource, DeleteMixin, DictMixin, SaveMixin, StatusMixin):
         return SSO_ENDPOINT + '?' + urllib.urlencode(url_params)
 
     def handle_id_site_callback(self, url_response):
+        """Handles the callback from the ID site.
+
+        :param url_response: A string representing the full url (with it's params) to witch the
+            ID redirected to.
+
+        :return: A :class:`stormpath.id_site.IdSiteCallbackResult` object. Which holds the
+            :class:`stormpath.resources.account.Account` object and the state (if any was passed
+            along when creating the redirect uri).
+
+       """
         try:
             from urlparse import urlparse
         except ImportError:
