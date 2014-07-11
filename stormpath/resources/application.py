@@ -143,11 +143,8 @@ class Application(Resource, DeleteMixin, DictMixin, SaveMixin, StatusMixin):
 
         return api_authenticate(self, allowed_scopes, http_method, uri, body, headers, **kwargs)
 
-    def build_id_site_redirect_url(self, api_key, callback_uri, path=None, state=None):
+    def build_id_site_redirect_url(self, callback_uri, path=None, state=None):
         """Builds a redirect uri for ID site.
-
-        :param api_key: :class:`stormpath.resources.api_key.ApiKey` object used for interacting
-            with the Stormpath API.
 
         :param callback_uri: Callback URI to witch Stormpaath will redirect after
             the user has entered their credentials on the ID site. Note: For security reasons
@@ -167,11 +164,12 @@ class Application(Resource, DeleteMixin, DictMixin, SaveMixin, StatusMixin):
         import jwt
         from oauthlib.common import to_unicode
         SSO_ENDPOINT = "https://api.stormpath.com/sso";
-
+        api_key_secret = self._client.auth.secret
+        api_key_id = self._client.auth.id
         body = {
             'iat': datetime.utcnow(),
             'jti': uuid4().get_hex(),
-            'iss': api_key.id,
+            'iss': api_key_id,
             'sub': self.href,
             'cb_uri': callback_uri,
         }
@@ -180,7 +178,7 @@ class Application(Resource, DeleteMixin, DictMixin, SaveMixin, StatusMixin):
         if state:
             body['state'] = state
 
-        jwt_signature = to_unicode(jwt.encode(body, api_key.secret, 'HS256'), 'UTF-8')
+        jwt_signature = to_unicode(jwt.encode(body, api_key_secret, 'HS256'), 'UTF-8')
         url_params = {'jwtRequest': jwt_signature}
         return SSO_ENDPOINT + '?' + urllib.urlencode(url_params)
 
@@ -206,21 +204,11 @@ class Application(Resource, DeleteMixin, DictMixin, SaveMixin, StatusMixin):
         except:
             return None
 
-        try:
-            decoded_data = jwt.decode(jwt_response, verify=False)
-        except jwt.DecodeError:
-            return None
-
-        api_key_id = decoded_data.get('aud')
-        if not api_key_id:
-            return None
-        api_key = self.api_keys.get_key(client_id=api_key_id)
-        if not api_key:
-            return None
+        api_key_secret = self._client.auth.secret
 
         # validate signature
         try:
-            decoded_data = jwt.decode(jwt_response, api_key.secret)
+            decoded_data = jwt.decode(jwt_response, api_key_secret)
         except (jwt.DecodeError, jwt.ExpiredSignature):
             return None
 

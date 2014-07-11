@@ -151,10 +151,7 @@ class TestIdSite(ApiKeyBase):
         except ImportError:
             from urllib.parse import urlparse
 
-        _, acc = self.create_account(self.app.accounts)
-        api_key = self.create_api_key(acc)
-
-        ret = self.app.build_id_site_redirect_url(api_key, 'http://localhost/')
+        ret = self.app.build_id_site_redirect_url('http://localhost/')
         try:
             jwt_response = urlparse(ret).query.split('=')[1]
         except:
@@ -168,7 +165,7 @@ class TestIdSite(ApiKeyBase):
         self.assertIsNotNone(decoded_data.get('iat'))
         self.assertIsNotNone(decoded_data.get('jti'))
         self.assertIsNotNone(decoded_data.get('iss'))
-        self.assertEqual(decoded_data.get('iss'), api_key.id)
+        self.assertEqual(decoded_data.get('iss'), self.app._client.auth.id)
         self.assertIsNotNone(decoded_data.get('sub'))
         self.assertIsNotNone(decoded_data.get('cb_uri'))
         self.assertEqual(decoded_data.get('cb_uri'), 'http://localhost/')
@@ -177,7 +174,6 @@ class TestIdSite(ApiKeyBase):
 
 
         ret = self.app.build_id_site_redirect_url(
-                api_key,
                 'http://testserver/',
                 path='/#/register',
                 state='test')
@@ -202,13 +198,11 @@ class TestIdSite(ApiKeyBase):
         from oauthlib.common import to_unicode
 
         _, acc = self.create_account(self.app.accounts)
-        api_key = self.create_api_key(acc)
-
         now = datetime.datetime.utcnow()
 
         fake_jwt_data = {
                 'exp': now + datetime.timedelta(seconds=3600),
-                'aud': api_key.id,
+                'aud': self.app._client.auth.id,
                 'irt': uuid4().get_hex(),
                 'iss': 'Stormpath',
                 'sub': acc.href,
@@ -216,7 +210,10 @@ class TestIdSite(ApiKeyBase):
                 'state': None,
         }
 
-        fake_jwt = to_unicode(jwt.encode(fake_jwt_data, api_key.secret, 'HS256'), 'UTF-8')
+        fake_jwt = to_unicode(jwt.encode(
+            fake_jwt_data,
+            self.app._client.auth.secret,
+            'HS256'), 'UTF-8')
         fake_jwt_response = 'http://localhost/?jwtResponse=%s' % fake_jwt
         ret = self.app.handle_id_site_callback(fake_jwt_response)
         self.assertIsNotNone(ret)
