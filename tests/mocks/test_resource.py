@@ -59,8 +59,6 @@ class TestBaseResource(TestCase):
     def test_resource_init_by_href(self):
         r = Resource(MagicMock(), href='test/resource')
 
-        # it's not materialized yet
-        self.assertFalse(r.is_materialized())
         # it's not new (has href)
         self.assertFalse(r.is_new())
         # it know what it is
@@ -79,8 +77,6 @@ class TestBaseResource(TestCase):
             'someProperty': 'value'
         })
 
-        # we have the resource data
-        self.assertTrue(r.is_materialized())
         # it's not new (has href)
         self.assertFalse(r.is_new())
         # it knows what it is
@@ -92,15 +88,6 @@ class TestBaseResource(TestCase):
         # there are no writable attributes
         with self.assertRaises(AttributeError):
             r.name = 5
-
-    def test_unmaterialized_resource_even_if_local_data_set(self):
-        class Res(Resource):
-            writable_attrs = ('name',)
-
-        r = Res(MagicMock(), href='test/resource')
-        r.name = 'foo'
-
-        self.assertFalse(r.is_materialized())
 
     def test_resource_materialization(self):
         ds = MagicMock()
@@ -201,16 +188,35 @@ class TestBaseResource(TestCase):
 
     def test_autosave(self):
         ds = MagicMock()
+        # ds.get_resource.return_value = {
+        #     'href': '/',
+        #     'offset': 0,
+        #     'limit': 25,
+        #     'items': [
+        #         {"href": "test/resource", "special_resource": {"href": "test/resource"}},
+        #     ]
+        # }
         autosave_ds = MagicMock()
+        # autosave_ds.get_resource.return_value = {
+        #     'href': '/',
+        #     'offset': 0,
+        #     'limit': 25,
+        #     'items': [
+        #         {"href": "test/autosave_resource", "special_resource": {"href": "test/resource"}}
+        #     ]
+        # }
 
         class Res(Resource, AutoSaveMixin):
             writable_attrs = ('some_property', 'special_resource')
             autosaves = ('special_resource',)
 
+        class SubRes(Resource, SaveMixin):
+            pass
+
         r = Res(MagicMock(data_store=ds), properties={
             "href": "test/resource",
             "specialResource": {"href": "test/resource"}})
-        r.special_resource = Res(MagicMock(data_store=autosave_ds),
+        r.special_resource = SubRes(MagicMock(data_store=autosave_ds),
             href='test/autosave_resource')
 
         r.some_property = 'hello world'
@@ -230,24 +236,6 @@ class TestBaseResource(TestCase):
         r = Res(MagicMock(data_store=ds), properties={
             "href": "test/resource",
             "specialResource": {"href": "test/resource"}})
-        r.special_resource = Res(MagicMock(data_store=autosave_ds),
-            href='test/autosave_resource')
-
-        r.some_property = 'hello world'
-        r.save()
-
-        self.assertTrue(ds.update_resource.called)
-        self.assertFalse(autosave_ds.update_resource.called)
-
-    def test_autosave_only_saves_if_materialized(self):
-        ds = MagicMock()
-        autosave_ds = MagicMock()
-
-        class Res(Resource, AutoSaveMixin):
-            writable_attrs = ('some_property', 'special_resource')
-            autosaves = ('special_resource',)
-
-        r = Res(MagicMock(data_store=ds), href='test/resource')
         r.special_resource = Res(MagicMock(data_store=autosave_ds),
             href='test/autosave_resource')
 
@@ -306,7 +294,18 @@ class TestBaseResource(TestCase):
 class TestCollectionResource(TestCase):
 
     def test_init_by_properties(self):
-        rl = CollectionResource(client=MagicMock(), properties={
+        ds = MagicMock()
+        ds.get_resource.return_value = {
+            'href': '/',
+            'offset': 0,
+            'limit': 25,
+            'items': [
+                {'href': 'test/resource'},
+                {'href': 'another/resource'}
+            ]
+        }
+
+        rl = CollectionResource(client=MagicMock(data_store=ds), properties={
             'href': '/',
             'offset': 0,
             'limit': 25,
@@ -315,8 +314,6 @@ class TestCollectionResource(TestCase):
                 {'href': 'another/resource'}
             ]
         })
-
-        self.assertTrue(rl.is_materialized())
 
         # test length computation
         self.assertEqual(len(rl), 2)
@@ -341,7 +338,7 @@ class TestCollectionResource(TestCase):
         self.assertEqual(ds.get_resource.call_count, 0)
 
         list(rl2)
-        ds.get_resource.assert_called_once_with('/', params={
+        ds.get_resource.assert_called_with('/', params={
             'offset': 5,
             'limit': 5})
 
@@ -362,7 +359,7 @@ class TestCollectionResource(TestCase):
         self.assertEqual(ds.get_resource.call_count, 0)
 
         list(rl2)
-        ds.get_resource.assert_called_once_with('/', params={
+        ds.get_resource.assert_called_with('/', params={
             'offset': 2,
             'limit': 8})
 
@@ -376,13 +373,15 @@ class TestCollectionResource(TestCase):
             'offset': 2,
             'limit': 2,
             'items': [
+                {'href': 'test/resource'},
+                {'href': 'another/resource'},
                 {'href': 'third/resource'}
             ]
         }
 
         rl = CollectionResource(client=MagicMock(data_store=ds), properties={
             'href': '/',
-            'offset': 0,
+            'offset': 2,
             'limit': 2,
             'items': [
                 {'href': 'test/resource'},
@@ -395,18 +394,14 @@ class TestCollectionResource(TestCase):
         self.assertEqual(hrefs, ['test/resource', 'another/resource',
             'third/resource'])
 
-        ds.get_resource.assert_called_once_with('/', params={
-            'offset': 2,
+        ds.get_resource.assert_called_with('/', params={
+            'offset': 5,
             'limit': 2
         })
 
         self.assertEqual(len(rl), 3)
-        self.assertEqual(rl.offset, 0)
-        self.assertEqual(rl.limit, 3)
-
-        # check that repeated iteration doesn't try to continue pagination
-        list(rl)
-        self.assertEqual(ds.get_resource.call_count, 1)
+        self.assertEqual(rl.offset, 2)
+        self.assertEqual(rl.limit, 2)
 
     def test_creation_with_workflow_param_passing(self):
         ds = MagicMock()
@@ -453,7 +448,17 @@ class TestCollectionResource(TestCase):
             {}, params={'someParam': True, 'expand': 'bar(limit:5)'})
 
     def test_get_single_app_by_indexing_and_get(self):
-        rl = CollectionResource(client=MagicMock(), properties={
+        ds = MagicMock()
+        ds.get_resource.return_value = {
+            'href': '/',
+            'offset': 2,
+            'limit': 25,
+            'items': [
+                {'href': 'test/resource'},
+                {'href': 'another/resource'}
+            ]
+        }
+        rl = CollectionResource(client=MagicMock(data_store=ds), properties={
             'href': '/',
             'offset': 0,
             'limit': 25,
@@ -505,6 +510,20 @@ class TestCollectionResource(TestCase):
             'http://www.example.com/', {
                 'subResource': {'fooValue': 42}
             }, params={})
+
+    def test_resource_refresh(self):
+        ds = MagicMock()
+        ds.get_resource.return_value = {
+            'offset': 2,
+            'limit': 8,
+            'items': []
+        }
+
+        rl = CollectionResource(client=MagicMock(data_store=ds), href='/test_resources')
+
+        rl.refresh()
+
+        ds.uncache_resource.assert_called_once_with('/test_resources')
 
 
 if __name__ == '__main__':

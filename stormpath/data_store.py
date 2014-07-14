@@ -16,13 +16,14 @@ class DataStore(object):
     """
     CACHE_REGIONS = (
         'accounts',
-        'apiKeys'
+        'apiKeys',
         'accountStoreMappings',
         'applications',
         'directories',
         'groups',
         'groupMemberships',
         'tenants',
+        'nonces',
     )
 
     def __init__(self, executor, cache_options=None):
@@ -112,7 +113,7 @@ class DataStore(object):
 
         self._get_cache(href).put(href, resource_data, new=new)
 
-    def _cache_del(self, href):
+    def uncache_resource(self, href):
         self._get_cache(href).delete(href)
 
     def get_resource(self, href, params=None):
@@ -137,4 +138,4 @@ class DataStore(object):
 
     def delete_resource(self, href):
         self.executor.delete(href)
-        self._cache_del(href)
+        self.uncache_resource(href)

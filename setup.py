@@ -104,7 +104,7 @@ setup(
         'requests>=1.1.0',
         'six>=1.6.1',
     ],
-    packages = find_packages(),
+    packages = find_packages(exclude=['tests']),
     classifiers = [
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
