@@ -142,6 +142,19 @@ class TestApiKeys(ApiKeyBase):
 
         self.assertEqual(k.id, api_key.id)
 
+        k = self.app.api_keys.get_key(api_key.id, client_secret=api_key.secret)
+        self.assertEqual(k.secret, api_key.secret)
+
+    def test_wrong_secret_with_get_key_method(self):
+        _, acc = self.create_account(self.app.accounts)
+        api_key = self.create_api_key(acc)
+
+        self.assertTrue('id' in api_key.__dict__)
+        self.assertTrue('secret' in api_key.__dict__)
+
+        k = self.app.api_keys.get_key(api_key.id, client_secret='INVALID_SECRET')
+        self.assertFalse(k)
+
 
 class TestIdSite(ApiKeyBase):
 

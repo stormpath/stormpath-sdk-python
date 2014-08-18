@@ -128,7 +128,7 @@ class SPOauth2RequestValidator(Oauth2RequestValidator):
             return False
         if self.validate_client_id(client_id, request):
             return True
-        return True
+        return False
 
     def authenticate_client_id(self, client_id, request, *args, **kwargs):
         return False
@@ -157,7 +157,6 @@ def _generate_signed_token(request):
     # but to prevent time based attacks oauthlib always goes through the entire
     # flow  even though the entire request will be deemed invalid
     # in the end.
-    # secret = request.app._client.auth.secret
     secret = request.app._client.auth.secret
 
     now = datetime.datetime.utcnow()

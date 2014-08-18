@@ -31,13 +31,12 @@ class ApiKeyList(CollectionResource):
     resource_class = ApiKey
 
     def get_key(self, client_id, client_secret=None):
-        if client_secret:
-            search = {'id': client_id, 'secret': client_secret}
-        else:
-            search = {'id': client_secret}
-
+        search = {'id': client_id}
         try:
-            return self.search(search)[0]
+            key = self.search(search)[0]
+            if client_secret and not client_secret == key.secret:
+                return False
+            return key
         except IndexError:
             return False
 
