@@ -258,7 +258,7 @@ class MemoryStoreTest(TestCase):
 class TestRedisStore(TestCase):
 
     class Redis(object):
-        def __init__(self, host, port, db):
+        def __init__(self, *args, **kwargs):
             self.data = {}
 
         def get(self, key):
