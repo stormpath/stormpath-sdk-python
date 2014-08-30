@@ -30,9 +30,13 @@ class ApiKeyList(CollectionResource):
     """Application resource list."""
     resource_class = ApiKey
 
-    def get_key(self, client_id):
+    def get_key(self, client_id, client_secret=None):
+        search = {'id': client_id}
         try:
-            return self.search({'id': client_id})[0]
+            key = self.search(search)[0]
+            if client_secret and not client_secret == key.secret:
+                return False
+            return key
         except IndexError:
             return False
 

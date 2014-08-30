@@ -40,7 +40,7 @@ class SPBasicAuthRequestValidator(object):
         self.extract_client_data()
         acc = None
         if self.client_id and self.client_secret:
-            key = self.app.api_keys.get_key(self.client_id)
+            key = self.app.api_keys.get_key(self.client_id, self.client_secret)
             return (key and key.is_enabled()), DummyRequest(api_key=key)
         return None, None
 
@@ -70,7 +70,7 @@ class AccessToken(object):
                  datetime.datetime.utcnow() < datetime.datetime.utcfromtimestamp(float(self.exp))):
 
             try:
-                jwt.decode(self.token, self.api_key.secret)
+                jwt.decode(self.token, self.app._client.auth.secret)
             except jwt.DecodeError:
                 return False
 
@@ -128,7 +128,7 @@ class SPOauth2RequestValidator(Oauth2RequestValidator):
             return False
         if self.validate_client_id(client_id, request):
             return True
-        return True
+        return False
 
     def authenticate_client_id(self, client_id, request, *args, **kwargs):
         return False
@@ -157,7 +157,7 @@ def _generate_signed_token(request):
     # but to prevent time based attacks oauthlib always goes through the entire
     # flow  even though the entire request will be deemed invalid
     # in the end.
-    secret = key.secret if key else ''
+    secret = request.app._client.auth.secret
 
     now = datetime.datetime.utcnow()
 

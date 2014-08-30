@@ -138,10 +138,10 @@ class Application(Resource, DeleteMixin, DictMixin, SaveMixin, StatusMixin):
         data = {'password': password}
         self._store.create_resource(href=href, data=data)
 
-    def authenticate(self, allowed_scopes, http_method, uri, body, headers, **kwargs):
-        from ..api_auth import authenticate as api_authenticate
+    def authenticate_api(self, allowed_scopes, http_method, uri, body, headers, **kwargs):
+        from ..api_auth import authenticate
 
-        return api_authenticate(self, allowed_scopes, http_method, uri, body, headers, **kwargs)
+        return authenticate(self, allowed_scopes, http_method, uri, body, headers, **kwargs)
 
     def build_id_site_redirect_url(self, callback_uri, path=None, state=None):
         """Builds a redirect uri for ID site.
