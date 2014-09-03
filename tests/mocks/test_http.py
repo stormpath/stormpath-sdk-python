@@ -5,8 +5,6 @@ from stormpath.http import HttpExecutor
 from stormpath.error import Error
 from stormpath.client import Client
 
-from stormpath import __version__ as STORMPATH_VERSION
-
 try:
     from mock import patch, MagicMock, PropertyMock
 except ImportError:
@@ -24,7 +22,7 @@ class HttpTest(TestCase):
 
         self.assertEqual(s.auth, ('user', 'pass'))
         self.assertEqual(s.headers['Content-Type'], 'application/json')
-        self.assertEqual(s.headers['User-Agent'], 'stormpath-sdk-python/' + STORMPATH_VERSION + ' (python %s.%s.%s)' % (vi.major, vi.minor, vi.micro))
+        self.assertEqual(s.headers['User-Agent'], HttpExecutor.USER_AGENT)
 
     @patch('stormpath.http.Session')
     def test_get_request(self, Session):
