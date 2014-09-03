@@ -43,7 +43,6 @@ class IDSiteBuildURITest(TestCase):
         except jwt.DecodeError:
             self.fail("Invaid JWT generated.")
 
-        print decoded_data
         self.assertIsNotNone(decoded_data.get('iat'))
         self.assertIsNotNone(decoded_data.get('jti'))
         self.assertIsNotNone(decoded_data.get('iss'))
@@ -88,10 +87,15 @@ class IDSiteCallbackTest(IDSiteBuildURITest):
         self.acc = MagicMock(href='acchref')
         now = datetime.datetime.utcnow()
 
+        try:
+            irt = uuid4().get_hex()
+        except AttributeError:
+            irt = uuid4().hex
+
         fake_jwt_data = {
                 'exp': now + datetime.timedelta(seconds=3600),
                 'aud': self.app._client.auth.id,
-                'irt': uuid4().get_hex(),
+                'irt': irt,
                 'iss': 'Stormpath',
                 'sub': self.acc.href,
                 'isNewSub': False,
