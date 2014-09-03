@@ -70,6 +70,113 @@ class TestBaseResource(TestCase):
         with self.assertRaises(AttributeError):
             r.foo
 
+    def test_resource_with_href_not_string_type(self):
+        self.assertRaises(TypeError, Resource, MagicMock(), href=123)
+
+    def test_resource_without_neither_href_not_properties(self):
+        self.assertRaises(ValueError, Resource, MagicMock())
+
+    def test_getting_resource_property_names(self):
+        r = Resource(
+                MagicMock(),
+                properties={'href': 'reshref', '_some_property': 'should not show up'})
+        self.assertEqual(['href'], r._get_property_names())
+
+    def test_resource_dir_method(self):
+        r = Resource(
+                MagicMock(),
+                properties={'href': 'reshref', '_some_property': 'should not show up'})
+        r._ensure_data = lambda : None
+
+        self.assertEqual(['href'], r.__dir__())
+
+    def test_resource_repr_method(self):
+        r = Resource(
+                MagicMock(),
+                properties={'href': 'reshref'})
+        self.assertEqual('<Resource href=reshref>', r.__repr__())
+
+    def test_resource_str_method(self):
+        r = Resource(
+                MagicMock(),
+                properties={'href': 'reshref'})
+        self.assertEqual('<Resource href=reshref>', r.__str__())
+        r = Resource(
+                MagicMock(),
+                properties={'name': 'name'})
+        self.assertEqual('name', r.__str__())
+
+    def test_save_wont_save_new_resources(self):
+        r = Application(
+                MagicMock(),
+                properties={})
+        self.assertRaises(ValueError, r.save)
+
+    def test_deleting_new_resource(self):
+        r = Application(
+                MagicMock(),
+                properties={})
+        self.assertIsNone(r.delete())
+
+    def test_resource_status_is_disabled_if_not_specified(self):
+        r = Application(
+                MagicMock(),
+                properties={})
+        self.assertEqual(r.STATUS_DISABLED, r.get_status())
+
+    def test_getting_resource_status(self):
+        r = Application(
+                MagicMock(),
+                properties={'status': Application.STATUS_ENABLED})
+        self.assertEqual(r.STATUS_ENABLED, r.get_status())
+
+    def test_checking_if_status_enabled(self):
+        r = Application(
+                MagicMock(),
+                properties={'status': Application.STATUS_ENABLED})
+        self.assertTrue(r.is_enabled())
+
+    def test_checking_if_status_disabled(self):
+        r = Application(
+                MagicMock(),
+                properties={})
+        self.assertTrue(r.is_disabled())
+
+    def test_sanitize_property(self):
+        ret = Resource._sanitize_property({'full_name': 'full name'})
+        self.assertEqual({'fullName': 'full name'}, ret)
+
+    def test_wrapping_resource_attrs(self):
+        r = Resource(MagicMock(), properties={})
+        to_wrap = Resource(MagicMock(), properties={})
+        ret = r._wrap_resource_attr(Application, to_wrap)
+        self.assertEqual(to_wrap, ret)
+
+        ret = r._wrap_resource_attr(Application, {'name': 'some app'})
+        self.assertEqual('some app', ret.name)
+        self.assertTrue(isinstance(ret, Application))
+
+        ret = r._wrap_resource_attr(Application, None)
+        self.assertIsNone(ret)
+
+        self.assertRaises(TypeError, r._wrap_resource_attr, Application, 'Unsupported Conversion')
+
+    def test_getting_items_from_dict_mixing(self):
+        r = Application(MagicMock(), properties={'name': 'some app'})
+        self.assertEqual([('name', 'some app')], r.items())
+
+    def test_iter_method_on_dict_mixin(self):
+        r = Application(MagicMock(), properties={'name': 'some app'})
+        self.assertEqual(['name'], list(r.__iter__()))
+
+    def test_search_method_on_collection(self):
+        c = CollectionResource(MagicMock(), properties={'href': 'href'})
+        ret = c.search({'q': 'some_query'})
+        self.assertEqual({'q': 'some_query'}, ret._query)
+
+        ret = c.search('some_query')
+        self.assertEqual({'q': 'some_query'}, ret._query)
+
     def test_resource_init_by_properties(self):
         r = Resource(MagicMock(), properties={
             'href': 'test/resource',
@@ -188,24 +295,7 @@ class TestBaseResource(TestCase):
 
     def test_autosave(self):
         ds = MagicMock()
-        # ds.get_resource.return_value = {
-        #     'href': '/',
-        #     'offset': 0,
-        #     'limit': 25,
-        #     'items': [
-        #         {"href": "test/resource", "special_resource": {"href": "test/resource"}},
-        #     ]
-        # }
         autosave_ds = MagicMock()
-        # autosave_ds.get_resource.return_value = {
-        #     'href': '/',
-        #     'offset': 0,
-        #     'limit': 25,
-        #     'items': [
-        #         {"href": "test/autosave_resource", "special_resource": {"href": "test/resource"}}
-        #     ]
-        # }
-
         class Res(Resource, AutoSaveMixin):
             writable_attrs = ('some_property', 'special_resource')
             autosaves = ('special_resource',)

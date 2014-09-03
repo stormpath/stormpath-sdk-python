@@ -72,8 +72,7 @@ class Resource(object):
         elif properties is not None:
             self._set_properties(properties)
         else:
-            raise ValueError("%s: either 'href' or 'properties' are required",
-                self._resource_class__.__name__)
+            raise ValueError("Either 'href' or 'properties' are required")
 
     def __setattr__(self, name, value):
         if name.startswith('_') or name in self.writable_attrs:

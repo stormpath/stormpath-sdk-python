@@ -3,7 +3,10 @@
 from datetime import datetime
 import json
 from uuid import uuid4
-import urllib
+try:
+    from urllib import urlencode
+except ImportError:
+    from urllib.parse import urlencode
 
 from .base import (
     CollectionResource,
@@ -166,9 +169,16 @@ class Application(Resource, DeleteMixin, DictMixin, SaveMixin, StatusMixin):
         SSO_ENDPOINT = "https://api.stormpath.com/sso";
         api_key_secret = self._client.auth.secret
         api_key_id = self._client.auth.id
+
+        try:
+            irt = uuid4().get_hex()
+        except AttributeError:
+            irt = uuid4().hex
+
+
         body = {
             'iat': datetime.utcnow(),
-            'jti': uuid4().get_hex(),
+            'jti': irt,
             'iss': api_key_id,
             'sub': self.href,
             'cb_uri': callback_uri,
@@ -180,7 +190,7 @@ class Application(Resource, DeleteMixin, DictMixin, SaveMixin, StatusMixin):
 
         jwt_signature = to_unicode(jwt.encode(body, api_key_secret, 'HS256'), 'UTF-8')
         url_params = {'jwtRequest': jwt_signature}
-        return SSO_ENDPOINT + '?' + urllib.urlencode(url_params)
+        return SSO_ENDPOINT + '?' + urlencode(url_params)
 
     def handle_id_site_callback(self, url_response):
         """Handles the callback from the ID site.
