@@ -3,6 +3,7 @@ Contains classes that bear the brunt of Stormpath Python SDK resource handling
 like list access, updates, saves, deletes, attribute fetching, iterations etc.
 """
 
+from copy import deepcopy
 
 try:
     string_type = basestring
@@ -320,16 +321,16 @@ class CollectionResource(Resource):
                 self.resource_class, item) for item in items]
 
     def _get_next_page(self, offset, limit):
-        q = self._query or {}
+        params = deepcopy(self._query) or {}
 
         # If the user explicitly asked for a limited set of data, do nothing.
-        if 'offset' in q or 'limit' in q:
+        if 'offset' in params or 'limit' in params:
             return []
 
-        q['offset'] = offset
-        q['limit'] = limit
+        params['offset'] = offset
+        params['limit'] = limit
 
-        data = self._store.get_resource(self.href, params=q)
+        data = self._store.get_resource(self.href, params=params)
 
         items = [self._wrap_resource_attr(self.resource_class,
             item) for item in data.get('items', [])]
@@ -349,6 +350,7 @@ class CollectionResource(Resource):
             for item in items:
                 yield item
 
+            # don't attempt to do another page as we've fetched all items
             if len(items) < limit:
                 break
 
