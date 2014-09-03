@@ -3,6 +3,7 @@
 
 from collections import OrderedDict
 from json import dumps
+import platform
 from requests import Session
 from sys import version_info as vi
 
@@ -23,9 +24,18 @@ class HttpExecutor(object):
     :param auth: Authentication manager, like
         :class:`stormpath.auth.Sauthc1Signer`.
     """
-    USER_AGENT = 'stormpath-sdk-python/%s (python %s)' % (
+    os_info = platform.platform()
+    os_versions = {
+        'Linux': "%s (%s)" % (platform.linux_distribution()[0], os_info),
+        'Windows': "%s (%s)" % (platform.win32_ver()[0], os_info),
+        'Darwin': "%s (%s)" % (platform.mac_ver()[0], os_info),
+    }
+
+    USER_AGENT = 'stormpath-sdk-python/%s python/%s %s/%s' % (
         STORMPATH_VERSION,
-        '%s.%s.%s' % (vi.major, vi.minor, vi.micro)
+        '%s.%s.%s' % (vi.major, vi.minor, vi.micro),
+        platform.system(),
+        os_versions.get(platform.system(), ''),
     )
 
     def __init__(self, base_url, auth, proxies=None, user_agent=None):
@@ -33,7 +43,7 @@ class HttpExecutor(object):
         # our built-in user agent.  This way we'll get very detailed user agent
         # strings.
         if user_agent is not None:
-            self.USER_AGENT = self.USER_AGENT + ' ' + user_agent
+            self.USER_AGENT = user_agent + '  ' + self.USER_AGENT
 
         self.base_url = base_url
         self.session = Session()
