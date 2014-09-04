@@ -15,6 +15,7 @@ from .base import (
     Resource,
     SaveMixin,
     StatusMixin,
+    AutoSaveMixin,
 )
 from .login_attempt import LoginAttemptList
 from ..id_site import IdSiteCallbackResult
@@ -22,13 +23,15 @@ from ..nonce import Nonce
 from .password_reset_token import PasswordResetTokenList
 
 
-class Application(Resource, DeleteMixin, DictMixin, SaveMixin, StatusMixin):
+class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, StatusMixin):
     """Stormpath Application resource.
 
     More info in documentation:
     http://docs.stormpath.com/python/product-guide/#applications
     """
+    autosaves = ('custom_data',)
     writable_attrs = (
+        'custom_data',
         'description',
         'name',
         'status',
@@ -44,8 +47,10 @@ class Application(Resource, DeleteMixin, DictMixin, SaveMixin, StatusMixin):
         from .group import GroupList
         from .tenant import Tenant
         from .api_key import ApiKeyList
+        from .custom_data import CustomData
 
         return {
+            'custom_data': CustomData,
             'accounts': AccountList,
             'api_keys': ApiKeyList,
             'account_store_mappings': AccountStoreMappingList,
