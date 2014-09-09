@@ -241,7 +241,7 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
         issuer = decoded_data['iss']
         account_href = decoded_data['sub']
         is_new_account = decoded_data['isNewSub']
-        state = decoded_data['state']
+        state = decoded_data.get('state')
 
         account = self.accounts.get(account_href)
         # We modify the internal parameter sp_http_status which indicates if an account
