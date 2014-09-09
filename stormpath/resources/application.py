@@ -242,6 +242,7 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
         account_href = decoded_data['sub']
         is_new_account = decoded_data['isNewSub']
         state = decoded_data.get('state')
+        status = decoded_data.get('status')
 
         account = self.accounts.get(account_href)
         # We modify the internal parameter sp_http_status which indicates if an account
@@ -249,7 +250,7 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
         # property
         account.sp_http_status  # NOTE: this forces account retrieval and building of the actual Account object
         account.__dict__['sp_http_status'] = 201 if is_new_account else 200
-        return IdSiteCallbackResult(account=account, state=state)
+        return IdSiteCallbackResult(account=account, state=state, status=status)
 
 
 class ApplicationList(CollectionResource):
