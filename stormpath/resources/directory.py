@@ -8,17 +8,19 @@ from .base import (
     Resource,
     SaveMixin,
     StatusMixin,
+    AutoSaveMixin,
 )
 
 
-class Directory(Resource, DeleteMixin, DictMixin, SaveMixin, StatusMixin):
+class Directory(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, StatusMixin):
     """Stormpath Directory resource.
 
     More info in documentation:
     http://docs.stormpath.com/python/product-guide/#directories
     """
-    autosaves = ('provider',)
+    autosaves = ('provider', 'custom_data',)
     writable_attrs = (
+        'custom_data',
         'description',
         'name',
         'provider',
@@ -31,8 +33,10 @@ class Directory(Resource, DeleteMixin, DictMixin, SaveMixin, StatusMixin):
         from .group import GroupList
         from .provider import Provider
         from .tenant import Tenant
+        from .custom_data import CustomData
 
         return {
+            'custom_data': CustomData,
             'accounts': AccountList,
             'groups': GroupList,
             'provider': Provider,
