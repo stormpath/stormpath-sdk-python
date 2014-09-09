@@ -151,7 +151,7 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
 
         return authenticate(self, allowed_scopes, http_method, uri, body, headers, **kwargs)
 
-    def build_id_site_redirect_url(self, callback_uri, path=None, state=None):
+    def build_id_site_redirect_url(self, callback_uri, path=None, state=None, logout=False):
         """Builds a redirect uri for ID site.
 
         :param callback_uri: Callback URI to witch Stormpaath will redirect after
@@ -172,8 +172,11 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
         import jwt
         from oauthlib.common import to_unicode
         SSO_ENDPOINT = "https://api.stormpath.com/sso";
+        SSO_LOGOUT_ENDPOINT = SSO_ENDPOINT + "/logout";
         api_key_secret = self._client.auth.secret
         api_key_id = self._client.auth.id
+
+        endpoint = SSO_LOGOUT_ENDPOINT if logout else SSO_ENDPOINT
 
         try:
             irt = uuid4().get_hex()
@@ -195,7 +198,7 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
 
         jwt_signature = to_unicode(jwt.encode(body, api_key_secret, 'HS256'), 'UTF-8')
         url_params = {'jwtRequest': jwt_signature}
-        return SSO_ENDPOINT + '?' + urlencode(url_params)
+        return endpoint + '?' + urlencode(url_params)
 
     def handle_id_site_callback(self, url_response):
         """Handles the callback from the ID site.
@@ -227,7 +230,6 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
         except (jwt.DecodeError, jwt.ExpiredSignature):
             return None
 
-
         nonce = Nonce(decoded_data['irt'])
 
         # check if nonce is in cache already
@@ -244,12 +246,15 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
         state = decoded_data.get('state')
         status = decoded_data.get('status')
 
-        account = self.accounts.get(account_href)
-        # We modify the internal parameter sp_http_status which indicates if an account
-        # is new (ie. just created). This is so we can take advantage of the account.is_new_account
-        # property
-        account.sp_http_status  # NOTE: this forces account retrieval and building of the actual Account object
-        account.__dict__['sp_http_status'] = 201 if is_new_account else 200
+        if account_href:
+            account = self.accounts.get(account_href)
+            # We modify the internal parameter sp_http_status which indicates if an account
+            # is new (ie. just created). This is so we can take advantage of the account.is_new_account
+            # property
+            account.sp_http_status  # NOTE: this forces account retrieval and building of the actual Account object
+            account.__dict__['sp_http_status'] = 201 if is_new_account else 200
+        else:
+            account = None
         return IdSiteCallbackResult(account=account, state=state, status=status)
 
 
