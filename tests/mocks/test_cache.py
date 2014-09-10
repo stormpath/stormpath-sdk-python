@@ -211,12 +211,18 @@ class TestCache(TestCase):
         CacheStats.return_value.clear.assert_called_once_with()
 
     def test_cache_max_entries(self, CacheStats):
-        LimitedSizeDict.MAX_ENTRIES = 2
-        cache = Cache(store=MemoryStore)
+        cache = Cache(store=MemoryStore, store_opts={'max_entries': 2})
         for i in range(1,10):
             cache.put(i, i)
         self.assertEqual(2, len(cache.store))
         self.assertEqual(list(cache.store.store.keys()), [8,9])
+
+    def test_cache_does_not_allow_max_entries_to_fall_bellow_one(self, CacheStats):
+        self.assertRaises(
+                ValueError,
+                Cache,
+                store=MemoryStore,
+                store_opts={'max_entries': 0})
 
 
 @patch('stormpath.cache.manager.Cache')
