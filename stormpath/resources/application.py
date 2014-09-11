@@ -29,6 +29,10 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
     More info in documentation:
     http://docs.stormpath.com/python/product-guide/#applications
     """
+
+    SSO_ENDPOINT = "https://api.stormpath.com/sso";
+    SSO_LOGOUT_ENDPOINT = SSO_ENDPOINT + "/logout";
+
     autosaves = ('custom_data',)
     writable_attrs = (
         'custom_data',
@@ -173,12 +177,10 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
         """
         import jwt
         from oauthlib.common import to_unicode
-        SSO_ENDPOINT = "https://api.stormpath.com/sso";
-        SSO_LOGOUT_ENDPOINT = SSO_ENDPOINT + "/logout";
         api_key_secret = self._client.auth.secret
         api_key_id = self._client.auth.id
 
-        endpoint = SSO_LOGOUT_ENDPOINT if logout else SSO_ENDPOINT
+        endpoint = self.SSO_LOGOUT_ENDPOINT if logout else self.SSO_ENDPOINT
 
         try:
             irt = uuid4().get_hex()
