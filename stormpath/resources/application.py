@@ -167,6 +167,8 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
         :param state: an optional string that stores information that your application needs
             after the user is redirected back to your application
 
+        :param logout: a Boolean value indicating if this should redirect to the logout endpoint
+
         :return: A URI to witch to redirect the user.
         """
         import jwt
