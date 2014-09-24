@@ -133,14 +133,14 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
     def verify_password_reset_token(self, token):
         """Verify password reset by using a token.
 
-        :param token: password reset token extracted from the URL.
+        :param token: a string representation of the password reset token extracted from the URL.
         """
         return self.password_reset_tokens[token].account
 
     def reset_account_password(self, token, password):
         """Resets the password for an account.
 
-        :param token: password reset token.
+        :param token: A :class:`stormpath.resources.password_reset_token.PasswordResetToken` object.
         :param password: new password
         """
         if token.account.email not in [a.email for a in self.accounts]:
