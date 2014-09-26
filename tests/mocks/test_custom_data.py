@@ -279,6 +279,22 @@ class TestCustomData(TestCase):
                 'subResource': cd
             }, params={})
 
+    def test_cusom_data_elem_in_dict_check(self):
+        ds = MagicMock()
+        ds.get_resource.return_value = {
+                'href': 'test/customData',
+                'test': 1
+        }
+        from stormpath.resources.account import Account
+        client = MagicMock(data_store=ds)
+        client.accounts.get.return_value = Account(client, properties={
+                'href': 'test/account',
+                'custom_data': {'href': 'test/customData'}
+        })
+        a = client.accounts.get('test/account')
+
+        self.assertTrue('test' in a.custom_data)
+
 
 if __name__ == '__main__':
     main()

@@ -64,6 +64,7 @@ class CustomData(Resource, DeleteMixin, SaveMixin):
             self._deletes.add(self._get_key_href(key))
 
     def __contains__(self, key):
+        self._ensure_data()
         return key in self.data
 
     def _get_key_href(self, key):
