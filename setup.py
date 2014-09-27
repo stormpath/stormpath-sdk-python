@@ -101,7 +101,7 @@ setup(
     install_requires = [
         'PyJWT>=0.2.1',
         'oauthlib>=0.6.3',
-        'requests>=1.1.0',
+        'requests<=1.2.0',
         'six>=1.6.1',
     ],
     packages = find_packages(exclude=['tests']),
