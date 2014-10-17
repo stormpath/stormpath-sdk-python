@@ -198,6 +198,10 @@ class Resource(object):
         if self._expand:
             params.update({'expand': self._expand.get_params()})
 
+        if 'limit' in self.__dict__ and 'offset' in self.__dict__:
+            params['limit'] = self.__dict__['limit']
+            params['offset'] = self.__dict__['offset']
+
         if not params:
             params = None
 
