@@ -117,7 +117,7 @@ class Resource(object):
             else:
                 return value._get_properties()
         elif isinstance(value, dict):
-            return {Resource.to_camel_case(k):Resource._sanitize_property(v)
+            return {Resource.to_camel_case(k): Resource._sanitize_property(v)
                 for k, v in value.items()}
         else:
             return value
@@ -136,7 +136,6 @@ class Resource(object):
                 value = Resource(self._client, href=value['href'])
 
             self.__dict__[name] = value
-
 
     @staticmethod
     def to_camel_case(name):
@@ -199,6 +198,10 @@ class Resource(object):
         if self._expand:
             params.update({'expand': self._expand.get_params()})
 
+        if 'limit' in self.__dict__ and 'offset' in self.__dict__:
+            params['limit'] = self.__dict__['limit']
+            params['offset'] = self.__dict__['offset']
+
         if not params:
             params = None
 
@@ -221,6 +224,7 @@ class Resource(object):
 
         self._store.uncache_resource(self.href)
         self._ensure_data()
+
 
 class SaveMixin(object):
 
