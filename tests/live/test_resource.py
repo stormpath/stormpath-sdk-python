@@ -213,10 +213,15 @@ class TestIdSite(ApiKeyBase):
         _, acc = self.create_account(self.app.accounts)
         now = datetime.datetime.utcnow()
 
+        try:
+            irt = uuid4().get_hex()
+        except AttributeError:
+            irt = uuid4().hex
+
         fake_jwt_data = {
                 'exp': now + datetime.timedelta(seconds=3600),
                 'aud': self.app._client.auth.id,
-                'irt': uuid4().get_hex(),
+                'irt': irt,
                 'iss': 'Stormpath',
                 'sub': acc.href,
                 'isNewSub': False,
