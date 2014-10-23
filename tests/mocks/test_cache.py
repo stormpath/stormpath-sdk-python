@@ -7,7 +7,7 @@ from stormpath.cache.entry import CacheEntry
 from stormpath.cache.stats import CacheStats
 from stormpath.cache.cache import Cache
 from stormpath.cache.manager import CacheManager
-from stormpath.cache.memory_store import MemoryStore
+from stormpath.cache.memory_store import MemoryStore, LimitedSizeDict
 from stormpath.cache.redis_store import RedisStore
 
 
@@ -210,6 +210,20 @@ class TestCache(TestCase):
         store.clear.assert_called_once_with()
         CacheStats.return_value.clear.assert_called_once_with()
 
+    def test_cache_max_entries(self, CacheStats):
+        cache = Cache(store=MemoryStore, store_opts={'max_entries': 2})
+        for i in range(1,10):
+            cache.put(i, i)
+        self.assertEqual(2, len(cache.store))
+        self.assertEqual(list(cache.store.store.keys()), [8,9])
+
+    def test_cache_does_not_allow_max_entries_to_fall_bellow_one(self, CacheStats):
+        self.assertRaises(
+                ValueError,
+                Cache,
+                store=MemoryStore,
+                store_opts={'max_entries': 0})
+
 
 @patch('stormpath.cache.manager.Cache')
 class TestCacheManager(TestCase):
@@ -258,7 +272,7 @@ class MemoryStoreTest(TestCase):
 class TestRedisStore(TestCase):
 
     class Redis(object):
-        def __init__(self, host, port, db):
+        def __init__(self, *args, **kwargs):
             self.data = {}
 
         def get(self, key):

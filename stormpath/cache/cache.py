@@ -23,6 +23,9 @@ class Cache(object):
         self.ttl = ttl
         self.tti = tti
         store_opts = kwargs.get('store_opts', {})
+        # pass along max entries only to memory store instances
+        if store != MemoryStore:
+            store_opts.pop('max_entries', None)
         self.store = store(**store_opts)
         self.stats = CacheStats()
 

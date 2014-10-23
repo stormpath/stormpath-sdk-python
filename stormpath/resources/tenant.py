@@ -6,16 +6,19 @@ from .base import (
     DictMixin,
     Resource,
     SaveMixin,
+    AutoSaveMixin,
 )
 
 
-class Tenant(Resource, DeleteMixin, DictMixin, SaveMixin):
+class Tenant(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin):
     """Stormpath Tenant resource.
 
     More info in documentation:
     http://docs.stormpath.com/python/product-guide/#tenants
     """
+    autosaves = ('custom_data',)
     writable_attrs = (
+        'custom_data',
         'key',
         'name',
     )
@@ -24,8 +27,10 @@ class Tenant(Resource, DeleteMixin, DictMixin, SaveMixin):
     def get_resource_attributes():
         from .application import ApplicationList
         from .directory import DirectoryList
+        from .custom_data import CustomData
 
         return {
+            'custom_data': CustomData,
             'applications': ApplicationList,
             'directories': DirectoryList,
         }

@@ -35,7 +35,7 @@ class CustomData(Resource, DeleteMixin, SaveMixin):
         self._deletes = set([])
 
     def __getitem__(self, key):
-        if key not in self.data:
+        if (key not in self.data) and (self._get_key_href(key) not in self._deletes):
             self._ensure_data()
 
         return self.data[key]
@@ -64,6 +64,7 @@ class CustomData(Resource, DeleteMixin, SaveMixin):
             self._deletes.add(self._get_key_href(key))
 
     def __contains__(self, key):
+        self._ensure_data()
         return key in self.data
 
     def _get_key_href(self, key):
@@ -103,8 +104,6 @@ class CustomData(Resource, DeleteMixin, SaveMixin):
             else:
                 if k not in self.__dict__['data']:
                     self.__dict__['data'][k] = v
-
-        self._is_materialized = ('created_at' in self.__dict__)
 
     def save(self):
         for href in self._deletes:

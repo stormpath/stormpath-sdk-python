@@ -54,7 +54,8 @@ class Client(object):
 
         :param str user_agent: (optional) The custom user agent to set.
         """
-        executor = HttpExecutor(self.BASE_URL, Auth(**auth_kwargs).scheme, proxies, user_agent=user_agent)
+        self.auth = Auth(**auth_kwargs)
+        executor = HttpExecutor(self.BASE_URL, self.auth.scheme, proxies, user_agent=user_agent)
         self.data_store = DataStore(executor, cache_options)
         self.tenant = Tenant(client=self, href='/tenants/current', expand=expand)
 

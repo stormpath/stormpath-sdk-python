@@ -3,6 +3,7 @@ Contains classes that bear the brunt of Stormpath Python SDK resource handling
 like list access, updates, saves, deletes, attribute fetching, iterations etc.
 """
 
+from copy import deepcopy
 
 try:
     string_type = basestring
@@ -61,7 +62,6 @@ class Resource(object):
             expand=None):
         self._client = client
         self._expand = expand
-        self._is_materialized = False
         self._query = query
         self._store = client.data_store
 
@@ -73,8 +73,7 @@ class Resource(object):
         elif properties is not None:
             self._set_properties(properties)
         else:
-            raise ValueError("%s: either 'href' or 'properties' are required",
-                self._resource_class__.__name__)
+            raise ValueError("Either 'href' or 'properties' are required")
 
     def __setattr__(self, name, value):
         if name.startswith('_') or name in self.writable_attrs:
@@ -86,11 +85,6 @@ class Resource(object):
     def __getattr__(self, name):
         if name == 'href':
             return self.__dict__.get('href')
-
-        # If we already have it locally, no need to materialize the rest of
-        # the resource.
-        if name in self.__dict__:
-            return self.__dict__[name]
 
         self._ensure_data()
 
@@ -123,7 +117,7 @@ class Resource(object):
             else:
                 return value._get_properties()
         elif isinstance(value, dict):
-            return {Resource.to_camel_case(k):Resource._sanitize_property(v)
+            return {Resource.to_camel_case(k): Resource._sanitize_property(v)
                 for k, v in value.items()}
         else:
             return value
@@ -142,11 +136,6 @@ class Resource(object):
                 value = Resource(self._client, href=value['href'])
 
             self.__dict__[name] = value
-
-        # If there were more properties than just the href, the resource is
-        # materialized.
-        if list(properties.keys()) != ['href']:
-            self._is_materialized = True
 
     @staticmethod
     def to_camel_case(name):
@@ -195,14 +184,11 @@ class Resource(object):
         except AttributeError:
             return repr(self)
 
-    def is_materialized(self):
-        return self._is_materialized
-
     def is_new(self):
         return self.href is None
 
     def _ensure_data(self):
-        if self.is_new() or self.is_materialized():
+        if self.is_new():
             return
 
         params = {}
@@ -212,11 +198,32 @@ class Resource(object):
         if self._expand:
             params.update({'expand': self._expand.get_params()})
 
+        if 'limit' in self.__dict__ and 'offset' in self.__dict__:
+            params['limit'] = self.__dict__['limit']
+            params['offset'] = self.__dict__['offset']
+
         if not params:
             params = None
 
         data = self._store.get_resource(self.href, params=params)
         self._set_properties(data)
+
+    def refresh(self):
+        """Refreshes the local copy of a Resource or Resource List from the API
+
+        Example refreshing an application list after delete::
+
+            myapp = client.applications[0]
+            myapp.delete()
+
+            client.applications.refresh()
+
+        .. note::
+            This will ignore all changes made on a resource if it has not been saved previously.
+        """
+
+        self._store.uncache_resource(self.href)
+        self._ensure_data()
 
 
 class SaveMixin(object):
@@ -232,8 +239,8 @@ class AutoSaveMixin(SaveMixin):
 
     def save(self):
         super(AutoSaveMixin, self).save()
-        if self.is_materialized():
-            for res in self.autosaves:
+        for res in self.autosaves:
+            if res in self.__dict__:
                 self.__dict__[res].save()
 
 
@@ -313,24 +320,23 @@ class CollectionResource(Resource):
         super(CollectionResource, self)._set_properties(properties)
 
         if items is not None:
-            self._is_materialized = True
             self.__dict__['items'] = [self._wrap_resource_attr(
                 self.resource_class, item) for item in items]
 
     def _get_next_page(self, offset, limit):
-        q = self._query or {}
+        params = deepcopy(self._query) or {}
 
         # If the user explicitly asked for a limited set of data, do nothing.
-        if 'offset' in q or 'limit' in q:
+        if 'offset' in params or 'limit' in params:
             return []
 
-        q['offset'] = offset
-        q['limit'] = limit
+        params['offset'] = offset
+        params['limit'] = limit
 
-        data = self._store.get_resource(self.href, params=q)
+        data = self._store.get_resource(self.href, params=params)
 
         items = [self._wrap_resource_attr(self.resource_class,
-            item) for item in data['items']]
+            item) for item in data.get('items', [])]
         self.__dict__['items'].extend(items)
         self.__dict__['limit'] += len(items)
 
@@ -347,6 +353,7 @@ class CollectionResource(Resource):
             for item in items:
                 yield item
 
+            # don't attempt to do another page as we've fetched all items
             if len(items) < limit:
                 break
 

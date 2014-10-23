@@ -36,8 +36,10 @@ class Group(Resource, AutoSaveMixin, DeleteMixin, DictMixin, StatusMixin):
         from .directory import Directory
         from .group_membership import GroupMembershipList
         from .tenant import Tenant
+        from .custom_data import CustomData
 
         return {
+            'custom_data': CustomData,
             'accounts': AccountList,
             'account_memberships': GroupMembershipList,
             'custom_data': CustomData,

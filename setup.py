@@ -28,6 +28,11 @@ PY_VERSION = sys.version_info[:2]
 class BaseCommand(Command):
     user_options = []
 
+    def pytest(self, *args):
+        ret = subprocess.call(["py.test", "--quiet",
+            "--cov-report=term-missing", "--cov", "stormpath"] + list(args))
+        sys.exit(ret)
+
     def initialize_options(self):
         pass
 
@@ -40,11 +45,7 @@ class TestCommand(BaseCommand):
     description = "run self-tests"
 
     def run(self):
-        os.chdir('tests')
-        ret = subprocess.call(["py.test", "--quiet",
-            "--cov-report=term-missing", "--cov", "stormpath",
-            "--ignore", "test_live.py"])
-        sys.exit(ret)
+        self.pytest('--ignore', 'tests/live', 'tests')
 
 
 class LiveTestCommand(BaseCommand):
@@ -52,10 +53,7 @@ class LiveTestCommand(BaseCommand):
     description = "run live-tests"
 
     def run(self):
-        os.chdir("tests")
-        ret = subprocess.call(["py.test", "--quiet",
-            "--cov-report=term-missing", "--cov", "stormpath", "test_live.py"])
-        sys.exit(ret)
+        self.pytest('tests/live')
 
 
 class TestDepCommand(BaseCommand):
@@ -66,9 +64,6 @@ class TestDepCommand(BaseCommand):
         cmd = ["pip", "install", "pytest", "pytest-cov"]
         if PY_VERSION >= (3, 2):
             cmd.append("mock")
-            cmd.append("httpretty==0.6.5")
-        else:
-            cmd.append("httpretty")
         ret = subprocess.call(cmd)
         sys.exit(ret)
 
@@ -100,8 +95,13 @@ setup(
     url = 'https://github.com/stormpath/stormpath-sdk-python',
     zip_safe = False,
     keywords = ['stormpath', 'authentication', 'users', 'security'],
-    install_requires = ['requests>=1.1.0', 'six>=1.6.1'],
-    packages = find_packages(),
+    install_requires = [
+        'PyJWT>=0.2.1',
+        'oauthlib>=0.6.3',
+        'requests>=2.4.3',
+        'six>=1.6.1',
+    ],
+    packages = find_packages(exclude=['tests']),
     classifiers = [
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
