@@ -32,7 +32,7 @@ class TestAuth(LiveBase):
             secret=self.api_key_secret,
             scheme='SAuthc1')
         # force the SDK to make a call to the server
-        list(client.applications)
+        client.applications
 
     def test_digest_authentication_fails(self):
         client = Client(

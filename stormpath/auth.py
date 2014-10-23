@@ -9,6 +9,9 @@ from uuid import uuid4
 from requests.auth import HTTPBasicAuth, AuthBase
 from collections import OrderedDict
 from os.path import isfile
+
+from requests.utils import to_native_string
+
 try:
     from urllib.parse import urlparse
 except ImportError:
@@ -63,19 +66,6 @@ class Sauthc1Signer(AuthBase):
         return query
 
     def __call__(self, r):
-        # Requests library mixes bytes/string in headers, it will be changed in
-        # future requests release to native strings. This is a fix to make it
-        # work proper with Stormpath custom auth.
-        headers = {}
-        for k, v in r.headers.items():
-            if isinstance(k, bytes):
-                k = k.decode('utf-8')
-
-            headers[k] = v
-
-        r.headers.clear()
-        r.headers.update(headers)
-
         time = datetime.utcnow()
         time_stamp = time.strftime(TIMESTAMP_FORMAT)
         date_stamp = time.strftime(DATE_FORMAT)
@@ -156,7 +146,7 @@ class Sauthc1Signer(AuthBase):
             '%s=%s' % (SAUTHC1_SIGNATURE, signature_hex),
         ))
 
-        r.headers[AUTHORIZATION_HEADER] = authorization_header
+        r.headers[AUTHORIZATION_HEADER] = to_native_string(authorization_header)
 
         return r
 
