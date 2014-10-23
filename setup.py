@@ -64,9 +64,6 @@ class TestDepCommand(BaseCommand):
         cmd = ["pip", "install", "pytest", "pytest-cov"]
         if PY_VERSION >= (3, 2):
             cmd.append("mock")
-            cmd.append("httpretty==0.6.5")
-        else:
-            cmd.append("httpretty")
         ret = subprocess.call(cmd)
         sys.exit(ret)
 
@@ -101,7 +98,7 @@ setup(
     install_requires = [
         'PyJWT>=0.2.1',
         'oauthlib>=0.6.3',
-        'requests<=1.2.0',
+        'requests>=2.4.3',
         'six>=1.6.1',
     ],
     packages = find_packages(exclude=['tests']),
