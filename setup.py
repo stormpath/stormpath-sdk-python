@@ -64,9 +64,6 @@ class TestDepCommand(BaseCommand):
         cmd = ["pip", "install", "pytest", "pytest-cov"]
         if PY_VERSION >= (3, 2):
             cmd.append("mock")
-            cmd.append("httpretty==0.6.5")
-        else:
-            cmd.append("httpretty")
         ret = subprocess.call(cmd)
         sys.exit(ret)
 
