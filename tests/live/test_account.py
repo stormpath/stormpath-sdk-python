@@ -102,7 +102,7 @@ class TestPasswordReset(AccountBase):
 
         new_pwd = 'W00t123!' + self.get_random_name()
 
-        self.app.reset_account_password(token, new_pwd)
+        self.app.reset_account_password(token.token, new_pwd)
 
         auth = self.app.authenticate_account(self.acc.username, new_pwd)
         self.assertEqual(auth.account.href, self.acc.href)
