@@ -45,9 +45,7 @@ class TestDepCommand(BaseCommand):
     description = "install test dependencies"
 
     def run(self):
-        cmd = ["pip", "install", "pytest", "pytest-cov"]
-        if PY_VERSION >= (3, 2):
-            cmd.append("mock")
+        cmd = ["pip", "install", "pytest", "pytest-cov", "mock"]
         ret = subprocess.call(cmd)
         sys.exit(ret)
 
