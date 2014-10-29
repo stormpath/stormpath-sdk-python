@@ -36,4 +36,3 @@ class Provider(Resource, DeleteMixin, DictMixin, SaveMixin):
             raise ValueError("Can't save new resources, use create instead")
 
         self._store.update_resource(self.href, self._get_properties())
-

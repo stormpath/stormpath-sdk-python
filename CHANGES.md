@@ -1,3 +1,23 @@
+Version 1.2.6
+-------------
+
+Released on October 29, 2014.
+
+- Upgrading requests dependency to latest release.
+- Adding support for social login via Github and LinkedIn.
+- Adding support for API authentication with Basic Auth / Oauth2.
+- Refactoring test suite.
+- Adding Python 3.4 compatibility.
+- Adding badges for PyPI =)
+- Adding ID site support.
+- Adding support for passing additional options to the Redis cache backend.
+- Fixing searching encoding issues.
+- Fixing pagination issues.
+- Tweaking user agent for Stormpath compliance.
+- Implementing a limit on the maximum allowed amount of cached objects.
+- Fixing a small bug with data expansion.
+
+
 Version 1.2.5
 -------------
 
