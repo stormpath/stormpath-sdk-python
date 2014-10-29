@@ -140,9 +140,10 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
     def reset_account_password(self, token, password):
         """Resets the password for an account.
 
-        :param token: A :class:`stormpath.resources.password_reset_token.PasswordResetToken` object.
+        :param token: a string representation of the password reset token extracted from the URL.
         :param password: new password
         """
+        token = self.password_reset_tokens[token]
         if token.account.email not in [a.email for a in self.accounts]:
             raise ValueError('Unrecognized account for this application %s' %
                 repr(token.account))
