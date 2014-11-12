@@ -1,3 +1,11 @@
+Version 1.2.7
+-------------
+
+**Not yet released.**
+
+- Added the ability to resend verification email tokens.
+
+
 Version 1.2.6
 -------------
 
