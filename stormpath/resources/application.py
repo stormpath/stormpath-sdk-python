@@ -52,6 +52,7 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
         from .tenant import Tenant
         from .api_key import ApiKeyList
         from .custom_data import CustomData
+        from .verification_email import VerificationEmailList
 
         return {
             'custom_data': CustomData,
@@ -64,6 +65,7 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
             'login_attempts': LoginAttemptList,
             'password_reset_tokens': PasswordResetTokenList,
             'tenant': Tenant,
+            'verification_emails': VerificationEmailList
         }
 
     def authenticate_account(self, login, password, expand=None,

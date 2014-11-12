@@ -28,9 +28,13 @@ class Tenant(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin):
         from .application import ApplicationList
         from .directory import DirectoryList
         from .custom_data import CustomData
+        from .account import AccountList
+        from .group import GroupList
 
         return {
             'custom_data': CustomData,
             'applications': ApplicationList,
             'directories': DirectoryList,
+            'accounts': AccountList,
+            'groups': GroupList
         }
