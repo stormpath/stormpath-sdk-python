@@ -32,7 +32,7 @@ class CacheEntry(object):
         def parse_date(val):
             try:
                 return datetime.strptime(val, '%Y-%m-%d %H:%M:%S.%f')
-            except:
+            except Exception:
                 return None
 
         return cls(data.get('value'),

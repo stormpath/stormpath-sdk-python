@@ -36,13 +36,11 @@ class Group(Resource, AutoSaveMixin, DeleteMixin, DictMixin, StatusMixin):
         from .directory import Directory
         from .group_membership import GroupMembershipList
         from .tenant import Tenant
-        from .custom_data import CustomData
 
         return {
             'custom_data': CustomData,
             'accounts': AccountList,
             'account_memberships': GroupMembershipList,
-            'custom_data': CustomData,
             'directory': Directory,
             'tenant': Tenant,
         }
@@ -116,7 +114,7 @@ class Group(Resource, AutoSaveMixin, DeleteMixin, DictMixin, StatusMixin):
                         if getattr(a, attr) == username_or_email:
                             return a
 
-                raise ValueError('Invalid Account %s specified.' % attr)
+                raise ValueError('Invalid Account specified.')
 
         # If this is not a string instance, something horrible was given to us,
         # so bail.
