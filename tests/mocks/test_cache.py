@@ -349,12 +349,12 @@ class TestMemcachedStore(TestCase):
 
     def test_pymemcache_not_available(self):
         # make sure pymemcache is not available
-        with patch.dict('sys.modules', {'pymemcache': object()}):
+        with patch.dict('sys.modules', {'pymemcache': object(), 'pymemcache.client': object()}):
             with self.assertRaises(RuntimeError):
                 MemcachedStore()
 
     def test_everything(self):
-        with patch.dict('sys.modules', {'pymemcache.client': MagicMock(Client=self.Memcache)}):
+        with patch.dict('sys.modules', {'pymemcache': object(), 'pymemcache.client': MagicMock(Client=self.Memcache)}):
             s = MemcachedStore()
 
         self.assertEqual(len(s), 0)
