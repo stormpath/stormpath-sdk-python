@@ -1,7 +1,7 @@
 Version 1.2.7
 -------------
 
-**Not yet released.**
+**Released on December 8, 2014.**
 
 - Added the ability to resend verification email tokens.
 - Added support for memcached as a cache backend.
