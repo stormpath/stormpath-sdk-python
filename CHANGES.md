@@ -4,6 +4,8 @@ Version 1.2.7
 **Not yet released.**
 
 - Added the ability to resend verification email tokens.
+- Added support for memcached as a cache backend.
+- Adding minor cleanup to Redis backend docs.
 
 
 Version 1.2.6
