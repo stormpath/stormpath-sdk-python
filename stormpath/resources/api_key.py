@@ -41,7 +41,6 @@ class ApiKeyList(CollectionResource):
             return False
 
     def create(self, expand=None):
-        resource_attrs = self.resource_class.get_resource_attributes()
         data = {}
         params = {}
         if expand:

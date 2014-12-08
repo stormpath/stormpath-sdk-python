@@ -125,7 +125,7 @@ class Sauthc1Signer(AuthBase):
         def _sign(data, key):
             try:
                 byte_key = key.encode()
-            except:
+            except Exception:
                 byte_key = key
 
             return hmac.new(byte_key, data.encode(), hashlib.sha256).digest()

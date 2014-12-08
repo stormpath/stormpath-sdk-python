@@ -84,7 +84,7 @@ class HttpExecutor(object):
             d = r.json()
             d['sp_http_status'] = r.status_code
             return d
-        except:
+        except Exception:
             return {}
 
     def get(self, url, params=None):

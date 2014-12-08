@@ -2,18 +2,13 @@ import base64
 import datetime
 import json
 
-try:
-    import oauthlib
-    import jwt
-except ImportError:
-    raise ImportError('This feature requires additional packages. Install them with the following command: "pip install oauthlib PyJWT"')
-
+import jwt
 from oauthlib.oauth2 import RequestValidator as Oauth2RequestValidator
 from oauthlib.oauth2 import BackendApplicationServer as Oauth2BackendApplicationServer
 from oauthlib.oauth2 import BackendApplicationClient as Oauth2BackendApplicationClient
-from oauthlib.common import to_unicode, generate_token
+from oauthlib.common import to_unicode
 
-GRANT_TYPE_CLIENT_CREDENTIALS =  'client_credentials'
+GRANT_TYPE_CLIENT_CREDENTIALS = 'client_credentials'
 GRANT_TYPES = [GRANT_TYPE_CLIENT_CREDENTIALS]
 DEFAULT_TTL = 3600
 
@@ -32,13 +27,12 @@ class SPBasicAuthRequestValidator(object):
         self.client_secret = None
 
     def extract_client_data(self):
-        auth_scheme, b64encoded_data = self.authorization.split(b' ')
+        _, b64encoded_data = self.authorization.split(b' ')
         decoded_data = base64.b64decode(b64encoded_data)
         self.client_id, self.client_secret = decoded_data.split(b':')
 
     def verify_request(self):
         self.extract_client_data()
-        acc = None
         if self.client_id and self.client_secret:
             key = self.app.api_keys.get_key(self.client_id, self.client_secret)
             return (key and key.is_enabled()), DummyRequest(api_key=key)
@@ -122,9 +116,9 @@ class SPOauth2RequestValidator(Oauth2RequestValidator):
         try:
             auth_scheme, b64encoded_data = authorization.split(' ')
             decoded_data = base64.b64decode(b64encoded_data.encode('utf-8'))
-            client_id, client_secret = decoded_data.split(b':')
+            client_id, _ = decoded_data.split(b':')
             request.client = Oauth2BackendApplicationClient(client_id)
-        except Exception as e:
+        except Exception:
             return False
         if self.validate_client_id(client_id, request):
             return True
@@ -151,7 +145,7 @@ class SPOauth2RequestValidator(Oauth2RequestValidator):
 
 def _generate_signed_token(request):
     client_id = request.client.client_id
-    key = request.app.api_keys.get_key(client_id)
+    request.app.api_keys.get_key(client_id)
 
     # the SP ApiKey is already validated in SPOauth2RequestValidator.validate_client_id
     # but to prevent time based attacks oauthlib always goes through the entire

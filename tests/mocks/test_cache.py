@@ -3,12 +3,16 @@ try:
     from mock import patch, MagicMock
 except ImportError:
     from unittest.mock import patch, MagicMock
+
+from json import loads, dumps
+
 from stormpath.cache.entry import CacheEntry
 from stormpath.cache.stats import CacheStats
 from stormpath.cache.cache import Cache
 from stormpath.cache.manager import CacheManager
 from stormpath.cache.memory_store import MemoryStore, LimitedSizeDict
 from stormpath.cache.redis_store import RedisStore
+from stormpath.cache.memcached_store import MemcachedStore
 
 
 class TestCacheEntry(TestCase):
@@ -318,6 +322,57 @@ class TestRedisStore(TestCase):
         s['bar'] = CacheEntry(1)
         s.clear()
         self.assertEqual(len(s), 0)
+
+
+class TestMemcachedStore(TestCase):
+
+    class Memcache(object):
+        def __init__(self, *args, **kwargs):
+            self.data = {}
+
+        def get(self, key):
+            data = self.data.get(key)
+            return loads(data.decode('utf-8'))
+
+        def set(self, key, entry, expire):
+            self.data[key] = dumps(entry.to_dict()).encode('utf-8')
+
+        def delete(self, key):
+            if key in self.data:
+                del self.data[key]
+
+        def flush_all(self):
+            self.data = {}
+
+        def stats(self):
+            return {'curr_items': len(self.data)}
+
+    def test_pymemcache_not_available(self):
+        # make sure pymemcache is not available
+        with patch.dict('sys.modules', {'pymemcache': object(), 'pymemcache.client': object()}):
+            with self.assertRaises(RuntimeError):
+                MemcachedStore()
+
+    def test_everything(self):
+        with patch.dict('sys.modules', {'pymemcache': object(), 'pymemcache.client': MagicMock(Client=self.Memcache)}):
+            s = MemcachedStore()
+
+        self.assertEqual(len(s), 0)
+        self.assertIsNone(s['foo'])
+
+        s['foo'] = CacheEntry('Value Of Foo')
+        self.assertEqual(len(s), 1)
+        self.assertEqual(s['foo'].value, 'Value Of Foo')
+
+        del s['foo']
+        self.assertEqual(len(s), 0)
+
+        del s['nonexistent']  # shouldn't raise anything
+
+        s['bar'] = CacheEntry(1)
+        s.clear()
+        self.assertEqual(len(s), 0)
+
 
 if __name__ == '__main__':
     main()

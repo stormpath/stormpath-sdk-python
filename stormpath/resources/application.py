@@ -1,7 +1,6 @@
 """Stormpath Application resource mappings."""
 
 from datetime import datetime
-import json
 from uuid import uuid4
 try:
     from urllib import urlencode
@@ -30,8 +29,8 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
     http://docs.stormpath.com/python/product-guide/#applications
     """
 
-    SSO_ENDPOINT = "https://api.stormpath.com/sso";
-    SSO_LOGOUT_ENDPOINT = SSO_ENDPOINT + "/logout";
+    SSO_ENDPOINT = "https://api.stormpath.com/sso"
+    SSO_LOGOUT_ENDPOINT = SSO_ENDPOINT + "/logout"
 
     autosaves = ('custom_data',)
     writable_attrs = (
@@ -190,7 +189,6 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
         except AttributeError:
             irt = uuid4().hex
 
-
         body = {
             'iat': datetime.utcnow(),
             'jti': irt,
@@ -226,7 +224,7 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
         import jwt
         try:
             jwt_response = urlparse(url_response).query.split('=')[1]
-        except:
+        except Exception:  # because we wan't to catch everything
             return None
 
         api_key_secret = self._client.auth.secret
@@ -247,7 +245,7 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
         # store nonce in cache store
         self._store._cache_put(href=nonce.href, data={'value': nonce.value})
 
-        issuer = decoded_data['iss']
+        # issuer = decoded_data['iss']
         account_href = decoded_data['sub']
         is_new_account = decoded_data['isNewSub']
         state = decoded_data.get('state')
