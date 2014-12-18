@@ -28,6 +28,9 @@ class Group(Resource, AutoSaveMixin, DeleteMixin, DictMixin, StatusMixin):
         'name',
         'status',
     )
+    flexible_attrs = (
+        'name',
+    )
 
     @staticmethod
     def get_resource_attributes():

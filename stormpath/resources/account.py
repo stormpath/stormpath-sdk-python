@@ -32,6 +32,10 @@ class Account(Resource, AutoSaveMixin, DictMixin, DeleteMixin, StatusMixin):
         'surname',
         'username',
     )
+    flexible_attrs = (
+        'username',
+        'email',
+    )
     STATUS_UNVERIFIED = 'UNVERIFIED'
 
     def __str__(self):

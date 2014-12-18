@@ -57,6 +57,7 @@ class Resource(object):
     """
     autosaves = ()
     writable_attrs = ()
+    flexible_attrs = ()
 
     def __init__(self, client, href=None, properties=None, query=None,
             expand=None):

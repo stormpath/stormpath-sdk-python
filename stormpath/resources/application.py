@@ -39,6 +39,9 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
         'name',
         'status',
     )
+    flexible_attrs = (
+        'name',
+    )
 
     @staticmethod
     def get_resource_attributes():

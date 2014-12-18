@@ -26,6 +26,9 @@ class Directory(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, Stat
         'provider',
         'status',
     )
+    flexible_attrs = (
+        'name',
+    )
 
     @staticmethod
     def get_resource_attributes():

@@ -1,6 +1,5 @@
 """Stormpath ApiKey resource mappings."""
 
-
 from .base import (
     CollectionResource,
     DeleteMixin,
