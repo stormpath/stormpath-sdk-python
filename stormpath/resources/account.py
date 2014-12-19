@@ -32,7 +32,7 @@ class Account(Resource, AutoSaveMixin, DictMixin, DeleteMixin, StatusMixin):
         'surname',
         'username',
     )
-    flexible_attrs = (
+    resolvable_attrs = (
         'username',
         'email',
     )

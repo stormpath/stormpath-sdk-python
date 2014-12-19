@@ -26,7 +26,7 @@ class Directory(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, Stat
         'provider',
         'status',
     )
-    flexible_attrs = (
+    resolvable_attrs = (
         'name',
     )
 

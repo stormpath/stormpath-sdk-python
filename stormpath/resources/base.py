@@ -57,7 +57,7 @@ class Resource(object):
     """
     autosaves = ()
     writable_attrs = ()
-    flexible_attrs = ()
+    resolvable_attrs = ()
 
     def __init__(self, client, href=None, properties=None, query=None,
             expand=None):
@@ -169,7 +169,7 @@ class Resource(object):
 
         return data
 
-    def get_flexible_object(self, reference, cls):
+    def resolve_object(self, reference, cls):
         cls_name = cls.__name__.lower() + 's'
 
         if isinstance(reference, str) and reference.startswith(self._client.BASE_URL):

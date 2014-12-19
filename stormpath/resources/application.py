@@ -39,7 +39,7 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
         'name',
         'status',
     )
-    flexible_attrs = (
+    resolvable_attrs = (
         'name',
     )
 

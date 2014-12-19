@@ -28,7 +28,7 @@ class Group(Resource, AutoSaveMixin, DeleteMixin, DictMixin, StatusMixin):
         'name',
         'status',
     )
-    flexible_attrs = (
+    resolvable_attrs = (
         'name',
     )
 
