@@ -169,6 +169,12 @@ class Resource(object):
 
         return data
 
+    def get_flexible_object(self, reference, cls):
+        cls_name = cls.__name__.lower() + 's'
+
+        if isinstance(reference, str) and reference.startswith(self._client.BASE_URL):
+            return getattr(self._client, cls_name).get(reference)
+
     def _get_property_names(self):
         return [a for a in self.__dict__.keys() if not a.startswith('_')]
 
