@@ -17,14 +17,16 @@ class PasswordResetToken(Resource):
 
     :py:attr:`token` - Token with which to reset the password.
     """
-    writable_attrs = ('email',)
+    writable_attrs = ('email', 'account_store')
 
     @staticmethod
     def get_resource_attributes():
         from .account import Account
+        from .account_store import AccountStore
 
         return {
-            'account': Account
+            'account': Account,
+            'account_store': AccountStore
         }
 
     @property
