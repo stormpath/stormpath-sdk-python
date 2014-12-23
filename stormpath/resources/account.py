@@ -66,15 +66,14 @@ class Account(Resource, AutoSaveMixin, DictMixin, DeleteMixin, StatusMixin):
             'api_keys': ApiKeyList,
         }
 
-    def _resolve_group(self, group_object_or_href_or_name):
+    def _resolve_group(self, resolvable):
         """Given a Group object or href or name, return a functional Group
         object.
 
         This helper method allows us to easily accept Group arguments in
         multiple ways.
 
-        :param group_object_or_href_or_name: This could be any one of the
-            following:
+        :param resolvable: This could be any one of the following:
 
             - A :class:`stormpath.resources.group.Group` object, that already
               exists in Stormpath.
@@ -97,14 +96,14 @@ class Account(Resource, AutoSaveMixin, DictMixin, DeleteMixin, StatusMixin):
         from .group import Group
 
         # If this is a Group object already, we have no work to do!
-        if isinstance(group_object_or_href_or_name, Group):
-            return group_object_or_href_or_name
+        if isinstance(resolvable, Group):
+            return resolvable
 
         # We now know this isn't a Group object.
-        href_or_name = group_object_or_href_or_name
+        href_or_name = resolvable
 
         # Check to see whether or not this is a string.
-        if isinstance(group_object_or_href_or_name, string_types):
+        if isinstance(resolvable, string_types):
 
             # If this Group is an href, we'll just use that.
             if href_or_name.startswith(self._client.BASE_URL):
@@ -138,15 +137,14 @@ class Account(Resource, AutoSaveMixin, DictMixin, DeleteMixin, StatusMixin):
         # so bail.
         raise TypeError('Unsupported type. Group object, href, or name required.')
 
-    def add_group(self, group_object_or_href_or_name):
+    def add_group(self, resolvable):
         """Associate a Group with this Account.
 
         This creates a
         :class:`stormpath.resources.group_membership.GroupMembership` resource
         on the backend.
 
-        :param group_object_or_href_or_name: This could be any one of the
-            following:
+        :param resolvable: This could be any one of the following:
 
             - A :class:`stormpath.resources.group.Group` object.
             - A Group href, ex:
@@ -158,18 +156,17 @@ class Account(Resource, AutoSaveMixin, DictMixin, DeleteMixin, StatusMixin):
             always be the quickest way to add a Group, as it doesn't require
             any additional API calls.
         """
-        group = self._resolve_group(group_object_or_href_or_name)
+        group = self._resolve_group(resolvable)
         return self._client.group_memberships.create({
             'account': self,
             'group': group,
         })
 
-    def has_group(self, group_object_or_href_or_name):
+    def has_group(self, resolvable):
         """Check to see whether or not this Account is a member of the
         specified Group.
 
-        :param group_object_or_href_or_name: This could be any one of the
-            following:
+        :param resolvable: This could be any one of the following:
 
             - A :class:`stormpath.resources.group.Group` object.
             - A Group href, ex:
@@ -184,7 +181,7 @@ class Account(Resource, AutoSaveMixin, DictMixin, DeleteMixin, StatusMixin):
         :returns: True if the Account is a member of the Group, False
             otherwise.
         """
-        group = self._resolve_group(group_object_or_href_or_name)
+        group = self._resolve_group(resolvable)
 
         for g in self.groups.query(name=group.name):
             if g.name == group.name:
@@ -192,11 +189,11 @@ class Account(Resource, AutoSaveMixin, DictMixin, DeleteMixin, StatusMixin):
 
         return False
 
-    def has_groups(self, group_objects_or_hrefs_or_names, all=True):
+    def has_groups(self, resolvables, all=True):
         """Check to see whether or not this Account is a member of a list of
         Groups.
 
-        :param group_objects_or_hrefs_or_names: A list of either:
+        :param resolvables: A list of either:
 
             - :class:`stormpath.resources.group.Group` objects.
             - Group hrefs, ex:
@@ -221,15 +218,14 @@ class Account(Resource, AutoSaveMixin, DictMixin, DeleteMixin, StatusMixin):
         """
         total_checks = 0
 
-        groups = group_objects_or_hrefs_or_names
-        for group in groups:
+        for group in resolvables:
             if self.has_group(group):
                 total_checks += 1
 
                 if not all:
                     return True
 
-        return True if all and total_checks == len(groups) else False
+        return True if all and total_checks == len(resolvables) else False
 
     def is_unverified(self):
         """Check if Account is unverified.
@@ -242,11 +238,10 @@ class Account(Resource, AutoSaveMixin, DictMixin, DeleteMixin, StatusMixin):
         """
         return self.get_status() == self.STATUS_UNVERIFIED
 
-    def remove_group(self, group_object_or_href_or_name):
+    def remove_group(self, resolvable):
         """Remove this Account from the specified Group.
 
-        :param group_object_or_href_or_name: This could be any one of the
-            following:
+        :param resolvable: This could be any one of the following:
 
             - A :class:`stormpath.resources.group.Group` object.
             - A Group href, ex:
@@ -261,7 +256,7 @@ class Account(Resource, AutoSaveMixin, DictMixin, DeleteMixin, StatusMixin):
             always be the quickest way to check a Group's membership, since it
             doesn't require any additional API calls.
         """
-        group = self._resolve_group(group_object_or_href_or_name)
+        group = self._resolve_group(resolvable)
 
         for membership in self.group_memberships:
             if membership.group.href == group.href:
