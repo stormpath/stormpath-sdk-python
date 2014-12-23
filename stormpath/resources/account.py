@@ -207,9 +207,7 @@ class Account(Resource, AutoSaveMixin, DictMixin, DeleteMixin, StatusMixin):
 
                 [
                     group,
-
                     'https://api.stormpath.com/v1/groups/3wzkqr03K8WxRp8NQuYSs3',
-
                     'admins',
                 ]
 
