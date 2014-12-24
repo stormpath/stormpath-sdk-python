@@ -45,15 +45,14 @@ class Group(Resource, AutoSaveMixin, DeleteMixin, DictMixin, StatusMixin):
             'tenant': Tenant,
         }
 
-    def _resolve_account(self, account_object_or_href_or_username_or_email):
+    def _resolve_account(self, resolvable):
         """Given an Account object or href or name, return a functional Account
         object.
 
         This helper method allows us to easily accept Account arguments in
         multiple ways.
 
-        :param account_object_or_href_or_username_or_email: This could be any
-            one of the following:
+        :param resolvable: This could be any one of the following:
 
             - An :class:`stormpath.resources.account.Account` object, that
               already exists in Stormpath.
@@ -77,11 +76,11 @@ class Group(Resource, AutoSaveMixin, DeleteMixin, DictMixin, StatusMixin):
         from .account import Account
 
         # If this is an Account object already, we have no work to do!
-        if isinstance(account_object_or_href_or_username_or_email, Account):
-            return account_object_or_href_or_username_or_email
+        if isinstance(resolvable, Account):
+            return resolvable
 
         # We now know this isn't an Account object.
-        href_or_username_or_email = account_object_or_href_or_username_or_email
+        href_or_username_or_email = resolvable
 
         # Check to see whether or not this is a string.
         if isinstance(href_or_username_or_email, string_types):
