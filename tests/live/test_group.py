@@ -158,3 +158,17 @@ class TestAccountGroups(AccountBase):
 
         account1.add_group(group2)
         self.assertTrue(account1.has_groups([group1, group2]))
+
+
+class TestGroupAccounts(AccountBase):
+
+    def test_resolve_account(self):
+        _, account = self.create_account(self.app.accounts)
+        group = account.directory.groups.create({'name': 'test_group'})
+
+        self.assertEqual(group._resolve_account(account).href, account.href)
+        self.assertEqual(group._resolve_account(account.href).href, account.href)
+        self.assertEqual(group._resolve_account(account.username).href, account.href)
+        self.assertEqual(group._resolve_account(account.email).href, account.href)
+        self.assertEqual(group._resolve_account({'username': account.username}).href, account.href)
+        self.assertEqual(group._resolve_account({'username': '*' + account.username + '*'}).href, account.href)
