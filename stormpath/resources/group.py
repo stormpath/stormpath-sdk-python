@@ -60,9 +60,10 @@ class Group(Resource, AutoSaveMixin, DeleteMixin, DictMixin, StatusMixin):
               'https://api.stormpath.com/v1/accounts/3wzkqr03K8WxRp8NQuYSs3'
             - An Account username, ex: 'rdegges'.
             - An Account email, ex: 'randall@stormpath.com'.
+            - A search query, ex: {'username': '*rdegges*'}.
 
         :raises:
-            - ValueError if an invalid href or name is specified.
+            - ValueError if an invalid href, username, or email is specified.
             - TypeError if a non-Account object is specified.
 
         :rtype: obj
@@ -79,18 +80,13 @@ class Group(Resource, AutoSaveMixin, DeleteMixin, DictMixin, StatusMixin):
         if isinstance(resolvable, Account):
             return resolvable
 
-        # We now know this isn't an Account object.
-        href_or_username_or_email = resolvable
-
         # Check to see whether or not this is a string.
-        if isinstance(href_or_username_or_email, string_types):
+        if isinstance(resolvable, string_types):
 
             # If this Account is an href, we'll just use that.
-            if href_or_username_or_email.startswith(self._client.BASE_URL):
-                href = href_or_username_or_email
-
+            if resolvable.startswith(self._client.BASE_URL):
                 try:
-                    account = self.directory.accounts.get(href)
+                    account = self.directory.accounts.get(resolvable)
 
                     # We're accessing account.username here to force evaluation
                     # of this Account -- this allows us to check and see
@@ -104,13 +100,11 @@ class Group(Resource, AutoSaveMixin, DeleteMixin, DictMixin, StatusMixin):
             # Otherwise, we'll assume this is an Account username or email, and
             # try to query it.
             else:
-                username_or_email = href_or_username_or_email
-
                 for attr in ['username', 'email']:
                     for a in self.directory.accounts.search({
-                        attr: username_or_email,
+                        attr: resolvable,
                     }):
-                        if getattr(a, attr) == username_or_email:
+                        if getattr(a, attr) == resolvable:
                             return a
 
                 raise ValueError('Invalid Account specified.')
