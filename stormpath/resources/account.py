@@ -165,6 +165,37 @@ class Account(Resource, AutoSaveMixin, DictMixin, DeleteMixin, StatusMixin):
             'group': group,
         })
 
+    def add_groups(self, resolvables):
+        """Associate a list of Groups with this Account.
+
+        :param resolvables: A list of either:
+
+            - :class:`stormpath.resources.group.Group` objects.
+            - Group hrefs, ex:
+                'https://api.stormpath.com/v1/groups/3wzkqr03K8WxRp8NQuYSs3'
+            - Group names, ex: 'admins'.
+            - A search query, ex: {'name': '*_admins'}.
+
+                This could look something like:
+
+                [
+                    group,
+                    'https://api.stormpath.com/v1/groups/3wzkqr03K8WxRp8NQuYSs3',
+                    'admins',
+                    {'name': '*_admins'},
+                ]
+
+        .. note::
+            Passing in a :class:`stormpath.resources.group.Group` object will
+            always be the quickest way to add a Group, as it doesn't require
+            any additional API calls.
+        """
+        for g in [self._resolve_group(group) for group in resolvables]:
+            self._client.group_memberships.create({
+                'account': self,
+                'group': g,
+            })
+
     def has_group(self, resolvable):
         """Check to see whether or not this Account is a member of the
         specified Group.
