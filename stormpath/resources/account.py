@@ -63,8 +63,8 @@ class Account(Resource, AutoSaveMixin, DictMixin, DeleteMixin, StatusMixin):
         }
 
     def _resolve_group(self, resolvable):
-        """Given a Group object or href or name, return a functional Group
-        object.
+        """Given a Group object or href, name, or search query, return a
+        functional Group object.
 
         This helper method allows us to easily accept Group arguments in
         multiple ways.
@@ -76,9 +76,10 @@ class Account(Resource, AutoSaveMixin, DictMixin, DeleteMixin, StatusMixin):
             - A Group href, ex:
               'https://api.stormpath.com/v1/groups/3wzkqr03K8WxRp8NQuYSs3'
             - A Group name, ex: 'admins'.
+            - A search query, ex: {'name': '*_admins'}.
 
         :raises:
-            - ValueError if an invalid href or name is specified.
+            - ValueError if an invalid href, name, or search query is specified.
             - TypeError if a non-Group object is specified.
 
         :rtype: obj
@@ -95,18 +96,13 @@ class Account(Resource, AutoSaveMixin, DictMixin, DeleteMixin, StatusMixin):
         if isinstance(resolvable, Group):
             return resolvable
 
-        # We now know this isn't a Group object.
-        href_or_name = resolvable
-
         # Check to see whether or not this is a string.
         if isinstance(resolvable, string_types):
 
             # If this Group is an href, we'll just use that.
-            if href_or_name.startswith(self._client.BASE_URL):
-                href = href_or_name
-
+            if resolvable.startswith(self._client.BASE_URL):
                 try:
-                    group = self.directory.groups.get(href)
+                    group = self.directory.groups.get(resolvable)
 
                     # We're accessing group.name here to force evaluation of
                     # this Group -- this allows us to check and see whether or
@@ -120,18 +116,28 @@ class Account(Resource, AutoSaveMixin, DictMixin, DeleteMixin, StatusMixin):
             # Otherwise, we'll assume this is a Group name, and try to query
             # it.
             else:
-                name = href_or_name
-                groups = self.directory.groups.query(name=name)
+                groups = self.directory.groups.query(name=resolvable)
 
                 for g in groups:
-                    if g.name == name:
+                    if g.name == resolvable:
                         return g
 
                 raise ValueError('Invalid Group name specified.')
 
+        # Check to see whether or not this is a dictionary -- if it is, this
+        # means the user is specifying their own search criteria.
+        if isinstance(resolvable, dict):
+            try:
+                for group in self.directory.groups.search(resolvable):
+                    return group
+
+                raise StormpathError
+            except StormpathError:
+                raise ValueError('Invalid search criteria specified.')
+
         # If this is not a string instance, something horrible was given to us,
         # so bail.
-        raise TypeError('Unsupported type. Group object, href, or name required.')
+        raise TypeError('Unsupported type. Group object, href, name, or search query required.')
 
     def add_group(self, resolvable):
         """Associate a Group with this Account.
@@ -146,6 +152,7 @@ class Account(Resource, AutoSaveMixin, DictMixin, DeleteMixin, StatusMixin):
             - A Group href, ex:
                 'https://api.stormpath.com/v1/groups/3wzkqr03K8WxRp8NQuYSs3'
             - A Group name, ex: 'admins'.
+            - A search query, ex: {'name': '*_admins'}.
 
         .. note::
             Passing in a :class:`stormpath.resources.group.Group` object will
@@ -168,6 +175,7 @@ class Account(Resource, AutoSaveMixin, DictMixin, DeleteMixin, StatusMixin):
             - A Group href, ex:
                 'https://api.stormpath.com/v1/groups/3wzkqr03K8WxRp8NQuYSs3'
             - A Group name, ex: 'admins'.
+            - A search query, ex: {'name': '*_admins'}.
 
         .. note::
             Passing in a :class:`stormpath.resources.group.Group` object will
@@ -195,6 +203,7 @@ class Account(Resource, AutoSaveMixin, DictMixin, DeleteMixin, StatusMixin):
             - Group hrefs, ex:
                 'https://api.stormpath.com/v1/groups/3wzkqr03K8WxRp8NQuYSs3'
             - Group names, ex: 'admins'.
+            - A search query, ex: {'name': '*_admins'}.
 
                 This could look something like:
 
@@ -202,6 +211,7 @@ class Account(Resource, AutoSaveMixin, DictMixin, DeleteMixin, StatusMixin):
                     group,
                     'https://api.stormpath.com/v1/groups/3wzkqr03K8WxRp8NQuYSs3',
                     'admins',
+                    {'name': '*_admins'},
                 ]
 
         :param all: A boolean (default: True) which controls how Group
@@ -243,6 +253,7 @@ class Account(Resource, AutoSaveMixin, DictMixin, DeleteMixin, StatusMixin):
             - A Group href, ex:
                 'https://api.stormpath.com/v1/groups/3wzkqr03K8WxRp8NQuYSs3'
             - A Group name, ex: 'admins'.
+            - A search query, ex: {'name': '*_admins'}.
 
         :raises: :class:`stormpath.error.StormpathError` if the Group specified
             does not contain this Account.
