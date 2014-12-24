@@ -115,7 +115,7 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
             'provider_data': provider_data
         })
 
-    def send_password_reset_email(self, email):
+    def send_password_reset_email(self, email, account_store=None):
         """Send a password reset email.
 
         More info in documentation:
@@ -123,7 +123,11 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
 
         :param email: Email address to send the email to.
         """
-        token = self.password_reset_tokens.create({'email': email})
+        params = {'email': email}
+        if account_store:
+            href = account_store.href if isinstance(account_store, Resource) else account_store
+            params.update({'account_store': {'href': href}})
+        token = self.password_reset_tokens.create(params)
         return token.account
 
     def verify_password_reset_token(self, token):

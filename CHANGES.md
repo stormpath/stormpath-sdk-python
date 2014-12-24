@@ -1,3 +1,13 @@
+Version 1.2.8
+-------------
+
+**Not yet released.**
+
+- Adding in the ability to specify an account store when doing a password reset
+  -- this allows you to specify what user (in what directory / group / etc) to
+  reset.
+
+
 Version 1.2.7
 -------------
 
