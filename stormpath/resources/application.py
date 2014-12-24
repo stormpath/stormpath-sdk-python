@@ -95,9 +95,7 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
         :param provider: Can be one of the following Constants:
 
             * :const:`stormpath.resources.provider.Provider.GOOGLE`
-
             * :const:`stormpath.resources.provider.Provider.FACEBOOK`
-
             * :const:`stormpath.resources.provider.Provider.STORMPATH`
 
 
@@ -105,16 +103,10 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
 
             {
                 'code': '...',
-
                 'access_token': '...',
-
                 'client_id': '...',
-
                 'client_secret': '...'
             }
-
-
-
         """
         provider_data = provider_kwargs.copy()
         provider_data['provider_id'] = provider
