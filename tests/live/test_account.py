@@ -106,3 +106,17 @@ class TestPasswordReset(AccountBase):
 
         auth = self.app.authenticate_account(self.acc.username, new_pwd)
         self.assertEqual(auth.account.href, self.acc.href)
+
+
+class TestAccountGroups(AccountBase):
+
+    def test_resolve_group(self):
+        _, account = self.create_account(self.app.accounts)
+
+        group = account.directory.groups.create({'name': 'test_group'})
+
+        self.assertEqual(account._resolve_group(group).href, group.href)
+        self.assertEqual(account._resolve_group(group.href).href, group.href)
+        self.assertEqual(account._resolve_group(group.name).href, group.href)
+        self.assertEqual(account._resolve_group({'name': group.name}).href, group.href)
+        self.assertEqual(account._resolve_group({'name': '*' + group.name + '*'}).href, group.href)
