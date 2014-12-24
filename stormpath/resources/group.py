@@ -124,44 +124,44 @@ class Group(Resource, AutoSaveMixin, DeleteMixin, DictMixin, StatusMixin):
         # so bail.
         raise TypeError('Unsupported type. Account object, href, username, or email required.')
 
-    def add_account(self, account_object_or_href_or_username_or_email):
+    def add_account(self, resolvable):
         """Associate an Account with this Group.
 
         This creates a
         :class:`stormpath.resources.group_membership.GroupMembership` object in
         the backend.
 
-        :param account_object_or_href_or_username_or_email: This could be any
-            one of the following:
+        :param resolvable: This could be any one of the following:
 
             - An :class:`stormpath.resources.account.Account` object.
             - An Account href, ex:
                 'https://api.stormpath.com/v1/accounts/3wzkqr03K8WxRp8NQuYSs3'
             - An Account username, ex: 'rdegges'.
             - An Account email, ex: 'randall@stormpath.com'.
+            - A search query, ex: {'username': '*rdegges*'}.
 
         .. note::
             Passing in a :class:`stormpath.resources.account.Account` object
             will always be the quickest way to add an Account, as it doesn't
             require any additional API calls.
         """
-        account = self._resolve_account(account_object_or_href_or_username_or_email)
+        account = self._resolve_account(resolvable)
         return self._client.group_memberships.create({
             'account': account,
             'group': self,
         })
 
-    def remove_account(self, account_object_or_href_or_username_or_email):
+    def remove_account(self, resolvable):
         """Remove this Account from the specified Group.
 
-        :param account_object_or_href_or_username_or_email: This could be any
-            one of the following:
+        :param resolvable: This could be any one of the following:
 
             - An :class:`stormpath.resources.account.Account` object.
             - An Account href, ex:
                 'https://api.stormpath.com/v1/accounts/3wzkqr03K8WxRp8NQuYSs3'
             - An account username, ex: 'rdegges'.
             - An account email, ex: 'randall@stormpath.com'.
+            - A search query, ex: {'username': '*rdegges*'}.
 
         :raises: :class:`stormpath.error.StormpathError` if the Account specified
             is not part of this Group.
@@ -171,7 +171,7 @@ class Group(Resource, AutoSaveMixin, DeleteMixin, DictMixin, StatusMixin):
             always be the quickest way to remove an Account, since it doesn't
             require any additional API calls.
         """
-        account = self._resolve_account(account_object_or_href_or_username_or_email)
+        account = self._resolve_account(resolvable)
 
         for membership in self.account_memberships:
             if membership.account.href == account.href:
@@ -182,18 +182,18 @@ class Group(Resource, AutoSaveMixin, DeleteMixin, DictMixin, StatusMixin):
             'developerMessage': 'This user is not part of Group %s.' % self.name,
         })
 
-    def has_account(self, account_object_or_href_or_username_or_email):
+    def has_account(self, resolvable):
         """Check to see whether or not this Group contains the specified
         Account.
 
-        :param account_object_or_href_or_username_or_email: This could be any
-            one of the following:
+        :param resolvable: This could be any one of the following:
 
             - An :class:`stormpath.resources.account.Account` object.
             - An Account href, ex:
                 'https://api.stormpath.com/v1/accounts/3wzkqr03K8WxRp8NQuYSs3'
             - An account username, ex: 'rdegges'.
             - An account email, ex: 'randall@stormpath.com'.
+            - A search query, ex: {'username': '*rdegges*'}.
 
         :returns: True if the Account is a member of this Group, False
             otherwise.
@@ -203,7 +203,7 @@ class Group(Resource, AutoSaveMixin, DeleteMixin, DictMixin, StatusMixin):
             always be the quickest way to check an Account's membership, since
             it doesn't require any additional API calls.
         """
-        account = self._resolve_account(account_object_or_href_or_username_or_email)
+        account = self._resolve_account(resolvable)
 
         for a in self.accounts.query(username=account.username):
             if a.username == account.username:
@@ -211,29 +211,27 @@ class Group(Resource, AutoSaveMixin, DeleteMixin, DictMixin, StatusMixin):
 
         return False
 
-    def has_accounts(self, account_objects_or_hrefs_or_usernames_or_emails, all=True):
+    def has_accounts(self, resolvable, all=True):
         """Check to see whether or not this Group contains the specified list
         of Accounts.
 
-        :param account_objects_or_hrefs_or_usernames_or_emails: A list of
-            either:
+        :param resolvable: A list of either:
 
             - :class:`stormpath.resources.group.Account` objects.
             - Account hrefs, ex:
                 'https://api.stormpath.com/v1/accounts/3wzkqr03K8WxRp8NQuYSs3'
             - Account usernames, ex: 'rdegges'.
             - Account emails, ex: 'randall@stormpath.com'.
+            - A search query, ex: {'username': '*rdegges*'}.
 
                 This could look something like:
 
                 [
                     account,
-
                     'https://api.stormpath.com/v1/accounts/3wzkqr03K8WxRp8NQuYSs3',
-
                     'rdegges',
-
                     'randall@stormpath.com',
+                    {'username': '*rdegges*'},
                 ]
 
         :param all: A boolean (default: True) which controls how Account
@@ -246,15 +244,14 @@ class Group(Resource, AutoSaveMixin, DeleteMixin, DictMixin, StatusMixin):
         """
         total_checks = 0
 
-        accounts = account_objects_or_hrefs_or_usernames_or_emails
-        for account in accounts:
+        for account in resolvable:
             if self.has_account(account):
                 total_checks += 1
 
                 if not all:
                     return True
 
-        return True if all and total_checks == len(accounts) else False
+        return True if all and total_checks == len(resolvable) else False
 
 
 class GroupList(CollectionResource):
