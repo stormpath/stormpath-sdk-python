@@ -28,9 +28,6 @@ class Group(Resource, AutoSaveMixin, DeleteMixin, DictMixin, StatusMixin):
         'name',
         'status',
     )
-    resolvable_attrs = (
-        'name',
-    )
 
     @staticmethod
     def get_resource_attributes():
