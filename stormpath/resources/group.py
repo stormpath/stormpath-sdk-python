@@ -109,6 +109,17 @@ class Group(Resource, AutoSaveMixin, DeleteMixin, DictMixin, StatusMixin):
 
                 raise ValueError('Invalid Account specified.')
 
+        # Check to see whether or not this is a dictionary -- if it is, this
+        # means the user is specifying their own search criteria.
+        if isinstance(resolvable, dict):
+            try:
+                for account in self.directory.accounts.search(resolvable):
+                    return account
+
+                raise StormpathError
+            except StormpathError:
+                raise ValueError('Invalid search criteria specified.')
+
         # If this is not a string instance, something horrible was given to us,
         # so bail.
         raise TypeError('Unsupported type. Account object, href, username, or email required.')
