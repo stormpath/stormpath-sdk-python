@@ -151,6 +151,33 @@ class Group(Resource, AutoSaveMixin, DeleteMixin, DictMixin, StatusMixin):
             'group': self,
         })
 
+    def add_accounts(self, resolvables):
+        """Associate Accounts with this Group.
+
+        This creates a
+        :class:`stormpath.resources.group_membership.GroupMembership` object in
+        the backend.
+
+        :param resolvables: A list of either:
+
+            - An :class:`stormpath.resources.account.Account` object.
+            - An Account href, ex:
+                'https://api.stormpath.com/v1/accounts/3wzkqr03K8WxRp8NQuYSs3'
+            - An Account username, ex: 'rdegges'.
+            - An Account email, ex: 'randall@stormpath.com'.
+            - A search query, ex: {'username': '*rdegges*'}.
+
+        .. note::
+            Passing in a :class:`stormpath.resources.account.Account` object
+            will always be the quickest way to add an Account, as it doesn't
+            require any additional API calls.
+        """
+        for a in [self._resolve_account(account) for account in resolvables]:
+            self._client.group_memberships.create({
+                'account': a,
+                'group': self,
+            })
+
     def remove_account(self, resolvable):
         """Remove this Account from the specified Group.
 
@@ -181,6 +208,40 @@ class Group(Resource, AutoSaveMixin, DeleteMixin, DictMixin, StatusMixin):
         raise StormpathError({
             'developerMessage': 'This user is not part of Group %s.' % self.name,
         })
+
+    def remove_accounts(self, resolvables):
+        """Remove Accounts from the specified Group.
+
+        :param resolvables: A list of either:
+
+            - An :class:`stormpath.resources.account.Account` object.
+            - An Account href, ex:
+                'https://api.stormpath.com/v1/accounts/3wzkqr03K8WxRp8NQuYSs3'
+            - An account username, ex: 'rdegges'.
+            - An account email, ex: 'randall@stormpath.com'.
+            - A search query, ex: {'username': '*rdegges*'}.
+
+        :raises: :class:`stormpath.error.StormpathError` if the Accounts
+            specified are not part of this Group.
+
+        .. note::
+            Passing in a :class:`stormpath.resources.group.Account` object will
+            always be the quickest way to remove an Account, since it doesn't
+            require any additional API calls.
+        """
+        memberships = [membership for membership in self.account_memberships]
+
+        for a in [self._resolve_account(account) for account in resolvables]:
+            done = False
+            for membership in memberships:
+                if membership.account.href == a.href:
+                    membership.delete()
+                    done = True
+
+            if not done:
+                raise StormpathError({
+                    'developerMessage': 'This user is not part of Group %s.' % self.name,
+                })
 
     def has_account(self, resolvable):
         """Check to see whether or not this Group contains the specified

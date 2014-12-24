@@ -172,3 +172,28 @@ class TestGroupAccounts(AccountBase):
         self.assertEqual(group._resolve_account(account.email).href, account.href)
         self.assertEqual(group._resolve_account({'username': account.username}).href, account.href)
         self.assertEqual(group._resolve_account({'username': '*' + account.username + '*'}).href, account.href)
+
+    def test_add_accounts(self):
+        _, account1 = self.create_account(self.app.accounts)
+        _, account2 = self.create_account(self.app.accounts)
+
+        group = account1.directory.groups.create({'name': 'test_group'})
+        group.add_accounts([account1, account2.href])
+
+        self.assertTrue(group.has_account(account1))
+        self.assertTrue(group.has_account(account2))
+
+    def test_remove_accounts(self):
+        _, account1 = self.create_account(self.app.accounts)
+        _, account2 = self.create_account(self.app.accounts)
+        _, account3 = self.create_account(self.app.accounts)
+
+        group = account1.directory.groups.create({'name': 'test_group'})
+        group.add_accounts([account1, account2.href])
+        self.assertTrue(group.has_accounts([account1, account2]))
+
+        group.remove_accounts([account1, account2])
+        self.assertFalse(group.has_account(account1))
+        self.assertFalse(group.has_account(account2))
+
+        self.assertRaises(Error, group.remove_accounts, [account3])
