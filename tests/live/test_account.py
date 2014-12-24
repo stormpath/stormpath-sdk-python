@@ -1,6 +1,7 @@
 """Live tests of Accounts and authentication functionality."""
 
 from stormpath.error import Error
+from stormpath.error import Error
 
 from .base import AccountBase
 
@@ -131,3 +132,36 @@ class TestAccountGroups(AccountBase):
 
         self.assertTrue(account.has_group(group1))
         self.assertTrue(account.has_group(group2))
+
+    def test_in_group(self):
+        _, account = self.create_account(self.app.accounts)
+
+        group1 = account.directory.groups.create({'name': 'test_group'})
+        account.add_group(group1)
+        self.assertTrue(account.in_group(group1))
+
+    def test_in_groups(self):
+        _, account = self.create_account(self.app.accounts)
+
+        group1 = account.directory.groups.create({'name': 'test_group'})
+        group2 = account.directory.groups.create({'name': 'test_group2'})
+
+        account.add_groups([group1, group2])
+        self.assertTrue(account.in_groups([group1, group2.href]))
+
+    def test_remove_groups(self):
+        _, account = self.create_account(self.app.accounts)
+
+        group1 = account.directory.groups.create({'name': 'test_group'})
+        group2 = account.directory.groups.create({'name': 'test_group2'})
+        group3 = account.directory.groups.create({'name': 'test_group3'})
+
+        account.add_groups([group1, group2])
+        self.assertTrue(account.in_groups([group1, group2.href]))
+
+        account.remove_groups([group1, group2])
+
+        self.assertFalse(account.in_groups([group1, group2]))
+        self.assertFalse(account.in_group(group3))
+
+        self.assertRaises(Error, account.remove_groups, [group3])
