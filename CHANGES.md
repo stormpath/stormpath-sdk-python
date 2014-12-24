@@ -1,11 +1,14 @@
 Version 1.2.8
 -------------
 
-**Not yet released.**
+**Released on December 24, 2014.**
 
 - Adding in the ability to specify an account store when doing a password reset
   -- this allows you to specify what user (in what directory / group / etc) to
   reset.
+- Adding in the ability to specify search queries when specifying accounts /
+  groups.
+- Adding in convenience methods for accounts / groups (every one imaginable) =)
 
 
 Version 1.2.7
