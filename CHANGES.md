@@ -1,3 +1,13 @@
+Version 1.2.9
+-------------
+
+**Not yet released.**
+
+- Adding better error handling for server-side requests.
+- Improving provider naming (*github social login*).
+- Updating docstrings for clarity.
+
+
 Version 1.2.8
 -------------
 
