@@ -1,7 +1,7 @@
 Version 1.2.9
 -------------
 
-**Not yet released.**
+**Released on December 26, 2014.**
 
 - Adding better error handling for server-side requests.
 - Improving provider naming (*github social login*).
