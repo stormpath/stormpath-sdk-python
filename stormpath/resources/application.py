@@ -122,6 +122,9 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
         http://docs.stormpath.com/rest/product-guide/#reset-an-accounts-password
 
         :param email: Email address to send the email to.
+        :param account_store: Account store that holds the account with the given email.
+            This parameter is optional. If no account store is given Stormpath will
+            use the default account store for this application.
         """
         params = {'email': email}
         if account_store:

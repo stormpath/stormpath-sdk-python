@@ -18,7 +18,7 @@ class Provider(Resource, DeleteMixin, DictMixin, SaveMixin):
 
     GOOGLE = 'google'
     FACEBOOK = 'facebook'
-    GITHUB = 'GITHUB'
+    GITHUB = 'github'
     LINKEDIN = 'linkedin'
     STORMPATH = 'stormpath'
 
