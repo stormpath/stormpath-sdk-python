@@ -9,7 +9,7 @@ from uuid import uuid4
 from requests.auth import HTTPBasicAuth, AuthBase
 from collections import OrderedDict
 from os import environ
-from os.path import isfile
+from os.path import exists, expanduser, isfile, join
 
 from requests.utils import to_native_string
 
@@ -243,6 +243,11 @@ class Auth(object):
             self._api_key_id = environ.get('STORMPATH_API_KEY_ID')
             self._api_key_secret = environ.get('STORMPATH_API_KEY_SECRET')
 
+            return
+
+        default_file = join(expanduser('~'), '.stormpath', 'apiKey.properties')
+        if exists(default_file) and self._read_api_key_file(default_file,
+                api_key_id_property_name, api_key_secret_property_name):
             return
 
         raise ValueError('No valid authentication sources found')
