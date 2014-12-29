@@ -155,10 +155,10 @@ class Auth(object):
     """Provides authentication for StormPath API requests."""
 
     def __init__(self, api_key_file_location=None,
-                 api_key_id_property_name='apiKey.id',
-                 api_key_secret_property_name='apiKey.secret',
-                 api_key=None, id=None, secret=None, scheme='SAuthc1',
-                 method=None):
+            api_key_id_property_name='apiKey.id',
+            api_key_secret_property_name='apiKey.secret',
+            api_key=None, id=None, secret=None, scheme='SAuthc1',
+            method=None):
         """
         Initialize authentication using one of the available authentication
         credentials source:
