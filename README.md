@@ -37,8 +37,8 @@ API Key pair information, which you'll need below.
 
 ### Create a Client
 
-Next, you'll want to create a Stormpath API client.  You can do this in one of
-two ways:
+Next, you'll want to create a Stormpath API client.  You can do this in a few
+ways:
 
 ```python
 from stormpath.client import Client
