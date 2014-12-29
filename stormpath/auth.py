@@ -159,6 +159,7 @@ class Auth(object):
             api_key_id_property_name='apiKey.id',
             api_key_secret_property_name='apiKey.secret',
             api_key=None, id=None, secret=None, scheme='SAuthc1',
+            api_key_id=None, api_key_secret=None,
             method=None):
         """
         Initialize authentication using one of the available authentication
@@ -172,8 +173,8 @@ class Auth(object):
             in the key file (default: apiKey.secret)
         :param api_key: A dictionary-like object containing the `id` and
             `secret` keys mapped to the API ID and secret respectively
-        :param id: ID (if directly provided; default is None)
-        :param secret: secret (if directly provided; default is None)
+        :param api_key_id: ID (if directly provided; default is None)
+        :param api_key_secret: secret (if directly provided; default is None)
         :param scheme: authentication scheme (`Sauthc1` or `basic`, default is
             `Sauthc1`)
 
@@ -182,9 +183,9 @@ class Auth(object):
 
         1. API key file (if `api_key_file` is set and the file exists)
         2. API key dict (if `api_key` contains `id` and `secret` keys)
-        3. API key `secret` and `id` parameters
+        3. API key `api_key_id` and `api_key_secret` parameters
 
-        The `id` and `secret` can be accessed as attributes.
+        The `api_key_id` and `api_key_secret` can be accessed as attributes.
 
         The default authentication scheme is `Sauthc1`, and is strongly
         recommended. In cases where it can't be used (for example, in Google
@@ -195,7 +196,9 @@ class Auth(object):
         scheme implementation selected.
         """
         self._id = None
+        self._api_key_id = None
         self._secret = None
+        self._api_key_secret = None
         self._scheme = scheme
 
         # backwards compatibility, in case anyone used it
@@ -209,12 +212,30 @@ class Auth(object):
         if api_key and 'id' in api_key and 'secret' in api_key:
             self._id = api_key['id']
             self._secret = api_key['secret']
+            self._api_key_id = api_key['id']
+            self._api_key_secret = api_key['secret']
+
+            return
+
+        if api_key and 'api_key_id' in api_key and 'api_key_secret' in api_key:
+            self._id = api_key['api_key_id']
+            self._secret = api_key['api_key_secret']
+            self._api_key_id = api_key['api_key_id']
+            self._api_key_secret = api_key['api_key_secret']
 
             return
 
         if id and secret:
             self._id = id
             self._secret = secret
+
+            return
+
+        if api_key_id and api_key_secret:
+            self._id = api_key_id
+            self._secret = api_key_secret
+            self._api_key_id = api_key_id
+            self._api_key_secret = api_key_secret
 
             return
 
