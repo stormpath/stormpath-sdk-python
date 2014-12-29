@@ -1,3 +1,20 @@
+Version 1.3.0
+-------------
+
+**Released on December 29, 2014.**
+
+- Deprecating `Client(id, secret)` in favor of `Client(api_key_id,
+  api_key_secret)`.
+- Deprecating `Client(api_key_file_location)` in favor of
+  `Client(api_key_file)`.
+- Exposing `Client._api_key_id` and `Client._api_key_secret`.
+- Making the client automatically load API key file information from
+  `STORMPATH_API_KEY_FILE` environment variable if present.
+- Making the client automatically load API key information from
+  `STORMPATH_API_KEY_ID` and `STORMPATH_API_KEY_SECRET` environment variables if
+  present.
+
+
 Version 1.2.9
 -------------
 
