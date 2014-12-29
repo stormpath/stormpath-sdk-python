@@ -13,6 +13,9 @@ Version 1.3.0
 - Making the client automatically load API key information from
   `STORMPATH_API_KEY_ID` and `STORMPATH_API_KEY_SECRET` environment variables if
   present.
+- Making the client automatically load ~/.stormpath/apiKey.properties if no
+  other settings are present.
+- Updating README to take advantage of the new setup stuff.
 
 
 Version 1.2.9
