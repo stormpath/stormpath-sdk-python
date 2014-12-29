@@ -155,6 +155,7 @@ class Auth(object):
     """Provides authentication for StormPath API requests."""
 
     def __init__(self, api_key_file_location=None,
+            api_key_file=None,
             api_key_id_property_name='apiKey.id',
             api_key_secret_property_name='apiKey.secret',
             api_key=None, id=None, secret=None, scheme='SAuthc1',
@@ -163,8 +164,8 @@ class Auth(object):
         Initialize authentication using one of the available authentication
         credentials source:
 
-        :param api_key_file_location: Location of the API key file (in the
-            Java .properties file format) (default: API key file not used)
+        :param api_key_file: Location of the API key file (in the Java
+        .properties file format) (default: API key file not used)
         :param api_key_id_property_name: Name of the `ID` property in the
             key file (default: apiKey.id)
         :param api_key_secret_property_name: Name of the `secret` property
@@ -179,7 +180,7 @@ class Auth(object):
         All available authentication credentials sources are checked, in this
         priority:
 
-        1. API key file (if `api_key_file_location` is set and the file exists)
+        1. API key file (if `api_key_file` is set and the file exists)
         2. API key dict (if `api_key` contains `id` and `secret` keys)
         3. API key `secret` and `id` parameters
 
@@ -201,7 +202,7 @@ class Auth(object):
         if method is not None:
             self._scheme = 'basic' if method == 'basic' else 'SAuthc1'
 
-        if self._read_api_key_file(api_key_file_location,
+        if self._read_api_key_file(api_key_file or api_key_file_location,
                 api_key_id_property_name, api_key_secret_property_name):
             return
 
