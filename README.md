@@ -44,13 +44,25 @@ two ways:
 from stormpath.client import Client
 
 # 1) By using the apiKey.properties file you previously downloaded.
-client = Client(api_key_file_location='/path/to/apiKey.properties')
+client = Client(api_key_file='/path/to/apiKey.properties')
 
 # 2) By specifying your API Key pair credentials manually.
 client = Client(
-    id = STORMPATH_API_KEY_ID,
-    secret = STORMPATH_API_KEY_SECRET,
+    api_key_id = STORMPATH_API_KEY_ID,
+    api_key_secret = STORMPATH_API_KEY_SECRET,
 )
+
+# 3) By setting an environment variable called STORMPATH_API_KEY_FILE to the
+#    path of your apiKey.properties file.
+client = Client()
+
+# 4) By setting environment variables called STORMPATH_API_KEY_ID and
+#    STORMPATH_API_KEY_SECRET which contain your keys.
+client = Client()
+
+# 5) By defining a file in ~/.stormpath/apiKey.properties -- this file will be
+#    used automatically if it exists and no other credentials are specified.
+client = Client()
 ```
 
 **NOTE**: Once you've created a client, you can use it for the life of your
