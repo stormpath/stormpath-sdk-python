@@ -199,9 +199,7 @@ class Auth(object):
         Once initialized, `scheme` property will return the authentication
         scheme implementation selected.
         """
-        self._id = None
         self._api_key_id = None
-        self._secret = None
         self._api_key_secret = None
         self._scheme = scheme
 
@@ -214,32 +212,24 @@ class Auth(object):
             return
 
         if api_key and 'id' in api_key and 'secret' in api_key:
-            self._id = api_key['id']
-            self._secret = api_key['secret']
             self._api_key_id = api_key['id']
             self._api_key_secret = api_key['secret']
 
             return
 
         if api_key and 'api_key_id' in api_key and 'api_key_secret' in api_key:
-            self._id = api_key['api_key_id']
-            self._secret = api_key['api_key_secret']
             self._api_key_id = api_key['api_key_id']
             self._api_key_secret = api_key['api_key_secret']
 
             return
 
         if id and secret:
-            self._id = id
-            self._secret = secret
             self._api_key_id = id
             self._api_key_secret = secret
 
             return
 
         if api_key_id and api_key_secret:
-            self._id = api_key_id
-            self._secret = api_key_secret
             self._api_key_id = api_key_id
             self._api_key_secret = api_key_secret
 
@@ -250,10 +240,10 @@ class Auth(object):
             return
 
         if environ.get('STORMPATH_API_KEY_ID') and environ.get('STORMPATH_API_KEY_SECRET'):
-            self._id = environ.get('STORMPATH_API_KEY_ID')
-            self._secret = environ.get('STORMPATH_API_KEY_SECRET')
             self._api_key_id = environ.get('STORMPATH_API_KEY_ID')
             self._api_key_secret = environ.get('STORMPATH_API_KEY_SECRET')
+
+            return
 
         raise ValueError('No valid authentication sources found')
 
@@ -281,8 +271,6 @@ class Auth(object):
 
     def _read_api_key_file(self, fname, id_name, secret_name):
         cred = self._load_properties(fname)
-        self._id = cred.get(id_name)
-        self._secret = cred.get(secret_name)
         self._api_key_id = cred.get(id_name)
         self._api_key_secret = cred.get(secret_name)
 
