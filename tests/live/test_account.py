@@ -1,7 +1,6 @@
 """Live tests of Accounts and authentication functionality."""
 
 from stormpath.error import Error
-from stormpath.error import Error
 
 from .base import AccountBase
 
