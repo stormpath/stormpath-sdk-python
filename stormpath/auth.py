@@ -8,6 +8,7 @@ from datetime import datetime
 from uuid import uuid4
 from requests.auth import HTTPBasicAuth, AuthBase
 from collections import OrderedDict
+from os import environ
 from os.path import isfile
 
 from requests.utils import to_native_string
@@ -184,6 +185,9 @@ class Auth(object):
         1. API key file (if `api_key_file` is set and the file exists)
         2. API key dict (if `api_key` contains `id` and `secret` keys)
         3. API key `api_key_id` and `api_key_secret` parameters
+        4. STORMPATH_API_KEY_FILE as an environment variable.
+        4. STORMPATH_API_KEY_ID and STORMPATH_API_KEY_SECRET as environment
+           variables.
 
         The `api_key_id` and `api_key_secret` can be accessed as attributes.
 
@@ -228,6 +232,8 @@ class Auth(object):
         if id and secret:
             self._id = id
             self._secret = secret
+            self._api_key_id = id
+            self._api_key_secret = secret
 
             return
 
@@ -238,6 +244,16 @@ class Auth(object):
             self._api_key_secret = api_key_secret
 
             return
+
+        if self._read_api_key_file(environ.get('STORMPATH_API_KEY_FILE'),
+                api_key_id_property_name, api_key_secret_property_name):
+            return
+
+        if environ.get('STORMPATH_API_KEY_ID') and environ.get('STORMPATH_API_KEY_SECRET'):
+            self._id = environ.get('STORMPATH_API_KEY_ID')
+            self._secret = environ.get('STORMPATH_API_KEY_SECRET')
+            self._api_key_id = environ.get('STORMPATH_API_KEY_ID')
+            self._api_key_secret = environ.get('STORMPATH_API_KEY_SECRET')
 
         raise ValueError('No valid authentication sources found')
 
@@ -267,19 +283,21 @@ class Auth(object):
         cred = self._load_properties(fname)
         self._id = cred.get(id_name)
         self._secret = cred.get(secret_name)
+        self._api_key_id = cred.get(id_name)
+        self._api_key_secret = cred.get(secret_name)
 
-        return (self._id and self._secret)
+        return (self._api_key_id and self._api_key_secret)
 
     def __call__(self):
         return self.signer
 
     @property
     def id(self):
-        return self._id
+        return self._api_key_id
 
     @property
     def secret(self):
-        return self._secret
+        return self._api_key_secret
 
     @property
     def basic(self):
@@ -289,7 +307,7 @@ class Auth(object):
 
         http://docs.stormpath.com/rest/product-guide/#authentication
         """
-        return HTTPBasicAuth(self._id, self._secret)
+        return HTTPBasicAuth(self._api_key_id, self._api_key_secret)
 
     @property
     def digest(self):
@@ -300,7 +318,7 @@ class Auth(object):
 
         http://docs.stormpath.com/rest/product-guide/#authentication
         """
-        return Sauthc1Signer(self._id, self._secret)
+        return Sauthc1Signer(self._api_key_id, self._api_key_secret)
 
     @property
     def signer(self):
