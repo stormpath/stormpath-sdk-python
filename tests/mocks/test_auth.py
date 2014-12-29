@@ -19,7 +19,7 @@ class AuthTest(TestCase):
         mock_isfile = MagicMock(return_value=True)
 
         with patch('stormpath.auth.isfile', mock_isfile):
-            a = Auth(api_key_file_location='apiKey.properties')
+            a = Auth(api_key_file='apiKey.properties')
         self.assertEqual(a.id, 'MyId')
         self.assertEqual(a.secret, 'Shush!')
 
