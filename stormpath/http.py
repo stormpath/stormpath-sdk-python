@@ -77,19 +77,13 @@ class HttpExecutor(object):
         if r.status_code in [301, 302] and 'location' in r.headers:
             return self.request('GET', r.headers['location'], params=params)
 
-        if r.status_code >= 400 and r.status_code <= 600:
-            try:
-                ret = r.json()
-            except ValueError as e:
-                ret = "An unexpected error occurred: %s" % e
-            raise Error({'developerMessage': ret}, http_status=r.status_code)
-
         try:
             d = r.json()
             d['sp_http_status'] = r.status_code
             return d
-        except Exception:
-            return {}
+        except Exception as e:
+            ret = "An unexpected error occurred: %s" % e
+            raise Error({'developerMessage': ret}, http_status=r.status_code)
 
     def get(self, url, params=None):
         return self.request('GET', url, params=params)
