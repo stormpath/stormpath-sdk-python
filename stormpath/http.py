@@ -80,9 +80,9 @@ class HttpExecutor(object):
         if r.status_code >= 400 and r.status_code <= 600:
             try:
                 ret = r.json()
-            except ValueError:
-                ret = "An unexpected error occurred."
-            raise Error(ret, http_status=r.status_code)
+            except ValueError as e:
+                ret = "An unexpected error occurred: %s" % e
+            raise Error({'developerMessage': ret}, http_status=r.status_code)
 
         try:
             d = r.json()
