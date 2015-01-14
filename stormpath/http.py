@@ -67,7 +67,7 @@ class HttpExecutor(object):
 
         try:
             r = self.session.request(method, url, data=data, params=params,
-                allow_redirects=False)
+                allow_redirects=False, verify=False)
         except Exception as ex:
             raise Error({'developerMessage': str(ex)})
 
