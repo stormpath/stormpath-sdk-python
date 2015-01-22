@@ -67,7 +67,7 @@ class Sauthc1Signer(AuthBase):
         return query
 
     @staticmethod
-    def _order_query(query):
+    def _order_query_params(query):
         ordered_query_params = sorted(query.split('&'))
 
         return '&'.join(ordered_query_params)
@@ -98,7 +98,8 @@ class Sauthc1Signer(AuthBase):
 
         canonical_query_string = ''
         if parsed_url.query:
-            canonical_query_string = self._encode_url(self._order_query(parsed_url.query))
+            canonical_query_string = self._encode_url(
+                    self._order_query_params(parsed_url.query))
 
         auth_headers = r.headers.copy()
 
