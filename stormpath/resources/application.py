@@ -234,7 +234,7 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
 
         # validate signature
         try:
-            decoded_data = jwt.decode(jwt_response, api_key_secret)
+            decoded_data = jwt.decode(jwt_response, api_key_secret, audience=self._client.auth.id)
         except (jwt.DecodeError, jwt.ExpiredSignature):
             return None
 
