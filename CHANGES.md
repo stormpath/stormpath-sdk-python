@@ -1,3 +1,16 @@
+Version 1.3.1
+-------------
+
+**Released on January 22, 2015.**
+
+- Adding an exponential backoff strategy.  This greatly improves library
+  stability by automatically handling API service errors if they occur (network
+  errors, actual Stormpath errors, etc.).
+- Fixing JWT library upgrade errors.
+- Fixing our Sauthc1 custom digest authentication implementation -- we now
+  properly order our query strings, solving several issues.
+
+
 Version 1.3.0
 -------------
 
