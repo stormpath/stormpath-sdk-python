@@ -3,6 +3,18 @@
 from stormpath.error import Error
 
 from .base import AccountBase
+from stormpath.resources.application import ApplicationList
+
+
+class TestAccountGet(AccountBase):
+
+    def test_account_has_applications(self):
+        _, account = self.create_account(self.app.accounts)
+
+        self.assertTrue(hasattr(account, 'applications'))
+        self.assertTrue(isinstance(account.applications, ApplicationList))
+        self.assertEqual(len(account.applications), 1)
+        self.assertEqual(account.applications[0].href, self.app.href)
 
 
 class TestAccountCreateUpdateDelete(AccountBase):

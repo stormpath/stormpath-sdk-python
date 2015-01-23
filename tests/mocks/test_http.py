@@ -55,7 +55,7 @@ class HttpTest(TestCase):
         def redirector(method, url, data, params, allow_redirects=None):
             if url.endswith('/first'):
                 return MagicMock(status_code=302, headers={
-                    'location': '/second'})
+                    'location': 'http://api.stormpath.com/v1/second'})
             elif url.endswith('/second'):
                 return MagicMock(status_code=200,
                     json=MagicMock(return_value={'hello': 'World'}))
