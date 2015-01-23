@@ -142,6 +142,10 @@ class HttpExecutor(object):
             (method, url, repr(params), repr(data), r.status_code, r.text))
 
         if r.status_code in [301, 302] and 'location' in r.headers:
+            if not r.headers['location'].startswith(self.base_url):
+                message = 'Trying to redirect outside of API base url: %s' % \
+                    r.headers['location']
+                raise Error({'developerMessage': message} )
             return self.request('GET', r.headers['location'], params=params)
 
         if r.status_code >= 400 and r.status_code <= 600:
