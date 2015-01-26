@@ -108,6 +108,7 @@ class CustomData(Resource, DeleteMixin, SaveMixin):
     def save(self):
         for href in self._deletes:
             self._store.delete_resource(href)
+
         self._deletes = set()
 
         if 'data' in self.__dict__ and len(self.data):
