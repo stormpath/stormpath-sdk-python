@@ -115,12 +115,12 @@ class HttpExecutor(object):
         raise Error({'developerMessage': ret}, http_status=r.status_code)
 
     def return_response(self, r):
-        try:
-            d = r.json()
-            d['sp_http_status'] = r.status_code
-            return d
-        except:
+        if not r.text:
             return {}
+
+        d = r.json()
+        d['sp_http_status'] = r.status_code
+        return d
 
     def request(self, method, url, data=None, params=None, retry_count=0):
         if params:
