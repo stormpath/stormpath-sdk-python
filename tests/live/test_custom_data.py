@@ -297,4 +297,3 @@ class TestTenantCustomData(SingleApplicationBase):
 
         self.assertEqual(res.custom_data['foo'], 'Not Foo anymore!')
         self.assertFalse('bar_value' in res.custom_data)
-
