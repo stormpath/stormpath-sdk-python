@@ -1,7 +1,7 @@
 Version 1.3.1
 -------------
 
-**Released on January 22, 2015.**
+**Released on January 26, 2015.**
 
 - Adding an exponential backoff strategy.  This greatly improves library
   stability by automatically handling API service errors if they occur (network
@@ -9,6 +9,10 @@ Version 1.3.1
 - Fixing JWT library upgrade errors.
 - Fixing our Sauthc1 custom digest authentication implementation -- we now
   properly order our query strings, solving several issues.
+- Fixing recursion errors due to weird redirect logic.
+- Adding `Account.applications` helper to directly iterate over the Applications
+  an Account is a member of.
+- Error'ing out loudly on JSON decoding errors (*as we should*).
 
 
 Version 1.3.0
