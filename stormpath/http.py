@@ -115,12 +115,12 @@ class HttpExecutor(object):
         raise Error({'developerMessage': ret}, http_status=r.status_code)
 
     def return_response(self, r):
-        try:
-            d = r.json()
-            d['sp_http_status'] = r.status_code
-            return d
-        except:
+        if not r.text:
             return {}
+
+        d = r.json()
+        d['sp_http_status'] = r.status_code
+        return d
 
     def request(self, method, url, data=None, params=None, retry_count=0):
         if params:
@@ -135,7 +135,7 @@ class HttpExecutor(object):
         except Exception as e:
             if self.should_retry(retry_count, e):
                 self.pause_exponentially(retry_count)
-                self.request(url, method, data=data, params=params, retry_count=retry_count + 1)
+                self.request(method, url, data=data, params=params, retry_count=retry_count + 1)
             raise Error({'developerMessage': str(e)})
 
         log.debug('HttpExecutor.request(method=%s, url=%s, params=%s, data=%s) -> [%d] %s' %
@@ -151,7 +151,7 @@ class HttpExecutor(object):
         if r.status_code >= 400 and r.status_code <= 600:
             if self.should_retry(retry_count, r.status_code):
                 self.pause_exponentially(retry_count)
-                self.request(url, method, data=data, params=params, retry_count=retry_count + 1)
+                self.request(method, url, data=data, params=params, retry_count=retry_count + 1)
             else:
                 self.raise_error(r)
 
