@@ -19,6 +19,7 @@ class DataStore(object):
         'apiKeys',
         'accountStoreMappings',
         'applications',
+        'customData',
         'directories',
         'groups',
         'groupMemberships',
@@ -82,8 +83,17 @@ class DataStore(object):
             return NoCache()
 
         parts = href.split('/')
+
+        # resource hrefs are in format:
+        # ".../resource/resource_uid"
         if parts[-2] in self.CACHE_REGIONS:  # We only care about instances.
             return self.cache_manager.get_cache(parts[-2]) or NoCache()
+
+        # custom data hrefs are in format:
+        # ".../resource/resource_uid/customData"
+        elif parts[-1] in self.CACHE_REGIONS and parts[-1] == 'customData':
+            return self.cache_manager.get_cache(parts[-1]) or NoCache()
+
         else:
             return NoCache()
 
@@ -114,6 +124,13 @@ class DataStore(object):
         self._get_cache(href).put(href, resource_data, new=new)
 
     def uncache_resource(self, href):
+        """
+        Uncaching customData's key should uncache customData.
+        """
+        if 'customData' in href and not href.endswith('customData'):
+            parts = href.split('/')
+            href = '/'.join(parts[:-1])
+
         self._get_cache(href).delete(href)
 
     def get_resource(self, href, params=None):
