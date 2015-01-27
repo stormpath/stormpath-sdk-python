@@ -120,7 +120,7 @@ class TestCollectionResource(AccountBase):
         expansion = Expansion()
         expansion.add_property('accounts', offset=0, limit=3)
         dir = self.client.directories.get(self.dir.href, expansion)
-        self.assertEqual(len(dir.accounts), 3)
+        self.assertEqual(len(dir.accounts), 5)
 
     def test_href_indexing(self):
         href = self.accounts[0].href
