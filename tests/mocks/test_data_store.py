@@ -38,6 +38,25 @@ class TestDataStore(TestCase):
         self.assertTrue(c, get_cache.return_value)
         get_cache.assert_called_once_with('accounts')
 
+    def test_get_cache_parse_custom_data_href(self, CacheManager):
+        ds = DataStore(MagicMock())
+
+        get_cache = CacheManager.return_value.get_cache
+
+        c = ds._get_cache(
+            'https://www.example.com/accounts/ACCOUNTID/customData')
+        self.assertTrue(c, get_cache.return_value)
+        get_cache.assert_called_once_with('customData')
+
+    def test_uncache_custom_data_key_uncaches_custom_data(self, CacheManager):
+        ds = DataStore(MagicMock())
+
+        get_cache = CacheManager.return_value.get_cache
+
+        ds.uncache_resource(
+            'https://www.example.com/accounts/ACCOUNTID/customData/KEY')
+        get_cache.assert_called_once_with('customData')
+
     def test_recursive_cache_put(self, CacheManager):
         ds = DataStore(MagicMock())
 
