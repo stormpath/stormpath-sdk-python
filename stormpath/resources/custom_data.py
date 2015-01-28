@@ -58,6 +58,13 @@ class CustomData(Resource, DeleteMixin, SaveMixin):
 
     def __delitem__(self, key):
         self._ensure_data()
+
+        for href in self._deletes:
+            try:
+                del self.data[href.split('/')[-1]]
+            except KeyError:
+                pass
+
         del self.data[key]
 
         if not self.is_new():

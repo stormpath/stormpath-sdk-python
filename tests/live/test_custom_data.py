@@ -91,6 +91,15 @@ class TestAccountCustomData(AccountBase):
         self.assertEqual(acc.custom_data['foo'], 'Not Foo anymore!')
         self.assertFalse('bar_value' in acc.custom_data)
 
+        del acc.custom_data['foo']
+        del acc.custom_data['bazCamelCase']
+
+        acc.custom_data.save()
+
+        acc = self.app.accounts.get(acc.href)
+
+        self.assertEqual(dict(acc.custom_data), {})
+
 
 class TestApplicationAndDirectoryCustomData(CustomDataTest):
 
@@ -161,6 +170,15 @@ class TestApplicationAndDirectoryCustomData(CustomDataTest):
             self.assertEqual(res.custom_data['foo'], 'Not Foo anymore!')
             self.assertFalse('bar_value' in res.custom_data)
 
+            del res.custom_data['foo']
+            del res.custom_data['bazCamelCase']
+
+            res.custom_data.save()
+
+            res = e.get(res.href)
+
+            self.assertEqual(dict(res.custom_data), {})
+
 
 class TestGroupCustomData(SingleApplicationBase):
 
@@ -225,6 +243,15 @@ class TestGroupCustomData(SingleApplicationBase):
 
         self.assertEqual(res.custom_data['foo'], 'Not Foo anymore!')
         self.assertFalse('bar_value' in res.custom_data)
+
+        del res.custom_data['foo']
+        del res.custom_data['bazCamelCase']
+
+        res.custom_data.save()
+
+        res = self.app.groups.get(res.href)
+
+        self.assertEqual(dict(res.custom_data), {})
 
 
 class TestTenantCustomData(SingleApplicationBase):
@@ -297,3 +324,15 @@ class TestTenantCustomData(SingleApplicationBase):
 
         self.assertEqual(res.custom_data['foo'], 'Not Foo anymore!')
         self.assertFalse('bar_value' in res.custom_data)
+
+        del res.custom_data['foo']
+        del res.custom_data['foo_val']
+        del res.custom_data['list_of_foo']
+        del res.custom_data['fooCamelCase']
+        del res.custom_data['bazCamelCase']
+
+        res.custom_data.save()
+
+        res = self.client.tenant
+
+        self.assertEqual(dict(res.custom_data), {})
