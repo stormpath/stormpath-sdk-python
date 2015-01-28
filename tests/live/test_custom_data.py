@@ -336,4 +336,3 @@ class TestTenantCustomData(SingleApplicationBase):
         res = self.client.tenant
 
         self.assertEqual(dict(res.custom_data), {})
-
