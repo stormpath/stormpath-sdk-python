@@ -1,3 +1,12 @@
+Version 1.3.2
+-------------
+
+**Released on January 28, 2015.**
+
+- Adding custom data caching / tests.  This substantially speeds up webapps that
+  heavily rely on custom data, yey!
+
+
 Version 1.3.1
 -------------
 
