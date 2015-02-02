@@ -319,7 +319,7 @@ class CollectionResource(Resource):
     http://docs.stormpath.com/rest/product-guide/#search
     """
     create_path = None
-    readonly_attrs = ('href', 'items', 'limit', 'offset')
+    readonly_attrs = ('href', 'items', 'limit', 'offset', 'size')
     resource_class = Resource
 
     def _set_properties(self, properties):
@@ -337,6 +337,12 @@ class CollectionResource(Resource):
         if 'offset' in params or 'limit' in params:
             return []
 
+        # We know the full size of the Collection via the size property
+        # we get from the API. If we've reached the end don't make
+        # that one extra API call because it's not necessary
+        if not (offset < self.size):
+            return []
+
         params['offset'] = offset
         params['limit'] = limit
 
@@ -350,9 +356,18 @@ class CollectionResource(Resource):
         return items
 
     def __iter__(self):
-        self._ensure_data()
+        try:
+            items = self.__dict__['items']
+        except:
+            # We don't want to do an unnecessary API call cause chances are
+            # that we alreay tried to fetch self.size which in trun needed to fetch the collection.
+            # If however it's our first time iterating over the collection we do need to fetch the data.
+            # This is kinda silly but it would help if the API returned the size property upfront
+            # without needing to first fetch the collection to get the size property.
+            # (We check the size property in _get_next_page effectively making an API call if it's not there)
+            self._ensure_data()
+            items = self.__dict__['items']
 
-        items = self.__dict__['items']
         offset = self.__dict__['offset']
         limit = self.__dict__['limit']
 
@@ -375,8 +390,10 @@ class CollectionResource(Resource):
         self._query['limit'] = self.__dict__['limit']
 
     def __len__(self):
-        self._ensure_data()
-        return len(self.__dict__['items'])
+        # We don't need to call self._ensure_data() here because touching the
+        # size property will do that anyway
+
+        return self.__dict__.get('_sliced_size', self.size)
 
     def __getitem__(self, idx):
         if isinstance(idx, slice):
@@ -387,7 +404,11 @@ class CollectionResource(Resource):
             if stop and stop > start:
                 query['limit'] = stop - start
 
-            return self.query(**query)
+            r = self.query(**query)
+            # We need to make sure we either report the total size of the collection
+            # or the sliced size if we used. for example, coll[2:8]
+            r.__dict__['_sliced_size'] = min(query.get('limit', r.size), max(0, r.size - query['offset']))
+            return r
 
         elif isinstance(idx, string_type):
             return self.get(idx)

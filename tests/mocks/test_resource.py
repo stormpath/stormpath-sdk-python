@@ -389,6 +389,7 @@ class TestCollectionResource(TestCase):
             'href': '/',
             'offset': 0,
             'limit': 25,
+            'size': 2,
             'items': [
                 {'href': 'test/resource'},
                 {'href': 'another/resource'}
@@ -399,6 +400,7 @@ class TestCollectionResource(TestCase):
             'href': '/',
             'offset': 0,
             'limit': 25,
+            'size': 2,
             'items': [
                 {'href': 'test/resource'},
                 {'href': 'another/resource'}
@@ -419,6 +421,7 @@ class TestCollectionResource(TestCase):
         ds.get_resource.return_value = {
             'offset': 5,
             'limit': 5,
+            'size': 0,
             'items': []
         }
 
@@ -438,15 +441,18 @@ class TestCollectionResource(TestCase):
     def test_query_by_slicing(self):
         ds = MagicMock()
         ds.get_resource.return_value = {
+            'href': '/',
             'offset': 2,
             'limit': 8,
+            'size': 0,
             'items': []
         }
 
         rl = CollectionResource(client=MagicMock(data_store=ds), href='/')
 
         rl2 = rl[2:10]
-        self.assertEqual(ds.get_resource.call_count, 0)
+        # data store needs to be caled once because we need the size property
+        self.assertEqual(ds.get_resource.call_count, 1)
 
         list(rl2)
         ds.get_resource.assert_called_with('/', params={
@@ -462,6 +468,7 @@ class TestCollectionResource(TestCase):
             'href': '/',
             'offset': 2,
             'limit': 2,
+            'size': 3,
             'items': [
                 {'href': 'test/resource'},
                 {'href': 'another/resource'},
@@ -469,25 +476,14 @@ class TestCollectionResource(TestCase):
             ]
         }
 
-        rl = CollectionResource(client=MagicMock(data_store=ds), properties={
-            'href': '/',
-            'offset': 2,
-            'limit': 2,
-            'items': [
-                {'href': 'test/resource'},
-                {'href': 'another/resource'}
-            ]
-        })
+        rl = CollectionResource(client=MagicMock(data_store=ds), href='/')
 
         hrefs = [r.href for r in rl]
 
         self.assertEqual(hrefs, ['test/resource', 'another/resource',
             'third/resource'])
 
-        ds.get_resource.assert_called_with('/', params={
-            'offset': 5,
-            'limit': 2
-        })
+        ds.get_resource.assert_called_with('/', params=None)
 
         self.assertEqual(len(rl), 3)
         self.assertEqual(rl.offset, 2)
