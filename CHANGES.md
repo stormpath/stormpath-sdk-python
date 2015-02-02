@@ -1,3 +1,13 @@
+Version 1.3.3
+-------------
+
+**Released on February 2, 2015.**
+
+- Adding size property to all collection resources -- this makes pagination
+  simpler / faster, and improves the iteration speed over large collections of
+  items.
+
+
 Version 1.3.2
 -------------
 
