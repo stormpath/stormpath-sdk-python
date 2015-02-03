@@ -3,9 +3,6 @@ Stormpath Python SDK
 
 *The official Stormpath SDK for Pythonistas!*
 
-.. image:: assets/images/stormpath-logo.png
-    :alt: Stormpath Logo
-
 An advanced, reliable and easy-to-use user management API, built by Python
 security experts.
 
