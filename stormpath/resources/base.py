@@ -356,17 +356,8 @@ class CollectionResource(Resource):
         return items
 
     def __iter__(self):
-        try:
-            items = self.__dict__['items']
-        except:
-            # We don't want to do an unnecessary API call cause chances are
-            # that we alreay tried to fetch self.size which in trun needed to fetch the collection.
-            # If however it's our first time iterating over the collection we do need to fetch the data.
-            # This is kinda silly but it would help if the API returned the size property upfront
-            # without needing to first fetch the collection to get the size property.
-            # (We check the size property in _get_next_page effectively making an API call if it's not there)
-            self._ensure_data()
-            items = self.__dict__['items']
+        self._ensure_data()
+        items = self.__dict__['items']
 
         offset = self.__dict__['offset']
         limit = self.__dict__['limit']
@@ -390,9 +381,7 @@ class CollectionResource(Resource):
         self._query['limit'] = self.__dict__['limit']
 
     def __len__(self):
-        # We don't need to call self._ensure_data() here because touching the
-        # size property will do that anyway
-
+        self._ensure_data()
         return self.__dict__.get('_sliced_size', self.size)
 
     def __getitem__(self, idx):
