@@ -483,7 +483,7 @@ class TestCollectionResource(TestCase):
         self.assertEqual(hrefs, ['test/resource', 'another/resource',
             'third/resource'])
 
-        ds.get_resource.assert_called_with('/', params=None)
+        ds.get_resource.assert_any_call('/', params=None)
 
         self.assertEqual(len(rl), 3)
         self.assertEqual(rl.offset, 2)
