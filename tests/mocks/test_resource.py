@@ -416,6 +416,89 @@ class TestCollectionResource(TestCase):
         hrefs = [r.href for r in rl]
         self.assertTrue(hrefs, ['test/resource', 'another/resource'])
 
+    def test_len(self):
+        ds = MagicMock()
+        ds.get_resource.return_value = {
+            'href': '/',
+            'offset': 0,
+            'limit': 25,
+            'size': 2,
+            'items': [
+                {'href': 'test/resource'},
+                {'href': 'another/resource'}
+            ]
+        }
+
+        rl = CollectionResource(client=MagicMock(data_store=ds), href='/')
+
+        len_rl = len(rl)
+        # assert that it will get resource from data store
+        self.assertEqual(ds.get_resource.call_count, 1)
+        # assert that it will get the right len
+        self.assertEqual(len_rl, 2)
+
+        ds.get_resource.return_value = {
+            'href': '/',
+            'offset': 0,
+            'limit': 25,
+            'size': 3,
+            'items': [
+                {'href': 'test/resource'},
+                {'href': 'another/resource'},
+                {'href': 'third/resource'}
+            ]
+        }
+
+        len_rl = len(rl)
+        # assert that it will get resource from data store again
+        self.assertEqual(ds.get_resource.call_count, 2)
+        # assert that it will get the new len
+        self.assertEqual(len_rl, 3)
+
+    def test_iter(self):
+        ds = MagicMock()
+        ds.get_resource.return_value = {
+            'href': '/',
+            'offset': 0,
+            'limit': 25,
+            'size': 2,
+            'items': [
+                {'href': 'test/resource'},
+                {'href': 'another/resource'}
+            ]
+        }
+
+        rl = CollectionResource(client=MagicMock(data_store=ds), href='/')
+
+        hrefs = []
+        for r in rl:
+            hrefs.append(r.href)
+        # assert that it will get resource from data store
+        self.assertEqual(ds.get_resource.call_count, 1)
+        # assert that it will get the right hrefs
+        self.assertEqual(hrefs, ['test/resource', 'another/resource'])
+
+        ds.get_resource.return_value = {
+            'href': '/',
+            'offset': 0,
+            'limit': 25,
+            'size': 3,
+            'items': [
+                {'href': 'test/resource'},
+                {'href': 'another/resource'},
+                {'href': 'third/resource'}
+            ]
+        }
+
+        hrefs = []
+        for r in rl:
+            hrefs.append(r.href)
+        # assert that it will get resource from data store again
+        self.assertEqual(ds.get_resource.call_count, 2)
+        # assert that it will get the new hrefs
+        self.assertEqual(
+            hrefs, ['test/resource', 'another/resource', 'third/resource'])
+
     def test_limit_offset_query(self):
         ds = MagicMock()
         ds.get_resource.return_value = {
