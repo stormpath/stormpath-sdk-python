@@ -1,3 +1,13 @@
+Version 1.3.4
+-------------
+
+**Released on February 5, 2015.**
+
+- Fixing bug with collection resources.  We had improper size issues before,
+  which is now fixed.
+- Using our new Sphinx theme for docs.
+
+
 Version 1.3.3
 -------------
 
