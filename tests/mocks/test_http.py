@@ -1,12 +1,13 @@
 from sys import version_info as vi
 from unittest import TestCase, main
 from collections import OrderedDict
+from requests import RequestException
 from stormpath.http import HttpExecutor
 from stormpath.error import Error
 from stormpath.client import Client
 
 try:
-    from mock import patch, MagicMock, PropertyMock
+    from mock import patch, MagicMock, PropertyMock, call
 except ImportError:
     from unittest.mock import patch, MagicMock, PropertyMock
 
@@ -48,6 +49,63 @@ class HttpTest(TestCase):
 
         with self.assertRaises(Error):
             ex.get('/test')
+
+    @patch('stormpath.http.Session')
+    def test_get_request_exception_and_retry_and_success(self, Session):
+        self.count = 0
+        request_exception = RequestException('I raise RequestException!')
+        def exception_raiser(method, url, data, params, allow_redirects=None):
+            if self.count < 4:
+                self.count += 1
+                raise request_exception
+
+            return MagicMock(
+                status_code=200,
+                json=MagicMock(return_value={'success': 'True'}))
+
+        Session.return_value = MagicMock(request=exception_raiser)
+
+        ex = HttpExecutor('http://api.stormpath.com/v1', ('user', 'pass'))
+
+        ShouldRetry = MagicMock(return_value=True)
+
+        with patch('stormpath.http.HttpExecutor.should_retry', ShouldRetry):
+            with self.assertRaises(Error):
+                ex.get('/test')
+
+        should_retry_calls = [
+            call(0, request_exception), call(1, request_exception),
+            call(2, request_exception), call(3, request_exception),
+        ]
+        ShouldRetry.assert_has_calls(should_retry_calls)
+
+    @patch('stormpath.http.Session')
+    def test_get_request_exception_and_retry_four_times(self, Session):
+        request_exception = RequestException('I raise RequestException!')
+        def exception_raiser(method, url, data, params, allow_redirects=None):
+            raise request_exception
+
+        Session.return_value = MagicMock(request=exception_raiser)
+
+        ex = HttpExecutor('http://api.stormpath.com/v1', ('user', 'pass'))
+
+        def try_four_times(retries, status):
+            return retries <= 3
+
+        ShouldRetry = MagicMock()
+        ShouldRetry.side_effect = try_four_times
+
+        with patch('stormpath.http.HttpExecutor.should_retry', ShouldRetry):
+            with self.assertRaises(Error):
+                ex.get('/test')
+
+        should_retry_calls = [
+            call(0, request_exception), call(1, request_exception),
+            call(2, request_exception), call(3, request_exception),
+            call(4, request_exception)
+        ]
+        ShouldRetry.assert_has_calls(should_retry_calls)
+
 
     @patch('stormpath.http.Session')
     def test_follow_redirects(self, Session):
