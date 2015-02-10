@@ -295,6 +295,16 @@ class TestCustomData(TestCase):
 
         self.assertTrue('test' in a.custom_data)
 
+    def test_custom_data_deletion(self):
+        ds = MagicMock()
+        client = MagicMock(data_store=ds)
+
+        d = CustomData(client, properties=self.props)
+        d.delete()
+
+        ds.delete_resource.assert_called_once_with(self.props['href'])
+        assert {} == dict(d)
+
 
 if __name__ == '__main__':
     main()

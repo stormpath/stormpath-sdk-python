@@ -120,3 +120,7 @@ class CustomData(Resource, DeleteMixin, SaveMixin):
 
         if 'data' in self.__dict__ and len(self.data):
             super(CustomData, self).save()
+
+    def delete(self):
+        super(CustomData, self).delete()
+        self.__dict__['data'] = {}
