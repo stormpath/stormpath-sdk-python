@@ -336,3 +336,13 @@ class TestTenantCustomData(SingleApplicationBase):
         res = self.client.tenant
 
         self.assertEqual(dict(res.custom_data), {})
+
+    def test_custom_data_deletion(self):
+        res = self.client.tenant
+        self.assertEqual(dict(res.custom_data), {})
+
+        for key in CUSTOM_DATA.keys():
+            res.custom_data[key] = CUSTOM_DATA[key]
+
+        self.client.tenant.custom_data.delete()
+        assert dict(self.client.tenant.custom_data) == {}
