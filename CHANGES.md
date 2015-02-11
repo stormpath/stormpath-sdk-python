@@ -6,6 +6,9 @@ Version 1.3.5
 - Fixing bug with Memcached cache serialization for tuples.
   `json_deserializer()` was accidentally returning a tuple instead of a JSON
   value.
+- Improving test coverage.
+- Fixing odd case where custom data keys were not deleted properly.  This is now
+  resolved, so custom data deletion always behaves as expected.
 
 
 Version 1.3.4
