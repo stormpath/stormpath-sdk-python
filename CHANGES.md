@@ -1,3 +1,13 @@
+Version 1.3.5
+-------------
+
+**Released on February 11, 2015.**
+
+- Fixing bug with Memcached cache serialization for tuples.
+  `json_deserializer()` was accidentally returning a tuple instead of a JSON
+  value.
+
+
 Version 1.3.4
 -------------
 
