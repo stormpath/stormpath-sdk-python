@@ -23,7 +23,7 @@ def json_deserializer(key, value, flags):
     if flags == STR_VALUE:
         return value
     if flags == JSON_VALUE:
-        return loads(value.decode('utf-8')), 2
+        return loads(value.decode('utf-8'))
     raise Exception("Unknown serialization format")
 
 

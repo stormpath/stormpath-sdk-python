@@ -4,15 +4,14 @@ try:
 except ImportError:
     from unittest.mock import patch, MagicMock
 
-from json import loads, dumps
-
 from stormpath.cache.entry import CacheEntry
 from stormpath.cache.stats import CacheStats
 from stormpath.cache.cache import Cache
 from stormpath.cache.manager import CacheManager
 from stormpath.cache.memory_store import MemoryStore, LimitedSizeDict
 from stormpath.cache.redis_store import RedisStore
-from stormpath.cache.memcached_store import MemcachedStore
+from stormpath.cache.memcached_store import MemcachedStore, \
+    json_deserializer, json_serializer
 
 
 class TestCacheEntry(TestCase):
@@ -331,11 +330,13 @@ class TestMemcachedStore(TestCase):
             self.data = {}
 
         def get(self, key):
-            data = self.data.get(key)
-            return loads(data.decode('utf-8'))
+            data, flags = self.data.get(key)
+            data = json_deserializer(key, data, flags)
+            return data
 
         def set(self, key, entry, expire):
-            self.data[key] = dumps(entry.to_dict()).encode('utf-8')
+            data, flags = json_serializer(key, entry)
+            self.data[key] = (data, flags)
 
         def delete(self, key):
             if key in self.data:
