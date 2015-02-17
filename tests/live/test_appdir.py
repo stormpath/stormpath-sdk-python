@@ -3,6 +3,8 @@
 from stormpath.error import Error
 
 from .base import AuthenticatedLiveBase, SingleApplicationBase
+from stormpath.resources.email_template import EmailTemplate
+from stormpath.resources.password_policy import PasswordPolicy
 
 
 class TestApplicationDirectoryCreation(AuthenticatedLiveBase):
@@ -178,3 +180,156 @@ class TestApplicationDirectoryModification(SingleApplicationBase):
 
         self.assertEqual(len(dirs), 1)
         self.assertEqual(dirs[0].href, self.dir.href)
+
+
+class TestDirectoryPasswordPolicy(SingleApplicationBase):
+
+    def test_password_policy_properties(self):
+        password_policy = self.dir.password_policy
+
+        self.assertTrue(password_policy.href)
+        self.assertEqual(
+            password_policy.reset_email_status,
+            PasswordPolicy.RESET_EMAIL_STATUS_ENABLED)
+        self.assertEqual(
+            password_policy.reset_success_email_status,
+            PasswordPolicy.RESET_EMAIL_STATUS_ENABLED)
+        self.assertEqual(password_policy.reset_token_ttl, 24)
+
+        password_policy.reset_email_status = \
+            PasswordPolicy.RESET_EMAIL_STATUS_DISABLED
+        password_policy.reset_success_email_status = \
+            PasswordPolicy.RESET_EMAIL_STATUS_DISABLED
+        password_policy.reset_token_ttl = 100
+        password_policy.save()
+
+        self.assertEqual(
+            password_policy.reset_email_status,
+            PasswordPolicy.RESET_EMAIL_STATUS_DISABLED)
+        self.assertEqual(
+            password_policy.reset_success_email_status,
+            PasswordPolicy.RESET_EMAIL_STATUS_DISABLED)
+        self.assertEqual(password_policy.reset_token_ttl, 100)
+
+    def test_directory_password_policy_strength(self):
+        strength = self.dir.password_policy.strength
+
+        self.assertTrue(strength.href)
+        self.assertEqual(strength.min_symbol, 0)
+        self.assertEqual(strength.min_diacritic, 0)
+        self.assertEqual(strength.min_upper_case, 1)
+        self.assertEqual(strength.min_length, 8)
+        self.assertEqual(strength.min_lower_case, 1)
+        self.assertEqual(strength.max_length, 100)
+        self.assertEqual(strength.min_numeric, 1)
+
+        strength.min_symbol = 1
+        strength.min_diacritic = 2
+        strength.min_upper_case = 3
+        strength.min_length = 4
+        strength.min_lower_case = 5
+        strength.max_length = 20
+        strength.min_numeric = 6
+        strength.save()
+
+        self.assertEqual(strength.min_symbol, 1)
+        self.assertEqual(strength.min_diacritic, 2)
+        self.assertEqual(strength.min_upper_case, 3)
+        self.assertEqual(strength.min_length, 4)
+        self.assertEqual(strength.min_lower_case, 5)
+        self.assertEqual(strength.max_length, 20)
+        self.assertEqual(strength.min_numeric, 6)
+
+    def test_directory_reset_email_template_list(self):
+        templates = self.dir.password_policy.reset_email_templates
+
+        self.assertTrue(templates.href)
+        self.assertEqual(templates.limit, 25)
+        self.assertEqual(templates.offset, 0)
+
+    def test_directory_reset_email_template(self):
+        template = iter(self.dir.password_policy.reset_email_templates).next()
+
+        self.assertTrue(template.href)
+        self.assertEqual(template.subject, 'Reset your Password')
+        self.assertEqual(
+            template.name, 'Default Password Reset Email Template')
+        self.assertEqual(
+            template.default_model,
+            {'linkBaseUrl': 'https://api.stormpath.com/passwordReset'})
+        self.assertEqual(
+            template.get_link_base_url(),
+            'https://api.stormpath.com/passwordReset')
+
+        template.subject = 'New Reset your Password Subject'
+        template.name = 'New Default Password Reset Email Template Name'
+        template.set_link_base_url(
+            'https://api.stormpath.com/newPasswordReset')
+        template.save()
+
+        template = iter(self.dir.password_policy.reset_email_templates).next()
+
+        self.assertTrue(template.href)
+        self.assertEqual(
+            template.default_model,
+            {'linkBaseUrl': 'https://api.stormpath.com/newPasswordReset'})
+        self.assertEqual(
+            template.get_link_base_url(),
+            'https://api.stormpath.com/newPasswordReset')
+        self.assertEqual(template.subject, 'New Reset your Password Subject')
+        self.assertEqual(
+            template.name, 'New Default Password Reset Email Template Name')
+
+    def test_directory_reset_email_template_default_model_modification(self):
+        template = iter(self.dir.password_policy.reset_email_templates).next()
+
+        with self.assertRaises(AttributeError):
+            template.default_model = {}
+
+        with self.assertRaises(AttributeError):
+            template.default_model = {
+                'linkBaseUrl':
+                    'https://api.stormpath.com/brandNewPasswordReset'
+            }
+
+    def test_directory_reset_success_email_template_list(self):
+        templates = self.dir.password_policy.reset_success_email_templates
+
+        self.assertTrue(templates.href)
+        self.assertEqual(templates.limit, 25)
+        self.assertEqual(templates.offset, 0)
+
+    def test_directory_reset_success_email_template(self):
+        templates = self.dir.password_policy.reset_success_email_templates
+        template = iter(templates).next()
+
+        self.assertTrue(template.href)
+        self.assertEqual(template.subject, 'Your password has been changed')
+        self.assertEqual(
+            template.name, 'Default Password Reset Success Email Template')
+
+        template.subject = 'Your password has been reset.'
+        template.description = 'My New Description'
+        template.from_name = 'John Doe Jr.'
+        template.from_email_address = 'joejr@newemail.com'
+        template.name = 'New Email Name'
+        template.text_body = 'Your password has been successfully reset.'
+        template.html_body = \
+            'Your password has been <b>successfully</b> reset.'
+        template.mime_type = EmailTemplate.MIME_TYPE_HTML
+        template.save()
+
+        template = iter(templates).next()
+
+        self.assertTrue(template.href)
+        self.assertEqual(template.subject, 'Your password has been reset.')
+        self.assertEqual(template.description, 'My New Description')
+        self.assertEqual(template.from_name, 'John Doe Jr.')
+        self.assertEqual(template.from_email_address, 'joejr@newemail.com')
+        self.assertEqual(template.name, 'New Email Name')
+        self.assertEqual(
+            template.text_body, 'Your password has been successfully reset.')
+        self.assertEqual(
+            template.html_body,
+            'Your password has been <b>successfully</b> reset.')
+        self.assertEqual(template.mime_type, EmailTemplate.MIME_TYPE_HTML)
