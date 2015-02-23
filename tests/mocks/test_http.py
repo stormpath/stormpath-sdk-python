@@ -9,7 +9,7 @@ from stormpath.client import Client
 try:
     from mock import patch, MagicMock, PropertyMock, call
 except ImportError:
-    from unittest.mock import patch, MagicMock, PropertyMock
+    from unittest.mock import patch, MagicMock, PropertyMock, call
 
 
 class HttpTest(TestCase):
