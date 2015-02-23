@@ -20,7 +20,7 @@ class ApiAuthTest(TestCase):
     def test_basic_api_auth(self):
         app = MagicMock()
         app._client.auth.secret = 'fakeApiKeyProperties.secret'
-        app.href = b'HREF'
+        app.href = 'HREF'
         api_keys = MagicMock()
         api_keys.get_key = lambda k, s=None: MagicMock(
                 id=FAKE_CLIENT_ID, secret=FAKE_CLIENT_SECRET, status=StatusMixin.STATUS_ENABLED)
@@ -42,10 +42,34 @@ class ApiAuthTest(TestCase):
         self.assertIsNone(result.token)
         self.assertIsNotNone(result.api_key)
 
+    def test_basic_api_auth_unicode(self):
+        app = MagicMock()
+        app._client.auth.secret = 'fakeApiKeyProperties.secret'
+        app.href = 'HREF'
+        api_keys = MagicMock()
+        api_keys.get_key = lambda k, s=None: MagicMock(
+                id=FAKE_CLIENT_ID, secret=FAKE_CLIENT_SECRET, status=StatusMixin.STATUS_ENABLED)
+        app.api_keys = api_keys
+
+        basic_auth = base64.b64encode(
+            "{}:{}".format(FAKE_CLIENT_ID, FAKE_CLIENT_SECRET).encode('utf-8'))
+
+        uri = 'https://example.com/get'
+        http_method = 'GET'
+        body = {}
+        headers = {'Authorization': u'Basic ' + basic_auth.decode('utf-8')}
+
+        allowed_scopes = ['test1']
+
+        result = authenticate(app, allowed_scopes, http_method, uri, body, headers)
+        self.assertIsNotNone(result)
+        self.assertIsNone(result.token)
+        self.assertIsNotNone(result.api_key)
+
     def test_basic_api_auth_with_generating_bearer_token(self):
         app = MagicMock()
         app._client.auth.secret = 'fakeApiKeyProperties.secret'
-        app.href = b'HREF'
+        app.href = 'HREF'
         api_keys = MagicMock()
         api_keys.get_key = lambda k, s=None: MagicMock(
                 id=FAKE_CLIENT_ID, secret=FAKE_CLIENT_SECRET, status=StatusMixin.STATUS_ENABLED)
@@ -71,7 +95,7 @@ class ApiAuthTest(TestCase):
     def test_basic_api_auth_with_invalid_scope_no_token_get_generated(self):
         app = MagicMock()
         app._client.auth.secret = 'fakeApiKeyProperties.secret'
-        app.href = b'HREF'
+        app.href = 'HREF'
         api_keys = MagicMock()
         api_keys.get_key = lambda k, s=None: MagicMock(
                 id=FAKE_CLIENT_ID, secret=FAKE_CLIENT_SECRET, status=StatusMixin.STATUS_ENABLED)
@@ -95,7 +119,7 @@ class ApiAuthTest(TestCase):
     def test_basic_api_auth_invalid_credentials(self):
         app = MagicMock()
         app._client.auth.secret = 'fakeApiKeyProperties.secret'
-        app.href = b'HREF'
+        app.href = 'HREF'
         api_keys = MagicMock()
         api_keys.get_key = lambda k, s=None: None
 
@@ -119,7 +143,7 @@ class ApiAuthTest(TestCase):
     def test_bearer_api_auth(self):
         app = MagicMock()
         app._client.auth.secret = 'fakeApiKeyProperties.secret'
-        app.href = b'HREF'
+        app.href = 'HREF'
         api_keys = MagicMock()
         api_keys.get_key = lambda k, s=None: MagicMock(
                 id=FAKE_CLIENT_ID, secret=FAKE_CLIENT_SECRET, status=StatusMixin.STATUS_ENABLED)
@@ -147,12 +171,44 @@ class ApiAuthTest(TestCase):
 
         result = authenticate(app, allowed_scopes, http_method, uri, body, headers)
         self.assertIsNotNone(result)
-        self.assertEquals(result.token.token.decode('utf-8'), token.token)
+        self.assertEquals(result.token.token, token.token)
+
+    def test_bearer_api_auth_with_unicode(self):
+        app = MagicMock()
+        app._client.auth.secret = 'fakeApiKeyProperties.secret'
+        app.href = 'HREF'
+        api_keys = MagicMock()
+        api_keys.get_key = lambda k, s=None: MagicMock(
+                id=FAKE_CLIENT_ID, secret=FAKE_CLIENT_SECRET, status=StatusMixin.STATUS_ENABLED)
+        app.api_keys = api_keys
+
+        basic_auth = base64.b64encode(
+            "{}:{}".format(FAKE_CLIENT_ID, FAKE_CLIENT_SECRET).encode('utf-8'))
+
+        uri = 'https://example.com/get'
+        http_method = 'GET'
+        body = {'grant_type': 'client_credentials', 'scope': 'test1'}
+        headers = {'Authorization': u'Basic ' + basic_auth.decode('utf-8')}
+
+        allowed_scopes = ['test1']
+
+        result = authenticate(app, allowed_scopes, http_method, uri, body, headers)
+        self.assertIsNotNone(result)
+        self.assertIsNotNone(result.token)
+        token = result.token
+        body = {}
+        headers = {
+                'Authorization': b'Bearer ' + token.token.encode('utf-8')
+                }
+
+        result = authenticate(app, allowed_scopes, http_method, uri, body, headers)
+        self.assertIsNotNone(result)
+        self.assertEquals(result.token.token, token.token)
 
     def test_access_token_validity_expired_token(self):
         app = MagicMock()
         app._client.auth.secret = 'fakeApiKeyProperties.secret'
-        app.href = b'HREF'
+        app.href = 'HREF'
         api_keys = MagicMock()
         api_keys.get_key = lambda k, s=None: MagicMock(
                 id=FAKE_CLIENT_ID, secret=FAKE_CLIENT_SECRET, status=StatusMixin.STATUS_ENABLED)
@@ -168,7 +224,7 @@ class ApiAuthTest(TestCase):
     def test_access_token_scope_check(self):
         app = MagicMock()
         app._client.auth.secret = 'fakeApiKeyProperties.secret'
-        app.href = b'HREF'
+        app.href = 'HREF'
         api_keys = MagicMock()
         api_keys.get_key = lambda k, s=None: MagicMock(
                 id=FAKE_CLIENT_ID, secret=FAKE_CLIENT_SECRET, status=StatusMixin.STATUS_ENABLED)
@@ -183,7 +239,7 @@ class ApiAuthTest(TestCase):
     def test_access_token_invalid_token(self):
         app = MagicMock()
         app._client.auth.secret = 'fakeApiKeyProperties.secret'
-        app.href = b'HREF'
+        app.href = 'HREF'
         api_keys = MagicMock()
         api_keys.get_key = lambda k, s=None: MagicMock(
                 id=FAKE_CLIENT_ID, secret=FAKE_CLIENT_SECRET, status=StatusMixin.STATUS_ENABLED)
@@ -199,7 +255,7 @@ class ApiAuthTest(TestCase):
     def test_valid_bearer_token_but_deleted_api_key(self):
         app = MagicMock()
         app._client.auth.secret = 'fakeApiKeyProperties.secret'
-        app.href = b'HREF'
+        app.href = 'HREF'
         api_keys = MagicMock()
         api_keys.get_key = lambda k, s=None: MagicMock(
                 id=FAKE_CLIENT_ID, secret=FAKE_CLIENT_SECRET, status=StatusMixin.STATUS_ENABLED)
@@ -233,7 +289,7 @@ class ApiAuthTest(TestCase):
     def test_valid_bearer_token_but_disabled_api_key(self):
         app = MagicMock()
         app._client.auth.secret = 'fakeApiKeyProperties.secret'
-        app.href = b'HREF'
+        app.href = 'HREF'
         api_keys = MagicMock()
         api_keys.get_key = lambda k, s=None: MagicMock(
                 id=FAKE_CLIENT_ID, secret=FAKE_CLIENT_SECRET, status=StatusMixin.STATUS_ENABLED)
@@ -271,7 +327,7 @@ class ApiAuthTest(TestCase):
     def test_invalid_grant_type_no_token_gets_generated(self):
         app = MagicMock()
         app._client.auth.secret = 'fakeApiKeyProperties.secret'
-        app.href = b'HREF'
+        app.href = 'HREF'
         api_keys = MagicMock()
         api_keys.get_key = lambda k, s=None: MagicMock(
                 id=FAKE_CLIENT_ID, secret=FAKE_CLIENT_SECRET, status=StatusMixin.STATUS_ENABLED)
