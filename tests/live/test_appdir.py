@@ -280,17 +280,33 @@ class TestDirectoryPasswordPolicy(SingleApplicationBase):
         self.assertEqual(
             template.name, 'New Default Password Reset Email Template Name')
 
+    def test_directory_reset_email_template_default_model_set_to_empty(self):
+        template = iter(self.dir.password_policy.reset_email_templates).next()
+
+        template.default_model = {}
+        with self.assertRaises(Error):
+            template.save()
+
     def test_directory_reset_email_template_default_model_modification(self):
         template = iter(self.dir.password_policy.reset_email_templates).next()
 
-        with self.assertRaises(AttributeError):
-            template.default_model = {}
+        template.default_model = {
+            'linkBaseUrl':
+                'https://api.stormpath.com/brandNewPasswordReset'
+        }
+        template.save()
 
-        with self.assertRaises(AttributeError):
-            template.default_model = {
+        template = iter(self.dir.password_policy.reset_email_templates).next()
+
+        self.assertEqual(
+            template.get_link_base_url(),
+            'https://api.stormpath.com/brandNewPasswordReset')
+        self.assertEqual(
+            template.default_model,
+            {
                 'linkBaseUrl':
-                    'https://api.stormpath.com/brandNewPasswordReset'
-            }
+                    'https://api.stormpath.com/brandNewPasswordReset',
+            })
 
     def test_directory_reset_success_email_template_list(self):
         templates = self.dir.password_policy.reset_success_email_templates
