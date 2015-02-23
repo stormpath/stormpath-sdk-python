@@ -46,15 +46,6 @@ class ResetEmailTemplate(EmailTemplate):
 
     writable_attrs = EmailTemplate.writable_attrs + ('default_model', )
 
-    def __setattr__(self, name, value):
-        if name == 'default_model':
-            raise AttributeError(
-                "Attribute '%s' of %s is not writable. For linkBaseUrl use "
-                "get_link_base_url() and set_link_base_url()." %
-                (name, self.__class__.__name__))
-
-        super(ResetEmailTemplate, self).__setattr__(name, value)
-
     def get_link_base_url(self):
         """
         Gets link_base_url from default_model.
