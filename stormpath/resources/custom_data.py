@@ -1,5 +1,6 @@
 """Stormpath CustomData resource mappings."""
 
+from dateutil.parser import parse
 
 from .base import (
     DeleteMixin,
@@ -30,6 +31,11 @@ class CustomData(Resource, DeleteMixin, SaveMixin):
         'sp_http_status',
     )
 
+    exposed_readonly_timestamp_attrs = (
+        'created_at',
+        'modified_at',
+    )
+
     def __init__(self, *args, **kwargs):
         super(CustomData, self).__init__(*args, **kwargs)
         self._deletes = set([])
@@ -57,6 +63,10 @@ class CustomData(Resource, DeleteMixin, SaveMixin):
             self.data[key] = value
 
     def __delitem__(self, key):
+        if key in self.exposed_readonly_timestamp_attrs:
+            raise KeyError(
+                "Custom data property '%s' is not deletable" % (key))
+
         self._ensure_data()
 
         for href in self._deletes:
@@ -100,13 +110,18 @@ class CustomData(Resource, DeleteMixin, SaveMixin):
         return iter(self.data)
 
     def _get_properties(self):
-        return self.data
+        writable_attrs = set(self.data) - set(
+            self.exposed_readonly_timestamp_attrs)
+        return {k: self.data[k] for k in writable_attrs}
 
     def _set_properties(self, properties):
         self.__dict__['data'] = self.__dict__.get('data', {})
         for k, v in properties.items():
             kcc = self.from_camel_case(k)
             if kcc in self.readonly_attrs:
+                if kcc in self.exposed_readonly_timestamp_attrs:
+                    v = parse(v)
+                    self.__dict__['data'][kcc] = v
                 self.__dict__[kcc] = v
             else:
                 if k not in self.__dict__['data']:
@@ -118,7 +133,7 @@ class CustomData(Resource, DeleteMixin, SaveMixin):
 
         self._deletes = set()
 
-        if 'data' in self.__dict__ and len(self.data):
+        if 'data' in self.__dict__ and len(self._get_properties()):
             super(CustomData, self).save()
 
     def delete(self):
