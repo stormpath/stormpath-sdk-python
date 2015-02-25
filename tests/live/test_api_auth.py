@@ -1,5 +1,6 @@
 """Live tests of client authentication against the Stormpath service API."""
 import base64
+from six import u
 
 from .base import ApiKeyBase
 
@@ -33,7 +34,7 @@ class TestApiAuth(ApiKeyBase):
             '{}:{}'.format(api_key.id, api_key.secret).encode('utf-8'))
         headers = {
             'Authorization':
-                'Basic ' + b64_key.decode('utf-8')
+                u('Basic ') + b64_key.decode('utf-8')
         }
 
         result = self.app.authenticate_api(
@@ -99,7 +100,7 @@ class TestApiAuth(ApiKeyBase):
         b64_key = base64.b64encode(
             '{}:{}'.format(api_key.id, api_key.secret).encode('utf-8'))
         headers = {
-            'Authorization': 'Basic ' + b64_key.decode('utf-8')
+            'Authorization': u('Basic ') + b64_key.decode('utf-8')
         }
         body = {'grant_type': 'client_credentials', 'scope': 's1 s2'}
         scopes = ['s1', 's2']
@@ -114,7 +115,7 @@ class TestApiAuth(ApiKeyBase):
         self.assertEqual(result.token.scopes, scopes)
 
         headers = {
-            'Authorization': 'Bearer ' + result.token.token}
+            'Authorization': u('Bearer ') + result.token.token}
 
         result = self.app.authenticate_api(
             allowed_scopes=scopes, http_method='GET', uri='some@uri.com',

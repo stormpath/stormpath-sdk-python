@@ -1,7 +1,7 @@
 import base64
 
 from unittest import TestCase, main
-from stormpath.client import Client
+from six import u
 try:
     from mock import patch, MagicMock, PropertyMock
 except ImportError:
@@ -57,7 +57,7 @@ class ApiAuthTest(TestCase):
         uri = 'https://example.com/get'
         http_method = 'GET'
         body = {}
-        headers = {'Authorization': u'Basic ' + basic_auth.decode('utf-8')}
+        headers = {'Authorization': u('Basic ') + basic_auth.decode('utf-8')}
 
         allowed_scopes = ['test1']
 
@@ -188,7 +188,7 @@ class ApiAuthTest(TestCase):
         uri = 'https://example.com/get'
         http_method = 'GET'
         body = {'grant_type': 'client_credentials', 'scope': 'test1'}
-        headers = {'Authorization': u'Basic ' + basic_auth.decode('utf-8')}
+        headers = {'Authorization': u('Basic ') + basic_auth.decode('utf-8')}
 
         allowed_scopes = ['test1']
 
