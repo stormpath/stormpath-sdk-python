@@ -138,9 +138,9 @@ class TestProviderData(TestCase):
         with self.assertRaises(AttributeError):
             pd['modified_at'] = 'whatever'
 
-        with self.assertRaises(AttributeError):
+        with self.assertRaises(Exception):
             del pd['created_at']
-        with self.assertRaises(AttributeError):
+        with self.assertRaises(Exception):
             del pd['modified_at']
 
 
