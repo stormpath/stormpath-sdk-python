@@ -1,3 +1,15 @@
+Version 1.3.6
+-------------
+
+**Released on February 26, 2015.**
+
+- Adding in support for Stormpath's new "Password Policies" for Directories. The
+  way it works is pretty simple: there's a new `password_policy` attribute on
+  Directory objects which let's you configure your password strength
+  requirements on a directory, as well as enabling / disabling / customizing
+  email templates.
+
+
 Version 1.3.5
 -------------
 
