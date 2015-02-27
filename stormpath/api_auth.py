@@ -28,7 +28,8 @@ class SPBasicAuthRequestValidator(object):
 
     def extract_client_data(self):
         _, b64encoded_data = self.authorization.split(' ')
-        decoded_data = to_unicode(base64.b64decode(b64encoded_data), 'ascii')
+        decoded_data = to_unicode(
+            base64.b64decode(b64encoded_data.encode('utf-8')), 'ascii')
         self.client_id, self.client_secret = decoded_data.split(':')
 
     def verify_request(self):
