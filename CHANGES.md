@@ -8,6 +8,7 @@ Version 1.3.6
   Directory objects which let's you configure your password strength
   requirements on a directory, as well as enabling / disabling / customizing
   email templates.
+- Adding in various Python 3 fixes.
 
 
 Version 1.3.5
