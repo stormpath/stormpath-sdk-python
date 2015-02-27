@@ -23,6 +23,7 @@ class Directory(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, Stat
         'custom_data',
         'description',
         'name',
+        'password_policy',
         'provider',
         'status',
     )
@@ -37,11 +38,13 @@ class Directory(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, Stat
         from .provider import Provider
         from .tenant import Tenant
         from .custom_data import CustomData
+        from .password_policy import PasswordPolicy
 
         return {
             'custom_data': CustomData,
             'accounts': AccountList,
             'groups': GroupList,
+            'password_policy': PasswordPolicy,
             'provider': Provider,
             'tenant': Tenant,
         }
