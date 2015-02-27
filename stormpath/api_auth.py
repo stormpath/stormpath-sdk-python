@@ -27,9 +27,10 @@ class SPBasicAuthRequestValidator(object):
         self.client_secret = None
 
     def extract_client_data(self):
-        _, b64encoded_data = self.authorization.split(b' ')
-        decoded_data = base64.b64decode(b64encoded_data)
-        self.client_id, self.client_secret = decoded_data.split(b':')
+        _, b64encoded_data = self.authorization.split(' ')
+        decoded_data = to_unicode(
+            base64.b64decode(b64encoded_data.encode('utf-8')), 'ascii')
+        self.client_id, self.client_secret = decoded_data.split(':')
 
     def verify_request(self):
         self.extract_client_data()
@@ -49,7 +50,7 @@ class AccessToken(object):
         # get raw data without validation
         try:
             data = jwt.decode(self.token, verify=False)
-            self.client_id = data.get('sub', b'')
+            self.client_id = data.get('sub', '')
             self.api_key = self.app.api_keys.get_key(self.client_id)
             self.exp = data.get('exp', 0)
             self.scopes = data.get('scope', '').split(' ')
@@ -115,8 +116,9 @@ class SPOauth2RequestValidator(Oauth2RequestValidator):
         authorization = request.headers.get('Authorization')
         try:
             auth_scheme, b64encoded_data = authorization.split(' ')
-            decoded_data = base64.b64decode(b64encoded_data.encode('utf-8'))
-            client_id, _ = decoded_data.split(b':')
+            decoded_data = to_unicode(
+                base64.b64decode(b64encoded_data.encode('utf-8')), 'ascii')
+            client_id, _ = decoded_data.split(':')
             request.client = Oauth2BackendApplicationClient(client_id)
         except Exception:
             return False
@@ -156,8 +158,8 @@ def _generate_signed_token(request):
     now = datetime.datetime.utcnow()
 
     data = {
-        'iss': request.app.href.decode('utf-8'),
-        'sub': client_id.decode('utf-8'),
+        'iss': request.app.href,
+        'sub': client_id,
         'iat': now,
         'exp': now + datetime.timedelta(seconds=request.expires_in)
     }
@@ -187,12 +189,12 @@ def _get_bearer_token(app, allowed_scopes, http_method, uri, body, headers, ttl=
 
 def _authenticate_request(app, allowed_scopes, http_method, uri, body, headers, ttl=DEFAULT_TTL):
     authorization = headers.get('Authorization')
-    auth_type = authorization.split(b' ')[0]
-    if auth_type == b'Basic':
+    auth_type = authorization.split(' ')[0]
+    if auth_type == 'Basic':
         validator = SPBasicAuthRequestValidator(app=app, headers=headers)
         valid, r = validator.verify_request()
         return valid, r
-    if auth_type == b'Bearer':
+    if auth_type == 'Bearer':
         validator = SPOauth2RequestValidator(app=app, allowed_scopes=allowed_scopes, ttl=ttl)
         server = Oauth2BackendApplicationServer(validator)
         valid, r = server.verify_request(uri, http_method, body, headers, allowed_scopes)
@@ -201,15 +203,17 @@ def _authenticate_request(app, allowed_scopes, http_method, uri, body, headers, 
 
 
 def authenticate(app, allowed_scopes, http_method, uri, body, headers, ttl=DEFAULT_TTL):
+    for k, v in headers.items():
+        headers[k] = to_unicode(v, 'ascii')
     jwt_token = None
     access_token = None
     auth_header = headers.get('Authorization')
-    auth_scheme = auth_header.split(b' ')[0]
-    if auth_scheme == b'Basic':
+    auth_scheme = auth_header.split(' ')[0]
+    if auth_scheme == 'Basic':
         if body.get('grant_type'):
             jwt_token = _get_bearer_token(app, allowed_scopes, http_method, uri, body, headers, ttl=ttl)
-    if auth_scheme == b'Bearer':
-        jwt_token = auth_header.split(b' ')[1]
+    if auth_scheme == 'Bearer':
+        jwt_token = auth_header.split(' ')[1]
     if jwt_token:
         access_token = AccessToken(app, jwt_token)
     valid, r = _authenticate_request(app, allowed_scopes, http_method, uri, body, headers, ttl=ttl)

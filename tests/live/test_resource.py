@@ -3,6 +3,7 @@
 We can use (almost) any resource here - Account is a convenient choice.
 """
 import jwt
+from stormpath.cache.entry import CacheEntry
 from stormpath.resources.base import Expansion
 
 from .base import AccountBase
@@ -46,6 +47,19 @@ class TestResource(AccountBase):
 
         self.assertFalse(acc.is_enabled())
         self.assertTrue(acc.is_disabled())
+
+    def test_cache_entry_to_dict_parse(self):
+        _, acc = self.create_account(self.app.accounts)
+        acc.update({'surname': 'Surname'})
+
+        acc_entry_before = acc._store._get_cache(acc.href).store[acc.href]
+        acc_entry_after = CacheEntry.parse(acc_entry_before.to_dict())
+        self.assertEqual(acc_entry_before.value, acc_entry_after.value)
+        self.assertEqual(
+            acc_entry_before.created_at, acc_entry_after.created_at)
+        self.assertEqual(
+            acc_entry_before.last_accessed_at,
+            acc_entry_after.last_accessed_at)
 
 
 class TestCollectionResource(AccountBase):

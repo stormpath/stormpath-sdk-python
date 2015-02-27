@@ -2,7 +2,7 @@
 
 from stormpath.error import Error
 
-from .base import AuthenticatedLiveBase, SingleApplicationBase
+from .base import AuthenticatedLiveBase, SingleApplicationBase, AccountBase
 from stormpath.resources.email_template import EmailTemplate
 from stormpath.resources.password_policy import PasswordPolicy
 
@@ -180,6 +180,14 @@ class TestApplicationDirectoryModification(SingleApplicationBase):
 
         self.assertEqual(len(dirs), 1)
         self.assertEqual(dirs[0].href, self.dir.href)
+
+
+class TestApplicationVerificationEmail(AccountBase):
+
+    def test_resend_fails_for_directory_with_disabled_verificiation(self):
+        name, acc = self.create_account(self.app.accounts)
+        with self.assertRaises(Error):
+            self.app.verification_emails.resend(acc, self.dir)
 
 
 class TestDirectoryPasswordPolicy(SingleApplicationBase):

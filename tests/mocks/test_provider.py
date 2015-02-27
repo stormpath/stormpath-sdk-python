@@ -3,6 +3,8 @@ Integration tests for various pieces involved in external provider support.
 """
 
 from unittest import TestCase, main
+from stormpath.resources import Provider
+
 try:
     from mock import MagicMock
 except ImportError:
@@ -11,6 +13,22 @@ except ImportError:
 from stormpath.resources.account import Account
 from stormpath.resources.application import Application
 from stormpath.resources.directory import DirectoryList
+
+
+class TestProvider(TestCase):
+
+    def test_cannot_save_new_provider(self):
+        provider = Provider(
+            client=MagicMock(),
+            properties= {
+                'client_id': 'ID',
+                'client_secret': 'SECRET',
+                'redirect_uri': 'SOME_URL',
+                'provider_id': 'myprovider'
+            })
+
+        with self.assertRaises(ValueError):
+            provider.save()
 
 
 class TestProviderAccounts(TestCase):
@@ -92,6 +110,48 @@ class TestProviderDirectories(TestCase):
                     'clientId': 'ID'
                 }
             }, params={})
+
+    def test_modify_directory_provider(self):
+        ds = MagicMock()
+        ds.create_resource.return_value = {
+            'name': 'Foo',
+            'description': 'Desc',
+            'provider': {
+                'href': 'provider',
+                'client_id': 'ID',
+                'client_secret': 'SECRET',
+                'redirect_uri': 'SOME_URL',
+                'provider_id': 'myprovider'
+            }
+        }
+        ds.update_resource.return_value = {}
+
+        dl = DirectoryList(
+            client=MagicMock(data_store=ds, BASE_URL='http://example.com'),
+            href='directories')
+
+        d = dl.create({
+            'name': 'Foo',
+            'description': 'Desc',
+            'provider': {
+                'client_id': 'ID',
+                'client_secret': 'SECRET',
+                'redirect_uri': 'SOME_URL',
+                'provider_id': 'myprovider'
+            }
+        })
+
+        d.provider.redirect_uri = 'SOME_OTHER_URL'
+        d.provider.save()
+
+        ds.update_resource.assert_called_once_with(
+            'provider',
+            {
+                'clientSecret': 'SECRET',
+                'providerId': 'myprovider',
+                'redirectUri': 'SOME_OTHER_URL',
+                'clientId': 'ID'
+            })
 
 
 if __name__ == '__main__':
