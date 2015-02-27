@@ -248,7 +248,7 @@ class TestDirectoryPasswordPolicy(SingleApplicationBase):
         self.assertEqual(templates.offset, 0)
 
     def test_directory_reset_email_template(self):
-        template = iter(self.dir.password_policy.reset_email_templates).next()
+        template = next(iter(self.dir.password_policy.reset_email_templates))
 
         self.assertTrue(template.href)
         self.assertEqual(template.subject, 'Reset your Password')
@@ -267,7 +267,7 @@ class TestDirectoryPasswordPolicy(SingleApplicationBase):
             'https://api.stormpath.com/newPasswordReset')
         template.save()
 
-        template = iter(self.dir.password_policy.reset_email_templates).next()
+        template = next(iter(self.dir.password_policy.reset_email_templates))
 
         self.assertTrue(template.href)
         self.assertEqual(
@@ -281,14 +281,14 @@ class TestDirectoryPasswordPolicy(SingleApplicationBase):
             template.name, 'New Default Password Reset Email Template Name')
 
     def test_directory_reset_email_template_default_model_set_to_empty(self):
-        template = iter(self.dir.password_policy.reset_email_templates).next()
+        template = next(iter(self.dir.password_policy.reset_email_templates))
 
         template.default_model = {}
         with self.assertRaises(Error):
             template.save()
 
     def test_directory_reset_email_template_default_model_modification(self):
-        template = iter(self.dir.password_policy.reset_email_templates).next()
+        template = next(iter(self.dir.password_policy.reset_email_templates))
 
         template.default_model = {
             'linkBaseUrl':
@@ -296,7 +296,7 @@ class TestDirectoryPasswordPolicy(SingleApplicationBase):
         }
         template.save()
 
-        template = iter(self.dir.password_policy.reset_email_templates).next()
+        template = next(iter(self.dir.password_policy.reset_email_templates))
 
         self.assertEqual(
             template.get_link_base_url(),
@@ -317,7 +317,7 @@ class TestDirectoryPasswordPolicy(SingleApplicationBase):
 
     def test_directory_reset_success_email_template(self):
         templates = self.dir.password_policy.reset_success_email_templates
-        template = iter(templates).next()
+        template = next(iter(templates))
 
         self.assertTrue(template.href)
         self.assertEqual(template.subject, 'Your password has been changed')
@@ -335,7 +335,7 @@ class TestDirectoryPasswordPolicy(SingleApplicationBase):
         template.mime_type = EmailTemplate.MIME_TYPE_HTML
         template.save()
 
-        template = iter(templates).next()
+        template = next(iter(templates))
 
         self.assertTrue(template.href)
         self.assertEqual(template.subject, 'Your password has been reset.')
