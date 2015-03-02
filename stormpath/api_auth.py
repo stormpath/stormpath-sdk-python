@@ -202,7 +202,15 @@ def _authenticate_request(app, allowed_scopes, http_method, uri, body, headers, 
     return None, None
 
 
-def authenticate(app, allowed_scopes, http_method, uri, body, headers, ttl=DEFAULT_TTL):
+def authenticate(app=None, allowed_scopes=None, http_method='', uri='',
+                 body=None, headers=None, ttl=DEFAULT_TTL):
+    if body is None:
+        raise ValueError("body can't be None")
+    if headers is None:
+        raise ValueError("headers can't be None")
+    if allowed_scopes is None:
+        allowed_scopes = []
+
     for k, v in headers.items():
         headers[k] = to_unicode(v, 'ascii')
     jwt_token = None

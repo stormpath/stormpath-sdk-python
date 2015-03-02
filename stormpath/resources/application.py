@@ -155,7 +155,8 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
         data = {'password': password}
         self._store.create_resource(href=href, data=data)
 
-    def authenticate_api(self, allowed_scopes, http_method, uri, body, headers, **kwargs):
+    def authenticate_api(self, allowed_scopes=None, http_method='', uri='',
+                         body=None, headers=None, **kwargs):
         from ..api_auth import authenticate
 
         return authenticate(self, allowed_scopes, http_method, uri, body, headers, **kwargs)
