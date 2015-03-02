@@ -17,9 +17,7 @@ class TestApiAuth(ApiKeyBase):
                     "{}:{}".format(api_key.id, api_key.secret).encode('utf-8'))
         }
 
-        result = self.app.authenticate_api(
-            allowed_scopes=[], http_method='GET', uri='some@uri.com', body={},
-            headers=headers)
+        result = self.app.authenticate_api(body={}, headers=headers)
 
         self.assertIsNotNone(result)
         self.assertEqual(api_key.id, result.api_key.id)
@@ -37,9 +35,7 @@ class TestApiAuth(ApiKeyBase):
                 u('Basic ') + b64_key.decode('utf-8')
         }
 
-        result = self.app.authenticate_api(
-            allowed_scopes=[], http_method='GET', uri='some@uri.com', body={},
-            headers=headers)
+        result = self.app.authenticate_api(body={}, headers=headers)
 
         self.assertIsNotNone(result)
         self.assertEqual(api_key.id, result.api_key.id)
@@ -56,9 +52,7 @@ class TestApiAuth(ApiKeyBase):
                     "{}:{}".format(api_key.id, 'INVALID').encode('utf-8'))
         }
 
-        result = self.app.authenticate_api(
-            allowed_scopes=[], http_method='GET', uri='some@uri.com', body={},
-            headers=headers)
+        result = self.app.authenticate_api(body={}, headers=headers)
 
         self.assertIsNone(result)
 
@@ -75,8 +69,7 @@ class TestApiAuth(ApiKeyBase):
         scopes = ['s1', 's2']
 
         result = self.app.authenticate_api(
-            allowed_scopes=scopes, http_method='GET', uri='some@uri.com',
-            body=body, headers=headers)
+            allowed_scopes=scopes, body=body, headers=headers)
 
         self.assertEqual(api_key.id, result.api_key.id)
         self.assertEqual(api_key.secret, result.api_key.secret)
@@ -87,8 +80,7 @@ class TestApiAuth(ApiKeyBase):
             'Authorization': b'Bearer ' + result.token.token.encode('utf-8')}
 
         result = self.app.authenticate_api(
-            allowed_scopes=scopes, http_method='GET', uri='some@uri.com',
-            body={}, headers=headers)
+            allowed_scopes=scopes, body={}, headers=headers)
 
         self.assertIsNotNone(result)
         self.assertEqual(acc.href, result.account.href)
@@ -106,8 +98,7 @@ class TestApiAuth(ApiKeyBase):
         scopes = ['s1', 's2']
 
         result = self.app.authenticate_api(
-            allowed_scopes=scopes, http_method='GET', uri='some@uri.com',
-            body=body, headers=headers)
+            allowed_scopes=scopes, body=body, headers=headers)
 
         self.assertEqual(api_key.id, result.api_key.id)
         self.assertEqual(api_key.secret, result.api_key.secret)
@@ -118,8 +109,7 @@ class TestApiAuth(ApiKeyBase):
             'Authorization': u('Bearer ') + result.token.token}
 
         result = self.app.authenticate_api(
-            allowed_scopes=scopes, http_method='GET', uri='some@uri.com',
-            body={}, headers=headers)
+            allowed_scopes=scopes, body={}, headers=headers)
 
         self.assertIsNotNone(result)
         self.assertEqual(acc.href, result.account.href)
@@ -128,8 +118,7 @@ class TestApiAuth(ApiKeyBase):
         headers = {'Authorization': b'Bearer INVALID_TOKEN'}
 
         result = self.app.authenticate_api(
-            allowed_scopes=[], http_method='GET', uri='some@uri.com',
-            body={}, headers=headers)
+            allowed_scopes=[], body={}, headers=headers)
 
         self.assertIsNone(result)
 
@@ -145,8 +134,7 @@ class TestApiAuth(ApiKeyBase):
         body = {'grant_type': 'client_credentials', 'scope': 's1'}
 
         result = self.app.authenticate_api(
-            allowed_scopes=['s1'], http_method='GET', uri='some@uri.com',
-            body=body, headers=headers)
+            allowed_scopes=['s1'], body=body, headers=headers)
 
         self.assertEqual(api_key.id, result.api_key.id)
         self.assertEqual(api_key.secret, result.api_key.secret)
@@ -157,7 +145,6 @@ class TestApiAuth(ApiKeyBase):
             'Authorization': b'Bearer ' + result.token.token.encode('utf-8')}
 
         result = self.app.authenticate_api(
-            allowed_scopes=['s1', 's2'], http_method='GET', uri='some@uri.com',
-            body={}, headers=headers)
+            allowed_scopes=['s1', 's2'], body={}, headers=headers)
 
         self.assertIsNone(result)
