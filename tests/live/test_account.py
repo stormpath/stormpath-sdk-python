@@ -1,5 +1,7 @@
 """Live tests of Accounts and authentication functionality."""
 
+from datetime import datetime
+
 from stormpath.error import Error
 
 from .base import AccountBase
@@ -176,3 +178,33 @@ class TestAccountGroups(AccountBase):
         self.assertFalse(account.in_group(group3))
 
         self.assertRaises(Error, account.remove_groups, [group3])
+
+
+class TestAccountProviderData(AccountBase):
+
+    def test_account_provider_data_get_exposed_readonly_timestamp_attrs(self):
+        name, acc = self.create_account(self.app.accounts)
+        pd = acc.provider_data
+
+        self.assertEqual(pd.created_at, pd['created_at'])
+        self.assertIsInstance(pd.created_at, datetime)
+        self.assertEqual(pd.modified_at, pd['modified_at'])
+        self.assertIsInstance(pd.modified_at, datetime)
+
+    def test_account_provider_data_modify_exposed_readonly_timestamps(self):
+        name, acc = self.create_account(self.app.accounts)
+        pd = acc.provider_data
+
+        with self.assertRaises(AttributeError):
+            pd.created_at = 'whatever'
+        with self.assertRaises(AttributeError):
+            pd['created_at'] = 'whatever'
+        with self.assertRaises(AttributeError):
+            pd.modified_at = 'whatever'
+        with self.assertRaises(AttributeError):
+            pd['modified_at'] = 'whatever'
+
+        with self.assertRaises(Exception):
+            del pd['created_at']
+        with self.assertRaises(Exception):
+            del pd['modified_at']

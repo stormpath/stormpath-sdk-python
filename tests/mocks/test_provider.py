@@ -2,6 +2,8 @@
 Integration tests for various pieces involved in external provider support.
 """
 
+from datetime import datetime
+from dateutil.tz import tzutc
 from unittest import TestCase, main
 from stormpath.resources import Provider
 
@@ -13,6 +15,7 @@ except ImportError:
 from stormpath.resources.account import Account
 from stormpath.resources.application import Application
 from stormpath.resources.directory import DirectoryList
+from stormpath.resources.provider_data import ProviderData
 
 
 class TestProvider(TestCase):
@@ -152,6 +155,52 @@ class TestProviderDirectories(TestCase):
                 'redirectUri': 'SOME_OTHER_URL',
                 'clientId': 'ID'
             })
+
+
+class TestProviderData(TestCase):
+
+    def test_provider_data_get_exposed_readonly_timestamp_attrs(self):
+        ds = MagicMock()
+        created_and_modified_at = datetime(
+            2015, 2, 26, 12, 0, 0 ,0, tzinfo=tzutc())
+        ds.get_resource.return_value = {
+            'created_at': '2015-02-26 12:00:00+00:00',
+            'modified_at': '2015-02-26 12:00:00+00:00'
+        }
+
+        pd = ProviderData(
+            client=MagicMock(data_store=ds, BASE_URL='http://example.com'),
+            href='provider-data')
+
+        self.assertEqual(pd.created_at, created_and_modified_at)
+        self.assertEqual(pd['created_at'], created_and_modified_at)
+        self.assertEqual(pd.modified_at, created_and_modified_at)
+        self.assertEqual(pd['modified_at'], created_and_modified_at)
+
+    def test_provider_data_modify_exposed_readonly_timestamp_attrs(self):
+        ds = MagicMock()
+        ds.get_resource.return_value = {
+            'created_at': '2015-02-26 12:00:00+00:00',
+            'modified_at': '2015-02-26 12:00:00+00:00'
+        }
+
+        pd = ProviderData(
+            client=MagicMock(data_store=ds, BASE_URL='http://example.com'),
+            href='provider-data')
+
+        with self.assertRaises(AttributeError):
+            pd.created_at = 'whatever'
+        with self.assertRaises(AttributeError):
+            pd['created_at'] = 'whatever'
+        with self.assertRaises(AttributeError):
+            pd.modified_at = 'whatever'
+        with self.assertRaises(AttributeError):
+            pd['modified_at'] = 'whatever'
+
+        with self.assertRaises(Exception):
+            del pd['created_at']
+        with self.assertRaises(Exception):
+            del pd['modified_at']
 
 
 if __name__ == '__main__':
