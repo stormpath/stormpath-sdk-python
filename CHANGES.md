@@ -1,3 +1,14 @@
+Version 2.0.0
+-------------
+
+**Released on March 2, 2015.**
+
+- Major release!
+- Changing the way timestamp fields are represented -- they're now represented
+  as `datetime` objects exclusively (no more strings). This makes developing
+  applications much simpler, and less error prone!
+
+
 Version 1.3.6
 -------------
 
