@@ -1,4 +1,7 @@
+from datetime import datetime
+from dateutil.tz import tzutc, tzoffset
 from unittest import TestCase, main
+
 try:
     from mock import MagicMock, patch
 except ImportError:
@@ -11,10 +14,15 @@ from stormpath.resources.custom_data import CustomData
 class TestCustomData(TestCase):
 
     def setUp(self):
+        self.created_at = datetime(
+            2014, 7, 16, 13, 48, 22, 378000, tzinfo=tzutc())
+        self.modified_at = datetime(
+            2014, 7, 16, 13, 48, 22, 378000, tzinfo=tzoffset(None, -1*60*60))
         self.props = {
             'href': 'test/resource',
             'sp_http_status': 200,
-            'createdAt': 123,
+            'createdAt': '2014-07-16T13:48:22.378Z',
+            'modifiedAt': '2014-07-16T13:48:22.378-01:00',
             'foo': 1,
             'bar': '2',
             'baz': ['one', 'two', 'three'],
@@ -37,14 +45,26 @@ class TestCustomData(TestCase):
 
         with self.assertRaises(AttributeError):
             self.createdAt
-        self.assertEqual(d.created_at, 123)
+        self.assertEqual(d.created_at, self.created_at)
+
+    def test_exposed_readonly_timestamp_values_in_dict_are_datetime(self):
+        d = CustomData(MagicMock(), properties=self.props)
+
+        self.assertIsInstance(d['created_at'], datetime)
+        self.assertIsInstance(d['modified_at'], datetime)
 
     def test_custom_data_implements_dict_protocol(self):
         d = CustomData(MagicMock(), properties=self.props)
 
+        self.assertTrue('created_at' in d)
+        self.assertTrue('modified_at' in d)
         self.assertTrue('foo' in d)
         self.assertEqual(d['foo'], 1)
+        self.assertEqual(d['created_at'], self.created_at)
+        self.assertEqual(d['modified_at'], self.modified_at)
         self.assertEqual(d.get('foo'), 1)
+        self.assertEqual(d.get('created_at'), self.created_at)
+        self.assertEqual(d.get('modified_at'), self.modified_at)
         self.assertEqual(d.get('nonexistent'), None)
         self.assertEqual(d.get('nonexistent', 42), 42)
 
@@ -53,7 +73,8 @@ class TestCustomData(TestCase):
 
         keys = set(sorted(d.keys(), key=str))
         self.assertEqual(keys, set(d))
-        self.assertEqual(keys, {'bar', 'baz', 'foo', 'quux'})
+        self.assertEqual(
+            keys, {'created_at', 'modified_at', 'bar', 'baz', 'foo', 'quux'})
         values = sorted(list(d.values()), key=str)
 
         keys_from_items = {k for k, v in d.items()}
@@ -73,6 +94,21 @@ class TestCustomData(TestCase):
 
         with self.assertRaises(KeyError):
             d['meta'] = 'i-am-so-meta'
+
+    def test_exposed_readonly_properties_cant_be_set(self):
+        d = CustomData(MagicMock(), properties=self.props)
+
+        with self.assertRaises(KeyError):
+            d['created_at'] = 111
+
+        with self.assertRaises(KeyError):
+            d['createdAt'] = 111
+
+    def test_exposed_readonly_properties_cant_be_deleted(self):
+        d = CustomData(MagicMock(), properties=self.props)
+
+        with self.assertRaises(KeyError):
+            del d['created_at']
 
     def test_camelcase_readonly_properties_cant_be_set(self):
         d = CustomData(MagicMock(), properties=self.props)
@@ -101,7 +137,8 @@ class TestCustomData(TestCase):
         del self.props['createdAt']
         del self.props['sp_http_status']
 
-        self.assertEqual(d._get_properties(), self.props)
+        props = {k: self.props[k] for k in set(self.props) - {'modifiedAt'}}
+        self.assertEqual(d._get_properties(), props)
 
     def test_manually_set_property_has_precedence(self):
         props = {

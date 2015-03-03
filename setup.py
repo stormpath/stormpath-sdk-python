@@ -45,7 +45,9 @@ class TestDepCommand(BaseCommand):
     description = "install test dependencies"
 
     def run(self):
-        cmd = ["pip", "install", "pytest", "pytest-cov", "mock"]
+        cmd = [
+            "pip", "install", "pytest", "pytest-cov", "mock",
+            "python-dateutil"]
         ret = subprocess.call(cmd)
         sys.exit(ret)
 
@@ -82,6 +84,7 @@ setup(
         'oauthlib>=0.6.3',
         'requests>=2.4.3',
         'six>=1.6.1',
+        'python-dateutil>=2.4.0'
     ],
     packages = find_packages(exclude=['tests']),
     classifiers = [
