@@ -85,8 +85,8 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
             A specific :class:`stormpath.resources.account_store.AccountStore`
             object to authenticate against (optional)
         """
-        return self.login_attempts.basic_auth(login, password, expand,
-            account_store)
+        return self.login_attempts.basic_auth(
+            login, password, expand, account_store, app=self)
 
     def get_provider_account(self, provider, **provider_kwargs):
         """Used for getting account data from 3rd party Providers

@@ -8,6 +8,9 @@ from oauthlib.oauth2 import BackendApplicationServer as Oauth2BackendApplication
 from oauthlib.oauth2 import BackendApplicationClient as Oauth2BackendApplicationClient
 from oauthlib.common import to_unicode
 
+from stormpath.error import Error as StormpathError
+
+
 GRANT_TYPE_CLIENT_CREDENTIALS = 'client_credentials'
 GRANT_TYPES = [GRANT_TYPE_CLIENT_CREDENTIALS]
 DEFAULT_TTL = 3600
@@ -16,6 +19,7 @@ DEFAULT_TTL = 3600
 class DummyRequest(object):
     """Used to model the same flow for Basic and Bearer"""
     def __init__(self, api_key):
+        self.account = None
         self.api_key = api_key
 
 
@@ -45,12 +49,26 @@ class AccessToken(object):
         self.token = token
         self.app = app
         self.token_scopes = []
+        self.account = None
         self.api_key = None
+        self.for_api_key = True
 
         # get raw data without validation
         try:
             data = jwt.decode(self.token, verify=False)
             self.client_id = data.get('sub', '')
+            try:
+                self.account = self.app.accounts.get(data.get('sub', ''))
+
+                # We're accessing account.username here to force
+                # evaluation of this Account -- this allows us to check
+                # and see whether or not this Account is actually
+                # valid.
+                self.account.username
+            except StormpathError:
+                self.account = None
+            if self.account:
+                self.for_api_key = False
             self.api_key = self.app.api_keys.get_key(self.client_id)
             self.exp = data.get('exp', 0)
             self.scopes = data.get('scope', '').split(' ')
@@ -61,8 +79,14 @@ class AccessToken(object):
         return self.token
 
     def _is_valid(self):
-        if ((self.api_key and self.api_key.is_enabled()) and
-                 datetime.datetime.utcnow() < datetime.datetime.utcfromtimestamp(float(self.exp))):
+        if self.for_api_key:
+            valid = self.api_key and self.api_key.is_enabled()
+        else:
+            valid = bool(self.account)
+
+        if valid and \
+                datetime.datetime.utcnow() < \
+                    datetime.datetime.utcfromtimestamp(float(self.exp)):
 
             try:
                 jwt.decode(self.token, self.app._client.auth.secret)
@@ -83,10 +107,10 @@ class AccessToken(object):
 
 
 class ApiAuthenticationResult(object):
-    def __init__(self, api_key, access_token):
+    def __init__(self, account, api_key, access_token):
         self.api_key = api_key
         self.token = access_token
-        self.account = self.api_key.account
+        self.account = self.api_key.account if self.api_key else account
 
 
 class SPOauth2RequestValidator(Oauth2RequestValidator):
@@ -139,6 +163,7 @@ class SPOauth2RequestValidator(Oauth2RequestValidator):
     def validate_bearer_token(self, token, scopes, request):
         # Remember to check expiration and scope membership
         access_token = AccessToken(self.app, token)
+        request.account = access_token.account
         request.api_key = access_token.api_key
         if access_token._is_valid() and access_token._within_scope(scopes):
             return True
@@ -227,5 +252,6 @@ def authenticate(app=None, allowed_scopes=None, http_method='', uri='',
     valid, r = _authenticate_request(app, allowed_scopes, http_method, uri, body, headers, ttl=ttl)
     if not valid:
         return None
-    return ApiAuthenticationResult(api_key=r.api_key, access_token=access_token)
+    return ApiAuthenticationResult(
+        account=r.account, api_key=r.api_key, access_token=access_token)
 
