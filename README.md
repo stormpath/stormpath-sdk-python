@@ -98,7 +98,7 @@ If you know the full
 `application` and `directory` objects directly, like so:
 
 ```python
-application = client.applications.get('https://api.stormpath.com/v1/application/<uid>')
+application = client.applications.get('https://api.stormpath.com/v1/applications/<uid>')
 directory = client.directories.get('https://api.stormpath.com/v1/directories/<uid>')
 ```
 
