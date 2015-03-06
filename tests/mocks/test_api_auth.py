@@ -7,9 +7,10 @@ try:
 except ImportError:
     from unittest.mock import patch, MagicMock, PropertyMock
 
-from stormpath.resources.base import StatusMixin
-from stormpath.resources.api_key import ApiKey
 from stormpath.api_auth import authenticate, AccessToken
+from stormpath.error import Error as StormpathError
+from stormpath.resources import Account
+from stormpath.resources.base import StatusMixin
 
 FAKE_CLIENT_ID = 'fake_client_id'
 FAKE_CLIENT_SECRET = 'fake_client_secret'
@@ -258,10 +259,17 @@ class ApiAuthTest(TestCase):
         app.href = 'HREF'
         api_keys = MagicMock()
         api_keys.get_key = lambda k, s=None: MagicMock(
-                id=FAKE_CLIENT_ID, secret=FAKE_CLIENT_SECRET, status=StatusMixin.STATUS_ENABLED)
+            id=FAKE_CLIENT_ID, secret=FAKE_CLIENT_SECRET,
+            status=StatusMixin.STATUS_ENABLED)
         app.api_keys = api_keys
+        ds = MagicMock()
+        ds.get_resource.side_effect = StormpathError(
+            {'developerMessage': 'No username on account.'})
+        client = MagicMock(data_store=ds)
+        app.accounts.get.return_value = Account(client=client, href='account')
 
-        basic_auth = base64.b64encode("{}:{}".format(FAKE_CLIENT_ID, FAKE_CLIENT_SECRET).encode('utf-8'))
+        basic_auth = base64.b64encode(
+            "{}:{}".format(FAKE_CLIENT_ID, FAKE_CLIENT_SECRET).encode('utf-8'))
 
         uri = 'https://example.com/get'
         http_method = 'GET'
@@ -272,7 +280,8 @@ class ApiAuthTest(TestCase):
 
         allowed_scopes = ['test1']
 
-        result = authenticate(app, allowed_scopes, http_method, uri, body, headers)
+        result = authenticate(
+            app, allowed_scopes, http_method, uri, body, headers)
         self.assertIsNotNone(result)
         self.assertIsNotNone(result.token)
         token = result.token
@@ -283,7 +292,8 @@ class ApiAuthTest(TestCase):
 
         api_keys.get_key = lambda k, s=None: None
 
-        result = authenticate(app, allowed_scopes, http_method, uri, body, headers)
+        result = authenticate(
+            app, allowed_scopes, http_method, uri, body, headers)
         self.assertIsNone(result)
 
     def test_valid_bearer_token_but_disabled_api_key(self):
@@ -294,6 +304,15 @@ class ApiAuthTest(TestCase):
         api_keys.get_key = lambda k, s=None: MagicMock(
                 id=FAKE_CLIENT_ID, secret=FAKE_CLIENT_SECRET, status=StatusMixin.STATUS_ENABLED)
         app.api_keys = api_keys
+        api_keys.get_key = lambda k, s=None: MagicMock(
+            id=FAKE_CLIENT_ID, secret=FAKE_CLIENT_SECRET,
+            status=StatusMixin.STATUS_ENABLED)
+        app.api_keys = api_keys
+        ds = MagicMock()
+        ds.get_resource.side_effect = StormpathError(
+            {'developerMessage': 'No username on account.'})
+        client = MagicMock(data_store=ds)
+        app.accounts.get.return_value = Account(client=client, href='account')
 
         basic_auth = base64.b64encode("{}:{}".format(FAKE_CLIENT_ID, FAKE_CLIENT_SECRET).encode('utf-8'))
 
