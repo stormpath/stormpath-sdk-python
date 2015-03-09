@@ -1,3 +1,14 @@
+Version 2.0.1
+-------------
+
+**Released on March 9, 2015.**
+
+- Fixing Google App Engine specific bug: GAE won't let users import `win32_ver`
+  as their sandbox mode breaks it :(  This is a dirty hack to make things work
+  for our super awesome, wonderful, and incredibly brilliant GAE users.  <333
+  ya'll!
+
+
 Version 2.0.0
 -------------
 
