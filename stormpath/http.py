@@ -5,10 +5,19 @@ import random
 
 from collections import OrderedDict
 from json import dumps
-from platform import platform, mac_ver, win32_ver, linux_distribution, system
 from requests import Session
 from requests.exceptions import RequestException
 from sys import version_info as vi
+
+# Hack for Google App Engine
+# GAE doesn't allow users to import `win32_ver` as it's sandbox mode rips
+# `_winreg` out of the standard library :(  This patch works by creating a stub
+# replacement for it that won't error.
+try:
+    from platform import platform, mac_ver, win32_ver, linux_distribution, system
+except ImportError:
+    win32_ver = lambda: ('', '', '', '')
+
 
 from stormpath import __version__ as STORMPATH_VERSION
 from .error import Error
