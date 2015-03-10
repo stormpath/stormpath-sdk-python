@@ -70,7 +70,8 @@ class TestApiAuth(ApiKeyBase):
         scopes = ['s1', 's2']
 
         result = self.app.authenticate_api(
-            allowed_scopes=scopes, body=body, headers=headers)
+            allowed_scopes=scopes, body=body, headers=headers,
+            locations=['header'])
 
         self.assertEqual(api_key.id, result.api_key.id)
         self.assertEqual(api_key.secret, result.api_key.secret)
@@ -85,6 +86,43 @@ class TestApiAuth(ApiKeyBase):
 
         self.assertIsNotNone(result)
         self.assertEqual(acc.href, result.account.href)
+
+    def test_basic_api_authentication_with_grant_type_in_uri_gets_token(self):
+        _, acc = self.create_account(self.app.accounts)
+        api_key = self.create_api_key(acc)
+
+        headers = {
+            'Authorization':
+                b'Basic ' + base64.b64encode(
+                    "{}:{}".format(api_key.id, api_key.secret).encode('utf-8'))
+        }
+        body = {'scope': 's1 s2'}
+        scopes = ['s1', 's2']
+        uri = 'https://example.com/get?grant_type=client_credentials'
+
+        result = self.app.authenticate_api(
+            uri=uri, allowed_scopes=scopes, body=body, headers=headers)
+
+        self.assertIsNotNone(result.token)
+        self.assertEqual(result.token.scopes, scopes)
+
+    def test_basic_api_auth_w_wrong_grant_type_in_uri_does_not_get_token(self):
+        _, acc = self.create_account(self.app.accounts)
+        api_key = self.create_api_key(acc)
+
+        headers = {
+            'Authorization':
+                b'Basic ' + base64.b64encode(
+                    "{}:{}".format(api_key.id, api_key.secret).encode('utf-8'))
+        }
+        body = {'scope': 's1 s2'}
+        scopes = ['s1', 's2']
+        uri = 'https://example.com/get?grant_type=invalid_grant_type'
+
+        result = self.app.authenticate_api(
+            uri=uri, allowed_scopes=scopes, body=body, headers=headers)
+
+        self.assertIsNone(result.token)
 
     def test_bearer_api_authentication_with_unicode_succeeds(self):
         _, acc = self.create_account(self.app.accounts)
@@ -269,3 +307,48 @@ class TestApiAuth(ApiKeyBase):
 
         result = self.app.authenticate_api(body={}, headers=headers)
         self.assertIsNone(result)
+
+    def test_account_authentication_with_access_token_in_url(self):
+        _, acc = self.create_account(self.app.accounts)
+        pwd = 'Pwd123456789'
+        acc.password = pwd
+        acc.save()
+
+        auth_result = self.app.authenticate_account(acc.username, pwd)
+        at = auth_result.get_access_token()
+
+        uri = 'https://example.com/get?access_token=' + at.token
+
+        result = self.app.authenticate_api(
+            body={}, headers={}, uri=uri , locations=['url'])
+        self.assertIsNotNone(result)
+
+    def test_account_authentication_w_access_token_in_url_wout_locations(self):
+        _, acc = self.create_account(self.app.accounts)
+        pwd = 'Pwd123456789'
+        acc.password = pwd
+        acc.save()
+
+        auth_result = self.app.authenticate_account(acc.username, pwd)
+        at = auth_result.get_access_token()
+
+        uri = 'https://example.com/get?access_token=' + at.token
+
+        result = self.app.authenticate_api(
+            body={}, headers={}, uri=uri)
+        self.assertIsNone(result)
+
+    def test_account_authentication_with_access_token_in_body(self):
+        _, acc = self.create_account(self.app.accounts)
+        pwd = 'Pwd123456789'
+        acc.password = pwd
+        acc.save()
+
+        auth_result = self.app.authenticate_account(acc.username, pwd)
+        at = auth_result.get_access_token()
+
+        body = {'access_token': at.token}
+
+        result = self.app.authenticate_api(
+            body=body, headers={}, locations=['body'])
+        self.assertIsNotNone(result)

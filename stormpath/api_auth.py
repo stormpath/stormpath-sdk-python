@@ -1,6 +1,10 @@
 import base64
 import datetime
 import json
+try:
+    from urlparse import urlparse, parse_qs
+except ImportError:
+    from urllib.parse import urlparse, parse_qs
 
 import jwt
 from oauthlib.oauth2 import RequestValidator as Oauth2RequestValidator
@@ -14,6 +18,8 @@ from stormpath.error import Error as StormpathError
 GRANT_TYPE_CLIENT_CREDENTIALS = 'client_credentials'
 GRANT_TYPES = [GRANT_TYPE_CLIENT_CREDENTIALS]
 DEFAULT_TTL = 3600
+DEFAULT_ACCESS_TOKEN_LOCATIONS = ['header', 'body']
+VALID_ACCESS_TOKEN_LOCATIONS = ['header', 'body', 'url']
 
 
 class DummyRequest(object):
@@ -212,9 +218,8 @@ def _get_bearer_token(app, allowed_scopes, http_method, uri, body, headers, ttl=
     return None
 
 
-def _authenticate_request(app, allowed_scopes, http_method, uri, body, headers, ttl=DEFAULT_TTL):
-    authorization = headers.get('Authorization')
-    auth_type = authorization.split(' ')[0]
+def _authenticate_request(auth_type, app, allowed_scopes, http_method,
+                          uri, body, headers, ttl=DEFAULT_TTL):
     if auth_type == 'Basic':
         validator = SPBasicAuthRequestValidator(app=app, headers=headers)
         valid, r = validator.verify_request()
@@ -228,28 +233,47 @@ def _authenticate_request(app, allowed_scopes, http_method, uri, body, headers, 
 
 
 def authenticate(app=None, allowed_scopes=None, http_method='', uri='',
-                 body=None, headers=None, ttl=DEFAULT_TTL):
+                 body=None, headers=None, ttl=DEFAULT_TTL, locations=None):
     if body is None:
         raise ValueError("body can't be None")
     if headers is None:
         raise ValueError("headers can't be None")
     if allowed_scopes is None:
         allowed_scopes = []
-
+    if locations is None:
+        locations = DEFAULT_ACCESS_TOKEN_LOCATIONS
+    else:
+        locations = list(set(locations) & set(VALID_ACCESS_TOKEN_LOCATIONS))
     for k, v in headers.items():
         headers[k] = to_unicode(v, 'ascii')
     jwt_token = None
     access_token = None
-    auth_header = headers.get('Authorization')
-    auth_scheme = auth_header.split(' ')[0]
-    if auth_scheme == 'Basic':
-        if body.get('grant_type'):
-            jwt_token = _get_bearer_token(app, allowed_scopes, http_method, uri, body, headers, ttl=ttl)
-    if auth_scheme == 'Bearer':
-        jwt_token = auth_header.split(' ')[1]
+    auth_scheme = None
+    url_qs = parse_qs(urlparse(uri).query)
+
+    if 'url' in locations and 'access_token' in url_qs:
+        auth_scheme = 'Bearer'
+        jwt_token = url_qs.get('access_token')[0]
+    elif 'header' in locations and 'Authorization' in headers:
+        auth_header = headers.get('Authorization')
+        auth_scheme = auth_header.split(' ')[0]
+        if auth_scheme == 'Basic':
+            if body.get('grant_type') or url_qs.get('grant_type'):
+                jwt_token = _get_bearer_token(
+                    app, allowed_scopes, http_method, uri, body, headers,
+                    ttl=ttl)
+        if auth_scheme == 'Bearer':
+            jwt_token = auth_header.split(' ')[1]
+    elif 'body' in locations and 'access_token' in body:
+        auth_scheme = 'Bearer'
+        jwt_token = body.get('access_token')
+
     if jwt_token:
         access_token = AccessToken(app, jwt_token)
-    valid, r = _authenticate_request(app, allowed_scopes, http_method, uri, body, headers, ttl=ttl)
+
+    valid, r = _authenticate_request(
+        auth_scheme, app, allowed_scopes, http_method, uri, body, headers,
+        ttl=ttl)
     if not valid:
         return None
     return ApiAuthenticationResult(
