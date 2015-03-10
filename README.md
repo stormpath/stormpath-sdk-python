@@ -9,6 +9,10 @@ Stormpath is the first simple and secure user management and authentication
 service for developers *like you*.  This Python SDK makes using Stormpath with
 your application a painless, and even enjoyable process.
 
+**NOTE**: This library will NOT work on Google App Engine due to incompatibility
+with the [requests](http://stackoverflow.com/questions/9604799/can-python-requests-library-be-used-on-google-app-engine)
+package.
+
 
 ## Install
 
