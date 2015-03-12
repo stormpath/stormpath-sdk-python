@@ -4,6 +4,7 @@ like list access, updates, saves, deletes, attribute fetching, iterations etc.
 """
 
 from copy import deepcopy
+from dateutil.parser import parse
 
 try:
     string_type = basestring
@@ -135,6 +136,8 @@ class Resource(object):
                 # No idea what kind of resource it is, but let's load it
                 # it anyways.
                 value = Resource(self._client, href=value['href'])
+            elif name in ['created_at', 'modified_at']:
+                value = parse(value)
 
             self.__dict__[name] = value
 
@@ -239,7 +242,9 @@ class SaveMixin(object):
         if self.is_new():
             raise ValueError("Can't save new resources, use create instead")
 
-        self._store.update_resource(self.href, self._get_properties())
+        data = self._store.update_resource(self.href, self._get_properties())
+        if hasattr(self, 'modified_at') and 'modifiedAt' in data:
+            self.__dict__['modified_at'] = parse(data.get('modifiedAt'))
 
 
 class AutoSaveMixin(SaveMixin):
