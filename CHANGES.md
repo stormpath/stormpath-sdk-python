@@ -1,3 +1,17 @@
+Version 2.0.2
+-------------
+
+**Released on March 12, 2015.**
+
+- Simplifying the API authentication method signatures. It's now MUCH simpler to
+  perform API authentication as almost all parameters are optional =)
+- Adding in support for generating JWTs after an account has been authenticated.
+  This opens the door for smarter sessions, as well as sophisticated API
+  authentication and OAuth2 flows.
+- Adding `created_at` and `modified_at` properties to all resources.  This
+  allows developers to get more information for their usage purposes.
+
+
 Version 2.0.1
 -------------
 
