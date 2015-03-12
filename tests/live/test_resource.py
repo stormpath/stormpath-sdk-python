@@ -3,6 +3,8 @@
 We can use (almost) any resource here - Account is a convenient choice.
 """
 import jwt
+from time import sleep
+
 from stormpath.cache.entry import CacheEntry
 from stormpath.resources.base import Expansion
 
@@ -61,6 +63,20 @@ class TestResource(AccountBase):
             acc_entry_before.last_accessed_at,
             acc_entry_after.last_accessed_at)
 
+    def test_created_and_modified_at(self):
+        _, acc = self.create_account(self.app.accounts)
+        created_at_before, modified_at_before = acc.created_at, acc.modified_at
+
+        sleep(1)
+        acc.update({'surname': 'Surname'})
+        created_at_after, modified_at_after = acc.created_at, acc.modified_at
+
+        self.assertEqual(created_at_before, created_at_after)
+        self.assertTrue(modified_at_before < modified_at_after)
+
+        with self.assertRaises(AttributeError):
+            acc.update({'created_at': 'whatever'})
+
 
 class TestCollectionResource(AccountBase):
 
@@ -107,6 +123,25 @@ class TestCollectionResource(AccountBase):
             {'username': self.accounts[0].username})
         self.assertTrue(len(accs), 1)
         self.assertEqual(accs[0].href, self.accounts[0].href)
+
+    def test_search_datetime(self):
+        earliest_created_at = self.app.accounts.order(
+            'created_at')[0].created_at
+        latest_created_at = self.app.accounts.order(
+            'created_at desc')[0].created_at
+
+        self.assertEqual(
+            len(self.app.accounts.search({'created_at': '[,2015-01-01]'})), 0)
+        self.assertEqual(
+            len(self.app.accounts.search({'created_at': '[2015-01-01,]'})), 5)
+        self.assertEqual(
+            len(self.app.accounts.search({'created_at': '[%s,%s]' % (
+                earliest_created_at.isoformat(),
+                latest_created_at.isoformat())})),
+            5)
+        self.assertTrue(
+            len(self.app.accounts.search(
+                {'created_at': earliest_created_at.isoformat()})) > 0)
 
     def test_pagination(self):
         page1 = self.app.accounts.order('username asc')[:2]

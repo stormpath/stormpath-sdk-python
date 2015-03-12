@@ -1,4 +1,7 @@
 from unittest import TestCase, main
+from datetime import datetime
+from dateutil.tz import tzutc, tzoffset
+
 try:
     from mock import MagicMock, patch, create_autospec
 except ImportError:
@@ -180,6 +183,8 @@ class TestBaseResource(TestCase):
     def test_resource_init_by_properties(self):
         r = Resource(MagicMock(), properties={
             'href': 'test/resource',
+            'createdAt': '2014-07-16T13:48:22.378Z',
+            'modifiedAt': '2014-07-16T13:48:22.378+01:00',
             'name': 'Test Resource',
             'someProperty': 'value'
         })
@@ -190,11 +195,24 @@ class TestBaseResource(TestCase):
         self.assertEqual(r.href, 'test/resource')
         # we can access the attributes
         self.assertEqual(r.name, 'Test Resource')
+        # there is created_at attribute
+        self.assertEqual(
+            r.created_at,
+            datetime(2014, 7, 16, 13, 48, 22, 378000, tzinfo=tzutc()))
+        # there is modified_at attribute
+        self.assertEqual(
+            r.modified_at,
+            datetime(
+                2014, 7, 16, 13, 48, 22, 378000, tzinfo=tzoffset(None, 3600)))
         # attribute name was correctly converted
         self.assertEqual(r.some_property, 'value')
         # there are no writable attributes
         with self.assertRaises(AttributeError):
             r.name = 5
+        with self.assertRaises(AttributeError):
+            r.created_at = 'whatever'
+        with self.assertRaises(AttributeError):
+            r.modified_at = 'whatever'
 
     def test_resource_materialization(self):
         ds = MagicMock()
