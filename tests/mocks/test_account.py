@@ -1,15 +1,14 @@
-import base64
-
 from unittest import TestCase, main
-from stormpath.client import Client
+
 try:
     from mock import patch, MagicMock, PropertyMock, create_autospec
 except ImportError:
     from unittest.mock import patch, MagicMock, PropertyMock, create_autospec
 
 from stormpath.resources.account import Account
-from stormpath.resources.group import Group, GroupList
 from stormpath.resources.directory import Directory
+from stormpath.resources.group import Group, GroupList
+from stormpath.resources.login_attempt import AuthenticationResult
 
 
 class TestAccount(TestCase):
@@ -109,6 +108,21 @@ class TestAccount(TestCase):
         d._set_properties({'groups': gs})
         self.account._set_properties({'directory': d, 'groups': gs})
         self.assertTrue(self.account.has_group('group'))
+
+    def test_login_attempt(self):
+        app = MagicMock()
+        app.accounts.get.return_value = self.account
+        app._client.auth.secret = 'fakeApiKeyProperties.secret'
+        app.href = 'http://example.com/application'
+
+        ar = AuthenticationResult(
+            client=self.client,
+            properties={'account': self.account, 'application': app})
+        at = ar.get_access_token()
+
+        self.assertEqual(self.account, at.account)
+        self.assertEqual(app, at.app)
+        self.assertFalse(at.for_api_key)
 
 
 if __name__ == '__main__':

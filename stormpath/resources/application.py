@@ -85,8 +85,8 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
             A specific :class:`stormpath.resources.account_store.AccountStore`
             object to authenticate against (optional)
         """
-        return self.login_attempts.basic_auth(login, password, expand,
-            account_store)
+        return self.login_attempts.basic_auth(
+            login, password, expand, account_store, app=self)
 
     def get_provider_account(self, provider, **provider_kwargs):
         """Used for getting account data from 3rd party Providers
@@ -155,10 +155,13 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
         data = {'password': password}
         self._store.create_resource(href=href, data=data)
 
-    def authenticate_api(self, allowed_scopes, http_method, uri, body, headers, **kwargs):
+    def authenticate_api(self, allowed_scopes=None, http_method='', uri='',
+                         body=None, headers=None, locations=None, **kwargs):
         from ..api_auth import authenticate
 
-        return authenticate(self, allowed_scopes, http_method, uri, body, headers, **kwargs)
+        return authenticate(
+            app=self, allowed_scopes=allowed_scopes, http_method=http_method,
+            uri=uri, body=body, headers=headers, locations=locations, **kwargs)
 
     def build_id_site_redirect_url(self, callback_uri, path=None, state=None, logout=False):
         """Builds a redirect uri for ID site.
