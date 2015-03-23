@@ -278,4 +278,3 @@ def authenticate(app=None, allowed_scopes=None, http_method='', uri='',
         return None
     return ApiAuthenticationResult(
         account=r.account, api_key=r.api_key, access_token=access_token)
-
