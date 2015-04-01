@@ -25,16 +25,18 @@ class Tenant(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin):
 
     @staticmethod
     def get_resource_attributes():
-        from .application import ApplicationList
-        from .directory import DirectoryList
-        from .custom_data import CustomData
         from .account import AccountList
+        from .agent import AgentList
+        from .application import ApplicationList
+        from .custom_data import CustomData
+        from .directory import DirectoryList
         from .group import GroupList
 
         return {
-            'custom_data': CustomData,
-            'applications': ApplicationList,
-            'directories': DirectoryList,
             'accounts': AccountList,
-            'groups': GroupList
+            'agents': AgentList,
+            'applications': ApplicationList,
+            'custom_data': CustomData,
+            'directories': DirectoryList,
+            'groups': GroupList,
         }

@@ -27,7 +27,16 @@ class Provider(Resource, DeleteMixin, DictMixin, SaveMixin):
         'client_secret',
         'redirect_uri',
         'provider_id',
+        'agent',
     )
+
+    @staticmethod
+    def get_resource_attributes():
+        from .agent import Agent
+
+        return {
+            'agent': Agent
+        }
 
     def save(self):
         if self.provider_id == self.STORMPATH:
