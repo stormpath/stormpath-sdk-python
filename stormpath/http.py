@@ -1,5 +1,6 @@
 """HTTP request handling utilities."""
 
+import cgi
 import time
 import random
 
@@ -126,9 +127,15 @@ class HttpExecutor(object):
     def return_response(self, r):
         if not r.text:
             return {}
-
-        d = r.json()
-        d['sp_http_status'] = r.status_code
+        try:
+            d = r.json()
+            d['sp_http_status'] = r.status_code
+        except ValueError:
+            d = {}
+            d['content'] = r.content
+            _, params = cgi.parse_header(
+                r.headers.get('Content-Disposition', ''))
+            d['filename'] = params.get('filename')
         return d
 
     def request(self, method, url, data=None, params=None, retry_count=0):

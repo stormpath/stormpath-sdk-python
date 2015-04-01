@@ -40,6 +40,21 @@ class HttpTest(TestCase):
         self.assertEqual(data, s.request.return_value.json.return_value)
 
     @patch('stormpath.http.Session')
+    def test_get_binary_request(self, Session):
+        s = Session.return_value
+        s.request.return_value.json.side_effect = ValueError
+        s.request.return_value.status_code = 200
+        s.request.return_value.content = 'some content'
+        s.request.return_value.headers = {
+            'Content-Disposition': 'attachment; filename="some_archive.zip"'}
+
+        ex = HttpExecutor('http://api.stormpath.com/v1', ('user', 'pass'))
+        data = ex.get('/test')
+
+        self.assertEqual(
+            data, {'content': 'some content', 'filename': 'some_archive.zip'})
+
+    @patch('stormpath.http.Session')
     def test_get_request_error(self, Session):
         s = Session.return_value
         s.request.return_value.status_code = 400
