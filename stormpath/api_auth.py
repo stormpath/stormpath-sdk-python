@@ -235,7 +235,7 @@ def _authenticate_request(auth_type, app, allowed_scopes, http_method,
 def authenticate(app=None, allowed_scopes=None, http_method='', uri='',
                  body=None, headers=None, ttl=DEFAULT_TTL, locations=None):
     if body is None:
-        raise ValueError("body can't be None")
+        body = {}
     if headers is None:
         raise ValueError("headers can't be None")
     if allowed_scopes is None:
