@@ -77,7 +77,8 @@ class AccessToken(object):
                 self.for_api_key = False
             self.api_key = self.app.api_keys.get_key(self.client_id)
             self.exp = data.get('exp', 0)
-            self.scopes = data.get('scope', '').split(' ')
+            self.scopes = data.get('scope', '') if data.get('scope') else ''
+            self.scopes = self.scopes.split(' ')
         except jwt.DecodeError:
             pass
 
