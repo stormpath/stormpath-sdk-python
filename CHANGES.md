@@ -1,3 +1,13 @@
+Version 2.0.3
+-------------
+
+**Released on April 1, 2015.**
+
+- Improving API authentication API.  It now allows for API authentication
+  WITHOUT OAuth2 scopes, as well as an empty body.  This makes the parameters
+  much simpler for users, and makes more sense.
+
+
 Version 2.0.2
 -------------
 
