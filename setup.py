@@ -84,7 +84,8 @@ setup(
         'oauthlib>=0.6.3',
         'requests>=2.4.3',
         'six>=1.6.1',
-        'python-dateutil>=2.4.0'
+        'python-dateutil>=2.4.0',
+        'pydispatcher>=2.0.5'
     ],
     packages = find_packages(exclude=['tests']),
     classifiers = [
