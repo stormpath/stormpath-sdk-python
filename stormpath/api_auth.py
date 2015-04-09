@@ -61,7 +61,7 @@ class AccessToken(object):
 
         # get raw data without validation
         try:
-            data = jwt.decode(self.token, verify=False)
+            data = jwt.decode(self.token, verify=False, algorithms=['HS256'])
             self.client_id = data.get('sub', '')
             try:
                 self.account = self.app.accounts.get(data.get('sub', ''))
@@ -96,7 +96,9 @@ class AccessToken(object):
                     datetime.datetime.utcfromtimestamp(float(self.exp)):
 
             try:
-                jwt.decode(self.token, self.app._client.auth.secret)
+                jwt.decode(
+                    self.token, self.app._client.auth.secret,
+                    algorithms=['HS256'])
             except jwt.DecodeError:
                 return False
 

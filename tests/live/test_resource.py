@@ -220,7 +220,8 @@ class TestIdSite(ApiKeyBase):
             self.fail("Failed to parse ID site redirect uri")
 
         try:
-            decoded_data = jwt.decode(jwt_response, verify=False)
+            decoded_data = jwt.decode(
+                jwt_response, verify=False, algorithms=['HS256'])
         except jwt.DecodeError:
             self.fail("Invaid JWT generated.")
 
@@ -245,7 +246,8 @@ class TestIdSite(ApiKeyBase):
             self.fail("Failed to parse ID site redirect uri")
 
         try:
-            decoded_data = jwt.decode(jwt_response, verify=False)
+            decoded_data = jwt.decode(
+                jwt_response, verify=False, algorithms=['HS256'])
         except jwt.DecodeError:
             self.fail("Invaid JWT generated.")
 
