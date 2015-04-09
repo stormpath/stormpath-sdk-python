@@ -11,6 +11,13 @@ try:
 except NameError:
     string_type = str
 
+from pydispatch import dispatcher
+
+
+SIGNAL_RESOURCE_CREATED = 'resource-created'
+SIGNAL_RESOURCE_UPDATED = 'resource-updated'
+SIGNAL_RESOURCE_DELETED = 'resource-deleted'
+
 
 class Expansion(object):
     """Handles resource expansions.
@@ -242,7 +249,13 @@ class SaveMixin(object):
         if self.is_new():
             raise ValueError("Can't save new resources, use create instead")
 
-        data = self._store.update_resource(self.href, self._get_properties())
+        properties = self._get_properties()
+        data = self._store.update_resource(self.href, properties)
+
+        dispatcher.send(
+            signal=SIGNAL_RESOURCE_UPDATED, sender=self, href=self.href,
+            properties=properties)
+
         if hasattr(self, 'modified_at') and 'modifiedAt' in data:
             self.__dict__['modified_at'] = parse(data.get('modifiedAt'))
 
@@ -263,6 +276,9 @@ class DeleteMixin(object):
             return
 
         self._store.delete_resource(self.href)
+
+        dispatcher.send(
+            signal=SIGNAL_RESOURCE_DELETED, sender=self, href=self.href)
 
 
 class StatusMixin(object):
@@ -456,7 +472,7 @@ class CollectionResource(Resource):
         if expand:
             params.update({'expand': expand.get_params()})
 
-        return self.resource_class(
+        created = self.resource_class(
             self._client,
             properties=self._store.create_resource(
                 self._get_create_path(),
@@ -464,3 +480,9 @@ class CollectionResource(Resource):
                 params=params
             )
         )
+
+        dispatcher.send(
+            signal=SIGNAL_RESOURCE_CREATED, sender=self.resource_class,
+            data=data, params=params)
+
+        return created
