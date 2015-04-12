@@ -1,6 +1,9 @@
 """Custom error classes."""
 
 
+from six import string_types
+
+
 class Error(RuntimeError):
     """Error returned from the StormPath API service.
 
@@ -31,6 +34,13 @@ class Error(RuntimeError):
                 return int(val)
             except:
                 return -1
+
+        if isinstance(error, string_types):
+            error = {
+                'developerMessage': error,
+                'userMessage': 'Unknown error.',
+                'moreInfo': '',
+            }
 
         msg = error.get('developerMessage', 'Unknown error' +
             ((' (%d)' % http_status) if http_status else ''))
