@@ -1,3 +1,11 @@
+Version 2.0.5
+-------------
+
+**Not yet released.**
+
+- Updating the pyjwt dependency to fix JWT security issues.
+
+
 Version 2.0.4
 -------------
 
