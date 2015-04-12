@@ -1,3 +1,13 @@
+Version 2.0.4
+-------------
+
+**Released on April 12, 2015.**
+
+- Adding in hotfix for the Stormpath Error class.  It now supports string only
+  arguments, which makes the library more flexible for handling weird edge
+  cases.
+
+
 Version 2.0.3
 -------------
 
