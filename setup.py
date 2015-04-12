@@ -80,7 +80,7 @@ setup(
     zip_safe = False,
     keywords = ['stormpath', 'authentication', 'users', 'security'],
     install_requires = [
-        'PyJWT>=0.2.1',
+        'PyJWT>=1.0.0',
         'oauthlib>=0.6.3',
         'requests>=2.4.3',
         'six>=1.6.1',
