@@ -1,9 +1,11 @@
 Version 2.0.5
 -------------
 
-**Not yet released.**
+**Released on April 16, 2015.**
 
 - Updating the pyjwt dependency to fix JWT security issues.
+- Adding support for Mirror Directories and Agents (*this lets users manage
+  Active Directory and LDAP systems*).
 
 
 Version 2.0.4
