@@ -121,6 +121,8 @@ class Resource(object):
         elif isinstance(value, dict):
             return {Resource.to_camel_case(k): Resource._sanitize_property(v)
                 for k, v in value.items()}
+        elif isinstance(value, FixedAttrsDict):
+            return value._get_properties()
         else:
             return value
 
@@ -464,3 +466,74 @@ class CollectionResource(Resource):
                 params=params
             )
         )
+
+
+class FixedAttrsDict(DictMixin):
+    """
+    Dict with fixed attribute list.
+    """
+    writable_attrs = ()
+
+    @staticmethod
+    def get_dict_attributes():
+        return {}
+
+    def __init__(self, client, properties):
+        self._set_properties(properties)
+
+    def __setattr__(self, name, value):
+        if name.startswith('_') or name in self.writable_attrs:
+            super(FixedAttrsDict, self).__setattr__(name, value)
+        else:
+            raise AttributeError("Attribute '%s' of %s is not writable" %
+                (name, self.__class__.__name__))
+
+    def __getattr__(self, name):
+        if name in self.__dict__:
+            return self.__dict__[name]
+        else:
+            raise AttributeError("%s has no attribute '%s'" %
+                (self.__class__.__name__, name))
+
+    def __dir__(self):
+        return self.__dict__.keys()
+
+    def _wrap_resource_attr(self, cls, value):
+        if isinstance(value, FixedAttrsDict):
+            return value
+        elif isinstance(value, dict):
+            return cls(None, properties=value)
+        elif value is None:
+            return None
+        else:
+            raise TypeError("Can't convert '%s' to '%s'" %
+                (type(value), cls.__name__))
+
+    def _set_properties(self, properties):
+        resource_attrs = self.get_dict_attributes()
+        for name, value in properties.items():
+            name = Resource.from_camel_case(name)
+
+            if name in resource_attrs:
+                value = self._wrap_resource_attr(resource_attrs[name],
+                    value)
+
+            self.__dict__[name] = value
+
+    def _get_properties(self):
+        data = {}
+        for k, v in self.__dict__.items():
+            if k in self.writable_attrs:
+                data[Resource.to_camel_case(k)] = self._sanitize_property(v)
+
+        return data
+
+    @staticmethod
+    def _sanitize_property(value):
+        if isinstance(value, dict):
+            return {Resource.to_camel_case(k): Resource._sanitize_property(v)
+                for k, v in value.items()}
+        elif isinstance(value, FixedAttrsDict):
+            return value._get_properties()
+        else:
+            return value

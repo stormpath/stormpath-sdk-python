@@ -3,6 +3,9 @@
 from stormpath.error import Error
 
 from .base import AuthenticatedLiveBase, SingleApplicationBase, AccountBase
+from stormpath.resources import Provider
+from stormpath.resources.agent import Agent, AgentConfig, AgentAccountConfig, \
+    AgentGroupConfig
 from stormpath.resources.email_template import EmailTemplate
 from stormpath.resources.password_policy import PasswordPolicy
 
@@ -93,6 +96,127 @@ class TestApplicationDirectoryCreation(AuthenticatedLiveBase):
                 })
         finally:
             dir.delete()
+
+
+    def test_ldap_directory_creation_and_deletion(self):
+        name = self.get_random_name()
+        directories_before = len(self.client.directories)
+
+        directory = self.client.directories.create({
+            'name': name,
+            'description': 'test dir',
+            'provider': {
+                'provider_id': 'ldap',
+                'agent': {
+                    'config': {
+                        'directory_host': 'ldap.local',
+                        'directory_port': '666',
+                        'ssl_required': True,
+                        'agent_user_dn': 'user@somewhere.com',
+                        'agent_user_dn_password': 'Password',
+                        'base_dn': 'dc=example,dc=com',
+                        'poll_interval': 60,
+                        'account_config': {
+                            'dn_suffix': 'ou=employees',
+                            'object_class': 'person',
+                            'object_filter': '(cn=finance)',
+                            'email_rdn': 'email',
+                            'given_name_rdn': 'givenName',
+                            'middle_name_rdn': 'middleName',
+                            'surname_rdn': 'sn',
+                            'username_rdn': 'uid',
+                            'password_rdn': 'userPassword',
+                            },
+                        'group_config': {
+                            'dn_suffix': 'ou=groups',
+                            'object_class': 'groupOfUniqueNames',
+                            'object_filter': '(ou=*-group)',
+                            'name_rdn': 'cn',
+                            'description_rdn': 'description',
+                            'members_rdn': 'uniqueMember'
+                        }
+                    }
+                }
+            }
+        })
+
+        self.assertIsNotNone(directory.href)
+        self.assertEqual(directory.name, name)
+        self.assertIsInstance(directory.provider, Provider)
+        self.assertEqual(directory.provider.provider_id, 'ldap')
+        self.assertIsInstance(directory.provider.agent, Agent)
+        self.assertIsInstance(directory.provider.agent.config, AgentConfig)
+        agent_config = directory.provider.agent.config
+        self.assertEqual(agent_config.poll_interval, 60)
+        self.assertIsInstance(agent_config.account_config, AgentAccountConfig)
+        self.assertEqual(agent_config.account_config.email_rdn, 'email')
+        self.assertIsInstance(agent_config.group_config, AgentGroupConfig)
+        self.assertEqual(agent_config.group_config.name_rdn, 'cn')
+        self.assertEqual(len(self.client.directories), directories_before + 1)
+
+        directory.delete()
+        self.assertEqual(len(self.client.directories), directories_before)
+
+
+    def test_ad_directory_creation_and_deletion(self):
+        name = self.get_random_name()
+        directories_before = len(self.client.directories)
+
+        directory = self.client.directories.create({
+            'name': name,
+            'description': 'test dir',
+            'provider': {
+                'provider_id': 'ad',
+                'agent': {
+                    'config': {
+                        'directory_host': 'ldap.local',
+                        'directory_port': '666',
+                        'ssl_required': True,
+                        'agent_user_dn': 'user@somewhere.com',
+                        'agent_user_dn_password': 'Password',
+                        'base_dn': 'dc=example,dc=com',
+                        'poll_interval': 60,
+                        'referral_mode': 'ignore',
+                        'ignore_referral_issues': False,
+                        'account_config': {
+                            'dn_suffix': 'ou=employees',
+                            'object_class': 'person',
+                            'object_filter': '(cn=finance)',
+                            'email_rdn': 'email',
+                            'given_name_rdn': 'givenName',
+                            'middle_name_rdn': 'middleName',
+                            'surname_rdn': 'sn',
+                            'username_rdn': 'uid',
+                            },
+                        'group_config': {
+                            'dn_suffix': 'ou=groups',
+                            'object_class': 'groupOfUniqueNames',
+                            'object_filter': '(ou=*-group)',
+                            'name_rdn': 'cn',
+                            'description_rdn': 'description',
+                            'members_rdn': 'uniqueMember'
+                        }
+                    }
+                }
+            }
+        })
+
+        self.assertIsNotNone(directory.href)
+        self.assertEqual(directory.name, name)
+        self.assertIsInstance(directory.provider, Provider)
+        self.assertEqual(directory.provider.provider_id, 'ad')
+        self.assertIsInstance(directory.provider.agent, Agent)
+        self.assertIsInstance(directory.provider.agent.config, AgentConfig)
+        agent_config = directory.provider.agent.config
+        self.assertEqual(agent_config.poll_interval, 60)
+        self.assertIsInstance(agent_config.account_config, AgentAccountConfig)
+        self.assertEqual(agent_config.account_config.email_rdn, 'email')
+        self.assertIsInstance(agent_config.group_config, AgentGroupConfig)
+        self.assertEqual(agent_config.group_config.name_rdn, 'cn')
+        self.assertEqual(len(self.client.directories), directories_before + 1)
+
+        directory.delete()
+        self.assertEqual(len(self.client.directories), directories_before)
 
 
 class TestAccountStoreMappings(AuthenticatedLiveBase):
