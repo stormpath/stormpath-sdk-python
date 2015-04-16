@@ -6,6 +6,7 @@ from .data_store import DataStore
 from .http import HttpExecutor
 from .resources.account import AccountList
 from .resources.account_store_mapping import AccountStoreMappingList
+from .resources.agent import AgentList
 from .resources.group import GroupList
 from .resources.group_membership import GroupMembershipList
 from .resources.tenant import Tenant
@@ -89,3 +90,7 @@ class Client(object):
     @property
     def account_store_mappings(self):
         return AccountStoreMappingList(self, href='/accountStoreMappings')
+
+    @property
+    def agents(self):
+        return AgentList(self, href='/agents')
