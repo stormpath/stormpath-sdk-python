@@ -1,13 +1,14 @@
 from unittest import TestCase, main
 from datetime import datetime
 from dateutil.tz import tzutc, tzoffset
+from stormpath.resources.agent import AgentConfig
 
 try:
     from mock import MagicMock, patch, create_autospec
 except ImportError:
     from unittest.mock import MagicMock, patch, create_autospec
 from stormpath.resources.base import (Expansion, Resource, CollectionResource,
-    SaveMixin, DeleteMixin, AutoSaveMixin, DictMixin)
+    SaveMixin, DeleteMixin, AutoSaveMixin, DictMixin, FixedAttrsDict)
 from stormpath.client import Client
 
 from stormpath.resources.application import Application
@@ -676,12 +677,15 @@ class TestCollectionResource(TestCase):
         class SubRes(Resource):
             writable_attrs = ('foo_value',)
 
+        class SubFixedAttrsDict(FixedAttrsDict):
+            writable_attrs = ('attr_1', 'attr_2')
+
         class Res(Resource):
-            writable_attrs = ('sub_resource',)
+            writable_attrs = ('sub_resource', 'sub_fad')
 
             @staticmethod
             def get_resource_attributes():
-                return {'sub_resource': SubRes}
+                return {'sub_resource': SubRes, 'sub_fad': SubFixedAttrsDict}
 
         class ResList(CollectionResource):
             resource_class = Res
@@ -691,11 +695,15 @@ class TestCollectionResource(TestCase):
             properties={'href': '/'}
         )
 
-        rl.create({'sub_resource': {'foo_value': 42}})
+        rl.create({
+            'sub_resource': {'foo_value': 42},
+            'sub_fad': {'attr_1': 1, 'attr_2': 2}
+        })
 
         ds.create_resource.assert_called_once_with(
             'http://www.example.com/', {
-                'subResource': {'fooValue': 42}
+                'subResource': {'fooValue': 42},
+                'subFad': {'attr1': 1, 'attr2': 2}
             }, params={})
 
     def test_resource_refresh(self):
@@ -715,3 +723,88 @@ class TestCollectionResource(TestCase):
 
 if __name__ == '__main__':
     main()
+
+
+class TestFixedAttrsDict(TestCase):
+
+    def test_fad_init(self):
+        fad = FixedAttrsDict(MagicMock(), properties={'a': 1, 'b': 2})
+
+        # getting a non-existing attribute is handled correctly
+        with self.assertRaises(AttributeError):
+            fad.a = 2
+        # non-existing attribute access is handled correctly
+        with self.assertRaises(AttributeError):
+            fad.foo
+
+    def test_getting_fad_property_names(self):
+        fad = FixedAttrsDict(
+            MagicMock(),
+            properties={'href': 1, '_some_property': 2, 'some_property': 3})
+
+        self.assertEqual(
+            set(fad.__dict__.keys()),
+            {'href', '_some_property', 'some_property'})
+
+    def test_fad_dir_method(self):
+        fad = FixedAttrsDict(
+            MagicMock(),
+            properties={'href': 1, '_some_property': 2, 'some_property': 3})
+
+        self.assertEqual(
+            {'href', '_some_property', 'some_property'}, set(fad.__dir__()))
+
+    def test_sanitize_property(self):
+        ret = FixedAttrsDict._sanitize_property({'full_name': 'full name'})
+        self.assertEqual({'fullName': 'full name'}, ret)
+
+    def test_wrapping_resource_attrs(self):
+        r = FixedAttrsDict(MagicMock(), properties={})
+        to_wrap = FixedAttrsDict(MagicMock(), properties={})
+        ret = r._wrap_resource_attr(AgentConfig, to_wrap)
+        self.assertEqual(to_wrap, ret)
+
+        ret = r._wrap_resource_attr(AgentConfig, {'poll_interval': 60})
+        self.assertEqual(60, ret.poll_interval)
+        self.assertTrue(isinstance(ret, AgentConfig))
+
+        ret = r._wrap_resource_attr(AgentConfig, None)
+        self.assertIsNone(ret)
+
+        self.assertRaises(
+            TypeError, r._wrap_resource_attr, AgentConfig,
+            'Unsupported Conversion')
+
+    def test_getting_items_from_dict_mixing(self):
+        r = AgentConfig(MagicMock(), properties={'poll_interval': 60})
+        self.assertEqual([('poll_interval', 60)], r.items())
+
+    def test_iter_method_on_dict_mixin(self):
+        r = AgentConfig(MagicMock(), properties={'poll_interval': 60})
+        self.assertEqual(['poll_interval'], list(r.__iter__()))
+
+    def test_writable_attributes(self):
+
+        class Fad(FixedAttrsDict):
+            writable_attrs = ('name',)
+
+        r = Fad(MagicMock(), properties={'name': 'Test',})
+
+        r.name = 'foo'
+        self.assertEqual(r.name, 'foo')
+
+    def test_dict_attributes(self):
+
+        class Fad(FixedAttrsDict):
+            def get_dict_attributes(self):
+                return {'related': FixedAttrsDict}
+
+        r = Fad(MagicMock(), properties={
+            'attr_1': 1,
+            'related': {'attr_2': 2}
+        })
+
+        r2 = r.related
+
+        self.assertTrue(isinstance(r2, FixedAttrsDict))
+        self.assertEqual(r2.attr_2, 2)

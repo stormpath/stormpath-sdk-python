@@ -121,6 +121,10 @@ class TestPasswordReset(AccountBase):
         auth = self.app.authenticate_account(self.acc.username, new_pwd)
         self.assertEqual(auth.account.href, self.acc.href)
 
+    def test_send_password_reset_email(self):
+        account = self.app.send_password_reset_email(self.email)
+        self.assertEqual(account.href, self.acc.href)
+
 
 class TestAccountGroups(AccountBase):
 

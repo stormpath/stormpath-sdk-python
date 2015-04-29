@@ -61,7 +61,7 @@ class AccessToken(object):
 
         # get raw data without validation
         try:
-            data = jwt.decode(self.token, verify=False)
+            data = jwt.decode(self.token, verify=False, algorithms=['HS256'])
             self.client_id = data.get('sub', '')
             try:
                 self.account = self.app.accounts.get(data.get('sub', ''))
@@ -77,7 +77,8 @@ class AccessToken(object):
                 self.for_api_key = False
             self.api_key = self.app.api_keys.get_key(self.client_id)
             self.exp = data.get('exp', 0)
-            self.scopes = data.get('scope', '').split(' ')
+            self.scopes = data.get('scope', '') if data.get('scope') else ''
+            self.scopes = self.scopes.split(' ')
         except jwt.DecodeError:
             pass
 
@@ -95,7 +96,9 @@ class AccessToken(object):
                     datetime.datetime.utcfromtimestamp(float(self.exp)):
 
             try:
-                jwt.decode(self.token, self.app._client.auth.secret)
+                jwt.decode(
+                    self.token, self.app._client.auth.secret,
+                    algorithms=['HS256'])
             except jwt.DecodeError:
                 return False
 
@@ -235,7 +238,7 @@ def _authenticate_request(auth_type, app, allowed_scopes, http_method,
 def authenticate(app=None, allowed_scopes=None, http_method='', uri='',
                  body=None, headers=None, ttl=DEFAULT_TTL, locations=None):
     if body is None:
-        raise ValueError("body can't be None")
+        body = {}
     if headers is None:
         raise ValueError("headers can't be None")
     if allowed_scopes is None:
@@ -278,4 +281,3 @@ def authenticate(app=None, allowed_scopes=None, http_method='', uri='',
         return None
     return ApiAuthenticationResult(
         account=r.account, api_key=r.api_key, access_token=access_token)
-

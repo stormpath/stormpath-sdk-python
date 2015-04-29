@@ -87,6 +87,31 @@ class TestApiAuth(ApiKeyBase):
         self.assertIsNotNone(result)
         self.assertEqual(acc.href, result.account.href)
 
+    def test_bearer_api_authentication_without_scopes_and_body_succeeds(self):
+        _, acc = self.create_account(self.app.accounts)
+        api_key = self.create_api_key(acc)
+
+        headers = {
+            'Authorization':
+                b'Basic ' + base64.b64encode(
+                    "{}:{}".format(api_key.id, api_key.secret).encode('utf-8'))
+        }
+        uri = 'https://example.com/get?grant_type=client_credentials'
+
+        result = self.app.authenticate_api(headers=headers, uri=uri)
+
+        self.assertEqual(api_key.id, result.api_key.id)
+        self.assertEqual(api_key.secret, result.api_key.secret)
+        self.assertEqual(acc.href, result.api_key.account.href)
+
+        headers = {
+            'Authorization': b'Bearer ' + result.token.token.encode('utf-8')}
+
+        result = self.app.authenticate_api(headers=headers)
+
+        self.assertIsNotNone(result)
+        self.assertEqual(acc.href, result.account.href)
+
     def test_basic_api_authentication_with_grant_type_in_uri_gets_token(self):
         _, acc = self.create_account(self.app.accounts)
         api_key = self.create_api_key(acc)

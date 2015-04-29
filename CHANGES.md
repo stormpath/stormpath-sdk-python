@@ -1,3 +1,33 @@
+Version 2.0.5
+-------------
+
+**Released on April 16, 2015.**
+
+- Updating the pyjwt dependency to fix JWT security issues.
+- Adding support for Mirror Directories and Agents (*this lets users manage
+  Active Directory and LDAP systems*).
+
+
+Version 2.0.4
+-------------
+
+**Released on April 12, 2015.**
+
+- Adding in hotfix for the Stormpath Error class.  It now supports string only
+  arguments, which makes the library more flexible for handling weird edge
+  cases.
+
+
+Version 2.0.3
+-------------
+
+**Released on April 1, 2015.**
+
+- Improving API authentication API.  It now allows for API authentication
+  WITHOUT OAuth2 scopes, as well as an empty body.  This makes the parameters
+  much simpler for users, and makes more sense.
+
+
 Version 2.0.2
 -------------
 
