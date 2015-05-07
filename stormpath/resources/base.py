@@ -380,12 +380,7 @@ class CollectionResource(Resource):
             offset += len(items)
             items = self._get_next_page(offset, limit)
 
-        # Update self._query so no more pagination is attempted.
-        if self._query is None:
-            self._query = {}
-
-        self._query['offset'] = self.__dict__['offset']
-        self._query['limit'] = self.__dict__['limit']
+        self.__dict__['limit'] = limit
 
     def __len__(self):
         self._ensure_data()
