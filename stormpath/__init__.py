@@ -1,5 +1,5 @@
 __author__ = 'Stormpath, Inc.'
-__copyright__ = 'Copyright 2012-2014 Stormpath, Inc.'
+__copyright__ = 'Copyright 2012-2015 Stormpath, Inc.'
 
 __version_info__ = ('2', '0', '6')
 __version__ = '.'.join(__version_info__)
