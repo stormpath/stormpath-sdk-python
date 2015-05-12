@@ -6,6 +6,8 @@ Version 2.0.6
 - Fixing issue with `limit` being modified during pagination.
 - Adding support for resource signals!  This means you can now 'listen' for
   resource creation, updates, and deletes.
+- Adding checks to ensure that when an ID site login happens, the account is
+  part of a Stormpath Application.
 
 
 Version 2.0.5
