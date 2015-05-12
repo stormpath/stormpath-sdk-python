@@ -98,6 +98,26 @@ class TestCollectionResource(AccountBase):
             {acc.href for acc in accounts}
         )
 
+    def test_limit_after_iteration(self):
+        [a.delete() for a in self.app.accounts]
+
+        for i in range(0, 120):
+            _, acc = self.create_account(self.app.accounts, given_name=str(i))
+
+        limit_before_iteration = self.app.accounts.limit
+
+        # this is done twice because we want to check that iteration
+        # works the second time, too (limit is not set to 120)
+        for i in range(0, 2):
+            iterated_accounts = []
+            for account in self.app.accounts:
+                iterated_accounts.append(int(account.given_name))
+
+            self.assertEqual(limit_before_iteration, self.app.accounts.limit)
+            self.assertEqual(len(iterated_accounts), 120)
+            self.assertEqual(
+                set(sorted(iterated_accounts)), set(range(0, 120)))
+
     def test_sorting(self):
         self.assertEqual(
             [acc.href for acc in self.app.accounts.order('email desc')],
