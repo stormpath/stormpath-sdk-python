@@ -41,7 +41,5 @@ class Provider(Resource, DeleteMixin, DictMixin, SaveMixin):
     def save(self):
         if self.provider_id == self.STORMPATH:
             return
-        if self.is_new():
-            raise ValueError("Can't save new resources, use create instead")
 
-        self._store.update_resource(self.href, self._get_properties())
+        super(Provider, self).save()

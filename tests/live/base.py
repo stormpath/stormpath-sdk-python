@@ -99,3 +99,22 @@ class ApiKeyBase(AccountBase):
 
     def create_api_key(self, acc):
         return acc.api_keys.create()
+
+
+class SignalReceiver(object):
+    received_signals = None
+
+    def signal_created_receiver_function(self, sender, data, params):
+        if self.received_signals is None:
+            self.received_signals = []
+        self.received_signals.append((sender, data, params))
+
+    def signal_updated_receiver_function(self, sender, href, properties):
+        if self.received_signals is None:
+            self.received_signals = []
+        self.received_signals.append((sender, href, properties))
+
+    def signal_deleted_receiver_function(self, sender, href):
+        if self.received_signals is None:
+            self.received_signals = []
+        self.received_signals.append((sender, href))

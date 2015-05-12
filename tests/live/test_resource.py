@@ -5,10 +5,14 @@ We can use (almost) any resource here - Account is a convenient choice.
 import jwt
 from time import sleep
 
-from stormpath.cache.entry import CacheEntry
-from stormpath.resources.base import Expansion
+from pydispatch import dispatcher
 
-from .base import AccountBase
+from stormpath.cache.entry import CacheEntry
+from stormpath.resources import Account
+from stormpath.resources.base import Expansion, SIGNAL_RESOURCE_CREATED, \
+    SIGNAL_RESOURCE_UPDATED, SIGNAL_RESOURCE_DELETED
+
+from .base import AccountBase, SignalReceiver
 from .base import ApiKeyBase
 
 
@@ -196,6 +200,49 @@ class TestCollectionResource(AccountBase):
         acc = self.app.accounts[href]
 
         self.assertEqual(self.accounts[0].username, acc.username)
+
+    def test_creation_sends_signal(self):
+        signal_receiver = SignalReceiver()
+        dispatcher.connect(
+            signal_receiver.signal_created_receiver_function,
+            signal=SIGNAL_RESOURCE_CREATED, sender=Account)
+
+        self.create_account(self.app.accounts)
+
+        self.assertEqual(len(signal_receiver.received_signals), 1)
+
+    def test_update_sends_signal(self):
+        account_1 = self.accounts[0]
+        account_2 = self.accounts[1]
+        signal_receiver = SignalReceiver()
+        dispatcher.connect(
+            signal_receiver.signal_updated_receiver_function,
+            signal=SIGNAL_RESOURCE_UPDATED, sender=account_1)
+
+        account_1.given_name = 'some other name'
+        account_1.save()
+        account_2.given_name = "name you won't catch"
+        account_2.save()
+
+        self.assertEqual(len(signal_receiver.received_signals), 1)
+        signal = signal_receiver.received_signals[0]
+        self.assertEqual(signal[1], account_1.href)
+        self.assertEqual(signal[2]['givenName'], 'some other name')
+
+    def test_delete_sends_signal(self):
+        account_1 = self.accounts[0]
+        account_2 = self.accounts[1]
+        signal_receiver = SignalReceiver()
+        dispatcher.connect(
+            signal_receiver.signal_deleted_receiver_function,
+            signal=SIGNAL_RESOURCE_DELETED, sender=account_1)
+
+        account_1.delete()
+        account_2.delete()
+
+        self.assertEqual(len(signal_receiver.received_signals), 1)
+        signal = signal_receiver.received_signals[0]
+        self.assertEqual(signal[1], account_1.href)
 
 
 class TestApiKeys(ApiKeyBase):
