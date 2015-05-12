@@ -4,6 +4,8 @@ Version 2.0.6
 **Not yet released.**
 
 - Fixing issue with `limit` being modified during pagination.
+- Adding support for resource signals!  This means you can now 'listen' for
+  resource creation, updates, and deletes.
 
 
 Version 2.0.5
