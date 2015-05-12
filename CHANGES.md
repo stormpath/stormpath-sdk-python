@@ -1,3 +1,11 @@
+Version 2.0.6
+-------------
+
+**Not yet released.**
+
+- Fixing issue with `limit` being modified during pagination.
+
+
 Version 2.0.5
 -------------
 
