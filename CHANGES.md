@@ -1,7 +1,7 @@
 Version 2.0.6
 -------------
 
-**Not yet released.**
+**Released on May 12, 2015.**
 
 - Fixing issue with `limit` being modified during pagination.
 - Adding support for resource signals!  This means you can now 'listen' for
