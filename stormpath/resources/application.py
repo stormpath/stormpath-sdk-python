@@ -211,6 +211,12 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
         url_params = {'jwtRequest': jwt_signature}
         return endpoint + '?' + urlencode(url_params)
 
+    def has_account(self, account):
+        for app in account.applications:
+            if app.href == self.href:
+                return True
+        return False
+
     def handle_id_site_callback(self, url_response):
         """Handles the callback from the ID site.
 
@@ -261,11 +267,14 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
 
         if account_href:
             account = self.accounts.get(account_href)
-            # We modify the internal parameter sp_http_status which indicates if an account
-            # is new (ie. just created). This is so we can take advantage of the account.is_new_account
-            # property
-            account.sp_http_status  # NOTE: this forces account retrieval and building of the actual Account object
-            account.__dict__['sp_http_status'] = 201 if is_new_account else 200
+            if self.has_account(account):
+                # We modify the internal parameter sp_http_status which indicates if an account
+                # is new (ie. just created). This is so we can take advantage of the account.is_new_account
+                # property
+                account.sp_http_status  # NOTE: this forces account retrieval and building of the actual Account object
+                account.__dict__['sp_http_status'] = 201 if is_new_account else 200
+            else:
+                account = None
         else:
             account = None
         return IdSiteCallbackResult(account=account, state=state, status=status)

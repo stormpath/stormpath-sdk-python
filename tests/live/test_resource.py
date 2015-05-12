@@ -355,3 +355,45 @@ class TestIdSite(ApiKeyBase):
         self.assertIsNotNone(ret)
         self.assertEqual(ret.account.href, acc.href)
         self.assertIsNone(ret.state)
+
+    def test_id_site_callback_handler_account_not_in_apps_account_store(self):
+        from uuid import uuid4
+        import datetime
+        import jwt
+        from oauthlib.common import to_unicode
+
+        _, acc = self.create_account(self.app.accounts)
+        now = datetime.datetime.utcnow()
+
+        try:
+            irt = uuid4().get_hex()
+        except AttributeError:
+            irt = uuid4().hex
+
+        fake_jwt_data = {
+                'exp': now + datetime.timedelta(seconds=3600),
+                'aud': self.app._client.auth.id,
+                'irt': irt,
+                'iss': 'Stormpath',
+                'sub': acc.href,
+                'isNewSub': False,
+                'state': None,
+        }
+
+        another_app_name = self.get_random_name()
+        another_app = self.client.applications.create(
+            {
+                'name': another_app_name,
+                'description': 'test app'
+            },
+            create_directory=another_app_name)
+
+        fake_jwt = to_unicode(jwt.encode(
+            fake_jwt_data,
+            another_app._client.auth.secret,
+            'HS256'), 'UTF-8')
+        fake_jwt_response = 'http://localhost/?jwtResponse=%s' % fake_jwt
+        ret = another_app.handle_id_site_callback(fake_jwt_response)
+        self.assertIsNotNone(ret)
+        self.assertIsNone(ret.account)
+        another_app.delete()
