@@ -100,8 +100,6 @@ class TestApplicationDirectoryCreation(AuthenticatedLiveBase):
 
     def test_ldap_directory_creation_and_deletion(self):
         name = self.get_random_name()
-        directories_before = len(self.client.directories)
-
         directory = self.client.directories.create({
             'name': name,
             'description': 'test dir',
@@ -152,16 +150,14 @@ class TestApplicationDirectoryCreation(AuthenticatedLiveBase):
         self.assertEqual(agent_config.account_config.email_rdn, 'email')
         self.assertIsInstance(agent_config.group_config, AgentGroupConfig)
         self.assertEqual(agent_config.group_config.name_rdn, 'cn')
-        self.assertEqual(len(self.client.directories), directories_before + 1)
+        self.assertTrue(self.dir_exists(name))
 
         directory.delete()
-        self.assertEqual(len(self.client.directories), directories_before)
+        self.assertFalse(self.dir_exists(name))
 
 
     def test_ad_directory_creation_and_deletion(self):
         name = self.get_random_name()
-        directories_before = len(self.client.directories)
-
         directory = self.client.directories.create({
             'name': name,
             'description': 'test dir',
@@ -213,10 +209,10 @@ class TestApplicationDirectoryCreation(AuthenticatedLiveBase):
         self.assertEqual(agent_config.account_config.email_rdn, 'email')
         self.assertIsInstance(agent_config.group_config, AgentGroupConfig)
         self.assertEqual(agent_config.group_config.name_rdn, 'cn')
-        self.assertEqual(len(self.client.directories), directories_before + 1)
+        self.assertTrue(self.dir_exists(name))
 
         directory.delete()
-        self.assertEqual(len(self.client.directories), directories_before)
+        self.assertFalse(self.dir_exists(name))
 
 
 class TestAccountStoreMappings(AuthenticatedLiveBase):
