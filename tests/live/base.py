@@ -1,10 +1,18 @@
 """Base classes for the live tests against the Stormpath API service."""
 
 from os import getenv
+from time import sleep
 from unittest import TestCase
 from uuid import uuid4
 
+from pydispatch import dispatcher
+
 from stormpath.client import Client
+from stormpath.resources.base import SIGNAL_RESOURCE_CREATED
+
+
+def sleep_receiver_function():
+    sleep(1)
 
 
 class LiveBase(TestCase):
@@ -28,6 +36,8 @@ class LiveBase(TestCase):
         if not cls.api_key_id or not cls.api_key_secret:
             raise ValueError('STORMPATH_API_KEY_ID or '
                 'STORMPATH_API_KEY_SECRET not provided')
+        dispatcher.connect(
+            sleep_receiver_function, signal=SIGNAL_RESOURCE_CREATED)
 
 
 class AuthenticatedLiveBase(LiveBase):
