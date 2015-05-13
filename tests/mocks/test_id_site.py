@@ -12,7 +12,7 @@ except ImportError:
 
 import jwt
 
-from stormpath.resources.application import Application
+from stormpath.resources.application import Application, ApplicationList
 
 
 class IDSiteBuildURITest(TestCase):
@@ -77,7 +77,18 @@ class IDSiteCallbackTest(IDSiteBuildURITest):
     def setUp(self):
         super(IDSiteCallbackTest, self).setUp()
         self.store = MagicMock()
-        self.store.get_resource.return_value = {'href': 'acchref', 'sp_http_status': 200}
+        self.store.get_resource.return_value = {
+            'href': 'acchref',
+            'sp_http_status': 200,
+            'applications': ApplicationList(
+                client=self.client,
+                properties={
+                    'href': 'apps',
+                    'items': [{'href': 'apphref'}],
+                    'offset': 0,
+                    'limit': 25
+                })
+        }
         self.store._cache_get.return_value = False # ignore nonce
 
         self.client.data_store = self.store
