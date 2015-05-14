@@ -12,6 +12,11 @@ from stormpath.resources.base import SIGNAL_RESOURCE_CREATED
 
 
 def sleep_receiver_function():
+    """Sleeps for one second.
+
+    This is used as receiver of a signal
+    (eg. when resource is created).
+    """
     sleep(1)
 
 
@@ -36,6 +41,10 @@ class LiveBase(TestCase):
         if not cls.api_key_id or not cls.api_key_secret:
             raise ValueError('STORMPATH_API_KEY_ID or '
                 'STORMPATH_API_KEY_SECRET not provided')
+
+        # This will call sleep function on every resource creation.
+        # That is done to prevent random test failures
+        # (https://github.com/stormpath/stormpath-sdk-python/issues/149).
         dispatcher.connect(
             sleep_receiver_function, signal=SIGNAL_RESOURCE_CREATED)
 
