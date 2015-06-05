@@ -328,11 +328,6 @@ class TestIdSite(ApiKeyBase):
 
 
     def test_id_site_callback_handler(self):
-        from uuid import uuid4
-        import datetime
-        import jwt
-        from oauthlib.common import to_unicode
-
         _, acc = self.create_account(self.app.accounts)
         now = datetime.datetime.utcnow()
 
