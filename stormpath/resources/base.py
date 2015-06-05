@@ -312,6 +312,7 @@ class DictMixin(object):
         return hasattr(self, key)
 
     def keys(self):
+        self._ensure_data()
         return [k for k in self.__dict__.keys() if not k.startswith('_')]
 
     def values(self):
@@ -514,6 +515,9 @@ class FixedAttrsDict(DictMixin):
 
     def __dir__(self):
         return self.__dict__.keys()
+
+    def keys(self):
+        return [k for k in self.__dict__.keys() if not k.startswith('_')]
 
     def _wrap_resource_attr(self, cls, value):
         if isinstance(value, FixedAttrsDict):

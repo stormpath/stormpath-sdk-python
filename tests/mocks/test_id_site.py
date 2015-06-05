@@ -6,9 +6,9 @@ from oauthlib.common import to_unicode
 from unittest import TestCase, main
 from stormpath.client import Client
 try:
-    from mock import create_autospec, MagicMock
+    from mock import create_autospec, MagicMock, patch
 except ImportError:
-    from unittest.mock import create_autospec, MagicMock
+    from unittest.mock import create_autospec, MagicMock, patch
 
 import jwt
 
@@ -122,7 +122,11 @@ class IDSiteCallbackTest(IDSiteBuildURITest):
 
     def test_id_site_callback_handler(self):
         fake_jwt_response = 'http://localhost/?jwtResponse=%s' % self.fake_jwt
-        ret = self.app.handle_id_site_callback(fake_jwt_response)
+
+        with patch.object(Application, 'has_account') as mock_has_account:
+            mock_has_account.return_value = True
+            ret = self.app.handle_id_site_callback(fake_jwt_response)
+
         self.assertIsNotNone(ret)
         self.assertEqual(ret.account.href, self.acc.href)
         self.assertIsNone(ret.state)
