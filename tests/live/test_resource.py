@@ -2,9 +2,12 @@
 
 We can use (almost) any resource here - Account is a convenient choice.
 """
+import datetime
 import jwt
 from time import sleep
+from uuid import uuid4
 
+from oauthlib.common import to_unicode
 from pydispatch import dispatcher
 
 from stormpath.cache.entry import CacheEntry
@@ -14,7 +17,6 @@ from stormpath.resources.base import Expansion, SIGNAL_RESOURCE_CREATED, \
 
 from .base import AccountBase, SignalReceiver
 from .base import ApiKeyBase
-
 
 
 class TestResource(AccountBase):
@@ -39,6 +41,9 @@ class TestResource(AccountBase):
         self.assertTrue('username' in acc.keys())
         self.assertTrue(acc.username in acc.values())
         self.assertTrue(('username', acc.username) in acc.items())
+
+        acc_provider_dict = dict(acc.provider_data)
+        self.assertTrue('provider_id' in acc_provider_dict)
 
     def test_status_mixin(self):
         _, acc = self.create_account(self.app.accounts)
@@ -357,11 +362,6 @@ class TestIdSite(ApiKeyBase):
         self.assertIsNone(ret.state)
 
     def test_id_site_callback_handler_account_not_in_apps_account_store(self):
-        from uuid import uuid4
-        import datetime
-        import jwt
-        from oauthlib.common import to_unicode
-
         _, acc = self.create_account(self.app.accounts)
         now = datetime.datetime.utcnow()
 
