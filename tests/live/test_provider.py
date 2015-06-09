@@ -57,6 +57,12 @@ class TestProviderDirectories(AuthenticatedLiveBase):
         facebook_api_key_id = getenv('FACEBOOK_API_KEY_ID')
         facebook_api_key_secret = getenv('FACEBOOK_API_KEY_SECRET')
 
+        if not facebook_api_key_id:
+            self.fail("Please set FACEBOOK_API_KEY_ID environment variable!")
+        if not facebook_api_key_secret:
+            self.fail(
+                "Please set FACEBOOK_API_KEY_SECRET environment variable!")
+
         s = Session()
         res = s.request(
             'GET', 'https://graph.facebook.com/oauth/access_token',
