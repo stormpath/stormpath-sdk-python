@@ -1,20 +1,22 @@
 language: python
 python:
-- '2.7'
-- '3.2'
-- '3.3'
-- '3.4'
-- pypy
+  - '2.7'
+  - '3.2'
+  - '3.3'
+  - '3.4'
+  - pypy
 install: pip install . --use-mirrors
 before_script: python setup.py testdep
 script:
-- python setup.py test
-- test -z "$STORMPATH_API_KEY_SECRET" || python setup.py livetest
+  - python setup.py test
+  - test -z "$STORMPATH_API_KEY_SECRET" || python setup.py livetest
 branches:
   only:
-  - master
-  - develop
+    - master
+    - develop
 env:
   global:
-  - secure: gko6nu8HDi0hi784QkSKK/PhZZvDqdIeMrsY7+vN6f2xmWlDhxRLJG7TQ9YvAtHVzyhrfYeYZpoAhfD3f4tA/e7R2PdnOx3aJskxYxgMeQYj1wJOYa65+dqpXBQhtDF9BL4hPdC4F74NkDWVEUnxO6j1diLwyXiQwo0u9c3HBHA=
-  - secure: OWcPeI6KxsUulFM7SxcTR2oHhrVJeyWZweBHg9/hZPfKQ7zzLfmsfjYyyXREKXwm4nwOwwwOyQ4Dx+bjwzZJWBBB/or2vCSNV2/gL12MCUnWPNMA9f7NA/6o26ry81FV6TnOca+ogAd+oeYEk/hoB2Ikl4yvKl/sCT15JHWxHj0=
+    - secure: gko6nu8HDi0hi784QkSKK/PhZZvDqdIeMrsY7+vN6f2xmWlDhxRLJG7TQ9YvAtHVzyhrfYeYZpoAhfD3f4tA/e7R2PdnOx3aJskxYxgMeQYj1wJOYa65+dqpXBQhtDF9BL4hPdC4F74NkDWVEUnxO6j1diLwyXiQwo0u9c3HBHA=
+    - secure: OWcPeI6KxsUulFM7SxcTR2oHhrVJeyWZweBHg9/hZPfKQ7zzLfmsfjYyyXREKXwm4nwOwwwOyQ4Dx+bjwzZJWBBB/or2vCSNV2/gL12MCUnWPNMA9f7NA/6o26ry81FV6TnOca+ogAd+oeYEk/hoB2Ikl4yvKl/sCT15JHWxHj0=
+    - secure: bOzeBzHkNkc8cyo1yAP26NqEaPCO4R3lnelHPhY9Uv5gDHD1BEPSVf5Yqxb6xO+2zaWxrc/nnLNSTzp9b23B9yYcZe3BADPJQXn2ZcmFRPUBTP/Bjdt5vAngowEGn+74uTCfDmgf1A01c191a7bTRk/W8Yv+fQ5DbKQoY0rN7YY=
+    - secure: U9u71VK9+Z5QRipyym+h7glg+zdUULCJnLljB881r12BngXbclRiXDOOS8vn/gSnX5R9X9eGUI3ec4nXFpmDo1fLmYN+pMXD4dMx9iHcqzxfsbU+GSI2jq1QjGbaDo3JCfsDx9GIXpMP0LXTChs2n4kPRlp9muKb1gHWVgsJrgc=
