@@ -563,7 +563,7 @@ that act as a dictionary:
 The Stormpath Python SDK is well tested.  Don't take our word on it though, run
 our test suite and see for yourself!
 
-We currently test against Python 2.7, 3.2 and 3.3.
+We currently test against Python 2.7, 3.3, 3.4 and PyPy.
 
 
 ### Testing with tox
