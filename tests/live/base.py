@@ -11,7 +11,7 @@ from stormpath.client import Client
 from stormpath.resources.base import SIGNAL_RESOURCE_CREATED
 
 
-def sleep_receiver_function():
+def sleep_receiver_function(signal, sender, data, params):
     """Sleeps for one second.
 
     This is used as receiver of a signal
@@ -123,17 +123,17 @@ class ApiKeyBase(AccountBase):
 class SignalReceiver(object):
     received_signals = None
 
-    def signal_created_receiver_function(self, sender, data, params):
+    def signal_created_receiver_function(self, signal, sender, data, params):
         if self.received_signals is None:
             self.received_signals = []
         self.received_signals.append((sender, data, params))
 
-    def signal_updated_receiver_function(self, sender, href, properties):
+    def signal_updated_receiver_function(self, signal, sender, href, properties):
         if self.received_signals is None:
             self.received_signals = []
         self.received_signals.append((sender, href, properties))
 
-    def signal_deleted_receiver_function(self, sender, href):
+    def signal_deleted_receiver_function(self, signal, sender, href):
         if self.received_signals is None:
             self.received_signals = []
         self.received_signals.append((sender, href))
