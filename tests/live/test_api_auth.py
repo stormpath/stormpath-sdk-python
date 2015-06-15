@@ -3,6 +3,7 @@ import base64
 from six import u
 
 from .base import ApiKeyBase
+from stormpath.api_auth import BasicRequestAuthenticator, OAuthRequestAuthenticator
 from stormpath.error import Error as StormpathError
 
 
@@ -18,7 +19,7 @@ class TestApiAuth(ApiKeyBase):
                     "{}:{}".format(api_key.id, api_key.secret).encode('utf-8'))
         }
 
-        authenticator = ApiRequestAuthenticator(self.app)
+        authenticator = BasicRequestAuthenticator(self.app)
         result = authenticator.authenticate(headers=headers)
 
         self.assertIsNotNone(result)
@@ -72,7 +73,7 @@ class TestApiAuth(ApiKeyBase):
         body = {'grant_type': 'client_credentials', 'scope': 's1 s2'}
         scopes = ['s1', 's2']
 
-        authenticator = BasicRequestAuthenticator(self.app)
+        authenticator = OAuthRequestAuthenticator(self.app)
         result = authenticator.authenticate(
             body=body, headers=headers, scopes=scopes)
 
@@ -84,7 +85,7 @@ class TestApiAuth(ApiKeyBase):
         headers = {
             'Authorization': b'Bearer ' + result.token.token.encode('utf-8')}
 
-        authenticator = OAuthClientCredentialsRequestAuthenticator(self.app)
+        authenticator = OAuthRequestAuthenticator(self.app)
         result = authenticator.authenticate(headers=headers, scopes=scopes)
 
         self.assertIsNotNone(result)
@@ -101,7 +102,7 @@ class TestApiAuth(ApiKeyBase):
         }
         uri = 'https://example.com/get?grant_type=client_credentials'
 
-        authenticator = BasicRequestAuthenticator(self.app)
+        authenticator = OAuthRequestAuthenticator(self.app)
         result = authenticator.authenticate(uri=uri, headers=headers)
 
         self.assertEqual(api_key.id, result.api_key.id)
@@ -111,7 +112,7 @@ class TestApiAuth(ApiKeyBase):
         headers = {
             'Authorization': b'Bearer ' + result.token.token.encode('utf-8')}
 
-        authenticator = OAuthClientCredentialsRequestAuthenticator(self.app)
+        authenticator = OAuthRequestAuthenticator(self.app)
         result = authenticator.authenticate(headers=headers)
 
         self.assertIsNotNone(result)
@@ -130,7 +131,7 @@ class TestApiAuth(ApiKeyBase):
         scopes = ['s1', 's2']
         uri = 'https://example.com/get?grant_type=client_credentials'
 
-        authenticator = BasicRequestAuthenticator(self.app)
+        authenticator = OAuthRequestAuthenticator(self.app)
         result = authenticator.authenticate(
             uri=uri, body=body, headers=headers, scopes=scopes)
 
@@ -150,7 +151,7 @@ class TestApiAuth(ApiKeyBase):
         scopes = ['s1', 's2']
         uri = 'https://example.com/get?grant_type=invalid_grant_type'
 
-        authenticator = BasicRequestAuthenticator(self.app)
+        authenticator = OAuthRequestAuthenticator(self.app)
         result = authenticator.authenticate(
             uri=uri, body=body, headers=headers, scopes=scopes)
 
@@ -168,7 +169,7 @@ class TestApiAuth(ApiKeyBase):
         body = {'grant_type': 'client_credentials', 'scope': 's1 s2'}
         scopes = ['s1', 's2']
 
-        authenticator = BasicRequestAuthenticator(self.app)
+        authenticator = OAuthRequestAuthenticator(self.app)
         result = authenticator.authenticate(
             body=body, headers=headers, scopes=scopes)
 
@@ -180,7 +181,7 @@ class TestApiAuth(ApiKeyBase):
         headers = {
             'Authorization': u('Bearer ') + result.token.token}
 
-        authenticator = OAuthClientCredentialsRequestAuthenticator(self.app)
+        authenticator = OAuthRequestAuthenticator(self.app)
         result = authenticator.authenticate(headers=headers, scopes=scopes)
 
         self.assertIsNotNone(result)
@@ -189,7 +190,7 @@ class TestApiAuth(ApiKeyBase):
     def test_bearer_api_authentication_with_wrong_token_fails(self):
         headers = {'Authorization': b'Bearer INVALID_TOKEN'}
 
-        authenticator = OAuthClientCredentialsRequestAuthenticator(self.app)
+        authenticator = OAuthRequestAuthenticator(self.app)
         result = authenticator.authenticate(headers=headers)
 
         self.assertIsNone(result)
@@ -205,7 +206,7 @@ class TestApiAuth(ApiKeyBase):
         }
         body = {'grant_type': 'client_credentials', 'scope': 's1'}
 
-        authenticator = BasicRequestAuthenticator(self.app)
+        authenticator = OAuthRequestAuthenticator(self.app)
         result = authenticator.authenticate(
             body=body, headers=headers, scopes=['s1'])
 
@@ -217,7 +218,7 @@ class TestApiAuth(ApiKeyBase):
         headers = {
             'Authorization': b'Bearer ' + result.token.token.encode('utf-8')}
 
-        authenticator = OAuthClientCredentialsRequestAuthenticator(self.app)
+        authenticator = OAuthRequestAuthenticator(self.app)
         result = authenticator.authenticate(
             headers=headers, scopes=['s1', 's2'])
 
@@ -237,7 +238,7 @@ class TestApiAuth(ApiKeyBase):
 
         allowed_scopes = ['test1']
 
-        authenticator = BasicRequestAuthenticator(self.app)
+        authenticator = OAuthRequestAuthenticator(self.app)
         result = authenticator.authenticate(
             body=body, headers=headers, scopes=allowed_scopes)
 
@@ -251,7 +252,7 @@ class TestApiAuth(ApiKeyBase):
 
         api_key.delete()
 
-        authenticator = OAuthClientCredentialsRequestAuthenticator(self.app)
+        authenticator = OAuthRequestAuthenticator(self.app)
         result = authenticator.authenticate(
             headers=headers, scopes=allowed_scopes)
 
@@ -271,7 +272,7 @@ class TestApiAuth(ApiKeyBase):
 
         allowed_scopes = ['test1']
 
-        authenticator = BasicRequestAuthenticator(self.app)
+        authenticator = OAuthRequestAuthenticator(self.app)
         result = authenticator.authenticate(
             body=body, headers=headers, scopes=allowed_scopes)
 
@@ -286,7 +287,7 @@ class TestApiAuth(ApiKeyBase):
         api_key.status = 'disabled'
         api_key.save()
 
-        authenticator = OAuthClientCredentialsRequestAuthenticator(self.app)
+        authenticator = OAuthRequestAuthenticator(self.app)
         result = authenticator.authenticate(
             headers=headers, scopes=allowed_scopes)
 
@@ -306,7 +307,7 @@ class TestApiAuth(ApiKeyBase):
 
         allowed_scopes = ['test1']
 
-        authenticator = BasicRequestAuthenticator(self.app)
+        authenticator = OAuthRequestAuthenticator(self.app)
         result = authenticator.authenticate(
             body=body, headers=headers, scopes=allowed_scopes)
 

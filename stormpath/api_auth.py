@@ -281,3 +281,63 @@ def authenticate(app=None, allowed_scopes=None, http_method='', uri='',
         return None
     return ApiAuthenticationResult(
         account=r.account, api_key=r.api_key, access_token=access_token)
+
+
+class BasicRequestAuthenticator(object):
+    def __init__(self, app):
+        self.app = app
+
+    def authenticate(self, headers):
+        headers = {k: to_unicode(v, 'ascii') for k, v in headers.items()}
+
+        validator = SPBasicAuthRequestValidator(app=self.app, headers=headers)
+        valid, result = validator.verify_request()
+
+        if not valid:
+            return None
+
+        return ApiAuthenticationResult(
+            account=result.account, api_key=result.api_key, access_token=None)
+
+
+class OAuthRequestAuthenticator(object):
+    def __init__(self, app):
+        self.app = app
+
+    def authenticate(self, headers, http_method='', uri='', body=None, scopes=None, ttl=DEFAULT_TTL):
+        headers = {k: to_unicode(v, 'ascii') for k, v in headers.items()}
+        url_qs = parse_qs(urlparse(uri).query)
+        if body is None:
+            body = {}
+        if scopes is None:
+            scopes = []
+
+        jwt_token = None
+        access_token = None
+        auth_header = headers.get('Authorization')
+        auth_scheme = auth_header.split(' ')[0]
+        if auth_scheme == 'Basic':
+            if body.get('grant_type') or url_qs.get('grant_type'):
+                jwt_token = _get_bearer_token(
+                    self.app, scopes, http_method, uri, body, headers, ttl)
+        if auth_scheme == 'Bearer':
+            jwt_token = auth_header.split(' ')[1]
+
+        if jwt_token:
+            access_token = AccessToken(self.app, jwt_token)
+
+        if auth_scheme == 'Basic':
+            validator = SPBasicAuthRequestValidator(app=self.app, headers=headers)
+            valid, result = validator.verify_request()
+        elif auth_scheme == 'Bearer':
+            validator = SPOauth2RequestValidator(app=self.app, allowed_scopes=scopes, ttl=ttl)
+            server = Oauth2BackendApplicationServer(validator)
+            valid, result = server.verify_request(uri, http_method, body, headers, scopes)
+        else:
+            valid, result = None, None
+
+        if not valid:
+            return None
+
+        return ApiAuthenticationResult(
+            account=result.account, api_key=result.api_key, access_token=access_token)
