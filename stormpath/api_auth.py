@@ -18,8 +18,6 @@ from stormpath.error import Error as StormpathError
 GRANT_TYPE_CLIENT_CREDENTIALS = 'client_credentials'
 GRANT_TYPES = [GRANT_TYPE_CLIENT_CREDENTIALS]
 DEFAULT_TTL = 3600
-DEFAULT_ACCESS_TOKEN_LOCATIONS = ['header', 'body']
-VALID_ACCESS_TOKEN_LOCATIONS = ['header', 'body', 'url']
 
 
 class DummyRequest(object):
@@ -221,123 +219,180 @@ def _get_bearer_token(app, allowed_scopes, http_method, uri, body, headers, ttl=
     return None
 
 
-def _authenticate_request(auth_type, app, allowed_scopes, http_method,
-                          uri, body, headers, ttl=DEFAULT_TTL):
-    if auth_type == 'Basic':
-        validator = SPBasicAuthRequestValidator(app=app, headers=headers)
-        valid, r = validator.verify_request()
-        return valid, r
-    if auth_type == 'Bearer':
-        validator = SPOauth2RequestValidator(app=app, allowed_scopes=allowed_scopes, ttl=ttl)
-        server = Oauth2BackendApplicationServer(validator)
-        valid, r = server.verify_request(uri, http_method, body, headers, allowed_scopes)
-        return valid, r
-    return None, None
-
-
-def authenticate(app=None, allowed_scopes=None, http_method='', uri='',
-                 body=None, headers=None, ttl=DEFAULT_TTL, locations=None):
-    if body is None:
-        body = {}
-    if headers is None:
-        raise ValueError("headers can't be None")
-    if allowed_scopes is None:
-        allowed_scopes = []
-    if locations is None:
-        locations = DEFAULT_ACCESS_TOKEN_LOCATIONS
-    else:
-        locations = list(set(locations) & set(VALID_ACCESS_TOKEN_LOCATIONS))
-    for k, v in headers.items():
-        headers[k] = to_unicode(v, 'ascii')
-    jwt_token = None
-    access_token = None
-    auth_scheme = None
-    url_qs = parse_qs(urlparse(uri).query)
-
-    if 'url' in locations and 'access_token' in url_qs:
-        auth_scheme = 'Bearer'
-        jwt_token = url_qs.get('access_token')[0]
-    elif 'header' in locations and 'Authorization' in headers:
-        auth_header = headers.get('Authorization')
-        auth_scheme = auth_header.split(' ')[0]
-        if auth_scheme == 'Basic':
-            if body.get('grant_type') or url_qs.get('grant_type'):
-                jwt_token = _get_bearer_token(
-                    app, allowed_scopes, http_method, uri, body, headers,
-                    ttl=ttl)
-        if auth_scheme == 'Bearer':
-            jwt_token = auth_header.split(' ')[1]
-    elif 'body' in locations and 'access_token' in body:
-        auth_scheme = 'Bearer'
-        jwt_token = body.get('access_token')
-
-    if jwt_token:
-        access_token = AccessToken(app, jwt_token)
-
-    valid, r = _authenticate_request(
-        auth_scheme, app, allowed_scopes, http_method, uri, body, headers,
-        ttl=ttl)
-    if not valid:
-        return None
-    return ApiAuthenticationResult(
-        account=r.account, api_key=r.api_key, access_token=access_token)
-
-
-class BasicRequestAuthenticator(object):
+class RequestAuthenticator(object):
+    """Base class for all Stormpath RequestAuthenticator objects.
+    """
     def __init__(self, app):
         self.app = app
 
-    def authenticate(self, headers):
-        headers = {k: to_unicode(v, 'ascii') for k, v in headers.items()}
-
-        validator = SPBasicAuthRequestValidator(app=self.app, headers=headers)
-        valid, result = validator.verify_request()
-
-        if not valid:
+    def _get_auth_scheme_from_header(self, auth_header):
+        try:
+            return auth_header.split(' ')[0]
+        except (AttributeError, KeyError):
             return None
 
-        return ApiAuthenticationResult(
-            account=result.account, api_key=result.api_key, access_token=None)
+    def _get_auth_scheme_and_token(self, headers, http_method, url_qs, body,
+                                   scopes, ttl):
+        raise NotImplementedError('Subclasses must implement this method.')
 
+    def _authenticate_request(self, auth_type, scopes, http_method, uri, body,
+                              headers, ttl):
+        """Authenticates request based on auth type.
+        """
+        if auth_type == 'Basic':
+            validator = SPBasicAuthRequestValidator(
+                app=self.app, headers=headers)
+            valid, result = validator.verify_request()
+            return valid, result
+        if auth_type == 'Bearer':
+            validator = SPOauth2RequestValidator(
+                app=self.app, allowed_scopes=scopes, ttl=ttl)
+            server = Oauth2BackendApplicationServer(validator)
+            valid, result = server.verify_request(
+                uri, http_method, body, headers, scopes)
+            return valid, result
+        return None, None
 
-class OAuthRequestAuthenticator(object):
-    def __init__(self, app):
-        self.app = app
-
-    def authenticate(self, headers, http_method='', uri='', body=None, scopes=None, ttl=DEFAULT_TTL):
+    def authenticate(self, headers, http_method='', uri='', body=None,
+                     scopes=None, ttl=DEFAULT_TTL):
         headers = {k: to_unicode(v, 'ascii') for k, v in headers.items()}
-        url_qs = parse_qs(urlparse(uri).query)
         if body is None:
             body = {}
         if scopes is None:
             scopes = []
 
-        jwt_token = None
-        access_token = None
-        auth_header = headers.get('Authorization')
-        auth_scheme = auth_header.split(' ')[0]
-        if auth_scheme == 'Basic':
-            if body.get('grant_type') or url_qs.get('grant_type'):
-                jwt_token = _get_bearer_token(
-                    self.app, scopes, http_method, uri, body, headers, ttl)
-        if auth_scheme == 'Bearer':
-            jwt_token = auth_header.split(' ')[1]
+        auth_scheme, jwt_token = self._get_scheme_and_token(
+            headers, http_method, uri, body, scopes, ttl)
 
+        access_token = None
         if jwt_token:
             access_token = AccessToken(self.app, jwt_token)
 
-        if auth_scheme == 'Basic':
-            validator = SPBasicAuthRequestValidator(app=self.app, headers=headers)
-            valid, result = validator.verify_request()
-        elif auth_scheme == 'Bearer':
-            validator = SPOauth2RequestValidator(app=self.app, allowed_scopes=scopes, ttl=ttl)
-            server = Oauth2BackendApplicationServer(validator)
-            valid, result = server.verify_request(uri, http_method, body, headers, scopes)
-        else:
-            valid, result = None, None
+        valid, result = self._authenticate_request(
+            auth_scheme, scopes, http_method, uri, body, headers, ttl)
 
         if not valid:
             return None
 
         return ApiAuthenticationResult(
-            account=result.account, api_key=result.api_key, access_token=access_token)
+            account=result.account, api_key=result.api_key,
+            access_token=access_token)
+
+
+class ApiRequestAuthenticator(RequestAuthenticator):
+    """This class should authenticate both HTTP Basic Auth and OAuth2
+    requests. However, if you need more specific or customized OAuth2
+    request processing, you will likely want to use the
+    OauthRequestAuthenticator class.
+    """
+    def _get_scheme_and_token(self, headers, http_method, uri, body, scopes,
+                              ttl):
+        url_qs = parse_qs(urlparse(uri).query)
+
+        if 'access_token' in url_qs:
+            return 'Bearer', url_qs.get('access_token')[0]
+
+        elif 'Authorization' in headers:
+            auth_header = headers.get('Authorization')
+            auth_scheme = self._get_auth_scheme_from_header(auth_header)
+            jwt_token = None
+            if auth_scheme == 'Basic':
+                if body.get('grant_type') or url_qs.get('grant_type'):
+                    jwt_token =_get_bearer_token(
+                        self.app, scopes, http_method, uri, body, headers, ttl)
+            if auth_scheme == 'Bearer':
+                jwt_token = auth_header.split(' ')[1]
+            return auth_scheme, jwt_token
+
+        elif 'access_token' in body:
+            return 'Bearer', body.get('access_token')
+
+        return None, None
+
+
+class BasicRequestAuthenticator(RequestAuthenticator):
+    """This class should authenticate HTTP Basic Auth requests.
+    """
+    def _get_scheme_and_token(self, headers, http_method, uri, body, scopes,
+                              ttl):
+        auth_scheme = 'Basic'
+
+        if self._get_auth_scheme_from_header(
+                headers.get('Authorization')) == auth_scheme:
+            return auth_scheme, None
+
+        return None, None
+
+
+class OAuthRequestAuthenticator(RequestAuthenticator):
+    """This class should authenticate OAuth2 requests. It will
+    eventually support authenticating all 4 OAuth2 grant types.
+    Specifically, right now, this class will authenticate OAuth2
+    access tokens, as well as handle API key for access token exchanges
+    using the OAuth2 client credentials grant type.
+    """
+    def _get_scheme_and_token(self, headers, http_method, uri, body, scopes,
+                              ttl):
+        url_qs = parse_qs(urlparse(uri).query)
+
+        if 'access_token' in url_qs:
+            return 'Bearer', url_qs.get('access_token')[0]
+
+        elif 'Authorization' in headers:
+            auth_header = headers.get('Authorization')
+            auth_scheme = self._get_auth_scheme_from_header(auth_header)
+            jwt_token = None
+            if auth_scheme == 'Basic':
+                if not 'grant_type' in body and not 'grant_type' in url_qs:
+                    return None, None
+                jwt_token =_get_bearer_token(
+                    self.app, scopes, http_method, uri, body, headers, ttl)
+            if auth_scheme == 'Bearer':
+                jwt_token = auth_header.split(' ')[1]
+            return auth_scheme, jwt_token
+
+        elif 'access_token' in body:
+            return 'Bearer', body.get('access_token')
+
+        return None, None
+
+
+class OAuthBearerRequestAuthenticator(RequestAuthenticator):
+    """This class should authenticate OAuth2 bearer token requests
+    only. It will only look for the bearer token in the HTTP request.
+    """
+    def _get_scheme_and_token(self, headers, http_method, uri, body, scopes,
+                              ttl):
+        auth_scheme = 'Bearer'
+        url_qs = parse_qs(urlparse(uri).query)
+        auth_header = headers.get('Authorization')
+
+        if 'access_token' in url_qs:
+            return auth_scheme, url_qs.get('access_token')[0]
+
+        elif self._get_auth_scheme_from_header(auth_header) == auth_scheme:
+            return auth_scheme, auth_header.split(' ')[1]
+
+        elif 'access_token' in body:
+            return auth_scheme, body.get('access_token')
+
+        return None, None
+
+
+class OAuthClientCredentialsRequestAuthenticator(RequestAuthenticator):
+    """This class should authenticate OAuth2 client credentials grant
+    type requests only. It will handle authenticating a request based
+    on API key credentials.
+    """
+    def _get_scheme_and_token(self, headers, http_method, uri, body, scopes,
+                              ttl):
+        url_qs = parse_qs(urlparse(uri).query)
+        auth_header = headers.get('Authorization')
+        auth_scheme = 'Basic'
+
+        if self._get_auth_scheme_from_header(auth_header) == auth_scheme:
+            if body.get('grant_type') or url_qs.get('grant_type'):
+                return auth_scheme, _get_bearer_token(
+                    self.app, scopes, http_method, uri, body, headers, ttl)
+
+        return None, None
