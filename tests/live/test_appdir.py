@@ -3,7 +3,7 @@
 from stormpath.error import Error
 
 from .base import AuthenticatedLiveBase, SingleApplicationBase, AccountBase
-from stormpath.resources import Provider
+from stormpath.resources import AccountCreationPolicy, Provider
 from stormpath.resources.agent import Agent, AgentConfig, AgentAccountConfig, \
     AgentGroupConfig
 from stormpath.resources.email_template import EmailTemplate
@@ -477,3 +477,196 @@ class TestDirectoryPasswordPolicy(SingleApplicationBase):
             template.html_body,
             'Your password has been <b>successfully</b> reset.')
         self.assertEqual(template.mime_type, EmailTemplate.MIME_TYPE_HTML)
+
+
+class TestDirectoryAccountCreationPolicy(SingleApplicationBase):
+
+    def test_account_creation_policy_statuses(self):
+        account_creation_policy = self.dir.account_creation_policy
+
+        self.assertTrue(account_creation_policy.href)
+        self.assertEqual(
+            account_creation_policy.verification_email_status,
+            AccountCreationPolicy.EMAIL_STATUS_DISABLED)
+        self.assertEqual(
+            account_creation_policy.verification_success_email_status,
+            AccountCreationPolicy.EMAIL_STATUS_DISABLED)
+        self.assertEqual(
+            account_creation_policy.welcome_email_status,
+            AccountCreationPolicy.EMAIL_STATUS_DISABLED)
+
+        account_creation_policy.verification_email_status = \
+            AccountCreationPolicy.EMAIL_STATUS_ENABLED
+        account_creation_policy.verification_success_email_status = \
+            AccountCreationPolicy.EMAIL_STATUS_ENABLED
+        account_creation_policy.welcome_email_status = \
+            AccountCreationPolicy.EMAIL_STATUS_ENABLED
+        account_creation_policy.save()
+
+        self.assertEqual(
+            account_creation_policy.verification_email_status,
+            AccountCreationPolicy.EMAIL_STATUS_ENABLED)
+        self.assertEqual(
+            account_creation_policy.verification_success_email_status,
+            AccountCreationPolicy.EMAIL_STATUS_ENABLED)
+        self.assertEqual(
+            account_creation_policy.welcome_email_status,
+            AccountCreationPolicy.EMAIL_STATUS_ENABLED)
+
+    def test_directory_verification_email_template(self):
+        account_creation_policy = self.dir.account_creation_policy
+        templates = account_creation_policy.verification_email_templates
+
+        self.assertTrue(templates.href)
+        self.assertEqual(templates.limit, 25)
+        self.assertEqual(templates.offset, 0)
+
+        template = next(iter(templates))
+
+        self.assertTrue(template.href)
+        self.assertEqual(template.subject, 'Verify your account')
+        self.assertEqual(
+            template.name, 'Default Verification Email Template')
+        self.assertEqual(
+            template.default_model,
+            {
+                'linkBaseUrl':
+                    'https://api.stormpath.com/emailVerificationTokens'
+            })
+        self.assertEqual(
+            template.get_link_base_url(),
+            'https://api.stormpath.com/emailVerificationTokens')
+
+        template.subject = 'New Verify your account'
+        template.name = 'New Default Verification Email Template'
+        template.set_link_base_url(
+            'https://api.stormpath.com/newEmailVerificationTokens')
+        template.save()
+
+        template = next(iter(templates))
+
+        self.assertTrue(template.href)
+        self.assertEqual(
+            template.default_model,
+            {
+                'linkBaseUrl':
+                    'https://api.stormpath.com/newEmailVerificationTokens'
+            })
+        self.assertEqual(
+            template.get_link_base_url(),
+            'https://api.stormpath.com/newEmailVerificationTokens')
+        self.assertEqual(template.subject, 'New Verify your account')
+        self.assertEqual(
+            template.name, 'New Default Verification Email Template')
+
+        template.default_model = {}
+        with self.assertRaises(Error):
+            template.save()
+
+    def test_directory_verification_success_email_templates(self):
+        acp = self.dir.account_creation_policy
+        templates = acp.verification_success_email_templates
+
+        self.assertTrue(templates.href)
+        self.assertEqual(templates.limit, 25)
+        self.assertEqual(templates.offset, 0)
+
+        template = next(iter(templates))
+
+        self.assertTrue(template.href)
+        self.assertEqual(template.subject, 'Your account has been confirmed')
+        self.assertEqual(
+            template.name, 'Default Verification Success Email Template')
+        with self.assertRaises(AttributeError):
+            template.default_model
+
+        template.subject = 'New Your account has been confirmed'
+        template.name = 'New Default Verification Success Email Template'
+        template.save()
+
+        template = next(iter(templates))
+
+        self.assertTrue(template.href)
+        self.assertEqual(
+            template.subject, 'New Your account has been confirmed')
+        self.assertEqual(
+            template.name, 'New Default Verification Success Email Template')
+
+    def test_directory_verification_email_template(self):
+        account_creation_policy = self.dir.account_creation_policy
+        templates = account_creation_policy.verification_email_templates
+
+        self.assertTrue(templates.href)
+        self.assertEqual(templates.limit, 25)
+        self.assertEqual(templates.offset, 0)
+
+        template = next(iter(templates))
+
+        self.assertTrue(template.href)
+        self.assertEqual(template.subject, 'Verify your account')
+        self.assertEqual(
+            template.name, 'Default Verification Email Template')
+        self.assertEqual(
+            template.default_model,
+            {
+                'linkBaseUrl':
+                    'https://api.stormpath.com/emailVerificationTokens'
+            })
+        self.assertEqual(
+            template.get_link_base_url(),
+            'https://api.stormpath.com/emailVerificationTokens')
+
+        template.subject = 'New Verify your account'
+        template.name = 'New Default Verification Email Template'
+        template.set_link_base_url(
+            'https://api.stormpath.com/newEmailVerificationTokens')
+        template.save()
+
+        template = next(iter(templates))
+
+        self.assertTrue(template.href)
+        self.assertEqual(
+            template.default_model,
+            {
+                'linkBaseUrl':
+                    'https://api.stormpath.com/newEmailVerificationTokens'
+            })
+        self.assertEqual(
+            template.get_link_base_url(),
+            'https://api.stormpath.com/newEmailVerificationTokens')
+        self.assertEqual(template.subject, 'New Verify your account')
+        self.assertEqual(
+            template.name, 'New Default Verification Email Template')
+
+        template.default_model = {}
+        with self.assertRaises(Error):
+            template.save()
+
+    def test_directory_welcome_email_templates(self):
+        acp = self.dir.account_creation_policy
+        templates = acp.welcome_email_templates
+
+        self.assertTrue(templates.href)
+        self.assertEqual(templates.limit, 25)
+        self.assertEqual(templates.offset, 0)
+
+        template = next(iter(templates))
+
+        self.assertTrue(template.href)
+        self.assertEqual(template.subject, 'Your registration was successful')
+        self.assertEqual(
+            template.name, 'Default Welcome Email Template')
+        with self.assertRaises(AttributeError):
+            template.default_model
+
+        template.subject = 'New Your registration was successful'
+        template.name = 'New Default Welcome Email Template'
+        template.save()
+
+        template = next(iter(templates))
+
+        self.assertTrue(template.href)
+        self.assertEqual(
+            template.subject, 'New Your registration was successful')
+        self.assertEqual(
+            template.name, 'New Default Welcome Email Template')

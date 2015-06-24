@@ -34,6 +34,7 @@ class Directory(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, Stat
     @staticmethod
     def get_resource_attributes():
         from .account import AccountList
+        from .account_creation_policy import AccountCreationPolicy
         from .group import GroupList
         from .provider import Provider
         from .tenant import Tenant
@@ -41,6 +42,7 @@ class Directory(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, Stat
         from .password_policy import PasswordPolicy
 
         return {
+            'account_creation_policy': AccountCreationPolicy,
             'custom_data': CustomData,
             'accounts': AccountList,
             'groups': GroupList,

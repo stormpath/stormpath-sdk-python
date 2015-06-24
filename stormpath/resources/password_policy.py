@@ -26,11 +26,11 @@ class PasswordPolicy(Resource, DictMixin, SaveMixin):
 
     @staticmethod
     def get_resource_attributes():
-        from .email_template import EmailTemplateList, ResetEmailTemplateList
+        from .email_template import EmailTemplateList, DefaultModelEmailTemplateList
         from .password_strength import PasswordStrength
 
         return {
-            'reset_email_templates': ResetEmailTemplateList,
+            'reset_email_templates': DefaultModelEmailTemplateList,
             'reset_success_email_templates': EmailTemplateList,
             'strength': PasswordStrength,
         }
