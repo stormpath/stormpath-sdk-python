@@ -3,7 +3,7 @@ Integration tests for various pieces involved in external provider support.
 """
 
 from unittest import TestCase, main
-from stormpath.resources.email_template import ResetEmailTemplate
+from stormpath.resources.email_template import DefaultModelEmailTemplate
 from stormpath.resources.password_policy import PasswordPolicy
 from stormpath.resources.password_strength import PasswordStrength
 
@@ -82,7 +82,7 @@ class TestPasswordPolicy(TestCase):
             'defaultModel': {'linkBaseUrl': 'some-link.com'}
         }
 
-        ret = ResetEmailTemplate(
+        ret = DefaultModelEmailTemplate(
             client=MagicMock(data_store=ds, BASE_URL='http://example.com'),
             href='email-template')
 
@@ -97,7 +97,7 @@ class TestPasswordPolicy(TestCase):
         }
         ds.update_resource.return_value = {}
 
-        ret = ResetEmailTemplate(
+        ret = DefaultModelEmailTemplate(
             client=MagicMock(data_store=ds, BASE_URL='http://example.com'),
             href='email-template')
 

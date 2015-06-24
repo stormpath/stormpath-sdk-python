@@ -36,8 +36,8 @@ class EmailTemplateList(CollectionResource):
     resource_class = EmailTemplate
 
 
-class ResetEmailTemplate(EmailTemplate):
-    """Stormpath ResetEmailTemplate resource.
+class DefaultModelEmailTemplate(EmailTemplate):
+    """Stormpath DefaultModelEmailTemplate resource.
 
     More info in documentation:
     http://docs.stormpath.com/rest/product-guide/#directory-password-policy
@@ -61,6 +61,6 @@ class ResetEmailTemplate(EmailTemplate):
         self.default_model['linkBaseUrl'] = value
 
 
-class ResetEmailTemplateList(CollectionResource):
-    """ResetEmailTemplate resource list."""
-    resource_class = ResetEmailTemplate
+class DefaultModelEmailTemplateList(CollectionResource):
+    """DefaultModelEmailTemplate resource list."""
+    resource_class = DefaultModelEmailTemplate
