@@ -251,6 +251,12 @@ class TestCollectionResource(AccountBase):
 
 
 class TestApiKeys(ApiKeyBase):
+    def test_api_keys_implement_dict_protocol(self):
+        _, acc = self.create_account(self.app.accounts)
+        api_key = self.create_api_key(acc)
+
+        api_key_dict = dict(api_key)
+        self.assertTrue('account' in api_key_dict)
 
     def test_api_key_resource_gets_built_properly_and_cached(self):
         _, acc = self.create_account(self.app.accounts)
