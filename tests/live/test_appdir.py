@@ -303,6 +303,10 @@ class TestApplicationDirectoryModification(SingleApplicationBase):
 
 
 class TestApplicationVerificationEmail(AccountBase):
+    def test_verification_emails_iteration(self):
+        with self.assertRaises(ValueError):
+            for verification_email in self.app.verification_emails:
+                pass
 
     def test_resend_fails_for_directory_with_disabled_verificiation(self):
         name, acc = self.create_account(self.app.accounts)
