@@ -3,13 +3,14 @@
 from .base import (
     CollectionResource,
     DeleteMixin,
+    DictMixin,
     Resource,
     SaveMixin,
     StatusMixin,
 )
 
 
-class ApiKey(Resource, DeleteMixin, SaveMixin, StatusMixin):
+class ApiKey(Resource, DictMixin, DeleteMixin, SaveMixin, StatusMixin):
     writable_attrs = (
         'status',
     )
