@@ -278,6 +278,11 @@ class TestAccountStoreMappings(AuthenticatedLiveBase):
         self.assertIsNone(self.app.default_account_store_mapping)
         self.assertIsNone(self.app.default_group_store_mapping)
 
+    def test_account_store_mapping_client_iteration(self):
+        with self.assertRaises(ValueError):
+            for account_store_mapping in self.client.account_store_mappings:
+                pass
+
 
 class TestApplicationDirectoryModification(SingleApplicationBase):
 

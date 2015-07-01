@@ -43,3 +43,11 @@ class AccountStoreMappingList(CollectionResource):
 
     create_path = '/accountStoreMappings'
     resource_class = AccountStoreMapping
+
+    def _ensure_data(self):
+        if self.href == '/accountStoreMappings':
+            raise ValueError(
+                "It is not possible to access account_store_mappings from "
+                "Client resource! Try using Application resource instead.")
+
+        super(AccountStoreMappingList, self)._ensure_data()
