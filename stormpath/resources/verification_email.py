@@ -15,6 +15,9 @@ class VerificationEmailList(CollectionResource):
     """List of email verfication requests."""
     resource_class = VerificationEmail
 
+    def _ensure_data(self):
+        raise ValueError("It is not possible to access verification_emails!")
+
     def resend(self, account=None, account_store=None):
         """Resend the Email Verification Token.
 
