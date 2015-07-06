@@ -1,3 +1,19 @@
+Version 2.0.7
+-------------
+
+**Released on June 18, 2015.**
+
+- Removing Python 3.2 support.
+- Adding in support for signals / binding.  This allows us to do really cool
+  event-driven development.
+- Adding in better social login integration tests.
+- Adding new Travis CI environment variables.
+- Fixing some broken tests.
+- Adding sleep statements after tests to ensure eventually consistent tests
+  pass.
+- Adding in better tests for ID site functionality.
+
+
 Version 2.0.6
 -------------
 
