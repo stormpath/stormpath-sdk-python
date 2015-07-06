@@ -1,3 +1,16 @@
+Version 2.0.8
+-------------
+
+**Released on July 6, 2015.**
+
+This is our (belated) Independence Day release!  Thanks to Will Smith for saving
+the earth and therefore making this release possible!
+
+- Adding account creation policy support.
+- Renaming ResetEmailTemplate -> DefaultModelEmailTemplate
+- Making our API Key resource dict() compatible.
+
+
 Version 2.0.7
 -------------
 
