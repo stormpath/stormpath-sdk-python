@@ -106,7 +106,11 @@ class Sauthc1Signer(AuthBase):
         # FIXME: REST API doesn't want this header in the signature.
         if 'Content-Length' in auth_headers:
             del auth_headers['Content-Length']
-
+        # Connection header can be transparently overridden by proxies anywhere and should not
+        # be a part of sig computation
+        if 'Connection' in auth_headers:
+            del auth_headers['Connection']
+            
         sorted_headers = OrderedDict(sorted(auth_headers.items()))
         canonical_headers_string = ''
         for key, value in sorted_headers.items():
