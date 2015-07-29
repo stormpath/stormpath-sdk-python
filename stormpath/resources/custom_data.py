@@ -114,7 +114,7 @@ class CustomData(Resource, DeleteMixin, SaveMixin):
             self.exposed_readonly_timestamp_attrs)
         return {k: self.data[k] for k in writable_attrs}
 
-    def _set_properties(self, properties):
+    def _set_properties(self, properties, overwrite=False):
         self.__dict__['data'] = self.__dict__.get('data', {})
         for k, v in properties.items():
             kcc = self.from_camel_case(k)
