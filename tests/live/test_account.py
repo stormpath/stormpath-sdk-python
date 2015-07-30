@@ -77,6 +77,44 @@ class TestAccountCreateUpdateDelete(AccountBase):
         self.assertEqual(len(accs), 1)
         self.assertFalse(accs[0].is_enabled())
 
+    def test_account_modification_with_custom_data(self):
+        name, acc = self.create_account(self.app.accounts)
+
+        acc = self.app.accounts.get(acc.href)
+
+        acc.email = 'foo@example.com'
+        acc.status = acc.STATUS_DISABLED
+        acc.custom_data['key'] = 'value'
+        acc.save()
+
+        accs = self.app.accounts.query(email=acc.email)
+
+        self.assertEqual(len(accs), 1)
+        acc = accs[0]
+        self.assertEqual(acc.email, 'foo@example.com')
+        self.assertEqual(acc.custom_data['key'], 'value')
+        self.assertFalse(accs[0].is_enabled())
+
+    def test_account_modification_with_custom_data_and_refresh(self):
+        name, acc = self.create_account(self.app.accounts)
+        old_email = acc.email
+
+        acc = self.app.accounts.get(acc.href)
+
+        acc.email = 'foo@example.com'
+        acc.status = acc.STATUS_DISABLED
+        acc.refresh()
+        acc.custom_data['key'] = 'value'
+        acc.save()
+
+        accs = self.app.accounts.query(email=acc.email)
+
+        self.assertEqual(len(accs), 1)
+        acc = accs[0]
+        self.assertEqual(acc.email, old_email)
+        self.assertEqual(acc.custom_data['key'], 'value')
+        self.assertTrue(accs[0].is_enabled())
+
 
 class TestApplicationAuthentication(AccountBase):
 

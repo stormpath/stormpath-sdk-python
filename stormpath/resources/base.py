@@ -133,10 +133,15 @@ class Resource(object):
         else:
             return value
 
-    def _set_properties(self, properties):
+    def _set_properties(self, properties, overwrite=False):
         resource_attrs = self.get_resource_attributes()
         for name, value in properties.items():
             name = self.from_camel_case(name)
+
+            # if this attribute is already set, don't overwrite it
+            if not overwrite:
+                if name in self.writable_attrs and name in self.__dict__:
+                    continue
 
             if name in resource_attrs:
                 value = self._wrap_resource_attr(resource_attrs[name],
@@ -206,7 +211,7 @@ class Resource(object):
     def is_new(self):
         return self.href is None
 
-    def _ensure_data(self):
+    def _ensure_data(self, overwrite=False):
         if self.is_new():
             return
 
@@ -225,7 +230,7 @@ class Resource(object):
             params = None
 
         data = self._store.get_resource(self.href, params=params)
-        self._set_properties(data)
+        self._set_properties(data, overwrite=overwrite)
 
     def refresh(self):
         """Refreshes the local copy of a Resource or Resource List from the API
@@ -242,7 +247,7 @@ class Resource(object):
         """
 
         self._store.uncache_resource(self.href)
-        self._ensure_data()
+        self._ensure_data(True)
 
 
 class SaveMixin(object):
@@ -346,9 +351,10 @@ class CollectionResource(Resource):
     readonly_attrs = ('href', 'items', 'limit', 'offset', 'size')
     resource_class = Resource
 
-    def _set_properties(self, properties):
+    def _set_properties(self, properties, overwrite=False):
         items = properties.pop('items', None)
-        super(CollectionResource, self)._set_properties(properties)
+        super(CollectionResource, self)._set_properties(
+            properties, overwrite=overwrite)
 
         if items is not None:
             self.__dict__['items'] = [self._wrap_resource_attr(
