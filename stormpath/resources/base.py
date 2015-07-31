@@ -85,7 +85,12 @@ class Resource(object):
             raise ValueError("Either 'href' or 'properties' are required")
 
     def __setattr__(self, name, value):
-        if name.startswith('_') or name in self.writable_attrs:
+        ctype = self.get_resource_attributes().get(name)
+
+        if ctype and not isinstance(value, ctype) \
+                and name in self.writable_attrs:
+            getattr(self, name)._set_properties(value)
+        elif name.startswith('_') or name in self.writable_attrs:
             super(Resource, self).__setattr__(name, value)
         else:
             raise AttributeError("Attribute '%s' of %s is not writable" %
