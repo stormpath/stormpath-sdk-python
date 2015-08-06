@@ -53,6 +53,44 @@ class TestAccountCreateUpdateDelete(AccountBase):
         dir_accs[0].delete()
         self.assertEqual(len(self.dir.accounts.query(username=name)), 0)
 
+    def test_directory_account_creation_with_existing_password_hash(self):
+        name = self.get_random_name()
+        email = name + '@example.com'
+        password = "123456"
+        # password hash for "123456" password:
+        password_hash = "$stormpath2$MD5$1$OWI3OTQwYjEwODEwOTdkNTcwZDY5NjQ2ZDNlNmZjNzM=$ULWTW74NXPyLYj3VfYHWrg=="
+
+        props = {
+            'username': name,
+            'email': email,
+            'given_name': name,
+            'surname': name,
+            'password': password_hash
+        }
+
+        self.dir.accounts.create(props, password_format='mcf')
+        dir_accs = self.dir.accounts.query(username=name)
+
+        self.assertEqual(len(dir_accs), 1)
+        self.assertEqual(dir_accs[0].username, name)
+
+        accs = self.app.accounts.query(username=name)
+
+        self.assertEqual(len(accs), 1)
+        self.assertEqual(accs[0].username, name)
+
+        # account authentication with invalid password raises Error
+        with self.assertRaises(Error):
+            self.app.authenticate_account(email, 'invalid')
+
+        # check authenticate_account twice - Stormpath uses provided
+        # hash the first time, and then recreates the hash
+        self.app.authenticate_account(email, password)
+        self.app.authenticate_account(email, password)
+
+        dir_accs[0].delete()
+        self.assertEqual(len(self.dir.accounts.query(username=name)), 0)
+
     def test_duplicate_username_acc_creation_fails(self):
         name, acc = self.create_account(self.app.accounts)
 
