@@ -81,6 +81,7 @@ class TestBaseResource(TestCase):
             json=MagicMock(return_value={'name': 'My Application'}))
 
         self.client = Client(
+            api_key={'id': 'MyId', 'secret': 'Shush!'},
             base_url='https://enterprise.stormpath.io/v1')
         r = Resource(self.client, href='/application/APP_UID')
 
