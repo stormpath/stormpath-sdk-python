@@ -87,7 +87,7 @@ setup(
         'python-dateutil>=2.4.0',
         'pydispatcher>=2.0.5'
     ],
-    packages = find_packages(exclude=['tests']),
+    packages = find_packages(exclude=['*.tests', '*.tests.*', 'tests.*', 'tests']),
     classifiers = [
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',

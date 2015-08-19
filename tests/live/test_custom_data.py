@@ -135,6 +135,23 @@ class TestAccountCustomData(AccountBase):
             set(acc.custom_data),
             set(acc.custom_data.exposed_readonly_timestamp_attrs))
 
+    def test_custom_data_set_as_dict(self):
+        name, acc = self.create_account(self.app.accounts)
+
+        self.assertEqual(
+            set(acc.custom_data),
+            set(acc.custom_data.exposed_readonly_timestamp_attrs))
+
+        acc.custom_data = CUSTOM_DATA
+        acc.save()
+
+        acc = self.app.accounts.get(acc.href)
+
+        self.assertEqual(acc.custom_data['foo'], 'F00!')
+        self.assertEqual(acc.custom_data['foo_val'], 1)
+        self.assertEqual(acc.custom_data['fooCamelCase'], True)
+        self.assertEqual(acc.custom_data['list_of_foo'][0], 'a')
+
 
 class TestApplicationAndDirectoryCustomData(CustomDataTest):
 

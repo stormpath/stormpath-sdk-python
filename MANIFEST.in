@@ -1,3 +1,5 @@
 include README.md
 include CHANGES.md
+graft docs
+prune docs/_build
 recursive-exclude test *.py *.yml
