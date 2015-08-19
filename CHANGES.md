@@ -1,3 +1,21 @@
+Version 2.0.9
+-------------
+
+**Released on August 19, 2015.**
+
+- Adding new API authentication classes / logic!  These make API authentication
+  WAYYYYY easier: both for Basic Auth and OAuth2 requests!
+- Supporting fetching of resources by partial HREF. So you can say like
+  `client.get_application('/v1/applications/xxx')` as opposed to including the
+  ENTIRE href.  This makes moving to the Stormpath enterprise cloud a bit
+  simpler.
+- Making it possible to create new accounts with EXISTING password hashes!
+  Finally!  If you're migrating users into Stormpath, we can now utilize your
+  existing password hashes to make migrations 100% painless.
+- Various packaging fixes, thanks a ton [Alex](https://github.com/alunduil)!
+  Much love!
+
+
 Version 2.0.8
 -------------
 
