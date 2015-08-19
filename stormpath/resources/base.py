@@ -461,7 +461,7 @@ class CollectionResource(Resource):
         else:
             return self._client.BASE_URL + self.href
 
-    def create(self, properties, expand=None, **params):
+    def _prepare_for_create(self, properties, expand=None, **params):
         resource_attrs = self.resource_class.get_resource_attributes()
         data = {}
 
@@ -475,6 +475,11 @@ class CollectionResource(Resource):
         params = {self.to_camel_case(k): v for k, v in params.items()}
         if expand:
             params.update({'expand': expand.get_params()})
+
+        return data, params
+
+    def create(self, properties, expand=None, **params):
+        data, params = self._prepare_for_create(properties, expand, **params)
 
         created = self.resource_class(
             self._client,

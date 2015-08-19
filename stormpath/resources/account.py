@@ -5,6 +5,7 @@ from six import string_types
 
 from stormpath.error import Error as StormpathError
 from .base import (
+    SIGNAL_RESOURCE_CREATED,
     AutoSaveMixin,
     CollectionResource,
     DeleteMixin,
@@ -12,6 +13,8 @@ from .base import (
     Resource,
     StatusMixin,
 )
+
+from pydispatch import dispatcher
 
 
 class Account(Resource, AutoSaveMixin, DictMixin, DeleteMixin, StatusMixin):
@@ -358,3 +361,30 @@ class AccountList(CollectionResource):
         data = self._store.create_resource(href, {})
 
         return self.resource_class(client=self._client, properties=data)
+
+    def create(self, properties, expand=None, password_format=None, **params):
+        """If password_format is specified, account will be created
+        using existing password hash.
+
+        http://docs.stormpath.com/python/product-guide/#create-an-account-with-an-existing-password-hash
+        """
+        data, params = self._prepare_for_create(properties, expand, **params)
+
+        create_path = self._get_create_path()
+        if password_format:
+            create_path += '?passwordFormat=' + password_format
+
+        created = self.resource_class(
+            self._client,
+            properties=self._store.create_resource(
+                create_path,
+                data,
+                params=params
+            )
+        )
+
+        dispatcher.send(
+            signal=SIGNAL_RESOURCE_CREATED, sender=self.resource_class,
+            data=data, params=params)
+
+        return created
