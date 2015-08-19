@@ -14,6 +14,8 @@ Version 2.0.9
   existing password hashes to make migrations 100% painless.
 - Various packaging fixes, thanks a ton [Alex](https://github.com/alunduil)!
   Much love!
+- Allowing custom data to be used as a dictionary.  This makes storing /
+  retrieving custom data a bit easier.
 
 
 Version 2.0.8
