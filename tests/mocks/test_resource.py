@@ -1,18 +1,18 @@
 from unittest import TestCase, main
 from datetime import datetime
 from dateutil.tz import tzutc, tzoffset
-from stormpath.resources.agent import AgentConfig
 
 try:
     from mock import MagicMock, patch, create_autospec
 except ImportError:
     from unittest.mock import MagicMock, patch, create_autospec
+
+from stormpath.resources.agent import AgentConfig
 from stormpath.resources.base import (Expansion, Resource, CollectionResource,
     SaveMixin, DeleteMixin, AutoSaveMixin, DictMixin, FixedAttrsDict)
 from stormpath.client import Client
-
+from stormpath.http import Session
 from stormpath.resources.application import Application
-from stormpath.resources import Provider
 
 
 class TestExpansion(TestCase):
@@ -73,6 +73,22 @@ class TestBaseResource(TestCase):
         # non-existing attribute access is handled correctly
         with self.assertRaises(AttributeError):
             r.foo
+
+    @patch('stormpath.http.Session')
+    def test_resource_init_with_partial_href(self, session):
+        session.return_value.request.return_value = MagicMock(
+            status_code=200,
+            json=MagicMock(return_value={'name': 'My Application'}))
+
+        self.client = Client(
+            api_key={'id': 'MyId', 'secret': 'Shush!'},
+            base_url='https://enterprise.stormpath.io/v1')
+        r = Resource(self.client, href='/application/APP_UID')
+
+        self.assertEqual(r.name, 'My Application')
+        session.return_value.request.assert_called_once_with(
+            'GET', 'https://enterprise.stormpath.io/v1/application/APP_UID',
+            params=None, allow_redirects=False, data=None)
 
     def test_resource_with_href_not_string_type(self):
         self.assertRaises(TypeError, Resource, MagicMock(), href=123)
