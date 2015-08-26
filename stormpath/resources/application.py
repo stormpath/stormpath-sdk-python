@@ -55,6 +55,7 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
         from .api_key import ApiKeyList
         from .custom_data import CustomData
         from .verification_email import VerificationEmailList
+        from .oauth_policy import OauthPolicy
 
         return {
             'custom_data': CustomData,
@@ -65,6 +66,7 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
             'default_group_store_mapping': AccountStoreMapping,
             'groups': GroupList,
             'login_attempts': LoginAttemptList,
+            'oauth_policy': OauthPolicy,
             'password_reset_tokens': PasswordResetTokenList,
             'tenant': Tenant,
             'verification_emails': VerificationEmailList
