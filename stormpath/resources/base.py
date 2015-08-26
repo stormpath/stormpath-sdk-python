@@ -172,6 +172,9 @@ class Resource(object):
 
     @staticmethod
     def from_camel_case(name):
+        if 'oauthpolicy' == name.lower():
+            return 'oauth_policy'
+
         cs = []
         for c in name:
             cl = c.lower()
