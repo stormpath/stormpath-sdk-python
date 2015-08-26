@@ -4,6 +4,8 @@ from stormpath.error import Error
 
 from .base import AuthenticatedLiveBase, SingleApplicationBase, AccountBase
 from stormpath.resources import AccountCreationPolicy, Provider
+from stormpath.resources.application import Application
+from stormpath.resources.tenant import Tenant
 from stormpath.resources.agent import Agent, AgentConfig, AgentAccountConfig, \
     AgentGroupConfig
 from stormpath.resources.email_template import EmailTemplate
@@ -679,3 +681,32 @@ class TestDirectoryAccountCreationPolicy(SingleApplicationBase):
             template.subject, 'New Your registration was successful')
         self.assertEqual(
             template.name, 'New Default Welcome Email Template')
+
+
+class TestApplicationOAuthPolicy(SingleApplicationBase):
+
+    def test_oauth_policy_properties(self):
+        oauth_policy = self.app.oauth_policy
+
+        self.assertTrue(oauth_policy.href)
+        self.assertTrue(oauth_policy.access_token_ttl)
+        self.assertTrue(oauth_policy.refresh_token_ttl)
+        self.assertTrue(oauth_policy.token_endpoint)
+
+    def test_oauth_policy_linked_resources(self):
+        oauth_policy = self.app.oauth_policy
+        application = oauth_policy.application
+        tenant = oauth_policy.tenant
+
+        self.assertIsInstance(application, Application)
+        self.assertIsInstance(tenant, Tenant)
+
+    def test_update_oauth_policy_properties(self):
+        oauth_policy = self.app.oauth_policy
+
+        oauth_policy.access_token_ttl = 'PT5H'
+        oauth_policy.refresh_token_ttl = 'PT10H'
+        oauth_policy.save()
+
+        self.assertEqual(oauth_policy.access_token_ttl, 'PT5H')
+        self.assertEqual(oauth_policy.refresh_token_ttl, 'PT10H')
