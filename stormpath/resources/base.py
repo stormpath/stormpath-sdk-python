@@ -3,8 +3,10 @@ Contains classes that bear the brunt of Stormpath Python SDK resource handling
 like list access, updates, saves, deletes, attribute fetching, iterations etc.
 """
 
+import datetime
 from copy import deepcopy
 from dateutil.parser import parse
+from isodate import duration_isoformat, parse_duration
 
 try:
     string_type = basestring
@@ -66,6 +68,7 @@ class Resource(object):
     autosaves = ()
     writable_attrs = ()
     resolvable_attrs = ()
+    timedelta_attrs = ()
 
     def __init__(self, client, href=None, properties=None, query=None,
             expand=None):
@@ -157,6 +160,8 @@ class Resource(object):
                 value = Resource(self._client, href=value['href'])
             elif name in ['created_at', 'modified_at']:
                 value = parse(value)
+            elif name in self.timedelta_attrs:
+                value = parse_duration(value)
 
             self.__dict__[name] = value
 
@@ -190,6 +195,9 @@ class Resource(object):
         data = {}
         for k, v in self.__dict__.items():
             if k in self.writable_attrs:
+                if k in self.timedelta_attrs and \
+                        isinstance(v, datetime.timedelta):
+                    v = duration_isoformat(v)
                 data[self.to_camel_case(k)] = self._sanitize_property(v)
 
         return data

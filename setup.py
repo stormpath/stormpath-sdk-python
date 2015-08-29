@@ -85,7 +85,8 @@ setup(
         'requests>=2.4.3',
         'six>=1.6.1',
         'python-dateutil>=2.4.0',
-        'pydispatcher>=2.0.5'
+        'pydispatcher>=2.0.5',
+        'isodate'>='0.5.4'
     ],
     packages = find_packages(exclude=['*.tests', '*.tests.*', 'tests.*', 'tests']),
     classifiers = [
