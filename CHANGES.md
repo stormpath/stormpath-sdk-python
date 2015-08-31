@@ -1,3 +1,12 @@
+Version 2.1.0
+-------------
+
+**Relased on August 31, 2015.**
+
+- Adding new `OauthPolicy` class.  This allows users to modify their
+  Application's OAuth Policies, setting new Access Token and Refresh Token TTLs.
+
+
 Version 2.0.9
 -------------
 
