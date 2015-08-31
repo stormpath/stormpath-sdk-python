@@ -19,6 +19,11 @@ class OauthPolicy(Resource, DictMixin, SaveMixin):
         'refresh_token_ttl',
     )
 
+    timedelta_attrs = (
+        'access_token_ttl',
+        'refresh_token_ttl',
+    )
+
     @staticmethod
     def get_resource_attributes():
         from .application import Application

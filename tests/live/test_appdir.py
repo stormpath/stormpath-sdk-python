@@ -1,5 +1,7 @@
 """Live tests of basic Application and Directory functionality."""
 
+import datetime
+
 from stormpath.error import Error
 
 from .base import AuthenticatedLiveBase, SingleApplicationBase, AccountBase
@@ -691,6 +693,10 @@ class TestApplicationOAuthPolicy(SingleApplicationBase):
         self.assertTrue(oauth_policy.href)
         self.assertTrue(oauth_policy.access_token_ttl)
         self.assertTrue(oauth_policy.refresh_token_ttl)
+        self.assertTrue(
+            isinstance(oauth_policy.access_token_ttl, datetime.timedelta))
+        self.assertTrue(
+            isinstance(oauth_policy.refresh_token_ttl, datetime.timedelta))
         self.assertTrue(oauth_policy.token_endpoint)
 
     def test_oauth_policy_linked_resources(self):
@@ -707,6 +713,22 @@ class TestApplicationOAuthPolicy(SingleApplicationBase):
         oauth_policy.access_token_ttl = 'PT5H'
         oauth_policy.refresh_token_ttl = 'PT10H'
         oauth_policy.save()
+        oauth_policy.refresh()
 
-        self.assertEqual(oauth_policy.access_token_ttl, 'PT5H')
-        self.assertEqual(oauth_policy.refresh_token_ttl, 'PT10H')
+        self.assertEqual(
+            oauth_policy.access_token_ttl, datetime.timedelta(hours=5))
+        self.assertEqual(
+            oauth_policy.refresh_token_ttl, datetime.timedelta(hours=10))
+
+    def test_update_oauth_policy_properties_timedelta(self):
+        oauth_policy = self.app.oauth_policy
+
+        oauth_policy.access_token_ttl = datetime.timedelta(hours=5)
+        oauth_policy.refresh_token_ttl = datetime.timedelta(hours=10)
+        oauth_policy.save()
+        oauth_policy.refresh()
+
+        self.assertEqual(
+            oauth_policy.access_token_ttl, datetime.timedelta(hours=5))
+        self.assertEqual(
+            oauth_policy.refresh_token_ttl, datetime.timedelta(hours=10))
