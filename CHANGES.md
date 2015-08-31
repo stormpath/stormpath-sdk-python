@@ -1,3 +1,11 @@
+Version 2.1.1
+-------------
+
+**Released on August 31, 2015.**
+
+- Version bump for vanity.
+
+
 Version 2.1.0
 -------------
 
