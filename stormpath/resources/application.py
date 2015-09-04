@@ -17,9 +17,10 @@ from .base import (
     AutoSaveMixin,
 )
 from .login_attempt import LoginAttemptList
+from .password_reset_token import PasswordResetTokenList
+from ..error import Error as StormpathError
 from ..id_site import IdSiteCallbackResult
 from ..nonce import Nonce
-from .password_reset_token import PasswordResetTokenList
 
 
 class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, StatusMixin):
@@ -214,12 +215,14 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
     def handle_id_site_callback(self, url_response):
         """Handles the callback from the ID site.
 
-        :param url_response: A string representing the full url (with it's params) to witch the
-            ID redirected to.
+        :param url_response: A string representing the full url (with
+            it's params) to which the ID redirected to.
 
-        :return: A :class:`stormpath.id_site.IdSiteCallbackResult` object. Which holds the
-            :class:`stormpath.resources.account.Account` object and the state (if any was passed
-            along when creating the redirect uri).
+        :return: A :class:`stormpath.id_site.IdSiteCallbackResult`
+            object. Which holds the
+            :class:`stormpath.resources.account.Account` object and the
+            state (if any was passed along when creating the redirect
+            uri).
 
        """
         try:
@@ -242,6 +245,9 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
                 algorithms=['HS256'])
         except (jwt.DecodeError, jwt.ExpiredSignature):
             return None
+
+        if 'err' in decoded_data:
+            raise StormpathError(decoded_data.get('err'))
 
         nonce = Nonce(decoded_data['irt'])
 
