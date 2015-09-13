@@ -94,6 +94,12 @@ class TestAccount(TestCase):
         self.account.add_group('http://example.com/group')
         self.account._client.group_memberships.create.assert_any_calls()
 
+    def test_add_groups_to_account(self):
+        groups = ['http://example.com/group1', 'http://example.com/group2']
+        self.account.add_groups(groups)
+        self.assertEqual(
+            self.account._client.group_memberships.create.call_count, 2)
+
     def test_add_account_to_group(self):
         ds = MagicMock()
         self.acs = AccountList(MagicMock(data_store=ds), href='test/accounts')
@@ -103,6 +109,42 @@ class TestAccount(TestCase):
         }
 
         self.g.add_account('http://example.com/account')
+        args, _ = self.account._client.group_memberships.create.call_args
+        self.assertEqual(args[0]['account'].href, self.account.href)
+        self.assertEqual(args[0]['group'].href, self.g.href)
+
+    def test_add_account_to_group_by_username(self):
+        ds = MagicMock()
+        self.acs = AccountList(MagicMock(data_store=ds), href='test/accounts')
+        self.d._set_properties({'accounts': self.acs})
+        ds.get_resource.return_value = {
+            'href': 'test/accounts',
+            'offset': 0,
+            'limit': 25,
+            'items': [
+                {'href': self.account.href, 'username': self.account.username}
+            ],
+        }
+
+        self.g.add_account(self.account.username)
+        args, _ = self.account._client.group_memberships.create.call_args
+        self.assertEqual(args[0]['account'].href, self.account.href)
+        self.assertEqual(args[0]['group'].href, self.g.href)
+
+    def test_add_account_to_group_by_search_dict(self):
+        ds = MagicMock()
+        self.acs = AccountList(MagicMock(data_store=ds), href='test/accounts')
+        self.d._set_properties({'accounts': self.acs})
+        ds.get_resource.return_value = {
+            'href': 'test/accounts',
+            'offset': 0,
+            'limit': 25,
+            'items': [
+                {'href': self.account.href, 'username': self.account.username}
+            ],
+        }
+
+        self.g.add_account({'username': self.account.username})
         args, _ = self.account._client.group_memberships.create.call_args
         self.assertEqual(args[0]['account'].href, self.account.href)
         self.assertEqual(args[0]['group'].href, self.g.href)
