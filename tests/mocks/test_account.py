@@ -90,10 +90,6 @@ class TestAccount(TestCase):
         self.account._set_properties({'directory': d})
         self.assertRaises(ValueError, self.account._resolve_group, 'non_existent')
 
-    def test_add_group_to_account(self):
-        self.account.add_group('http://example.com/group')
-        self.account._client.group_memberships.create.assert_any_calls()
-
     def test_add_account_to_group(self):
         ds = MagicMock()
         self.acs = AccountList(MagicMock(data_store=ds), href='test/accounts')
