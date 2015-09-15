@@ -1,11 +1,3 @@
-Version 2.1.2
--------------
-
-**Not yet released.**
-
-- Making module more pythonic by allowing direct imports.
-
-
 Version 2.1.1
 -------------
 
