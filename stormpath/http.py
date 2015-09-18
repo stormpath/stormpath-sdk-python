@@ -138,7 +138,7 @@ class HttpExecutor(object):
             d['filename'] = params.get('filename')
         return d
 
-    def request(self, method, url, data=None, params=None, retry_count=0):
+    def request(self, method, url, data=None, params=None, headers=None, retry_count=0):
         if params:
             params = OrderedDict(sorted(params.items()))
 
@@ -146,16 +146,16 @@ class HttpExecutor(object):
             url = self.base_url + url
 
         try:
-            r = self.session.request(method, url, data=data, params=params,
+            r = self.session.request(method, url, data=data, params=params, headers=headers,
                 allow_redirects=False)
         except Exception as e:
             if self.should_retry(retry_count, e):
                 self.pause_exponentially(retry_count)
-                self.request(method, url, data=data, params=params, retry_count=retry_count + 1)
+                self.request(method, url, data=data, params=params, headers=headers, retry_count=retry_count + 1)
             raise Error({'developerMessage': str(e)})
 
-        log.debug('HttpExecutor.request(method=%s, url=%s, params=%s, data=%s) -> [%d] %s' %
-            (method, url, repr(params), repr(data), r.status_code, r.text))
+        log.debug('HttpExecutor.request(method=%s, url=%s, params=%s, data=%s, headers=%s) -> [%d] %s' %
+            (method, url, repr(params), repr(data), repr(headers), r.status_code, r.text))
 
         if r.status_code in [301, 302] and 'location' in r.headers:
             if not r.headers['location'].startswith(self.base_url):
@@ -167,7 +167,7 @@ class HttpExecutor(object):
         if r.status_code >= 400 and r.status_code <= 600:
             if self.should_retry(retry_count, r.status_code):
                 self.pause_exponentially(retry_count)
-                self.request(method, url, data=data, params=params, retry_count=retry_count + 1)
+                self.request(method, url, data=data, params=params, headers=headers, retry_count=retry_count + 1)
             else:
                 self.raise_error(r)
 
@@ -176,8 +176,8 @@ class HttpExecutor(object):
     def get(self, url, params=None):
         return self.request('GET', url, params=params)
 
-    def post(self, url, data, params=None):
-        return self.request('POST', url, data=dumps(data), params=params)
+    def post(self, url, data, params=None, headers=None):
+        return self.request('POST', url, data=dumps(data), params=params, headers=headers)
 
     def delete(self, url):
         return self.request('DELETE', url)

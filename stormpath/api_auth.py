@@ -1,6 +1,9 @@
 import base64
 import datetime
 import json
+import urllib
+from six import string_types
+
 try:
     from urlparse import urlparse, parse_qs
 except ImportError:
@@ -13,6 +16,7 @@ from oauthlib.oauth2 import BackendApplicationClient as Oauth2BackendApplication
 from oauthlib.common import to_unicode
 
 from stormpath.error import Error as StormpathError
+from stormpath.resources.auth_token import AuthToken
 
 
 GRANT_TYPE_CLIENT_CREDENTIALS = 'client_credentials'
@@ -48,7 +52,7 @@ class SPBasicAuthRequestValidator(object):
         return None, None
 
 
-class AccessToken(object):
+class Token(object):
     def __init__(self, app, token):
         self.token = token
         self.app = app
@@ -107,7 +111,20 @@ class AccessToken(object):
         return set(scopes).issubset(set(self.scopes))
 
     def to_json(self):
+        raise NotImplementedError('Subclasses must implement this method.')
+
+
+class AccessToken(Token):
+    def to_json(self):
         return json.dumps({'access_token': self.token,
+                'expires_in': self.exp,
+                'scope': ' '.join(self.scopes),
+                'token_type': 'jwt-bearer'})
+
+
+class RefreshToken(Token):
+    def to_json(self):
+        return json.dumps({'refresh_token': self.token,
                 'expires_in': self.exp,
                 'scope': ' '.join(self.scopes),
                 'token_type': 'jwt-bearer'})
@@ -118,6 +135,19 @@ class ApiAuthenticationResult(object):
         self.api_key = api_key
         self.token = access_token
         self.account = self.api_key.account if self.api_key else account
+
+
+class PasswordAuthenticationResult(object):
+    def __init__(self, app, stormpath_access_token_href, access_token, expires_in,
+                 token_type, refresh_token):
+        self.app = app
+        self.stormpath_access_token = AuthToken(
+            self.app._client, stormpath_access_token_href)
+        self.expires_in = expires_in
+        self.token_type = token_type
+        self.access_token = AccessToken(self.app, access_token)
+        self.account = self.access_token.account
+        self.refresh_token = RefreshToken(self.app, refresh_token)
 
 
 class SPOauth2RequestValidator(Oauth2RequestValidator):
@@ -219,12 +249,16 @@ def _get_bearer_token(app, allowed_scopes, http_method, uri, body, headers, ttl=
     return None
 
 
-class RequestAuthenticator(object):
-    """Base class for all Stormpath RequestAuthenticator objects.
+class Authenticator(object):
+    """Base class for all Stormpath Authenticator objects.
     """
     def __init__(self, app):
         self.app = app
 
+
+class RequestAuthenticator(Authenticator):
+    """Base class for all Stormpath RequestAuthenticator objects.
+    """
     def _get_auth_scheme_from_header(self, auth_header):
         try:
             return auth_header.split(' ')[0]
@@ -396,3 +430,97 @@ class OAuthClientCredentialsRequestAuthenticator(RequestAuthenticator):
                     self.app, scopes, http_method, uri, body, headers, ttl)
 
         return None, None
+
+
+class PasswordGrantAuthenticator(Authenticator):
+    """This class should authenticate using login and password.
+    It gets authentication tokens for valid credentials.
+    """
+    def authenticate(self, username, password, account_store=None):
+        url = self.app.href + '/oauth/token'
+        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+
+        data = {
+            'grant_type': 'password',
+            'username': username,
+            'password': password
+        }
+        if account_store:
+            if isinstance(account_store, string_types):
+                data['account_store'] = account_store
+            elif hasattr(account_store, 'href'):
+                data['account_store'] = account_store.href
+            else:
+                raise TypeError('Unsupported type for account_store.')
+        data = urllib.urlencode(data)
+
+        try:
+            res = self.app._store.executor.request(
+                'POST', url, headers=headers, data=data)
+        except StormpathError:
+            return None
+
+        return PasswordAuthenticationResult(
+            self.app, res['stormpath_access_token_href'], res['access_token'],
+            res['expires_in'], res['token_type'], res['refresh_token'])
+
+
+class JwtAuthenticator(Authenticator):
+    """This class should authenticate using access token. It can
+    validate token using Stormpath or local validation.
+    """
+    def _authenticate_with_local_validation(self, token):
+        access_token = AccessToken(self.app, token)
+        if access_token._is_valid() and \
+                self.app.has_account(access_token.account):
+            return access_token
+
+        return None
+
+    def authenticate(self, token, local_validation=False, expand=None):
+        if hasattr(token, 'token'):
+            token = token.token
+
+        if local_validation:
+            return self._authenticate_with_local_validation(token)
+
+        try:
+            access_token = self.app.auth_tokens.get(token, expand=expand)
+
+            # We're accessing access_token.jwt here to force
+            # evaluation of this AccessToken -- this allows us to check
+            # and see whether or not this AccessToken is actually
+            # valid.
+            access_token.jwt
+            return access_token
+
+        except StormpathError:
+            return None
+
+
+class RefreshGrantAuthenticator(Authenticator):
+    """This class authenticates using refresh token. It gets new access
+    token for valid refresh token.
+    """
+    def authenticate(self, refresh_token):
+        url = self.app.href + '/oauth/token'
+        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+
+        data = {'grant_type': 'refresh_token'}
+        if isinstance(refresh_token, string_types):
+            data['refresh_token'] = refresh_token
+        elif hasattr(refresh_token, 'token'):
+            data['refresh_token'] = refresh_token.token
+        else:
+            raise TypeError('Unsupported type for refresh_token.')
+        data = urllib.urlencode(data)
+
+        try:
+            res = self.app._store.executor.request(
+                'POST', url, headers=headers, data=data)
+        except StormpathError:
+            return None
+
+        return PasswordAuthenticationResult(
+            self.app, res['stormpath_access_token_href'], res['access_token'],
+            res['expires_in'], res['token_type'], res['refresh_token'])
