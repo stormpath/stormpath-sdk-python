@@ -223,13 +223,20 @@ class TestPasswordStrength(TestCase):
         valid_password = u'\u00c0-2-Diacritics-\u00c0'
         self.password_strength.validate_password(valid_password)
 
-        # \u20d0 is not a diacritic in Stormpath, here combining
-        valid_password = u'\u20d0-2-Diacritics-\u20d0'
-        self.password_strength.validate_password(valid_password)
+        # \u20d0 is not a diacritic in Stormpath
+        invalid_password = u'\u20d0-2-Diacritics-\u20d0'
+        with self.assertRaises(ValueError) as error:
+            self.password_strength.validate_password(invalid_password)
+        self.assertEqual(
+            'Password requires at least 2 diacritic characters.',
+            str(error.exception))
 
-        # \u2600 is not a diacritic in Stormpath, black sun with rays
-        valid_password = u'\u2600-2-Diacritics-\u2600'
-        self.password_strength.validate_password(valid_password)
+        # \u2600 is not a diacritic in Stormpath
+        with self.assertRaises(ValueError) as error:
+            self.password_strength.validate_password(invalid_password)
+        self.assertEqual(
+            'Password requires at least 2 diacritic characters.',
+            str(error.exception))
 
 
 if __name__ == '__main__':
