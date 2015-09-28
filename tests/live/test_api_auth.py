@@ -6,7 +6,7 @@ from time import sleep
 from .base import ApiKeyBase
 from stormpath.api_auth import *
 from stormpath.error import Error as StormpathError
-from stormpath.resources import AuthToken
+from stormpath.resources import AuthToken, Expansion
 
 
 class TestApiRequestAuthenticator(ApiKeyBase):
@@ -1303,6 +1303,19 @@ class TestJwtAuthenticator(ApiKeyBase):
     def test_authenticate_succeeds(self):
         authenticator = JwtAuthenticator(self.app)
         result = authenticator.authenticate(self.access_token.token)
+
+        self.assertIsInstance(result, AuthToken)
+        self.assertEqual(result.account.href, self.acc.href)
+        self.assertEqual(result.application.href, self.app.href)
+        self.assertEqual(result.jwt, self.access_token.token)
+        self.assertTrue('claims' in result.expanded_jwt)
+
+    def test_authenticate_with_expansion_succeeds(self):
+        authenticator = JwtAuthenticator(self.app)
+        expansion = Expansion()
+        expansion.add_property('account')
+        result = authenticator.authenticate(
+            self.access_token.token, expand=expansion)
 
         self.assertIsInstance(result, AuthToken)
         self.assertEqual(result.account.href, self.acc.href)
