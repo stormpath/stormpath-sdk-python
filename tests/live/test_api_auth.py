@@ -1281,11 +1281,6 @@ class TestJwtAuthenticator(ApiKeyBase):
         self.password = 'W00t123!' + self.username
         _, self.acc = self.create_account(
             self.app.accounts, username=self.username, password=self.password)
-
-        self.access_token_ttl_seconds = 5
-        self.app.oauth_policy.access_token_ttl = datetime.timedelta(
-            seconds=self.access_token_ttl_seconds)
-        self.app.oauth_policy.save()
         pg_auth = PasswordGrantAuthenticator(self.app)
         pg_auth_result = pg_auth.authenticate(self.username, self.password)
         self.access_token = pg_auth_result.access_token
@@ -1336,8 +1331,16 @@ class TestJwtAuthenticator(ApiKeyBase):
         self.assertIsNone(result)
 
     def test_authenticate_expired_fails(self):
+        access_token_ttl_seconds = 5
+        self.app.oauth_policy.access_token_ttl = datetime.timedelta(
+            seconds=access_token_ttl_seconds)
+        self.app.oauth_policy.save()
+        pg_auth = PasswordGrantAuthenticator(self.app)
+        pg_auth_result = pg_auth.authenticate(self.username, self.password)
+        self.access_token = pg_auth_result.access_token
+
         authenticator = JwtAuthenticator(self.app)
-        sleep(self.access_token_ttl_seconds)
+        sleep(access_token_ttl_seconds)
         result = authenticator.authenticate(self.access_token.token)
 
         self.assertIsNone(result)
@@ -1381,8 +1384,16 @@ class TestJwtAuthenticator(ApiKeyBase):
         self.assertIsNone(result)
 
     def test_authenticate_with_local_validation_expired_fails(self):
+        access_token_ttl_seconds = 5
+        self.app.oauth_policy.access_token_ttl = datetime.timedelta(
+            seconds=access_token_ttl_seconds)
+        self.app.oauth_policy.save()
+        pg_auth = PasswordGrantAuthenticator(self.app)
+        pg_auth_result = pg_auth.authenticate(self.username, self.password)
+        self.access_token = pg_auth_result.access_token
+
         authenticator = JwtAuthenticator(self.app)
-        sleep(self.access_token_ttl_seconds)
+        sleep(access_token_ttl_seconds)
         result = authenticator.authenticate(
             self.access_token.token, local_validation=True)
 
@@ -1517,8 +1528,7 @@ class TestRefreshGrantAuthenticator(ApiKeyBase):
     def test_authenticate_with_revoked_refresh_token_fails(self):
         # we revoke refresh token
         token = self.refresh_token.token
-        stormpath_refresh_token = self.app.auth_tokens.get(token)
-        print stormpath_refresh_token.jwt
+        stormpath_refresh_token = self.refresh_token.account.refresh_tokens[0]
         stormpath_refresh_token.delete()
 
         # access token expires
