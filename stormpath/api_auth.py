@@ -1,8 +1,12 @@
 import base64
 import datetime
 import json
-import urllib
 from six import string_types
+
+try:
+    from urllib import urlencode
+except ImportError:
+    from urllib.parse import urlencode
 
 try:
     from urlparse import urlparse, parse_qs
@@ -452,7 +456,7 @@ class PasswordGrantAuthenticator(Authenticator):
                 data['account_store'] = account_store.href
             else:
                 raise TypeError('Unsupported type for account_store.')
-        data = urllib.urlencode(data)
+        data = urlencode(data)
 
         try:
             res = self.app._store.executor.request(
@@ -513,7 +517,7 @@ class RefreshGrantAuthenticator(Authenticator):
             data['refresh_token'] = refresh_token.token
         else:
             raise TypeError('Unsupported type for refresh_token.')
-        data = urllib.urlencode(data)
+        data = urlencode(data)
 
         try:
             res = self.app._store.executor.request(
