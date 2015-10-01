@@ -73,7 +73,7 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
         }
 
     def authenticate_account(self, login, password, expand=None,
-            account_store=None):
+            account_store=None, organization_name_key=None):
         """Authenticate Account inside the Application.
 
         :param login: Username or email address
@@ -88,7 +88,8 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
             object to authenticate against (optional)
         """
         return self.login_attempts.basic_auth(
-            login, password, expand, account_store, app=self)
+            login, password, expand, account_store,
+            organization_name_key=organization_name_key, app=self)
 
     def get_provider_account(self, provider, **provider_kwargs):
         """Used for getting account data from 3rd party Providers

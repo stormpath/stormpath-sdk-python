@@ -171,6 +171,109 @@ class TestApplicationAuthentication(AccountBase):
         result = self.app.authenticate_account(self.username, self.password)
         self.assertEqual(result.account.href, self.acc.href)
 
+    def test_authentication_via_organization_name_key_succeeds(self):
+        name = self.get_random_name()
+        name_key = name[:63]
+
+        organization = self.client.tenant.organizations.create({
+            'name': name,
+            'description': 'test organization',
+            'name_key': name_key,
+            'status': 'ENABLED'
+        })
+
+        oas_mapping = self.client.organization_account_store_mappings.create({
+            'account_store': self.dir,
+            'organization': organization,
+            'list_index': 1,
+            'is_default_account_store': True,
+            'is_default_group_store': True
+        })
+
+        as_mapping = self.client.account_store_mappings.create({
+            'account_store': organization,
+            'application': self.app,
+            'list_index': 1,
+            'is_default_account_store': True,
+            'is_default_group_store': True
+        })
+
+        self.assertTrue(as_mapping.is_default_account_store)
+        self.assertTrue(as_mapping.is_default_group_store)
+        self.assertEqual(as_mapping.list_index, 1)
+
+        acc_name = self.get_random_name()
+        acc_password = 'W00t123!' + acc_name
+        acc_email = acc_name + '@example.com'
+        acc = organization.accounts.create(
+            {
+                'surname': acc_name,
+                'email': acc_email,
+                'password': acc_password,
+                'given_name': acc_name
+            })
+
+        self.assertTrue(acc.given_name, acc_name)
+
+        result = self.app.authenticate_account(
+            acc_email, acc_password, organization_name_key=name_key)
+
+        self.assertEqual(result.account.given_name, acc_name)
+
+        oas_mapping.delete()
+        as_mapping.delete()
+
+    def test_authentication_via_organization_name_key_fails(self):
+        name = self.get_random_name()
+        name_key = name[:63]
+
+        organization = self.client.tenant.organizations.create({
+            'name': name,
+            'description': 'test organization',
+            'name_key': name_key,
+            'status': 'ENABLED'
+        })
+
+        oas_mapping = self.client.organization_account_store_mappings.create({
+            'account_store': self.dir,
+            'organization': organization,
+            'list_index': 1,
+            'is_default_account_store': True,
+            'is_default_group_store': True
+        })
+
+        as_mapping = self.client.account_store_mappings.create({
+            'account_store': organization,
+            'application': self.app,
+            'list_index': 1,
+            'is_default_account_store': True,
+            'is_default_group_store': True
+        })
+
+        self.assertTrue(as_mapping.is_default_account_store)
+        self.assertTrue(as_mapping.is_default_group_store)
+        self.assertEqual(as_mapping.list_index, 1)
+
+        acc_name = self.get_random_name()
+        acc_password = 'W00t123!' + acc_name
+        acc_email = acc_name + '@example.com'
+        acc = organization.accounts.create(
+            {
+                'surname': acc_name,
+                'email': acc_email,
+                'password': acc_password,
+                'given_name': acc_name
+            })
+
+        self.assertTrue(acc.given_name, acc_name)
+
+        with self.assertRaises(Error):
+            self.app.authenticate_account(
+                acc_email, acc_password, organization_name_key='invalid')
+
+        oas_mapping.delete()
+        as_mapping.delete()
+
     def test_authentication_failure(self):
         with self.assertRaises(Error):
             self.app.authenticate_account(self.username, 'x')
