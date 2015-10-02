@@ -440,8 +440,9 @@ class PasswordGrantAuthenticator(Authenticator):
     """This class should authenticate using login and password.
     It gets authentication tokens for valid credentials.
     """
-    def authenticate(self, username, password, account_store=None):
-        url = self.app.href + '/oauth/token'
+    def authenticate(self, username, password, account_store=None, url=None):
+        if not url:
+            url = self.app.href + '/oauth/token'
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
 
         data = {
@@ -506,8 +507,9 @@ class RefreshGrantAuthenticator(Authenticator):
     """This class authenticates using refresh token. It gets new access
     token for valid refresh token.
     """
-    def authenticate(self, refresh_token):
-        url = self.app.href + '/oauth/token'
+    def authenticate(self, refresh_token, url=None):
+        if not url:
+            url = self.app.href + '/oauth/token'
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
 
         data = {'grant_type': 'refresh_token'}
