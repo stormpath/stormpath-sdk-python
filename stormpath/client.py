@@ -9,6 +9,8 @@ from .resources.account_store_mapping import AccountStoreMappingList
 from .resources.agent import AgentList
 from .resources.group import GroupList
 from .resources.group_membership import GroupMembershipList
+from .resources.organization import OrganizationList
+from .resources.organization_account_store_mapping import OrganizationAccountStoreMappingList
 from .resources.tenant import Tenant
 
 
@@ -94,3 +96,12 @@ class Client(object):
     @property
     def agents(self):
         return AgentList(self, href='/agents')
+
+    @property
+    def organizations(self):
+        return OrganizationList(self, href='/organizations')
+
+    @property
+    def organization_account_store_mappings(self):
+        return OrganizationAccountStoreMappingList(
+            self, href='/organizationAccountStoreMappings')

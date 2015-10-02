@@ -4,11 +4,12 @@
 def AccountStore(client, properties=None):
     """AccountStore resource factory.
 
-    Returns either a Group or a Directory resource, based on the resource
-    href.
+    Returns either a Group or a Directory or an Organization resource,
+    based on the resource href.
     """
     from .directory import Directory
     from .group import Group
+    from .organization import Organization
 
     if not properties or 'href' not in properties:
         raise ValueError('AccountStore called without resource href')
@@ -22,6 +23,8 @@ def AccountStore(client, properties=None):
         return Directory(client, properties=properties)
     elif href.startswith('/groups'):
         return Group(client, properties=properties)
+    elif href.startswith('/organizations'):
+        return Organization(client, properties=properties)
     else:
         raise ValueError('AccountStore called for non-account store href %s' %
             href)
