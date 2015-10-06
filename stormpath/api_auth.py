@@ -1,3 +1,6 @@
+"""Utilities that handle API Authentication."""
+
+
 import base64
 import datetime
 import json
@@ -36,6 +39,12 @@ class DummyRequest(object):
 
 
 class SPBasicAuthRequestValidator(object):
+    """Validator for Basic Authentication.
+
+    :param app: Request will be validated for this app.
+
+    :param headers: Request headers used for validation.
+    """
     def __init__(self, app, headers):
         self.authorization = headers.get('Authorization')
         self.app = app
@@ -43,12 +52,24 @@ class SPBasicAuthRequestValidator(object):
         self.client_secret = None
 
     def extract_client_data(self):
+        """Helper method for extracting client ID and secret from the
+        authorization header.
+        """
         _, b64encoded_data = self.authorization.split(' ')
         decoded_data = to_unicode(
             base64.b64decode(b64encoded_data.encode('utf-8')), 'ascii')
         self.client_id, self.client_secret = decoded_data.split(':')
 
     def verify_request(self):
+        """
+        Verify that key with client ID and client secret from the
+        authorization header exists and that it is enabled.
+
+        :rtype: tuple
+        :returns: Tuple (`valid`, `result`) in which `valid` is True if
+            request is valid and `result` contains API key if request
+            is valid.
+        """
         self.extract_client_data()
         if self.client_id and self.client_secret:
             key = self.app.api_keys.get_key(self.client_id, self.client_secret)
@@ -57,6 +78,12 @@ class SPBasicAuthRequestValidator(object):
 
 
 class Token(object):
+    """Base class for OAuth tokens.
+
+    :param app: Application this token corresponds to.
+
+    :param token: Token string.
+    """
     def __init__(self, app, token):
         self.token = token
         self.app = app
@@ -92,6 +119,15 @@ class Token(object):
         return self.token
 
     def _is_valid(self):
+        """Helper method that checks if token is valid. If token is
+        generated for API key, the API key has to exist and be enabled.
+        Otherwise, the token is generated for account.
+        For both cases, we check that token didn't expire and that we
+        can decode it using our client secret and HS256 algorithm.
+
+        :rtype: bool
+        :returns: True if token is valid, False otherwise
+        """
         if self.for_api_key:
             valid = self.api_key and self.api_key.is_enabled()
         else:
@@ -112,6 +148,13 @@ class Token(object):
         return False
 
     def _within_scope(self, scopes):
+        """Helper method that checks if `scopes` are within token's
+        scopes.
+
+        :rtype: bool
+        :returns: True if token is `scopes` are within token's scopes,
+            False otherwise
+        """
         return set(scopes).issubset(set(self.scopes))
 
     def to_json(self):
@@ -119,7 +162,14 @@ class Token(object):
 
 
 class AccessToken(Token):
+    """Class that represents OAuth access token.
+    """
     def to_json(self):
+        """Method that gets JSON for this access token.
+
+        :rtype: string
+        :returns: JSON for this access token
+        """
         return json.dumps({'access_token': self.token,
                 'expires_in': self.exp,
                 'scope': ' '.join(self.scopes),
@@ -127,7 +177,14 @@ class AccessToken(Token):
 
 
 class RefreshToken(Token):
+    """Class that represents OAuth refresh token.
+    """
     def to_json(self):
+        """Method that gets JSON for this refresh token.
+
+        :rtype: string
+        :returns: JSON for this refresh token
+        """
         return json.dumps({'refresh_token': self.token,
                 'expires_in': self.exp,
                 'scope': ' '.join(self.scopes),
@@ -135,6 +192,18 @@ class RefreshToken(Token):
 
 
 class ApiAuthenticationResult(object):
+    """Class that represents result for API authentication.
+    Method :func:`~stormpath.api_auth.RequestAuthenticator.authenticate`
+    on every class derived from
+    :class:`stormpath.api_auth.RequestAuthenticator` returns this
+    result.
+
+    :param account: An account, if token corresponds to account.
+
+    :param api_key: An API key, if token corresponds to API key.
+
+    :param token: Token.
+    """
     def __init__(self, account, api_key, access_token):
         self.api_key = api_key
         self.token = access_token
@@ -142,6 +211,21 @@ class ApiAuthenticationResult(object):
 
 
 class PasswordAuthenticationResult(object):
+    """Class that represents result for password authentication.
+
+    :param app: An application that tokens correspond to.
+
+    :param stormpath_access_token_href: href to Access Token resource
+        in Stormpath.
+
+    :param access_token: Access token string.
+
+    :param expires_in: Time in seconds before token expires.
+
+    :param token_type: Type of returned token.
+
+    :param refresh_token: Refresh token string.
+    """
     def __init__(self, app, stormpath_access_token_href, access_token, expires_in,
                  token_type, refresh_token):
         self.app = app
@@ -255,6 +339,10 @@ def _get_bearer_token(app, allowed_scopes, http_method, uri, body, headers, ttl=
 
 class Authenticator(object):
     """Base class for all Stormpath Authenticator objects.
+
+    :param app: An application to which this Authenticator
+        authenticates.
+
     """
     def __init__(self, app):
         self.app = app
@@ -293,6 +381,11 @@ class RequestAuthenticator(Authenticator):
 
     def authenticate(self, headers, http_method='', uri='', body=None,
                      scopes=None, ttl=DEFAULT_TTL):
+        """Method that authenticates an HTTP request.
+
+        :rtype: :class:`stormpath.api_auth.ApiAuthenticationResult`
+        :returns: result if request is valid, `None` otherwise.
+        """
         headers = {k: to_unicode(v, 'ascii') for k, v in headers.items()}
         if body is None:
             body = {}
@@ -441,6 +534,18 @@ class PasswordGrantAuthenticator(Authenticator):
     It gets authentication tokens for valid credentials.
     """
     def authenticate(self, username, password, account_store=None, url=None):
+        """Method that authenticates with username and password using
+        password grant type.
+
+        :param account_store: If this parameter is set, token
+            generation is targeted against this account store.
+        :param url: url that is used for authentication. If this
+            parameter is not specified, default url
+            (APP_ID/oauth/token) is used.
+
+        :rtype: :class:`stormpath.api_auth.PasswordAuthenticationResult`
+        :returns: result if request is valid, `None` otherwise.
+        """
         if not url:
             url = self.app.href + '/oauth/token'
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
@@ -483,6 +588,18 @@ class JwtAuthenticator(Authenticator):
         return None
 
     def authenticate(self, token, local_validation=False, expand=None):
+        """Method that authenticates using access token. It can
+        validate it locally or by getting the access token from
+        Stormpath's endpoint.
+
+        :param expand: It is possible to get
+        :class:`stormpath.resources.account.Account` and/or
+        :class:`stormpath.resources.application.Application` by setting
+        this :class:`stormpath.resources.Expansion` parameter.
+
+        :rtype: :class:`stormpath.resources.auth_token.AuthToken`
+        :returns: access token if result is valid, `None` otherwise.
+        """
         if hasattr(token, 'token'):
             token = token.token
 
@@ -508,6 +625,16 @@ class RefreshGrantAuthenticator(Authenticator):
     token for valid refresh token.
     """
     def authenticate(self, refresh_token, url=None):
+        """Method that authenticates with `refresh_token` using refresh
+        token grant type.
+
+        :param url: url that is used for authentication. If this
+            parameter is not specified, default url
+            (APP_ID/oauth/token) is used.
+
+        :rtype: :class:`stormpath.api_auth.PasswordAuthenticationResult`
+        :returns: result if valid, `None` otherwise.
+        """
         if not url:
             url = self.app.href + '/oauth/token'
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
