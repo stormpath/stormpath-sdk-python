@@ -47,6 +47,7 @@ class Account(Resource, AutoSaveMixin, DictMixin, DeleteMixin, StatusMixin):
     @staticmethod
     def get_resource_attributes():
         from .application import ApplicationList
+        from .auth_token import AuthTokenList
         from .custom_data import CustomData
         from .directory import Directory
         from .group import GroupList
@@ -56,6 +57,7 @@ class Account(Resource, AutoSaveMixin, DictMixin, DeleteMixin, StatusMixin):
         from .api_key import ApiKeyList
 
         return {
+            'access_tokens': AuthTokenList,
             'applications': ApplicationList,
             'custom_data': CustomData,
             'directory': Directory,
@@ -63,6 +65,7 @@ class Account(Resource, AutoSaveMixin, DictMixin, DeleteMixin, StatusMixin):
             'groups': GroupList,
             'group_memberships': GroupMembershipList,
             'provider_data': ProviderData,
+            'refresh_tokens': AuthTokenList,
             'tenant': Tenant,
             'api_keys': ApiKeyList,
         }

@@ -50,9 +50,10 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
             AccountStoreMapping,
             AccountStoreMappingList,
         )
+        from .api_key import ApiKeyList
+        from .auth_token import AuthTokenList
         from .group import GroupList
         from .tenant import Tenant
-        from .api_key import ApiKeyList
         from .custom_data import CustomData
         from .verification_email import VerificationEmailList
         from .oauth_policy import OauthPolicy
@@ -60,8 +61,9 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
         return {
             'custom_data': CustomData,
             'accounts': AccountList,
-            'api_keys': ApiKeyList,
             'account_store_mappings': AccountStoreMappingList,
+            'api_keys': ApiKeyList,
+            'auth_tokens': AuthTokenList,
             'default_account_store_mapping': AccountStoreMapping,
             'default_group_store_mapping': AccountStoreMapping,
             'groups': GroupList,

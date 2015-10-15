@@ -4,6 +4,7 @@
 from .account import Account, AccountList
 from .account_creation_policy import AccountCreationPolicy
 from .account_store import AccountStore
+from .auth_token import AuthToken, AuthTokenList
 from .provider import Provider
 from .group import Group, GroupList
 from .tenant import Tenant

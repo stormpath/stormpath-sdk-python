@@ -1,4 +1,4 @@
-from sys import version_info as vi
+
 from unittest import TestCase, main
 from collections import OrderedDict
 from requests import RequestException
@@ -33,9 +33,9 @@ class HttpTest(TestCase):
         ex = HttpExecutor('http://api.stormpath.com/v1', ('user', 'pass'))
         data = ex.get('/test', {'q': 'foo'})
 
-        s.request.assert_called_once_with('GET',
-            'http://api.stormpath.com/v1/test',
-            data=None, params={'q': 'foo'}, allow_redirects=False)
+        s.request.assert_called_once_with(
+            'GET', 'http://api.stormpath.com/v1/test', data=None,
+            params={'q': 'foo'}, headers=None, allow_redirects=False)
 
         self.assertEqual(data, s.request.return_value.json.return_value)
 
@@ -69,7 +69,8 @@ class HttpTest(TestCase):
     def test_get_request_exception_and_retry_and_success(self, Session):
         self.count = 0
         request_exception = RequestException('I raise RequestException!')
-        def exception_raiser(method, url, data, params, allow_redirects=None):
+        def exception_raiser(method, url, data, params, headers=None,
+                             allow_redirects=None):
             if self.count < 4:
                 self.count += 1
                 raise request_exception
@@ -97,7 +98,8 @@ class HttpTest(TestCase):
     @patch('stormpath.http.Session')
     def test_get_request_exception_and_retry_four_times(self, Session):
         request_exception = RequestException('I raise RequestException!')
-        def exception_raiser(method, url, data, params, allow_redirects=None):
+        def exception_raiser(method, url, data, params, headers=None,
+                             allow_redirects=None):
             raise request_exception
 
         Session.return_value = MagicMock(request=exception_raiser)
@@ -125,7 +127,8 @@ class HttpTest(TestCase):
     @patch('stormpath.http.Session')
     def test_follow_redirects(self, Session):
 
-        def redirector(method, url, data, params, allow_redirects=None):
+        def redirector(method, url, data, params, headers=None,
+                       allow_redirects=None):
             if url.endswith('/first'):
                 return MagicMock(status_code=302, headers={
                     'location': 'http://api.stormpath.com/v1/second'})
@@ -157,7 +160,7 @@ class HttpTest(TestCase):
                 ('email', 'email'),
                 ('password', 'password'),
                 ('username', 'username')]),
-            allow_redirects=False, data=None)
+            headers=None, allow_redirects=False, data=None)
 
     @patch('stormpath.client.Auth.digest', new_callable=PropertyMock)
     @patch('stormpath.http.Session')
