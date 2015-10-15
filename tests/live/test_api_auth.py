@@ -1543,3 +1543,12 @@ class TestRefreshGrantAuthenticator(ApiKeyBase):
         result = authenticator.authenticate(token)
 
         self.assertIsNone(result)
+
+
+class TestIdSiteTokenAuthenticator(ApiKeyBase):
+
+    def test_authenticate_with_invalid_token_fails(self):
+        authenticator = IdSiteTokenAuthenticator(self.app)
+        result = authenticator.authenticate('invalid_token')
+
+        self.assertIsNone(result)

@@ -657,3 +657,36 @@ class RefreshGrantAuthenticator(Authenticator):
         return PasswordAuthenticationResult(
             self.app, res['stormpath_access_token_href'], res['access_token'],
             res['expires_in'], res['token_type'], res['refresh_token'])
+
+
+class IdSiteTokenAuthenticator(Authenticator):
+    """This class should authenticate using ID Site Token.
+    It gets authentication tokens for valid ID Site Token.
+    """
+    def authenticate(self, jwt, url=None):
+        """Method that authenticates with ID Site Token using
+        id_site_token grant type.
+
+        :param jwt: ID Site Token string.
+        :param url: url that is used for authentication. If this
+            parameter is not specified, default url
+            (APP_ID/oauth/token) is used.
+
+        :rtype: :class:`stormpath.api_auth.PasswordAuthenticationResult`
+        :returns: result if request is valid, `None` otherwise.
+        """
+        if not url:
+            url = self.app.href + '/oauth/token'
+        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+
+        data = urlencode({'grant_type': 'id_site_token', 'token': jwt})
+
+        try:
+            res = self.app._store.executor.request(
+                'POST', url, headers=headers, data=data)
+        except StormpathError:
+            return None
+
+        return PasswordAuthenticationResult(
+            self.app, res['stormpath_access_token_href'], res['access_token'],
+            res['expires_in'], res['token_type'], res['refresh_token'])
