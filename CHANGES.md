@@ -1,3 +1,17 @@
+Version 2.1.2
+-------------
+
+**Released on October 28, 2015.**
+
+- Adding tests to improve coverage.
+- Adding Password Grant Type support.
+- Adding in better error handling for Password Strength rules.
+- Adding support for new Organization resources.
+- Adding support for Organization name keys when performing a LoginAttempt.
+- Adding in better documentation for API auth.
+- Adding an IDSiteTokenAuthenticator.
+
+
 Version 2.1.1
 -------------
 
