@@ -78,7 +78,7 @@ class LoginAttemptList(CollectionResource):
     resource_class = AuthenticationResult
 
     def basic_auth(self, login, password, expand, account_store=None,
-                   app=None):
+                   app=None, organization_name_key=None):
         value = login + ':' + password
         value = b64encode(value.encode('utf-8')).decode('ascii')
         properties = {
@@ -88,6 +88,10 @@ class LoginAttemptList(CollectionResource):
 
         if account_store:
             properties['account_store'] = account_store
+        if organization_name_key:
+            properties['account_store'] = {
+                'name_key': organization_name_key
+            }
 
         result = self.create(properties, expand=expand)
 

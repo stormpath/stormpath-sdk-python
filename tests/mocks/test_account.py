@@ -103,6 +103,42 @@ class TestAccount(TestCase):
         self.assertEqual(args[0]['account'].href, self.account.href)
         self.assertEqual(args[0]['group'].href, self.g.href)
 
+    def test_add_account_to_group_by_username(self):
+        ds = MagicMock()
+        self.acs = AccountList(MagicMock(data_store=ds), href='test/accounts')
+        self.d._set_properties({'accounts': self.acs})
+        ds.get_resource.return_value = {
+            'href': 'test/accounts',
+            'offset': 0,
+            'limit': 25,
+            'items': [
+                {'href': self.account.href, 'username': self.account.username}
+            ],
+        }
+
+        self.g.add_account(self.account.username)
+        args, _ = self.account._client.group_memberships.create.call_args
+        self.assertEqual(args[0]['account'].href, self.account.href)
+        self.assertEqual(args[0]['group'].href, self.g.href)
+
+    def test_add_account_to_group_by_search_dict(self):
+        ds = MagicMock()
+        self.acs = AccountList(MagicMock(data_store=ds), href='test/accounts')
+        self.d._set_properties({'accounts': self.acs})
+        ds.get_resource.return_value = {
+            'href': 'test/accounts',
+            'offset': 0,
+            'limit': 25,
+            'items': [
+                {'href': self.account.href, 'username': self.account.username}
+            ],
+        }
+
+        self.g.add_account({'username': self.account.username})
+        args, _ = self.account._client.group_memberships.create.call_args
+        self.assertEqual(args[0]['account'].href, self.account.href)
+        self.assertEqual(args[0]['group'].href, self.g.href)
+
     def test_add_accounts_to_group(self):
         account2 = Account(
             self.client,
@@ -296,4 +332,3 @@ class TestAccountApiKey(TestAccount):
 
 if __name__ == '__main__':
     main()
-

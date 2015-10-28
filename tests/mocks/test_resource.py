@@ -88,7 +88,7 @@ class TestBaseResource(TestCase):
         self.assertEqual(r.name, 'My Application')
         session.return_value.request.assert_called_once_with(
             'GET', 'https://enterprise.stormpath.io/v1/application/APP_UID',
-            params=None, allow_redirects=False, data=None)
+            params=None, headers=None, allow_redirects=False, data=None)
 
     def test_resource_with_href_not_string_type(self):
         self.assertRaises(TypeError, Resource, MagicMock(), href=123)

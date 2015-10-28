@@ -5,6 +5,13 @@
     :members:
     :show-inheritance:
 
+:mod:`api_auth` Module
+------------------
+
+.. automodule:: stormpath.api_auth
+    :members:
+    :show-inheritance:
+
 :mod:`auth` Module
 ------------------
 
