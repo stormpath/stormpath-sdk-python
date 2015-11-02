@@ -319,16 +319,10 @@ class GroupList(CollectionResource):
     """Group resource list."""
     resource_class = Group
 
-    def _ensure_data(self):
-        if self.href == '/groups':
-            raise ValueError(
-                "It is not possible to access groups from Client resource! "
-                "Try using Application resource instead.")
-
-        super(GroupList, self)._ensure_data()
-
     def _prepare_for_create(self, properties, expand=None, **params):
-        if self.href == '/groups':
+        href_parts = self.href.split('/')
+        if len(href_parts) >= 3 and href_parts[-1] == 'groups' \
+                and href_parts[-3] == 'tenants':
             raise ValueError(
                 "It is not possible to create groups from Client resource! "
                 "Try using Application or Directory resource instead.")

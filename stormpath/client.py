@@ -83,7 +83,7 @@ class Client(object):
 
     @property
     def groups(self):
-        return GroupList(self, href='/groups')
+        return self.tenant.groups
 
     @property
     def group_memberships(self):
