@@ -7,11 +7,6 @@ import json
 from six import string_types
 
 try:
-    from urllib import urlencode
-except ImportError:
-    from urllib.parse import urlencode
-
-try:
     from urlparse import urlparse, parse_qs
 except ImportError:
     from urllib.parse import urlparse, parse_qs
@@ -562,11 +557,10 @@ class PasswordGrantAuthenticator(Authenticator):
                 data['account_store'] = account_store.href
             else:
                 raise TypeError('Unsupported type for account_store.')
-        data = urlencode(data)
 
         try:
             res = self.app._store.executor.request(
-                'POST', url, headers=headers, data=data)
+                'POST', url, headers=headers, params=data)
         except StormpathError:
             return None
 
@@ -646,11 +640,10 @@ class RefreshGrantAuthenticator(Authenticator):
             data['refresh_token'] = refresh_token.token
         else:
             raise TypeError('Unsupported type for refresh_token.')
-        data = urlencode(data)
 
         try:
             res = self.app._store.executor.request(
-                'POST', url, headers=headers, data=data)
+                'POST', url, headers=headers, params=data)
         except StormpathError:
             return None
 
@@ -679,11 +672,11 @@ class IdSiteTokenAuthenticator(Authenticator):
             url = self.app.href + '/oauth/token'
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
 
-        data = urlencode({'grant_type': 'id_site_token', 'token': jwt})
+        data = {'grant_type': 'id_site_token', 'token': jwt}
 
         try:
             res = self.app._store.executor.request(
-                'POST', url, headers=headers, data=data)
+                'POST', url, headers=headers, params=data)
         except StormpathError:
             return None
 

@@ -1,4 +1,5 @@
 import base64
+from collections import OrderedDict
 
 from unittest import TestCase, main
 from six import u
@@ -8,6 +9,7 @@ except ImportError:
     from unittest.mock import patch, MagicMock, PropertyMock
 
 from stormpath.api_auth import *
+from stormpath.client import Client
 from stormpath.error import Error as StormpathError
 from stormpath.resources import Account
 from stormpath.resources.base import StatusMixin
@@ -1724,6 +1726,105 @@ class OAuthClientCredentialsRequestAuthenticatorTest(TestCase):
             scopes=allowed_scopes)
         self.assertIsNotNone(result)
         self.assertIsNone(result.token)
+
+
+class AuthenticatorsTest(TestCase):
+
+    @patch('stormpath.http.Session')
+    def setUp(self, session):
+        self.session = session
+
+        tenant_return = MagicMock(
+            status_code=200,
+            json=MagicMock(return_value={
+                'applications': {'href': 'applications'}
+            }))
+        client = Client(
+            api_key={'id': 'MyId', 'secret': 'Shush!'},
+            method='basic')
+
+        self.session.return_value.request.return_value = tenant_return
+        self.application = client.applications.get('application_url')
+
+    def test_password_grant_authenticator(self):
+        pga_return = MagicMock(
+            status_code=200,
+            json=MagicMock(return_value={
+                'stormpath_access_token_href': 'href',
+                'access_token': 'token',
+                'expires_in': 3600,
+                'token_type': 'bearer',
+                'refresh_token': 'token',
+            }))
+
+        pga = PasswordGrantAuthenticator(self.application)
+        self.session.return_value.request.return_value = pga_return
+        pga.authenticate('some@user.com', 'secret')
+
+        self.session.return_value.request.assert_called_with(
+            'POST',
+            'https://api.stormpath.com/v1/applications/application_url/oauth/token',
+            headers={'Content-Type': 'application/x-www-form-urlencoded'},
+            allow_redirects=False,
+            params=OrderedDict([
+                ('grant_type', 'password'),
+                ('password', 'secret'),
+                ('username', 'some@user.com')
+            ]),
+            data=None)
+
+    def test_refresh_grant_authenticator(self):
+        rga_return = MagicMock(
+            status_code=200,
+            json=MagicMock(return_value={
+                'stormpath_access_token_href': 'href',
+                'access_token': 'token',
+                'expires_in': 3600,
+                'token_type': 'bearer',
+                'refresh_token': 'token',
+            }))
+
+        rga = RefreshGrantAuthenticator(self.application)
+        self.session.return_value.request.return_value = rga_return
+        rga.authenticate('refresh-token')
+
+        self.session.return_value.request.assert_called_with(
+            'POST',
+            'https://api.stormpath.com/v1/applications/application_url/oauth/token',
+            headers={'Content-Type': 'application/x-www-form-urlencoded'},
+            allow_redirects=False,
+            params=OrderedDict([
+                ('grant_type', 'refresh_token'),
+                ('refresh_token', 'refresh-token')
+            ]),
+            data=None)
+
+    def test_id_site_token_authenticator(self):
+        ist_return = MagicMock(
+            status_code=200,
+            json=MagicMock(return_value={
+                'stormpath_access_token_href': 'href',
+                'access_token': 'token',
+                'expires_in': 3600,
+                'token_type': 'bearer',
+                'refresh_token': 'token',
+            }))
+
+        ista = IdSiteTokenAuthenticator(self.application)
+        self.session.return_value.request.return_value = ist_return
+        ista.authenticate('id-site-token')
+
+        self.session.return_value.request.assert_called_with(
+            'POST',
+            'https://api.stormpath.com/v1/applications/application_url/oauth/token',
+            headers={'Content-Type': 'application/x-www-form-urlencoded'},
+            allow_redirects=False,
+            params=OrderedDict([
+                ('grant_type', 'id_site_token'),
+                ('token', 'id-site-token')
+            ]),
+            data=None)
+
 
 if __name__ == '__main__':
     main()
