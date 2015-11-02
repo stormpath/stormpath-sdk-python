@@ -47,10 +47,18 @@
     :members:
     :show-inheritance:
 
-Subpackages
------------
+:mod:`cache` Module
+------------------
 
 .. toctree::
+    :maxdepth: 3
 
     stormpath.cache
+
+:mod:`resource` Module
+----------------------
+
+.. toctree::
+    :maxdepth: 3
+
     stormpath.resources
