@@ -318,3 +318,14 @@ class Group(Resource, AutoSaveMixin, DeleteMixin, DictMixin, StatusMixin):
 class GroupList(CollectionResource):
     """Group resource list."""
     resource_class = Group
+
+    def _prepare_for_create(self, properties, expand=None, **params):
+        href_parts = self.href.split('/')
+        if len(href_parts) >= 3 and href_parts[-1] == 'groups' \
+                and href_parts[-3] == 'tenants':
+            raise ValueError(
+                "It is not possible to create groups from Client resource! "
+                "Try using Application or Directory resource instead.")
+
+        return super(GroupList, self)._prepare_for_create(
+            properties, expand=expand, **params)

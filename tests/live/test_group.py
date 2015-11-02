@@ -7,6 +7,27 @@ from .base import SingleApplicationBase, AccountBase
 
 class TestGroups(SingleApplicationBase):
 
+    def test_groups_client_iteration(self):
+        for group in self.client.groups:
+            group.name
+
+    def test_groups_client_create(self):
+        with self.assertRaises(ValueError):
+            self.client.groups.create({
+                'name': self.get_random_name(),
+                'description': 'test group',
+            })
+
+    def test_groups_client_get(self):
+        group = self.app.groups.create({
+            'name': self.get_random_name(),
+            'description': 'test group',
+        })
+
+        client_group = self.client.groups.get(group.href)
+
+        self.assertEqual(client_group.name, group.name)
+
     def test_application_group_creation_and_removal(self):
         name = self.get_random_name()
 
