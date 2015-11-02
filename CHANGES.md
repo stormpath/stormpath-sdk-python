@@ -1,3 +1,13 @@
+Version 2.1.3
+-------------
+
+**Released on November 2, 2015.**
+
+- Fixing bug with password grant authentication not working.
+- Supporting the iteration of Groups from the Client object.
+- Updating Sphinx API docs to be more intuitive for developers.
+
+
 Version 2.1.2
 -------------
 
