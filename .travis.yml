@@ -5,7 +5,7 @@ python:
   - '3.3'
   - '3.4'
   - pypy
-install: pip install .
+install: python setup.py develop
 before_script: python setup.py testdep
 script:
   - python setup.py test

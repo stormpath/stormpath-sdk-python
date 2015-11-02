@@ -90,16 +90,6 @@ class TestAccount(TestCase):
         self.account._set_properties({'directory': d})
         self.assertRaises(ValueError, self.account._resolve_group, 'non_existent')
 
-    def test_add_group_to_account(self):
-        self.account.add_group('http://example.com/group')
-        self.account._client.group_memberships.create.assert_any_calls()
-
-    def test_add_groups_to_account(self):
-        groups = ['http://example.com/group1', 'http://example.com/group2']
-        self.account.add_groups(groups)
-        self.assertEqual(
-            self.account._client.group_memberships.create.call_count, 2)
-
     def test_add_account_to_group(self):
         ds = MagicMock()
         self.acs = AccountList(MagicMock(data_store=ds), href='test/accounts')
@@ -342,4 +332,3 @@ class TestAccountApiKey(TestAccount):
 
 if __name__ == '__main__':
     main()
-
