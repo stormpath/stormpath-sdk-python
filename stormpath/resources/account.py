@@ -365,9 +365,12 @@ class AccountList(CollectionResource):
 
         return self.resource_class(client=self._client, properties=data)
 
-    def create(self, properties, expand=None, password_format=None, **params):
+    def create(self, properties, expand=None, password_format=None, registration_workflow_enabled=None, **params):
         """If password_format is specified, account will be created
         using existing password hash.
+
+        If registration_workflow_enabled is specified (and set to false), no
+        workflow emails will be sent when this account is created.
 
         http://docs.stormpath.com/python/product-guide/#create-an-account-with-an-existing-password-hash
         """
@@ -376,6 +379,9 @@ class AccountList(CollectionResource):
         create_path = self._get_create_path()
         if password_format:
             create_path += '?passwordFormat=' + password_format
+
+        if registration_workflow_enabled is False:
+            create_path += '?registrationWorkflowEnabled=false' if not ('passwordFormat' in create_path) else '&registrationWorkflowEnabled=false'
 
         created = self.resource_class(
             self._client,
