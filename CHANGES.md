@@ -1,3 +1,17 @@
+Version 2.1.4
+-------------
+
+**Released on November 6, 2015.**
+
+- Adding support for suppressing registration emails on account creation.
+  Example:
+
+```python
+# Suppress registration emails even if workflow settings are enabled.
+application.accounts.create(data, registration_workflow_enabled=False)
+```
+
+
 Version 2.1.3
 -------------
 
