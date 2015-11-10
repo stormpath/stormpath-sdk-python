@@ -424,13 +424,10 @@ class TestIdSite(ApiKeyBase):
                 'moreInfo': more_info,
                 'status': status
             },
+            'jti': '6S2TKhkW60uYNhcXLThyPo',
             'exp': now + datetime.timedelta(seconds=3600),
-            'aud': self.app._client.auth.id,
-            'irt': irt,
+            'iat': now,
             'iss': 'Stormpath',
-            'sub': acc.href,
-            'isNewSub': False,
-            'state': None,
         }
 
         fake_jwt = to_unicode(jwt.encode(
@@ -472,13 +469,10 @@ class TestIdSite(ApiKeyBase):
                 'moreInfo': more_info,
                 'status': status
             },
+            'jti': '6S2TKhkW60uYNhcXLThyPo',
             'exp': now + datetime.timedelta(seconds=3600),
-            'aud': self.app._client.auth.id,
-            'irt': irt,
+            'iat': now,
             'iss': 'Stormpath',
-            'sub': acc.href,
-            'isNewSub': False,
-            'state': None,
         }
 
         fake_jwt = to_unicode(jwt.encode(
@@ -521,13 +515,10 @@ class TestIdSite(ApiKeyBase):
                 'moreInfo': more_info,
                 'status': status
             },
+            'jti': '6S2TKhkW60uYNhcXLThyPo',
             'exp': now + datetime.timedelta(seconds=3600),
-            'aud': self.app._client.auth.id,
-            'irt': irt,
+            'iat': now,
             'iss': 'Stormpath',
-            'sub': acc.href,
-            'isNewSub': False,
-            'state': None,
         }
 
         fake_jwt = to_unicode(jwt.encode(
@@ -568,15 +559,10 @@ class TestIdSite(ApiKeyBase):
                 'moreInfo': more_info,
                 'status': status
             },
-            'exp': 3350246665000,
-            'iat': '1407198550',
-            'jti': '436vkkHgk1x3057pCPqTah',
-            'aud': self.app._client.auth.id,
-            'irt': irt,
+            'jti': '6S2TKhkW60uYNhcXLThyPo',
+            'exp': now + datetime.timedelta(seconds=3600),
+            'iat': now,
             'iss': 'Stormpath',
-            'sub': acc.href,
-            'isNewSub': False,
-            'state': None,
         }
 
         fake_jwt = to_unicode(jwt.encode(

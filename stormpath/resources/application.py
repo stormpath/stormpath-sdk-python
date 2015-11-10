@@ -245,9 +245,17 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
                 algorithms=['HS256'])
         except (jwt.DecodeError, jwt.ExpiredSignature):
             return None
+        except jwt.MissingRequiredClaimError as missing_claim_error:
+            if missing_claim_error.claim != 'aud':
+                return None
 
-        if 'err' in decoded_data:
-            raise StormpathError(decoded_data.get('err'))
+            decoded_data = jwt.decode(
+                jwt_response, api_key_secret, algorithms=['HS256'])
+
+            if 'err' in decoded_data:
+                raise StormpathError(decoded_data.get('err'))
+            else:
+                raise missing_claim_error
 
         nonce = Nonce(decoded_data['irt'])
 
