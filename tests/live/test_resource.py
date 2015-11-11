@@ -560,8 +560,8 @@ class TestIdSite(ApiKeyBase):
                 'status': status
             },
             'jti': '6S2TKhkW60uYNhcXLThyPo',
-            'exp': now + datetime.timedelta(seconds=3600),
-            'iat': now,
+            'exp': 3350246665000,
+            'iat': '1407198550',
             'iss': 'Stormpath',
         }
 
