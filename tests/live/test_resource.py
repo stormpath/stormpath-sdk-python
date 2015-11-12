@@ -9,6 +9,7 @@ from uuid import uuid4
 
 from oauthlib.common import to_unicode
 from pydispatch import dispatcher
+from stormpath.error import Error
 
 from stormpath.cache.entry import CacheEntry
 from stormpath.resources import Account
@@ -398,3 +399,184 @@ class TestIdSite(ApiKeyBase):
         self.assertIsNotNone(ret)
         self.assertIsNone(ret.account)
         another_app.delete()
+
+    def test_id_site_callback_handler_session_timed_out(self):
+        _, acc = self.create_account(self.app.accounts)
+        now = datetime.datetime.utcnow()
+
+        try:
+            irt = uuid4().get_hex()
+        except AttributeError:
+            irt = uuid4().hex
+
+        code = 12001
+        developer_message = 'The session on ID Site has timed out. This ' + \
+            'can occur if the user stays on ID Site without logging in, ' + \
+            'registering, or resetting a password.'
+        message = 'The session on ID Site has timed out.'
+        more_info = 'mailto:support@stormpath.com'
+        status = 401
+        fake_jwt_data = {
+            'err': {
+                'code': code,
+                'developerMessage': developer_message,
+                'message': message,
+                'moreInfo': more_info,
+                'status': status
+            },
+            'jti': '6S2TKhkW60uYNhcXLThyPo',
+            'exp': now + datetime.timedelta(seconds=3600),
+            'iat': now,
+            'iss': 'Stormpath',
+        }
+
+        fake_jwt = to_unicode(jwt.encode(
+            fake_jwt_data,
+            self.app._client.auth.secret,
+            'HS256'), 'UTF-8')
+        fake_jwt_response = 'http://localhost/?jwtResponse=%s' % fake_jwt
+        try:
+            self.app.handle_id_site_callback(fake_jwt_response)
+        except Error as e:
+            self.assertEqual(e.code, code)
+            self.assertEqual(e.developer_message, developer_message)
+            self.assertEqual(e.message, developer_message)
+            self.assertEqual(e.more_info, more_info)
+            self.assertEqual(e.status, status)
+        else:
+            self.fail('handle_id_site_callback did not raise expected error.')
+
+    def test_id_site_callback_handler_invalid_token(self):
+        _, acc = self.create_account(self.app.accounts)
+        now = datetime.datetime.utcnow()
+
+        try:
+            irt = uuid4().get_hex()
+        except AttributeError:
+            irt = uuid4().hex
+
+        code = 11001
+        developer_message = 'Token is invalid because the specified ' + \
+            'organization name key does not exist in your Stormpath Tenant'
+        message = 'Token is invalid'
+        more_info = 'mailto:support@stormpath.com'
+        status = 400
+        fake_jwt_data = {
+            'err': {
+                'code': code,
+                'developerMessage': developer_message,
+                'message': message,
+                'moreInfo': more_info,
+                'status': status
+            },
+            'jti': '6S2TKhkW60uYNhcXLThyPo',
+            'exp': now + datetime.timedelta(seconds=3600),
+            'iat': now,
+            'iss': 'Stormpath',
+        }
+
+        fake_jwt = to_unicode(jwt.encode(
+            fake_jwt_data,
+            self.app._client.auth.secret,
+            'HS256'), 'UTF-8')
+        fake_jwt_response = 'http://localhost/?jwtResponse=%s' % fake_jwt
+        try:
+            self.app.handle_id_site_callback(fake_jwt_response)
+        except Error as e:
+            self.assertEqual(e.code, code)
+            self.assertEqual(e.developer_message, developer_message)
+            self.assertEqual(e.message, developer_message)
+            self.assertEqual(e.more_info, more_info)
+            self.assertEqual(e.status, status)
+        else:
+            self.fail('handle_id_site_callback did not raise expected error.')
+
+    def test_id_site_callback_handler_invalid_cb_uri(self):
+        _, acc = self.create_account(self.app.accounts)
+        now = datetime.datetime.utcnow()
+
+        try:
+            irt = uuid4().get_hex()
+        except AttributeError:
+            irt = uuid4().hex
+
+        code = 400
+        developer_message = 'The specified callback URI (cb_uri) is not ' + \
+            'valid. Make sure the callback URI specified in your ID Site ' + \
+            'configuration matches the value specified.t'
+        message = 'The specified callback URI (cb_uri) is not valid'
+        more_info = 'mailto:support@stormpath.com'
+        status = 400
+        fake_jwt_data = {
+            'err': {
+                'code': code,
+                'developerMessage': developer_message,
+                'message': message,
+                'moreInfo': more_info,
+                'status': status
+            },
+            'jti': '6S2TKhkW60uYNhcXLThyPo',
+            'exp': now + datetime.timedelta(seconds=3600),
+            'iat': now,
+            'iss': 'Stormpath',
+        }
+
+        fake_jwt = to_unicode(jwt.encode(
+            fake_jwt_data,
+            self.app._client.auth.secret,
+            'HS256'), 'UTF-8')
+        fake_jwt_response = 'http://localhost/?jwtResponse=%s' % fake_jwt
+        try:
+            self.app.handle_id_site_callback(fake_jwt_response)
+        except Error as e:
+            self.assertEqual(e.code, code)
+            self.assertEqual(e.developer_message, developer_message)
+            self.assertEqual(e.message, developer_message)
+            self.assertEqual(e.more_info, more_info)
+            self.assertEqual(e.status, status)
+        else:
+            self.fail('handle_id_site_callback did not raise expected error.')
+
+    def test_id_site_callback_handler_invalid_token_iat(self):
+        _, acc = self.create_account(self.app.accounts)
+
+        try:
+            irt = uuid4().get_hex()
+        except AttributeError:
+            irt = uuid4().hex
+
+        code = 10012
+        developer_message = 'Token is invalid because the issued at time ' + \
+            '(iat) is after the current time'
+        message = 'Token is invalid'
+        more_info = 'mailto:support@stormpath.com'
+        status = 400
+        fake_jwt_data = {
+            'err': {
+                'code': code,
+                'developerMessage': developer_message,
+                'message': message,
+                'moreInfo': more_info,
+                'status': status
+            },
+            'jti': '6S2TKhkW60uYNhcXLThyPo',
+            'exp': 3350246665000,
+            'iat': '1407198550',
+            'iss': 'Stormpath',
+        }
+
+        fake_jwt = to_unicode(jwt.encode(
+            fake_jwt_data,
+            self.app._client.auth.secret,
+            'HS256'), 'UTF-8')
+        fake_jwt_response = 'http://localhost/?jwtResponse=%s' % fake_jwt
+        try:
+            self.app.handle_id_site_callback(fake_jwt_response)
+        except Error as e:
+            self.assertEqual(e.code, code)
+            self.assertEqual(e.developer_message, developer_message)
+            self.assertEqual(e.message, developer_message)
+            self.assertEqual(e.more_info, more_info)
+            self.assertEqual(e.status, status)
+        else:
+            self.fail('handle_id_site_callback did not raise expected error.')

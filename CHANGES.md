@@ -1,3 +1,12 @@
+Version 2.1.5
+-------------
+
+**Released on November 12, 2015.**
+
+- Making it easier to use Organization Mappings.
+- Fixing support for Error Callbacks with ID Site.
+
+
 Version 2.1.4
 -------------
 

@@ -99,7 +99,7 @@ class Client(object):
 
     @property
     def organizations(self):
-        return OrganizationList(self, href='/organizations')
+        return self.tenant.organizations
 
     @property
     def organization_account_store_mappings(self):
