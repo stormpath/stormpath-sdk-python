@@ -27,6 +27,26 @@ class TestOrganizations(SingleApplicationBase):
         self.assertIsInstance(org, Organization)
         self.assertEqual(org.href, organization.href)
 
+    def test_organization_creation_on_client(self):
+        name = self.get_random_name()
+        name_key = name[:63]
+
+        organization = self.client.organizations.create({
+            'name': name,
+            'description': 'test organization',
+            'name_key': name_key,
+            'status': 'ENABLED'
+        })
+
+        self.assertTrue(organization.is_enabled())
+
+        orgs = self.client.organizations.query(name=name)
+        self.assertEqual(len(orgs), 1)
+
+        org = orgs[0]
+        self.assertIsInstance(org, Organization)
+        self.assertEqual(org.href, organization.href)
+
     def test_organization_disabled(self):
         name = self.get_random_name()
         name_key = name[:63]
@@ -68,6 +88,31 @@ class TestOrganizations(SingleApplicationBase):
 
         orgs = self.client.tenant.organizations.query(name=name)
         self.assertEqual(len(orgs), 0)
+
+    def test_organization_iteration_on_client(self):
+        name = self.get_random_name()
+        name_key = name[:63]
+
+        self.client.organizations.create({
+            'name': name,
+            'description': 'test organization',
+            'name_key': name_key,
+            'status': 'ENABLED'
+        })
+
+        name2 = self.get_random_name()
+        name_key2 = name2[:63]
+        self.client.organizations.create({
+            'name': name2,
+            'description': 'test organization',
+            'name_key': name_key2,
+            'status': 'ENABLED'
+        })
+
+        names = []
+        for o in self.client.organizations:
+            names.append(o.name)
+        self.assertTrue(set(names), {name, name2})
 
     def test_adding_account_store_to_organization(self):
         name = self.get_random_name()
