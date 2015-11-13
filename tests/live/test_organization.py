@@ -165,3 +165,50 @@ class TestOrganizations(SingleApplicationBase):
 
         oas_mapping.delete()
         as_mapping.delete()
+
+    def test_create_account_in_organization_with_oasm_on_organization(self):
+        name = self.get_random_name()
+        name_key = name[:63]
+
+        organization = self.client.tenant.organizations.create({
+            'name': name,
+            'description': 'test organization',
+            'name_key': name_key,
+            'status': 'ENABLED'
+        })
+
+        oas_mapping = organization.organization_account_store_mappings.create({
+            'account_store': self.dir,
+            'organization': organization,
+            'list_index': 1,
+            'is_default_account_store': True,
+            'is_default_group_store': True
+        })
+
+        as_mapping = self.client.account_store_mappings.create({
+            'account_store': organization,
+            'application': self.app,
+            'list_index': 1,
+            'is_default_account_store': True,
+            'is_default_group_store': True
+        })
+
+        self.assertTrue(as_mapping.is_default_account_store)
+        self.assertTrue(as_mapping.is_default_group_store)
+        self.assertEqual(as_mapping.list_index, 1)
+
+        acc_name = self.get_random_name()
+        acc_password = 'W00t123!' + acc_name
+        acc_email = acc_name + '@example.com'
+        acc = organization.accounts.create(
+            {
+                'surname': acc_name,
+                'email': acc_email,
+                'password': acc_password,
+                'given_name': acc_name
+            })
+
+        self.assertTrue(acc.given_name, acc_name)
+
+        oas_mapping.delete()
+        as_mapping.delete()

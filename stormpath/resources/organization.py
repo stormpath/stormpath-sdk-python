@@ -46,6 +46,10 @@ class Organization(Resource, AutoSaveMixin, DeleteMixin, DictMixin, StatusMixin)
             'tenant': Tenant,
         }
 
+    @property
+    def organization_account_store_mappings(self):
+        return self._client.organization_account_store_mappings
+
 
 class OrganizationList(CollectionResource):
     """Organization resource list."""
