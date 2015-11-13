@@ -135,7 +135,7 @@ class Token(object):
             try:
                 jwt.decode(
                     self.token, self.app._client.auth.secret,
-                    algorithms=['HS256'])
+                    algorithms=['HS256'], leeway=datetime.timedelta(seconds=2))
             except jwt.DecodeError:
                 return False
 

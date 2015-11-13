@@ -400,6 +400,67 @@ class TestIdSite(ApiKeyBase):
         self.assertIsNone(ret.account)
         another_app.delete()
 
+    def test_id_site_callback_handler_with_minor_clock_skew(self):
+        _, acc = self.create_account(self.app.accounts)
+        now = datetime.datetime.utcnow()
+
+        try:
+            irt = uuid4().get_hex()
+        except AttributeError:
+            irt = uuid4().hex
+
+        fake_jwt_data = {
+            'jti': '6S2TKhkW60uYNhcXLThyPo',
+            'aud': self.app._client.auth.id,
+            'irt': irt,
+            'sub': acc.href,
+            'isNewSub': False,
+            'state': None,
+            'exp': now + datetime.timedelta(seconds=3600),
+            'iat': now + datetime.timedelta(seconds=2),
+            'iss': 'Stormpath',
+        }
+
+        fake_jwt = to_unicode(jwt.encode(
+            fake_jwt_data,
+            self.app._client.auth.secret,
+            'HS256'), 'UTF-8')
+        fake_jwt_response = 'http://localhost/?jwtResponse=%s' % fake_jwt
+        ret = self.app.handle_id_site_callback(fake_jwt_response)
+        self.assertIsNotNone(ret)
+        self.assertEqual(ret.account.href, acc.href)
+        self.assertIsNone(ret.state)
+
+    def test_id_site_callback_handler_with_major_clock_skew(self):
+        _, acc = self.create_account(self.app.accounts)
+        now = datetime.datetime.utcnow()
+
+        try:
+            irt = uuid4().get_hex()
+        except AttributeError:
+            irt = uuid4().hex
+
+        fake_jwt_data = {
+            'jti': '6S2TKhkW60uYNhcXLThyPo',
+            'aud': self.app._client.auth.id,
+            'irt': irt,
+            'sub': acc.href,
+            'isNewSub': False,
+            'state': None,
+            'exp': now + datetime.timedelta(seconds=3600),
+            'iat': now + datetime.timedelta(seconds=20),
+            'iss': 'Stormpath',
+        }
+
+        fake_jwt = to_unicode(jwt.encode(
+            fake_jwt_data,
+            self.app._client.auth.secret,
+            'HS256'), 'UTF-8')
+        fake_jwt_response = 'http://localhost/?jwtResponse=%s' % fake_jwt
+
+        with self.assertRaises(jwt.InvalidIssuedAtError):
+            self.app.handle_id_site_callback(fake_jwt_response)
+
     def test_id_site_callback_handler_session_timed_out(self):
         _, acc = self.create_account(self.app.accounts)
         now = datetime.datetime.utcnow()
@@ -450,11 +511,6 @@ class TestIdSite(ApiKeyBase):
         _, acc = self.create_account(self.app.accounts)
         now = datetime.datetime.utcnow()
 
-        try:
-            irt = uuid4().get_hex()
-        except AttributeError:
-            irt = uuid4().hex
-
         code = 11001
         developer_message = 'Token is invalid because the specified ' + \
             'organization name key does not exist in your Stormpath Tenant'
@@ -494,11 +550,6 @@ class TestIdSite(ApiKeyBase):
     def test_id_site_callback_handler_invalid_cb_uri(self):
         _, acc = self.create_account(self.app.accounts)
         now = datetime.datetime.utcnow()
-
-        try:
-            irt = uuid4().get_hex()
-        except AttributeError:
-            irt = uuid4().hex
 
         code = 400
         developer_message = 'The specified callback URI (cb_uri) is not ' + \
@@ -540,11 +591,6 @@ class TestIdSite(ApiKeyBase):
     def test_id_site_callback_handler_invalid_token_iat(self):
         _, acc = self.create_account(self.app.accounts)
 
-        try:
-            irt = uuid4().get_hex()
-        except AttributeError:
-            irt = uuid4().hex
-
         code = 10012
         developer_message = 'Token is invalid because the issued at time ' + \
             '(iat) is after the current time'
@@ -562,6 +608,45 @@ class TestIdSite(ApiKeyBase):
             'jti': '6S2TKhkW60uYNhcXLThyPo',
             'exp': 3350246665000,
             'iat': '1407198550',
+            'iss': 'Stormpath',
+        }
+
+        fake_jwt = to_unicode(jwt.encode(
+            fake_jwt_data,
+            self.app._client.auth.secret,
+            'HS256'), 'UTF-8')
+        fake_jwt_response = 'http://localhost/?jwtResponse=%s' % fake_jwt
+        try:
+            self.app.handle_id_site_callback(fake_jwt_response)
+        except Error as e:
+            self.assertEqual(e.code, code)
+            self.assertEqual(e.developer_message, developer_message)
+            self.assertEqual(e.message, developer_message)
+            self.assertEqual(e.more_info, more_info)
+            self.assertEqual(e.status, status)
+        else:
+            self.fail('handle_id_site_callback did not raise expected error.')
+
+    def test_id_site_callback_handler_with_minor_clock_skew_and_error(self):
+        _, acc = self.create_account(self.app.accounts)
+        now = datetime.datetime.utcnow()
+
+        code = 10000
+        developer_message = 'Token is invalid because...'
+        message = 'Token is invalid'
+        more_info = 'mailto:support@stormpath.com'
+        status = 400
+        fake_jwt_data = {
+            'err': {
+                'code': code,
+                'developerMessage': developer_message,
+                'message': message,
+                'moreInfo': more_info,
+                'status': status
+            },
+            'jti': '6S2TKhkW60uYNhcXLThyPo',
+            'exp': now + datetime.timedelta(seconds=3600),
+            'iat': now + datetime.timedelta(seconds=2),
             'iss': 'Stormpath',
         }
 

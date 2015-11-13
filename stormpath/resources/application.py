@@ -1,6 +1,6 @@
 """Stormpath Application resource mappings."""
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from uuid import uuid4
 try:
     from urllib import urlencode
@@ -245,7 +245,7 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
         try:
             decoded_data = jwt.decode(
                 jwt_response, api_key_secret, audience=self._client.auth.id,
-                algorithms=['HS256'])
+                algorithms=['HS256'], leeway=timedelta(seconds=2))
         except (jwt.DecodeError, jwt.ExpiredSignature):
             return None
         except jwt.MissingRequiredClaimError as missing_claim_error:
@@ -253,7 +253,8 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
                 return None
 
             decoded_data = jwt.decode(
-                jwt_response, api_key_secret, algorithms=['HS256'])
+                jwt_response, api_key_secret, algorithms=['HS256'],
+                leeway=timedelta(seconds=2))
 
             if 'err' in decoded_data:
                 raise StormpathError(decoded_data.get('err'))

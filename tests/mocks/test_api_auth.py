@@ -1,6 +1,7 @@
 import base64
 from collections import OrderedDict
 
+import jwt
 from unittest import TestCase, main
 from six import u
 try:
@@ -374,6 +375,60 @@ class ApiRequestAuthenticatorTest(TestCase):
                 )
         self.assertFalse(access_token._is_valid())
 
+    def test_access_token_with_minor_clock_skew(self):
+        app = MagicMock()
+        app._client.auth.secret = 'fakeApiKeyProperties.secret'
+        app.href = 'HREF'
+        api_keys = MagicMock()
+        api_keys.get_key = lambda k, s=None: MagicMock(
+                id=FAKE_CLIENT_ID, secret=FAKE_CLIENT_SECRET, status=StatusMixin.STATUS_ENABLED)
+        app.api_keys = api_keys
+
+        now = datetime.datetime.utcnow()
+        fake_jwt_data = {
+            "iss": "HREF",
+            "iat": now + datetime.timedelta(seconds=2),
+            "exp": now + datetime.timedelta(seconds=3600),
+            "sub": "fake_client_id",
+            "scope": "test1"
+        }
+        fake_jwt = to_unicode(
+            jwt.encode(fake_jwt_data, app._client.auth.secret, 'HS256'),
+            'UTF-8')
+        access_token = AccessToken(
+                app=app,
+                token=fake_jwt
+                )
+
+        self.assertTrue(access_token._is_valid())
+
+    def test_access_token_with_major_clock_skew(self):
+        app = MagicMock()
+        app._client.auth.secret = 'fakeApiKeyProperties.secret'
+        app.href = 'HREF'
+        api_keys = MagicMock()
+        api_keys.get_key = lambda k, s=None: MagicMock(
+                id=FAKE_CLIENT_ID, secret=FAKE_CLIENT_SECRET, status=StatusMixin.STATUS_ENABLED)
+        app.api_keys = api_keys
+
+        now = datetime.datetime.utcnow()
+        fake_jwt_data = {
+            "iss": "HREF",
+            "iat": now + datetime.timedelta(seconds=20),
+            "exp": now + datetime.timedelta(seconds=3600),
+            "sub": "fake_client_id",
+            "scope": "test1"
+        }
+        fake_jwt = to_unicode(
+            jwt.encode(fake_jwt_data, app._client.auth.secret, 'HS256'),
+            'UTF-8')
+        access_token = AccessToken(
+                app=app,
+                token=fake_jwt
+                )
+
+        with self.assertRaises(jwt.InvalidIssuedAtError):
+            access_token._is_valid()
 
     def test_valid_bearer_token_but_deleted_api_key(self):
         app = MagicMock()
