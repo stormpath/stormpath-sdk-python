@@ -25,6 +25,11 @@ GRANT_TYPE_CLIENT_CREDENTIALS = 'client_credentials'
 GRANT_TYPES = [GRANT_TYPE_CLIENT_CREDENTIALS]
 DEFAULT_TTL = 3600
 
+# Temporary solution for issue #226:
+# Adding 2 s of leeway to account for when there is a clock skew.
+# This should be removed once the "iat" claim from the jwt is removed.
+LEEWAY = datetime.timedelta(seconds=2)
+
 
 class DummyRequest(object):
     """Used to model the same flow for Basic and Bearer"""
@@ -135,7 +140,7 @@ class Token(object):
             try:
                 jwt.decode(
                     self.token, self.app._client.auth.secret,
-                    algorithms=['HS256'], leeway=datetime.timedelta(seconds=2))
+                    algorithms=['HS256'], leeway=LEEWAY)
             except jwt.DecodeError:
                 return False
 
