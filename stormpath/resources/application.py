@@ -1,6 +1,6 @@
 """Stormpath Application resource mappings."""
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from uuid import uuid4
 try:
     from urllib import urlencode
@@ -18,6 +18,7 @@ from .base import (
 )
 from .login_attempt import LoginAttemptList
 from .password_reset_token import PasswordResetTokenList
+from ..api_auth import LEEWAY
 from ..error import Error as StormpathError
 from ..id_site import IdSiteCallbackResult
 from ..nonce import Nonce
@@ -245,7 +246,7 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
         try:
             decoded_data = jwt.decode(
                 jwt_response, api_key_secret, audience=self._client.auth.id,
-                algorithms=['HS256'])
+                algorithms=['HS256'], leeway=LEEWAY)
         except (jwt.DecodeError, jwt.ExpiredSignature):
             return None
         except jwt.MissingRequiredClaimError as missing_claim_error:
@@ -253,7 +254,8 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
                 return None
 
             decoded_data = jwt.decode(
-                jwt_response, api_key_secret, algorithms=['HS256'])
+                jwt_response, api_key_secret, algorithms=['HS256'],
+                leeway=LEEWAY)
 
             if 'err' in decoded_data:
                 raise StormpathError(decoded_data.get('err'))
