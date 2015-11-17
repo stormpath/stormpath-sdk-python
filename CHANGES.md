@@ -1,3 +1,12 @@
+Version 2.1.6
+-------------
+
+**Released on November 17, 2015.**
+
+- Adding leeway for ID site tokens.  This makes it possible for us to correctly
+  account for clock skew when validating tokens.
+
+
 Version 2.1.5
 -------------
 
