@@ -84,12 +84,12 @@ generators show below:
 
 ```python
 for application in client.applications:
-    print 'Application (name):', application.name
-    print 'Application (href):', application.href
+    print('Application (name):', application.name)
+    print('Application (href):', application.href)
 
 for directory in client.directories:
-    print 'Directory (name):', directory.name
-    print 'Directory (href):', directory.href
+    print('Directory (name):', directory.name)
+    print('Directory (href):', directory.href)
 ```
 
 
@@ -197,8 +197,8 @@ from stormpath.error import Error as StormpathError
 try:
     auth_attempt = application.authenticate_account('pg', 'STARTUPSar3th3b3sT!')
 except StormpathError, err:
-    print 'Human friendly error message:', err.message
-    print 'Developer friendly error message:', err.developer_message
+    print('Human friendly error message:', err.message)
+    print('Developer friendly error message:', err.developer_message)
 ```
 
 
@@ -261,7 +261,7 @@ pgraham.custom_data['billions_acquired'] = 5
 pgraham.custom_data['favorite_movie'] = 'The Lion King'
 pgraham.custom_data.save()
 
-print 'All custom data:', dict(pgraham.custom_data)
+print('All custom data:', dict(pgraham.custom_data))
 ```
 
 **NOTE**: None of the custom data entered above is actually saved to Stormpath
@@ -299,7 +299,7 @@ respectively.
 
 ```python
 for application in client.applications:
-    print '%s (%s)' % (application.name, application.href)
+    print('%s (%s)' % (application.name, application.href))
 ```
 
 **NOTE**: If you have a lot of
@@ -424,10 +424,10 @@ try:
     account = application.authenticate_account('username_or_email',
     'password').account
 except StormpathError, err:
-    print 'Human friendly error message:', err.message
-    print 'Developer friendly error message:', err.developer_message
+    print('Human friendly error message:', err.message)
+    print('Developer friendly error message:', err.developer_message)
 except Exception, err:
-    print 'Something unexpected happened:', err
+    print('Something unexpected happened:', err)
 ```
 
 
@@ -518,8 +518,8 @@ that act as a dictionary:
 * Accessing custom data field:
 
   ```python
-  print account.custom_data['favorite_color']
-  print group.custom_data['favorite_api_company']
+  print(account.custom_data['favorite_color'])
+  print(group.custom_data['favorite_api_company'])
   ```
 
 * Creating or updating a
