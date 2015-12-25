@@ -8,6 +8,7 @@ from .base import (
     SaveMixin,
     StatusMixin,
 )
+from stormpath.error import Error
 
 
 class ApiKey(Resource, DictMixin, DeleteMixin, SaveMixin, StatusMixin):
@@ -33,7 +34,23 @@ class ApiKeyList(CollectionResource):
     def get_key(self, client_id, client_secret=None):
         search = {'id': client_id}
         try:
-            key = self.search(search)[0]
+            key = None
+
+            # First, try to get the key from the cache using its ID.
+            if '/applications' in self.href:
+                href = '%s/apiKeys/%s' % (
+                    self.href.split('/applications')[0], client_id)
+                try:
+                    key = self.resource_class(self._client, href)
+                    key.secret
+                except Error:
+                    key = None
+
+            # If there was no key with client_id in cache, make HTTP
+            # request to the Stormpath service
+            if not key:
+                key = self.search(search)[0]
+
             if client_secret and not client_secret == key.secret:
                 return False
             return key

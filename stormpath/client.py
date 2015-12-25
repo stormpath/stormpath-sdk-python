@@ -6,6 +6,7 @@ from .data_store import DataStore
 from .http import HttpExecutor
 from .resources.account import AccountList
 from .resources.account_store_mapping import AccountStoreMappingList
+from .resources.api_key import ApiKeyList
 from .resources.agent import AgentList
 from .resources.group import GroupList
 from .resources.group_membership import GroupMembershipList
@@ -68,6 +69,10 @@ class Client(object):
         executor = HttpExecutor(self.BASE_URL, self.auth.scheme, proxies, user_agent=user_agent, get_delay=backoff_strategy)
         self.data_store = DataStore(executor, cache_options)
         self.tenant = Tenant(client=self, href='/tenants/current', expand=expand)
+
+    @property
+    def api_keys(self):
+        return ApiKeyList(self, '/apiKeys')
 
     @property
     def applications(self):
