@@ -137,6 +137,12 @@ class DataStore(object):
         data = self._cache_get(href)
         if data is None:
             data = self.executor.get(href, params=params)
+
+            # If trying to find API key by its ID, put the key in the
+            # cache using its href.
+            if href.split('/')[-1] == 'apiKeys' and 'id' in params:
+                for item in data.get('items'):
+                    self._cache_put(item['href'], item)
             self._cache_put(href, data)
 
         return data

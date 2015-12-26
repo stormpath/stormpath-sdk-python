@@ -137,5 +137,38 @@ class TestDataStoreWithMemoryCache(TestCase):
         ex.get.assert_called_once_with('http://example.com/accounts/FOO',
             params=None)
 
+    def test_get_resource_api_keys_is_cached(self):
+
+        ex = MagicMock()
+        ds = DataStore(ex)
+
+        ex.get.return_value = {
+            'href':
+                'https://www.example.com/applications/APPLICATION_ID/apiKeys',
+            'items': [
+                {
+                    'href': 'http://example.com/apiKeys/KEY_ID',
+                    'id': 'KEY_ID',
+                    'secret': 'KEY_SECRET'
+                }
+            ]
+        }
+
+        ds.get_resource(
+            'https://www.example.com/applications/APPLICATION_ID/apiKeys',
+            {'id': 'KEY_ID'})
+
+        ex.get.assert_called_once_with(
+            'https://www.example.com/applications/APPLICATION_ID/apiKeys',
+            params={'id': 'KEY_ID'})
+
+        self.assertEqual(
+            ds._cache_get('http://example.com/apiKeys/KEY_ID'),
+            {
+                'secret': 'KEY_SECRET',
+                'href': 'http://example.com/apiKeys/KEY_ID',
+                'id': 'KEY_ID'
+            })
+
 if __name__ == '__main__':
     main()
