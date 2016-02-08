@@ -24,6 +24,7 @@ from ..api_auth import LEEWAY
 from ..error import Error as StormpathError
 from ..id_site import IdSiteCallbackResult
 from ..nonce import Nonce
+from ..saml import SamlCallbackResult
 
 
 class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, StatusMixin):
@@ -222,19 +223,71 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
                 return True
         return False
 
-    def handle_id_site_callback(self, url_response):
-        """Handles the callback from the ID site.
+    def build_saml_idp_redirect_url(self, callback_uri, saml_provider_endpoint,
+                                    path=None, state=None, logout=False):
+        """Builds a redirect uri for SAML IdP.
+
+        :param callback_uri: Callback URI to which Stormpath will redirect after
+            the user has entered their credentials on the ID site. Note: For security reasons
+            this is required to be the same as "Authorized Callback URIs" in the
+            Admin Console's Application settings.
+
+        :param saml_provider_endpoint:
+            SAML SSO Initiation Endpoint from SAML Policy resource on Application.
+
+        :param path:
+            An optional string indicating to wich template we should redirect the user to.
+            By default it will redirect to the login screen but you can redirect to the
+            registration or forgot password screen with '/#/register' and '/#/forgot' respectively.
+
+        :param state: an optional string that stores information that your application needs
+            after the user is redirected back to your application
+
+        :param logout: a Boolean value indicating if this should redirect to the logout endpoint
+
+        :return: A URI to which to redirect the user.
+        """
+        import jwt
+        from oauthlib.common import to_unicode
+        api_key_secret = self._client.auth.secret
+        api_key_id = self._client.auth.id
+
+        endpoint = saml_provider_endpoint
+        if logout:
+            raise NotImplementedError('Logout feature is not implemented yet.')
+
+        try:
+            jti = uuid4().get_hex()
+        except AttributeError:
+            jti = uuid4().hex
+
+        body = {
+            'iat': datetime.utcnow(),
+            'jti': jti,
+            'iss': api_key_id,
+            'sub': self.href,
+            'cb_uri': callback_uri,
+        }
+        if path:
+            body['path'] = path
+        if state:
+            body['state'] = state
+
+        jwt_signature = to_unicode(
+            jwt.encode(
+                body, api_key_secret, 'HS256', headers={'kid': api_key_id}),
+            'UTF-8')
+        url_params = {'accessToken': jwt_signature}
+        return endpoint + '?' + urlencode(url_params)
+
+    def _handle_callback(self, url_response):
+        """Handles the callback from the ID site or SAML Iderntity Provider.
 
         :param url_response: A string representing the full url (with
             it's params) to which the ID redirected to.
 
-        :return: A :class:`stormpath.id_site.IdSiteCallbackResult`
-            object. Which holds the
-            :class:`stormpath.resources.account.Account` object and the
-            state (if any was passed along when creating the redirect
-            uri).
-
-       """
+        :return: A tuple: (account, state, status) or None if it fails.
+        """
         try:
             from urlparse import urlparse
         except ImportError:
@@ -296,8 +349,48 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
                 account = None
         else:
             account = None
+
+        return (account, state, status)
+
+    def handle_id_site_callback(self, url_response):
+        """Handles the callback from the ID site.
+
+        :param url_response: A string representing the full url (with
+            it's params) to which the ID redirected to.
+
+        :return: A :class:`stormpath.id_site.IdSiteCallbackResult`
+            object. Which holds the
+            :class:`stormpath.resources.account.Account` object and the
+            state (if any was passed along when creating the redirect
+            uri).
+
+       """
+        result = self._handle_callback(url_response)
+        if result is None:
+            return result
+
+        account, state, status = result
         return IdSiteCallbackResult(account=account, state=state, status=status)
 
+    def handle_saml_callback(self, url_response):
+        """Handles the callback from the SAML Identity Provider.
+
+        :param url_response: A string representing the full url (with
+            it's params) to which the ID redirected to.
+
+        :return: A :class:`stormpath.id_site.SamlCallbackResult`
+            object. Which holds the
+            :class:`stormpath.resources.account.Account` object and the
+            state (if any was passed along when creating the redirect
+            uri).
+
+       """
+        result = self._handle_callback(url_response)
+        if result is None:
+            return result
+
+        account, state, status = result
+        return SamlCallbackResult(account=account, state=state, status=status)
 
 class ApplicationList(CollectionResource):
     """Application resource list."""
