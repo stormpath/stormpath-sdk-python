@@ -12,9 +12,11 @@ from pydispatch import dispatcher
 from stormpath.error import Error
 
 from stormpath.cache.entry import CacheEntry
+from stormpath.id_site import IdSiteCallbackResult
 from stormpath.resources import Account
 from stormpath.resources.base import Expansion, SIGNAL_RESOURCE_CREATED, \
     SIGNAL_RESOURCE_UPDATED, SIGNAL_RESOURCE_DELETED
+from stormpath.saml import SamlCallbackResult
 
 from .base import AccountBase, SignalReceiver
 from .base import ApiKeyBase
@@ -359,6 +361,7 @@ class TestIdSite(ApiKeyBase):
             'HS256'), 'UTF-8')
         fake_jwt_response = 'http://localhost/?jwtResponse=%s' % fake_jwt
         ret = self.app.handle_id_site_callback(fake_jwt_response)
+        self.assertIsInstance(ret, IdSiteCallbackResult)
         self.assertIsNotNone(ret)
         self.assertEqual(ret.account.href, acc.href)
         self.assertIsNone(ret.state)
@@ -665,3 +668,85 @@ class TestIdSite(ApiKeyBase):
             self.assertEqual(e.status, status)
         else:
             self.fail('handle_id_site_callback did not raise expected error.')
+
+
+class TestSaml(ApiKeyBase):
+
+    def test_building_saml_redirect_uri(self):
+        try:
+            from urlparse import urlparse
+        except ImportError:
+            from urllib.parse import urlparse
+
+        ret = self.app.build_saml_idp_redirect_url(
+            'http://localhost/', '%s/saml/sso/idpRedirect' % self.app.href)
+        try:
+            jwt_response = urlparse(ret).query.split('=')[1]
+        except:
+            self.fail("Failed to parse SAML redirect uri")
+
+        try:
+            decoded_data = jwt.decode(
+                jwt_response, verify=False, algorithms=['HS256'])
+        except jwt.DecodeError:
+            self.fail("Invaid JWT generated.")
+
+        self.assertIsNotNone(decoded_data.get('iat'))
+        self.assertIsNotNone(decoded_data.get('jti'))
+        self.assertIsNotNone(decoded_data.get('iss'))
+        self.assertEqual(decoded_data.get('iss'), self.app._client.auth.id)
+        self.assertIsNotNone(decoded_data.get('sub'))
+        self.assertIsNotNone(decoded_data.get('cb_uri'))
+        self.assertEqual(decoded_data.get('cb_uri'), 'http://localhost/')
+        self.assertIsNone(decoded_data.get('path'))
+        self.assertIsNone(decoded_data.get('state'))
+
+
+        ret = self.app.build_saml_idp_redirect_url(
+                'http://testserver/',
+                '%s/saml/sso/idpRedirect' % self.app.href,
+                path='/#/register',
+                state='test')
+        try:
+            jwt_response = urlparse(ret).query.split('=')[1]
+        except:
+            self.fail("Failed to parse SAML redirect uri")
+
+        try:
+            decoded_data = jwt.decode(
+                jwt_response, verify=False, algorithms=['HS256'])
+        except jwt.DecodeError:
+            self.fail("Invaid JWT generated.")
+
+        self.assertEqual(decoded_data.get('path'), '/#/register')
+        self.assertEqual(decoded_data.get('state'), 'test')
+
+    def test_saml_callback_handler(self):
+        _, acc = self.create_account(self.app.accounts)
+        now = datetime.datetime.utcnow()
+
+        try:
+            irt = uuid4().get_hex()
+        except AttributeError:
+            irt = uuid4().hex
+
+        fake_jwt_data = {
+                'exp': now + datetime.timedelta(seconds=3600),
+                'aud': self.app._client.auth.id,
+                'irt': irt,
+                'iss': 'Stormpath',
+                'sub': acc.href,
+                'isNewSub': False,
+                'state': None,
+        }
+
+        fake_jwt = to_unicode(jwt.encode(
+            fake_jwt_data,
+            self.app._client.auth.secret,
+            'HS256'), 'UTF-8')
+        fake_jwt_response = 'http://localhost/?jwtResponse=%s' % fake_jwt
+        ret = self.app.handle_saml_callback(fake_jwt_response)
+        self.assertIsNotNone(ret)
+        self.assertIsInstance(ret, SamlCallbackResult)
+        self.assertEqual(ret.account.href, acc.href)
+        self.assertIsNone(ret.state)
