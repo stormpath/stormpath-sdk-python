@@ -8,7 +8,16 @@ from os import getenv
 from requests import Session
 from tests.live.base import AuthenticatedLiveBase
 from stormpath.error import Error as StormpathError
-from stormpath.resources import Provider
+from stormpath.resources import (
+    AssertionConsumerServicePostEndpoint,
+    AttributeStatementMappingRule,
+    AttributeStatementMappingRules,
+    Provider,
+    SamlPolicy,
+    SamlServiceProvider,
+    SamlServiceProviderMetadata,
+    SsoInitiationEndpoint
+)
 
 
 class TestProviderDirectories(AuthenticatedLiveBase):
@@ -210,6 +219,134 @@ class TestProviderDirectories(AuthenticatedLiveBase):
 
         directory.delete()
         app.delete()
+
+    def test_create_directory_with_saml_provider(self):
+        sso_login_url = 'https://idp.whatever.com/saml2/sso/login'
+        sso_logout_url = 'https://idp.whatever.com/saml2/sso/logout'
+        encoded_x509_signing_cert = """-----BEGIN CERTIFICATE-----
+        MIIDBjCCAe4CCQDkkfBwuV3jqTANBgkqhkiG9w0BAQUFADBFMQswCQYDVQQGEwJV
+        UzETMBEGA1UECBMKU29tZS1TdGF0ZTEhMB8GA1UEChMYSW50ZXJuZXQgV2lkZ2l0
+        cyBQdHkgTHRkMB4XDTE1MTAxNDIyMDUzOFoXDTE2MTAxMzIyMDUzOFowRTELMAkG
+        A1UEBhMCVVMxEzARBgNVBAgTClNvbWUtU3RhdGUxITAfBgNVBAoTGEludGVybmV0
+        IFdpZGdpdHMgUHR5IEx0ZDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEB
+        ALuZBSfp4ecigQGFL6zawVi9asVstXHy3cpj3pPXjDx5Xj4QlbBL7KbZhVd4B+j3
+        Paacetpn8N0g06sYe1fIeddZE7PZeD2vxTLglriOCB8exH9ZAcYNHIGy3pMFdXHY
+        lS7xXYWb+BNLVU7ka3tJnceDjhviAjICzQJs0JXDVQUeYxB80a+WtqJP+ZMbAxvA
+        QbPzkcvK8CMctRSRqKkpC4gWSxUAJOqEmyvQVQpaLGrI2zFroD2Bgt0cZzBHN5tG
+        wC2qgacDv16qyY+90rYgX/WveA+MSd8QKGLcpPlEzzVJp7Z5Boc3T8wIR29jaDtR
+        cK4bWQ2EGLJiJ+Vql5qaOmsCAwEAATANBgkqhkiG9w0BAQUFAAOCAQEAmCND/4tB
+        +yVsIZBAQgul/rK1Qj26FlyO0i0Rmm2OhGRhrd9JPQoZ+xCtBixopNICKG7kvUeQ
+        Sk8Bku6rQ3VquxKtqAjNFeiLykd9Dn2HUOGpNlRcpzFXHtX+L1f34lMaT54qgWAh
+        PgWkzh8xo5HT4M83DaG+HT6BkaVAQwIlJ26S/g3zJ00TrWRP2E6jlhR5KHLN+8eE
+        D7/ENlqO5ThU5uX07/Bf+S0q5NK0NPuy0nO2w064kHdIX5/O64ktT1/MgWBV6yV7
+        mg1osHToeo4WXGz2Yo6+VFMM3IKRqMDbkR7N4cNKd1KvEKrMaRE7vC14H/G5NSOh
+        yl85oFHAdkguTA==
+        -----END CERTIFICATE-----
+        """
+
+        directory = self.client.directories.create(
+            {
+                'name': self.get_random_name(),
+                'description': 'Testing SAML Provider',
+                'provider':
+                    {
+                        'sso_login_url': sso_login_url,
+                        'sso_logout_url': sso_logout_url,
+                        'encoded_x509_signing_cert': encoded_x509_signing_cert,
+                        'request_signature_algorithm':
+                            Provider.SIGNING_ALGORITHM_RSA_SHA_256,
+                        'provider_id': Provider.SAML
+                    }
+            })
+
+        self.assertIsNotNone(directory.href)
+
+        provider = directory.provider
+        spm = provider.service_provider_metadata
+        self.assertIsNotNone(spm.href)
+        self.assertIsInstance(spm, SamlServiceProviderMetadata)
+        self.assertIsInstance(
+            spm.assertion_consumer_service_post_endpoint,
+            AssertionConsumerServicePostEndpoint)
+        self.assertEqual(provider.provider_id, Provider.SAML)
+        self.assertEqual(provider.sso_login_url, sso_login_url)
+        self.assertEqual(provider.sso_logout_url, sso_logout_url)
+
+        directory.delete()
+
+    def test_create_directory_with_saml_provider_with_asm_rules(self):
+        sso_login_url = 'https://idp.whatever.com/saml2/sso/login'
+        sso_logout_url = 'https://idp.whatever.com/saml2/sso/logout'
+        encoded_x509_signing_cert = """-----BEGIN CERTIFICATE-----
+        MIIDBjCCAe4CCQDkkfBwuV3jqTANBgkqhkiG9w0BAQUFADBFMQswCQYDVQQGEwJV
+        UzETMBEGA1UECBMKU29tZS1TdGF0ZTEhMB8GA1UEChMYSW50ZXJuZXQgV2lkZ2l0
+        cyBQdHkgTHRkMB4XDTE1MTAxNDIyMDUzOFoXDTE2MTAxMzIyMDUzOFowRTELMAkG
+        A1UEBhMCVVMxEzARBgNVBAgTClNvbWUtU3RhdGUxITAfBgNVBAoTGEludGVybmV0
+        IFdpZGdpdHMgUHR5IEx0ZDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEB
+        ALuZBSfp4ecigQGFL6zawVi9asVstXHy3cpj3pPXjDx5Xj4QlbBL7KbZhVd4B+j3
+        Paacetpn8N0g06sYe1fIeddZE7PZeD2vxTLglriOCB8exH9ZAcYNHIGy3pMFdXHY
+        lS7xXYWb+BNLVU7ka3tJnceDjhviAjICzQJs0JXDVQUeYxB80a+WtqJP+ZMbAxvA
+        QbPzkcvK8CMctRSRqKkpC4gWSxUAJOqEmyvQVQpaLGrI2zFroD2Bgt0cZzBHN5tG
+        wC2qgacDv16qyY+90rYgX/WveA+MSd8QKGLcpPlEzzVJp7Z5Boc3T8wIR29jaDtR
+        cK4bWQ2EGLJiJ+Vql5qaOmsCAwEAATANBgkqhkiG9w0BAQUFAAOCAQEAmCND/4tB
+        +yVsIZBAQgul/rK1Qj26FlyO0i0Rmm2OhGRhrd9JPQoZ+xCtBixopNICKG7kvUeQ
+        Sk8Bku6rQ3VquxKtqAjNFeiLykd9Dn2HUOGpNlRcpzFXHtX+L1f34lMaT54qgWAh
+        PgWkzh8xo5HT4M83DaG+HT6BkaVAQwIlJ26S/g3zJ00TrWRP2E6jlhR5KHLN+8eE
+        D7/ENlqO5ThU5uX07/Bf+S0q5NK0NPuy0nO2w064kHdIX5/O64ktT1/MgWBV6yV7
+        mg1osHToeo4WXGz2Yo6+VFMM3IKRqMDbkR7N4cNKd1KvEKrMaRE7vC14H/G5NSOh
+        yl85oFHAdkguTA==
+        -----END CERTIFICATE-----
+        """
+
+        directory = self.client.directories.create(
+            {
+                'name': self.get_random_name(),
+                'description': 'Testing SAML Provider',
+                'provider':
+                    {
+                        'sso_login_url': sso_login_url,
+                        'sso_logout_url': sso_logout_url,
+                        'encoded_x509_signing_cert': encoded_x509_signing_cert,
+                        'request_signature_algorithm':
+                            Provider.SIGNING_ALGORITHM_RSA_SHA_256,
+                        'provider_id': Provider.SAML
+                    },
+            })
+
+        name_format = 'urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified'
+        rule1 = AttributeStatementMappingRule(
+            name='name1',
+            name_format=name_format,
+            account_attributes=['customData.name1', 'customData.otherName1'])
+        rule2 = AttributeStatementMappingRule(
+            name='name2',
+            name_format=name_format,
+            account_attributes=['customData.name2'])
+
+        asmr = directory.provider.attribute_statement_mapping_rules
+        asmr.items = [rule1]
+        asmr.save()
+        asmr.refresh()
+
+        self.assertIsInstance(asmr, AttributeStatementMappingRules)
+        self.assertEqual(len(asmr.items), 1)
+        self.assertEqual(asmr.items[0].name, 'name1')
+
+        # case when rules are changed elsewhere
+        properties = asmr._get_properties()
+        properties['items'] = []
+        self.client.data_store.executor.post(asmr.href, properties)
+
+        self.assertEqual(len(asmr.items), 1)
+        self.assertEqual(asmr.items[0].name, 'name1')
+
+        items = asmr.items
+        items.append(rule2)
+        asmr.save()
+        self.assertEqual(len(items), 1)
+        self.assertEqual(items[0].name, 'name2')
+
+        directory.delete()
 
 
 if __name__ == '__main__':

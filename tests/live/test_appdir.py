@@ -5,7 +5,10 @@ import datetime
 from stormpath.error import Error
 
 from .base import AuthenticatedLiveBase, SingleApplicationBase, AccountBase
-from stormpath.resources import AccountCreationPolicy, Provider
+from stormpath.resources import (
+    AccountCreationPolicy, Provider, SamlPolicy, SamlServiceProvider,
+    SsoInitiationEndpoint
+)
 from stormpath.resources.application import Application
 from stormpath.resources.tenant import Tenant
 from stormpath.resources.agent import Agent, AgentConfig, AgentAccountConfig, \
@@ -732,3 +735,100 @@ class TestApplicationOAuthPolicy(SingleApplicationBase):
             oauth_policy.access_token_ttl, datetime.timedelta(hours=5))
         self.assertEqual(
             oauth_policy.refresh_token_ttl, datetime.timedelta(hours=10))
+
+
+class TestSamlApplication(AuthenticatedLiveBase):
+
+    def setUp(self):
+        super(TestSamlApplication, self).setUp()
+
+        sso_login_url = 'https://idp.whatever.com/saml2/sso/login'
+        sso_logout_url = 'https://idp.whatever.com/saml2/sso/logout'
+        encoded_x509_signing_cert = """-----BEGIN CERTIFICATE-----
+        MIIDBjCCAe4CCQDkkfBwuV3jqTANBgkqhkiG9w0BAQUFADBFMQswCQYDVQQGEwJV
+        UzETMBEGA1UECBMKU29tZS1TdGF0ZTEhMB8GA1UEChMYSW50ZXJuZXQgV2lkZ2l0
+        cyBQdHkgTHRkMB4XDTE1MTAxNDIyMDUzOFoXDTE2MTAxMzIyMDUzOFowRTELMAkG
+        A1UEBhMCVVMxEzARBgNVBAgTClNvbWUtU3RhdGUxITAfBgNVBAoTGEludGVybmV0
+        IFdpZGdpdHMgUHR5IEx0ZDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEB
+        ALuZBSfp4ecigQGFL6zawVi9asVstXHy3cpj3pPXjDx5Xj4QlbBL7KbZhVd4B+j3
+        Paacetpn8N0g06sYe1fIeddZE7PZeD2vxTLglriOCB8exH9ZAcYNHIGy3pMFdXHY
+        lS7xXYWb+BNLVU7ka3tJnceDjhviAjICzQJs0JXDVQUeYxB80a+WtqJP+ZMbAxvA
+        QbPzkcvK8CMctRSRqKkpC4gWSxUAJOqEmyvQVQpaLGrI2zFroD2Bgt0cZzBHN5tG
+        wC2qgacDv16qyY+90rYgX/WveA+MSd8QKGLcpPlEzzVJp7Z5Boc3T8wIR29jaDtR
+        cK4bWQ2EGLJiJ+Vql5qaOmsCAwEAATANBgkqhkiG9w0BAQUFAAOCAQEAmCND/4tB
+        +yVsIZBAQgul/rK1Qj26FlyO0i0Rmm2OhGRhrd9JPQoZ+xCtBixopNICKG7kvUeQ
+        Sk8Bku6rQ3VquxKtqAjNFeiLykd9Dn2HUOGpNlRcpzFXHtX+L1f34lMaT54qgWAh
+        PgWkzh8xo5HT4M83DaG+HT6BkaVAQwIlJ26S/g3zJ00TrWRP2E6jlhR5KHLN+8eE
+        D7/ENlqO5ThU5uX07/Bf+S0q5NK0NPuy0nO2w064kHdIX5/O64ktT1/MgWBV6yV7
+        mg1osHToeo4WXGz2Yo6+VFMM3IKRqMDbkR7N4cNKd1KvEKrMaRE7vC14H/G5NSOh
+        yl85oFHAdkguTA==
+        -----END CERTIFICATE-----
+        """
+
+        self.directory = self.client.directories.create(
+            {
+                'name': self.get_random_name(),
+                'description': 'Testing SAML Provider',
+                'provider':
+                    {
+                        'sso_login_url': sso_login_url,
+                        'sso_logout_url': sso_logout_url,
+                        'encoded_x509_signing_cert': encoded_x509_signing_cert,
+                        'request_signature_algorithm':
+                            Provider.SIGNING_ALGORITHM_RSA_SHA_256,
+                        'provider_id': Provider.SAML
+                    },
+            })
+
+        self.app = self.client.applications.create(
+            {
+                'name': self.get_random_name(),
+                'description': 'Testing app for SAML Auth',
+                'status': 'enabled'
+            })
+
+        self.client.account_store_mappings.create(
+            {
+                'application': self.app,
+                'account_store': self.directory,
+                'list_index': 0,
+                'is_default_account_store': False,
+                'is_default_group_store': False
+            })
+
+    def tearDown(self):
+        self.app.delete()
+        self.directory.delete()
+
+    def test_saml_policy_properties(self):
+        self.assertIsInstance(self.app.saml_policy, SamlPolicy)
+        self.assertIsInstance(
+            self.app.saml_policy.service_provider, SamlServiceProvider)
+        self.assertIsInstance(
+            self.app.saml_policy.service_provider.sso_initiation_endpoint,
+            SsoInitiationEndpoint)
+        self.assertIn(
+            '/saml/sso/idpRedirect',
+            self.app.saml_policy.service_provider.sso_initiation_endpoint.href)
+
+    def test_authorized_callback_uris(self):
+        self.assertEqual(self.app.authorized_callback_uris, [])
+        uri1 = 'https://myapplication.com/whatever/callback1'
+        uri2 = 'https://myapplication.com/whatever/callback2'
+        uri3 = 'https://myapplication.com/whatever/callback3'
+        self.app.authorized_callback_uris = [uri1]
+        self.app.save()
+        self.app.refresh()
+
+        self.assertEqual(self.app.authorized_callback_uris, [uri1])
+
+        # case when uris are changed elsewhere
+        properties = self.app._get_properties()
+        properties['authorizedCallbackUris'] = [uri2]
+        self.client.data_store.executor.post(self.app.href, properties)
+
+        self.app.authorized_callback_uris.append(uri3)
+        self.app.save()
+        self.app.refresh()
+        self.assertEqual(len(self.app.authorized_callback_uris), 2)
+        self.assertEqual(set(self.app.authorized_callback_uris), {uri2, uri3})
