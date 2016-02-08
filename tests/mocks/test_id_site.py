@@ -145,4 +145,3 @@ class IDSiteCallbackTest(IDSiteBuildURITest):
         fake_jwt_response = 'invalid_url_response'
         ret = self.app.handle_id_site_callback(fake_jwt_response)
         self.assertIsNone(ret)
-
