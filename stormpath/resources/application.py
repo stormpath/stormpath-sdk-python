@@ -11,6 +11,7 @@ from .base import (
     CollectionResource,
     DeleteMixin,
     DictMixin,
+    ListOnResource,
     Resource,
     SaveMixin,
     StatusMixin,
@@ -18,6 +19,7 @@ from .base import (
 )
 from .login_attempt import LoginAttemptList
 from .password_reset_token import PasswordResetTokenList
+from .saml_policy import SamlPolicy
 from ..api_auth import LEEWAY
 from ..error import Error as StormpathError
 from ..id_site import IdSiteCallbackResult
@@ -36,9 +38,11 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
 
     autosaves = ('custom_data',)
     writable_attrs = (
+        'authorized_callback_uris',
         'custom_data',
         'description',
         'name',
+        'saml_policy',
         'status',
     )
     resolvable_attrs = (
@@ -61,6 +65,7 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
         from .oauth_policy import OauthPolicy
 
         return {
+            'authorized_callback_uris': ListOnResource,
             'custom_data': CustomData,
             'accounts': AccountList,
             'account_store_mappings': AccountStoreMappingList,
@@ -72,6 +77,7 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
             'login_attempts': LoginAttemptList,
             'oauth_policy': OauthPolicy,
             'password_reset_tokens': PasswordResetTokenList,
+            'saml_policy': SamlPolicy,
             'tenant': Tenant,
             'verification_emails': VerificationEmailList
         }

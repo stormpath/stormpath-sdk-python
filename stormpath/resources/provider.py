@@ -21,21 +21,34 @@ class Provider(Resource, DeleteMixin, DictMixin, SaveMixin):
     GITHUB = 'github'
     LINKEDIN = 'linkedin'
     STORMPATH = 'stormpath'
+    SAML = 'saml'
+
+    SIGNING_ALGORITHM_RSA_SHA_1 = 'RSA-SHA1'
+    SIGNING_ALGORITHM_RSA_SHA_256 = 'RSA-SHA256'
 
     writable_attrs = (
+        'agent',
+        'attribute_statement_mapping_rules',
         'client_id',
         'client_secret',
+        'encoded_x509_signing_cert',
         'redirect_uri',
+        'request_signature_algorithm',
         'provider_id',
-        'agent',
+        'sso_login_url',
+        'sso_logout_url',
     )
 
     @staticmethod
     def get_resource_attributes():
         from .agent import Agent
+        from .attribute_statement_mapping_rule import AttributeStatementMappingRules
+        from .saml_service_provider_metadata import SamlServiceProviderMetadata
 
         return {
-            'agent': Agent
+            'agent': Agent,
+            'attribute_statement_mapping_rules': AttributeStatementMappingRules,
+            'service_provider_metadata': SamlServiceProviderMetadata
         }
 
     def save(self):
