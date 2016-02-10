@@ -66,6 +66,48 @@ class HttpTest(TestCase):
             ex.get('/test')
 
     @patch('stormpath.http.Session')
+    def test_get_request_error_with_dict(self, Session):
+        s = Session.return_value
+        s.request.return_value.status_code = 400
+        s.request.return_value.json.return_value = {
+            'developerMessage': 'dev msg in dict',
+            'message': 'usr msg in dict'
+        }
+
+        ex = HttpExecutor('http://api.stormpath.com/v1', ('user', 'pass'))
+
+        error = None
+        try:
+            ex.get('/test')
+        except Error as e:
+            error = e
+
+        self.assertIsNotNone(error)
+        self.assertIsInstance(error, Error)
+        self.assertEqual(error.developer_message, 'dev msg in dict')
+        self.assertEqual(error.user_message, 'usr msg in dict')
+        self.assertEqual(error.status, 400)
+
+    @patch('stormpath.http.Session')
+    def test_get_request_error_without_dict(self, Session):
+        s = Session.return_value
+        s.request.return_value.status_code = 400
+        s.request.return_value.json.return_value = 'Not a dict'
+
+        ex = HttpExecutor('http://api.stormpath.com/v1', ('user', 'pass'))
+
+        error = None
+        try:
+            ex.get('/test')
+        except Error as e:
+            error = e
+
+        self.assertIsNotNone(error)
+        self.assertIsInstance(error, Error)
+        self.assertEqual(error.developer_message, 'Not a dict')
+        self.assertEqual(error.status, 400)
+
+    @patch('stormpath.http.Session')
     def test_get_request_exception_and_retry_and_success(self, Session):
         self.count = 0
         request_exception = RequestException('I raise RequestException!')
