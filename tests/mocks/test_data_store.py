@@ -4,6 +4,7 @@ try:
 except ImportError:
     from unittest.mock import patch, call, MagicMock
 
+from stormpath.cache.null_cache_store import NullCacheStore
 from stormpath.data_store import DataStore
 
 
@@ -169,6 +170,24 @@ class TestDataStoreWithMemoryCache(TestCase):
                 'href': 'http://example.com/apiKeys/KEY_ID',
                 'id': 'KEY_ID'
             })
+
+
+class TestDataStoreWithNullCache(TestCase):
+    def test_get_resource_is_not_cached(self):
+        ex = MagicMock()
+        ds = DataStore(ex, {'accounts': {'store': NullCacheStore}})
+
+        ex.get.return_value = {
+            'href': 'http://example.com/accounts/FOO',
+            'name': 'Foo',
+        }
+
+        # make the request twice
+        ds.get_resource('http://example.com/accounts/FOO')
+        ds.get_resource('http://example.com/accounts/FOO')
+
+        self.assertEqual(ex.get.call_count, 2)
+
 
 if __name__ == '__main__':
     main()
