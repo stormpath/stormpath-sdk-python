@@ -7,6 +7,8 @@ Version 2.1.7
   that properly reflect our error messages.
 - Fixing caching for API keys.
 - Updating code samples in the README to support Python 3 syntax.
+- Adding support for Python 3.5.
+- Fixing broken readme badges.
 
 
 Version 2.1.6
