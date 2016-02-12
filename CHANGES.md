@@ -1,3 +1,14 @@
+Version 2.1.7
+-------------
+
+**Released February 12, 2015.**
+
+- Fixing bugs in Error handling class.  We now have standardized Error objects
+  that properly reflect our error messages.
+- Fixing caching for API keys.
+- Updating code samples in the README to support Python 3 syntax.
+
+
 Version 2.1.6
 -------------
 
