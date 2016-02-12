@@ -122,7 +122,13 @@ class HttpExecutor(object):
             ret = "An unexpected error occurred. HTTP Status code: %s. " % r.status_code
             ret += "Error message: %s. " % e
             ret += "Consider setting the logging level to debug for more detail."
-        raise Error({'developerMessage': ret}, http_status=r.status_code)
+
+        if not isinstance(ret, dict):
+            ret = {'developerMessage': ret}
+        elif 'developerMessage' not in ret:
+            ret['developerMessage'] = ret
+
+        raise Error(ret, http_status=r.status_code)
 
     def return_response(self, r):
         if not r.text:
