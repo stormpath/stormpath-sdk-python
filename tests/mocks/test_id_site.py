@@ -9,8 +9,9 @@ try:
 except ImportError:
     from unittest.mock import create_autospec, MagicMock, patch
 
-from stormpath.id_site import IdSiteCallbackResult
-from stormpath.resources.application import Application, ApplicationList
+from stormpath.resources.application import (
+    Application, ApplicationList, StormpathCallbackResult
+)
 
 
 class IDSiteBuildURITest(TestCase):
@@ -123,10 +124,10 @@ class IDSiteCallbackTest(IDSiteBuildURITest):
 
         with patch.object(Application, 'has_account') as mock_has_account:
             mock_has_account.return_value = True
-            ret = self.app.handle_id_site_callback(fake_jwt_response)
+            ret = self.app.handle_stormpath_callback(fake_jwt_response)
 
         self.assertIsNotNone(ret)
-        self.assertIsInstance(ret, IdSiteCallbackResult)
+        self.assertIsInstance(ret, StormpathCallbackResult)
         self.assertEqual(ret.account.href, self.acc.href)
         self.assertIsNone(ret.state)
 
@@ -134,14 +135,15 @@ class IDSiteCallbackTest(IDSiteBuildURITest):
         self.store._cache_get.return_value = True # Fake Nonce already used
 
         fake_jwt_response = 'http://localhost/?jwtResponse=%s' % self.fake_jwt
-        self.assertRaises(ValueError, self.app.handle_id_site_callback, fake_jwt_response)
+        self.assertRaises(
+            ValueError, self.app.handle_stormpath_callback, fake_jwt_response)
 
     def test_id_site_callback_handler_invalid_jwt(self):
         fake_jwt_response = 'http://localhost/?jwtResponse=%s' % 'INVALID_JWT'
-        ret = self.app.handle_id_site_callback(fake_jwt_response)
+        ret = self.app.handle_stormpath_callback(fake_jwt_response)
         self.assertIsNone(ret)
 
     def test_id_site_callback_handler_invalid_url_response(self):
         fake_jwt_response = 'invalid_url_response'
-        ret = self.app.handle_id_site_callback(fake_jwt_response)
+        ret = self.app.handle_stormpath_callback(fake_jwt_response)
         self.assertIsNone(ret)

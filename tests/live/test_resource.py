@@ -12,11 +12,10 @@ from pydispatch import dispatcher
 from stormpath.error import Error
 
 from stormpath.cache.entry import CacheEntry
-from stormpath.id_site import IdSiteCallbackResult
 from stormpath.resources import Account
+from stormpath.resources.application import StormpathCallbackResult
 from stormpath.resources.base import Expansion, SIGNAL_RESOURCE_CREATED, \
     SIGNAL_RESOURCE_UPDATED, SIGNAL_RESOURCE_DELETED
-from stormpath.saml import SamlCallbackResult
 
 from .base import AccountBase, SignalReceiver
 from .base import ApiKeyBase
@@ -360,8 +359,8 @@ class TestIdSite(ApiKeyBase):
             self.app._client.auth.secret,
             'HS256'), 'UTF-8')
         fake_jwt_response = 'http://localhost/?jwtResponse=%s' % fake_jwt
-        ret = self.app.handle_id_site_callback(fake_jwt_response)
-        self.assertIsInstance(ret, IdSiteCallbackResult)
+        ret = self.app.handle_stormpath_callback(fake_jwt_response)
+        self.assertIsInstance(ret, StormpathCallbackResult)
         self.assertIsNotNone(ret)
         self.assertEqual(ret.account.href, acc.href)
         self.assertIsNone(ret.state)
@@ -398,7 +397,7 @@ class TestIdSite(ApiKeyBase):
             another_app._client.auth.secret,
             'HS256'), 'UTF-8')
         fake_jwt_response = 'http://localhost/?jwtResponse=%s' % fake_jwt
-        ret = another_app.handle_id_site_callback(fake_jwt_response)
+        ret = another_app.handle_stormpath_callback(fake_jwt_response)
         self.assertIsNotNone(ret)
         self.assertIsNone(ret.account)
         another_app.delete()
@@ -429,7 +428,7 @@ class TestIdSite(ApiKeyBase):
             self.app._client.auth.secret,
             'HS256'), 'UTF-8')
         fake_jwt_response = 'http://localhost/?jwtResponse=%s' % fake_jwt
-        ret = self.app.handle_id_site_callback(fake_jwt_response)
+        ret = self.app.handle_stormpath_callback(fake_jwt_response)
         self.assertIsNotNone(ret)
         self.assertEqual(ret.account.href, acc.href)
         self.assertIsNone(ret.state)
@@ -462,7 +461,7 @@ class TestIdSite(ApiKeyBase):
         fake_jwt_response = 'http://localhost/?jwtResponse=%s' % fake_jwt
 
         with self.assertRaises(jwt.InvalidIssuedAtError):
-            self.app.handle_id_site_callback(fake_jwt_response)
+            self.app.handle_stormpath_callback(fake_jwt_response)
 
     def test_id_site_callback_handler_session_timed_out(self):
         _, acc = self.create_account(self.app.accounts)
@@ -500,7 +499,7 @@ class TestIdSite(ApiKeyBase):
             'HS256'), 'UTF-8')
         fake_jwt_response = 'http://localhost/?jwtResponse=%s' % fake_jwt
         try:
-            self.app.handle_id_site_callback(fake_jwt_response)
+            self.app.handle_stormpath_callback(fake_jwt_response)
         except Error as e:
             self.assertEqual(e.code, code)
             self.assertEqual(e.developer_message, developer_message)
@@ -508,7 +507,7 @@ class TestIdSite(ApiKeyBase):
             self.assertEqual(e.more_info, more_info)
             self.assertEqual(e.status, status)
         else:
-            self.fail('handle_id_site_callback did not raise expected error.')
+            self.fail('handle_stormpath_callback did not raise expected error.')
 
     def test_id_site_callback_handler_invalid_token(self):
         _, acc = self.create_account(self.app.accounts)
@@ -540,7 +539,7 @@ class TestIdSite(ApiKeyBase):
             'HS256'), 'UTF-8')
         fake_jwt_response = 'http://localhost/?jwtResponse=%s' % fake_jwt
         try:
-            self.app.handle_id_site_callback(fake_jwt_response)
+            self.app.handle_stormpath_callback(fake_jwt_response)
         except Error as e:
             self.assertEqual(e.code, code)
             self.assertEqual(e.developer_message, developer_message)
@@ -548,7 +547,7 @@ class TestIdSite(ApiKeyBase):
             self.assertEqual(e.more_info, more_info)
             self.assertEqual(e.status, status)
         else:
-            self.fail('handle_id_site_callback did not raise expected error.')
+            self.fail('handle_stormpath_callback did not raise expected error.')
 
     def test_id_site_callback_handler_invalid_cb_uri(self):
         _, acc = self.create_account(self.app.accounts)
@@ -581,7 +580,7 @@ class TestIdSite(ApiKeyBase):
             'HS256'), 'UTF-8')
         fake_jwt_response = 'http://localhost/?jwtResponse=%s' % fake_jwt
         try:
-            self.app.handle_id_site_callback(fake_jwt_response)
+            self.app.handle_stormpath_callback(fake_jwt_response)
         except Error as e:
             self.assertEqual(e.code, code)
             self.assertEqual(e.developer_message, developer_message)
@@ -589,7 +588,7 @@ class TestIdSite(ApiKeyBase):
             self.assertEqual(e.more_info, more_info)
             self.assertEqual(e.status, status)
         else:
-            self.fail('handle_id_site_callback did not raise expected error.')
+            self.fail('handle_stormpath_callback did not raise expected error.')
 
     def test_id_site_callback_handler_invalid_token_iat(self):
         _, acc = self.create_account(self.app.accounts)
@@ -620,7 +619,7 @@ class TestIdSite(ApiKeyBase):
             'HS256'), 'UTF-8')
         fake_jwt_response = 'http://localhost/?jwtResponse=%s' % fake_jwt
         try:
-            self.app.handle_id_site_callback(fake_jwt_response)
+            self.app.handle_stormpath_callback(fake_jwt_response)
         except Error as e:
             self.assertEqual(e.code, code)
             self.assertEqual(e.developer_message, developer_message)
@@ -628,7 +627,7 @@ class TestIdSite(ApiKeyBase):
             self.assertEqual(e.more_info, more_info)
             self.assertEqual(e.status, status)
         else:
-            self.fail('handle_id_site_callback did not raise expected error.')
+            self.fail('handle_stormpath_callback did not raise expected error.')
 
     def test_id_site_callback_handler_with_minor_clock_skew_and_error(self):
         _, acc = self.create_account(self.app.accounts)
@@ -659,7 +658,7 @@ class TestIdSite(ApiKeyBase):
             'HS256'), 'UTF-8')
         fake_jwt_response = 'http://localhost/?jwtResponse=%s' % fake_jwt
         try:
-            self.app.handle_id_site_callback(fake_jwt_response)
+            self.app.handle_stormpath_callback(fake_jwt_response)
         except Error as e:
             self.assertEqual(e.code, code)
             self.assertEqual(e.developer_message, developer_message)
@@ -667,7 +666,7 @@ class TestIdSite(ApiKeyBase):
             self.assertEqual(e.more_info, more_info)
             self.assertEqual(e.status, status)
         else:
-            self.fail('handle_id_site_callback did not raise expected error.')
+            self.fail('handle_stormpath_callback did not raise expected error.')
 
 
 class TestSaml(ApiKeyBase):
@@ -745,8 +744,8 @@ class TestSaml(ApiKeyBase):
             self.app._client.auth.secret,
             'HS256'), 'UTF-8')
         fake_jwt_response = 'http://localhost/?jwtResponse=%s' % fake_jwt
-        ret = self.app.handle_saml_callback(fake_jwt_response)
+        ret = self.app.handle_stormpath_callback(fake_jwt_response)
         self.assertIsNotNone(ret)
-        self.assertIsInstance(ret, SamlCallbackResult)
+        self.assertIsInstance(ret, StormpathCallbackResult)
         self.assertEqual(ret.account.href, acc.href)
         self.assertIsNone(ret.state)

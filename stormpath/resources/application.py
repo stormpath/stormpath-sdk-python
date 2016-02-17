@@ -6,6 +6,13 @@ try:
     from urllib import urlencode
 except ImportError:
     from urllib.parse import urlencode
+try:
+    from urlparse import urlparse
+except ImportError:
+    from urllib.parse import urlparse
+
+import jwt
+from oauthlib.common import to_unicode
 
 from .base import (
     CollectionResource,
@@ -22,9 +29,14 @@ from .password_reset_token import PasswordResetTokenList
 from .saml_policy import SamlPolicy
 from ..api_auth import LEEWAY
 from ..error import Error as StormpathError
-from ..id_site import IdSiteCallbackResult
 from ..nonce import Nonce
-from ..saml import SamlCallbackResult
+
+
+class StormpathCallbackResult(object):
+    def __init__(self, account, state, status):
+        self.account = account
+        self.state = state
+        self.status = status
 
 
 class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, StatusMixin):
@@ -189,8 +201,6 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
 
         :return: A URI to witch to redirect the user.
         """
-        import jwt
-        from oauthlib.common import to_unicode
         api_key_secret = self._client.auth.secret
         api_key_id = self._client.auth.id
 
@@ -247,8 +257,6 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
 
         :return: A URI to which to redirect the user.
         """
-        import jwt
-        from oauthlib.common import to_unicode
         api_key_secret = self._client.auth.secret
         api_key_id = self._client.auth.id
 
@@ -280,20 +288,19 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
         url_params = {'accessToken': jwt_signature}
         return endpoint + '?' + urlencode(url_params)
 
-    def _handle_callback(self, url_response):
-        """Handles the callback from the ID site or SAML Iderntity Provider.
+    def handle_stormpath_callback(self, url_response):
+        """Handles the callback to Stormpath (for example, from the ID
+        site or SAML Iderntity Provider).
 
         :param url_response: A string representing the full url (with
             it's params) to which the ID redirected to.
 
-        :return: A tuple: (account, state, status) or None if it fails.
+        :return: A :class:`stormpath.resources.application.StormpathCallbackResult`
+            object. Which holds the
+            :class:`stormpath.resources.account.Account` object, status
+            and the state (if any was passed along when creating the
+            redirect uri).
         """
-        try:
-            from urlparse import urlparse
-        except ImportError:
-            from urllib.parse import urlparse
-
-        import jwt
         try:
             jwt_response = urlparse(url_response).query.split('=')[1]
         except Exception:  # because we wan't to catch everything
@@ -350,47 +357,8 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
         else:
             account = None
 
-        return (account, state, status)
+        return StormpathCallbackResult(account=account, state=state, status=status)
 
-    def handle_id_site_callback(self, url_response):
-        """Handles the callback from the ID site.
-
-        :param url_response: A string representing the full url (with
-            it's params) to which the ID redirected to.
-
-        :return: A :class:`stormpath.id_site.IdSiteCallbackResult`
-            object. Which holds the
-            :class:`stormpath.resources.account.Account` object and the
-            state (if any was passed along when creating the redirect
-            uri).
-
-       """
-        result = self._handle_callback(url_response)
-        if result is None:
-            return result
-
-        account, state, status = result
-        return IdSiteCallbackResult(account=account, state=state, status=status)
-
-    def handle_saml_callback(self, url_response):
-        """Handles the callback from the SAML Identity Provider.
-
-        :param url_response: A string representing the full url (with
-            it's params) to which the ID redirected to.
-
-        :return: A :class:`stormpath.id_site.SamlCallbackResult`
-            object. Which holds the
-            :class:`stormpath.resources.account.Account` object and the
-            state (if any was passed along when creating the redirect
-            uri).
-
-       """
-        result = self._handle_callback(url_response)
-        if result is None:
-            return result
-
-        account, state, status = result
-        return SamlCallbackResult(account=account, state=state, status=status)
 
 class ApplicationList(CollectionResource):
     """Application resource list."""

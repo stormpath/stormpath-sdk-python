@@ -9,8 +9,9 @@ try:
 except ImportError:
     from unittest.mock import create_autospec, MagicMock, patch
 
-from stormpath.resources.application import Application, ApplicationList
-from stormpath.saml import SamlCallbackResult
+from stormpath.resources.application import (
+    Application, ApplicationList, StormpathCallbackResult
+)
 
 
 class SamlBuildURITest(TestCase):
@@ -125,9 +126,9 @@ class SamlCallbackTest(SamlBuildURITest):
 
         with patch.object(Application, 'has_account') as mock_has_account:
             mock_has_account.return_value = True
-            ret = self.app.handle_saml_callback(fake_jwt_response)
+            ret = self.app.handle_stormpath_callback(fake_jwt_response)
 
         self.assertIsNotNone(ret)
-        self.assertIsInstance(ret, SamlCallbackResult)
+        self.assertIsInstance(ret, StormpathCallbackResult)
         self.assertEqual(ret.account.href, self.acc.href)
         self.assertIsNone(ret.state)
