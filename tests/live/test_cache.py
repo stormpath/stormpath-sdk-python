@@ -12,11 +12,10 @@ from stormpath.cache.null_cache_store import NullCacheStore
 class TestCache(AuthenticatedLiveBase):
     def test_cache_opts_with_different_cache_stores(self):
         cache_opts = {
-            'applications': {
-                'store': MemoryStore
-            },
-            'customData': {
-                'store': NullCacheStore,
+            'regions': {
+                'customData': {
+                    'store': NullCacheStore,
+                }
             }
         }
 

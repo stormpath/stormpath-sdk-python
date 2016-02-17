@@ -20,6 +20,30 @@ class TestDataStore(TestCase):
         self.assertEqual(CacheManager.return_value.create_cache.call_args_list,
             expected)
 
+    def test_cache_creation_with_global_and_region_opts(self, CacheManager):
+        store_1 = MagicMock()
+        store_2 = MagicMock()
+        ds = DataStore(
+            MagicMock(),
+            {
+                'store': store_1,
+                'ttl': 300,
+                'regions': {
+                    'accounts': {'store': store_2},
+                    'applications': {'ttl': 301}
+                }
+            })
+
+        self.assertTrue(
+            call('accounts', store=store_2, ttl=300) in
+            CacheManager.return_value.create_cache.call_args_list)
+        self.assertTrue(
+            call('applications', store=store_1, ttl=301) in
+            CacheManager.return_value.create_cache.call_args_list)
+        self.assertTrue(
+            call('customData', store=store_1, ttl=300) in
+            CacheManager.return_value.create_cache.call_args_list)
+
     def test_get_cache_no_cache(self, CacheManager):
         ds = DataStore(MagicMock())
 
@@ -175,7 +199,8 @@ class TestDataStoreWithMemoryCache(TestCase):
 class TestDataStoreWithNullCache(TestCase):
     def test_get_resource_is_not_cached(self):
         ex = MagicMock()
-        ds = DataStore(ex, {'accounts': {'store': NullCacheStore}})
+        ds = DataStore(
+            ex, {'regions': {'accounts': {'store': NullCacheStore}}})
 
         ex.get.return_value = {
             'href': 'http://example.com/accounts/FOO',
