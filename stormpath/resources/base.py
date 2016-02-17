@@ -631,3 +631,56 @@ class ListOnResource(list):
         super(ListOnResource, self).append(p_object)
 
         setattr(self.parent_resource, self.list_name, self)
+
+    def extend(self, list):
+        self.parent_resource.refresh()
+        self._set_properties(getattr(self.parent_resource, self.list_name))
+        super(ListOnResource, self).extend(list)
+
+        setattr(self.parent_resource, self.list_name, self)
+
+    def insert(self, index, object):
+        self.parent_resource.refresh()
+        self._set_properties(getattr(self.parent_resource, self.list_name))
+        super(ListOnResource, self).insert(index, object)
+
+        setattr(self.parent_resource, self.list_name, self)
+
+    def pop(self, index=None):
+        if index == None:
+            index = -1
+        value = self[index]
+
+        self.parent_resource.refresh()
+        self._set_properties(getattr(self.parent_resource, self.list_name))
+
+        if value in self:
+            super(ListOnResource, self).remove(value)
+
+        setattr(self.parent_resource, self.list_name, self)
+        return value
+
+    def remove(self, value):
+        had_value = value in self
+
+        self.parent_resource.refresh()
+        self._set_properties(getattr(self.parent_resource, self.list_name))
+        try:
+            super(ListOnResource, self).remove(value)
+        except ValueError as e:
+            if had_value:
+                pass
+            else:
+                raise e
+
+        setattr(self.parent_resource, self.list_name, self)
+
+    def __delitem__(self, key):
+        value = self[key]
+
+        self.parent_resource.refresh()
+        self._set_properties(getattr(self.parent_resource, self.list_name))
+        if value in self:
+            super(ListOnResource, self).remove(value)
+
+        setattr(self.parent_resource, self.list_name, self)

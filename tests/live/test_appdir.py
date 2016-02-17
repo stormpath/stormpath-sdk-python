@@ -811,7 +811,7 @@ class TestSamlApplication(AuthenticatedLiveBase):
             '/saml/sso/idpRedirect',
             self.app.saml_policy.service_provider.sso_initiation_endpoint.href)
 
-    def test_authorized_callback_uris(self):
+    def test_authorized_callback_uris_append(self):
         self.assertEqual(self.app.authorized_callback_uris, [])
         uri1 = 'https://myapplication.com/whatever/callback1'
         uri2 = 'https://myapplication.com/whatever/callback2'
@@ -832,3 +832,153 @@ class TestSamlApplication(AuthenticatedLiveBase):
         self.app.refresh()
         self.assertEqual(len(self.app.authorized_callback_uris), 2)
         self.assertEqual(set(self.app.authorized_callback_uris), {uri2, uri3})
+
+    def test_authorized_callback_uris_append(self):
+        self.assertEqual(self.app.authorized_callback_uris, [])
+        uri1 = 'https://myapplication.com/whatever/callback1'
+        uri2 = 'https://myapplication.com/whatever/callback2'
+        uri3 = 'https://myapplication.com/whatever/callback3'
+        self.app.authorized_callback_uris = [uri1]
+        self.app.save()
+        self.app.refresh()
+
+        self.assertEqual(self.app.authorized_callback_uris, [uri1])
+
+        # case when uris are changed elsewhere
+        properties = self.app._get_properties()
+        properties['authorizedCallbackUris'] = [uri2]
+        self.client.data_store.executor.post(self.app.href, properties)
+
+        self.app.authorized_callback_uris.append(uri3)
+        self.app.save()
+        self.app.refresh()
+        self.assertEqual(len(self.app.authorized_callback_uris), 2)
+        self.assertEqual(self.app.authorized_callback_uris, [uri2, uri3])
+
+    def test_authorized_callback_uris_extend(self):
+        self.assertEqual(self.app.authorized_callback_uris, [])
+        uri1 = 'https://myapplication.com/whatever/callback1'
+        uri2 = 'https://myapplication.com/whatever/callback2'
+        uri3 = 'https://myapplication.com/whatever/callback3'
+        uri4 = 'https://myapplication.com/whatever/callback4'
+        self.app.authorized_callback_uris = [uri1]
+        self.app.save()
+        self.app.refresh()
+
+        self.assertEqual(self.app.authorized_callback_uris, [uri1])
+
+        # case when uris are changed elsewhere
+        properties = self.app._get_properties()
+        properties['authorizedCallbackUris'] = [uri2]
+        self.client.data_store.executor.post(self.app.href, properties)
+
+        self.app.authorized_callback_uris.extend([uri3, uri4])
+        self.app.save()
+        self.app.refresh()
+        self.assertEqual(len(self.app.authorized_callback_uris), 3)
+        self.assertEqual(self.app.authorized_callback_uris, [uri2, uri3, uri4])
+
+    def test_authorized_callback_uris_insert(self):
+        self.assertEqual(self.app.authorized_callback_uris, [])
+        uri1 = 'https://myapplication.com/whatever/callback1'
+        uri2 = 'https://myapplication.com/whatever/callback2'
+        uri3 = 'https://myapplication.com/whatever/callback3'
+        uri4 = 'https://myapplication.com/whatever/callback4'
+        self.app.authorized_callback_uris = [uri1, uri2]
+        self.app.save()
+        self.app.refresh()
+
+        self.assertEqual(self.app.authorized_callback_uris, [uri1, uri2])
+
+        # case when uris are changed elsewhere
+        properties = self.app._get_properties()
+        properties['authorizedCallbackUris'] = [uri2, uri3]
+        self.client.data_store.executor.post(self.app.href, properties)
+
+        self.app.authorized_callback_uris.insert(1, uri4)
+        self.app.save()
+        self.app.refresh()
+        self.assertEqual(len(self.app.authorized_callback_uris), 3)
+        self.assertEqual(self.app.authorized_callback_uris, [uri2, uri3, uri4])
+
+    def test_authorized_callback_uris_pop(self):
+        self.assertEqual(self.app.authorized_callback_uris, [])
+        uri1 = 'https://myapplication.com/whatever/callback1'
+        uri2 = 'https://myapplication.com/whatever/callback2'
+        uri3 = 'https://myapplication.com/whatever/callback3'
+        self.app.authorized_callback_uris = [uri1, uri2]
+        self.app.save()
+        self.app.refresh()
+
+        self.assertEqual(self.app.authorized_callback_uris, [uri1, uri2])
+
+        # case when uris are changed elsewhere
+        properties = self.app._get_properties()
+        properties['authorizedCallbackUris'] = [uri2, uri3]
+        self.client.data_store.executor.post(self.app.href, properties)
+
+        self.app.authorized_callback_uris.pop()
+        self.app.save()
+        self.app.refresh()
+        self.assertEqual(len(self.app.authorized_callback_uris), 1)
+        self.assertEqual(self.app.authorized_callback_uris, [uri3])
+
+    def test_authorized_callback_uris_remove(self):
+        self.assertEqual(self.app.authorized_callback_uris, [])
+        uri1 = 'https://myapplication.com/whatever/callback1'
+        uri2 = 'https://myapplication.com/whatever/callback2'
+        uri3 = 'https://myapplication.com/whatever/callback3'
+        self.app.authorized_callback_uris = [uri1, uri2]
+        self.app.save()
+        self.app.refresh()
+
+        self.assertEqual(self.app.authorized_callback_uris, [uri1, uri2])
+
+        # case when uris are changed elsewhere
+        properties = self.app._get_properties()
+        properties['authorizedCallbackUris'] = [uri2, uri3]
+        self.client.data_store.executor.post(self.app.href, properties)
+
+        self.app.authorized_callback_uris.remove(uri2)
+        self.app.save()
+        self.app.refresh()
+        self.assertEqual(len(self.app.authorized_callback_uris), 1)
+        self.assertEqual(self.app.authorized_callback_uris, [uri3])
+
+        # case when uris are changed elsewhere
+        properties = self.app._get_properties()
+        properties['authorizedCallbackUris'] = [uri2]
+        self.client.data_store.executor.post(self.app.href, properties)
+
+        # try to remove item that doesn't exist any more
+        self.app.authorized_callback_uris.remove(uri3)
+        self.app.save()
+        self.app.refresh()
+        self.assertEqual(len(self.app.authorized_callback_uris), 1)
+        self.assertEqual(self.app.authorized_callback_uris, [uri2])
+
+        # try to remove item that never existed
+        with self.assertRaises(ValueError):
+            self.app.authorized_callback_uris.remove(uri3)
+
+    def test_authorized_callback_uris_delete_item(self):
+        self.assertEqual(self.app.authorized_callback_uris, [])
+        uri1 = 'https://myapplication.com/whatever/callback1'
+        uri2 = 'https://myapplication.com/whatever/callback2'
+        uri3 = 'https://myapplication.com/whatever/callback3'
+        self.app.authorized_callback_uris = [uri1, uri2]
+        self.app.save()
+        self.app.refresh()
+
+        self.assertEqual(self.app.authorized_callback_uris, [uri1, uri2])
+
+        # case when uris are changed elsewhere
+        properties = self.app._get_properties()
+        properties['authorizedCallbackUris'] = [uri2, uri3]
+        self.client.data_store.executor.post(self.app.href, properties)
+
+        del self.app.authorized_callback_uris[1]
+        self.app.save()
+        self.app.refresh()
+        self.assertEqual(len(self.app.authorized_callback_uris), 1)
+        self.assertEqual(self.app.authorized_callback_uris, [uri3])
