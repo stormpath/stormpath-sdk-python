@@ -6,11 +6,19 @@ try:
     from urllib import urlencode
 except ImportError:
     from urllib.parse import urlencode
+try:
+    from urlparse import urlparse
+except ImportError:
+    from urllib.parse import urlparse
+
+import jwt
+from oauthlib.common import to_unicode
 
 from .base import (
     CollectionResource,
     DeleteMixin,
     DictMixin,
+    ListOnResource,
     Resource,
     SaveMixin,
     StatusMixin,
@@ -18,10 +26,17 @@ from .base import (
 )
 from .login_attempt import LoginAttemptList
 from .password_reset_token import PasswordResetTokenList
+from .saml_policy import SamlPolicy
 from ..api_auth import LEEWAY
 from ..error import Error as StormpathError
-from ..id_site import IdSiteCallbackResult
 from ..nonce import Nonce
+
+
+class StormpathCallbackResult(object):
+    def __init__(self, account, state, status):
+        self.account = account
+        self.state = state
+        self.status = status
 
 
 class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, StatusMixin):
@@ -36,9 +51,11 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
 
     autosaves = ('custom_data',)
     writable_attrs = (
+        'authorized_callback_uris',
         'custom_data',
         'description',
         'name',
+        'saml_policy',
         'status',
     )
     resolvable_attrs = (
@@ -61,6 +78,7 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
         from .oauth_policy import OauthPolicy
 
         return {
+            'authorized_callback_uris': ListOnResource,
             'custom_data': CustomData,
             'accounts': AccountList,
             'account_store_mappings': AccountStoreMappingList,
@@ -72,6 +90,7 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
             'login_attempts': LoginAttemptList,
             'oauth_policy': OauthPolicy,
             'password_reset_tokens': PasswordResetTokenList,
+            'saml_policy': SamlPolicy,
             'tenant': Tenant,
             'verification_emails': VerificationEmailList
         }
@@ -182,8 +201,6 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
 
         :return: A URI to witch to redirect the user.
         """
-        import jwt
-        from oauthlib.common import to_unicode
         api_key_secret = self._client.auth.secret
         api_key_id = self._client.auth.id
 
@@ -216,25 +233,74 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
                 return True
         return False
 
-    def handle_id_site_callback(self, url_response):
-        """Handles the callback from the ID site.
+    def build_saml_idp_redirect_url(self, callback_uri, saml_provider_endpoint,
+                                    path=None, state=None, logout=False):
+        """Builds a redirect uri for SAML IdP.
+
+        :param callback_uri: Callback URI to which Stormpath will redirect after
+            the user has entered their credentials on the ID site. Note: For security reasons
+            this is required to be the same as "Authorized Callback URIs" in the
+            Admin Console's Application settings.
+
+        :param saml_provider_endpoint:
+            SAML SSO Initiation Endpoint from SAML Policy resource on Application.
+
+        :param path:
+            An optional string indicating to wich template we should redirect the user to.
+            By default it will redirect to the login screen but you can redirect to the
+            registration or forgot password screen with '/#/register' and '/#/forgot' respectively.
+
+        :param state: an optional string that stores information that your application needs
+            after the user is redirected back to your application
+
+        :param logout: a Boolean value indicating if this should redirect to the logout endpoint
+
+        :return: A URI to which to redirect the user.
+        """
+        api_key_secret = self._client.auth.secret
+        api_key_id = self._client.auth.id
+
+        endpoint = saml_provider_endpoint
+        if logout:
+            raise NotImplementedError('Logout feature is not implemented yet.')
+
+        try:
+            jti = uuid4().get_hex()
+        except AttributeError:
+            jti = uuid4().hex
+
+        body = {
+            'iat': datetime.utcnow(),
+            'jti': jti,
+            'iss': api_key_id,
+            'sub': self.href,
+            'cb_uri': callback_uri,
+        }
+        if path:
+            body['path'] = path
+        if state:
+            body['state'] = state
+
+        jwt_signature = to_unicode(
+            jwt.encode(
+                body, api_key_secret, 'HS256', headers={'kid': api_key_id}),
+            'UTF-8')
+        url_params = {'accessToken': jwt_signature}
+        return endpoint + '?' + urlencode(url_params)
+
+    def handle_stormpath_callback(self, url_response):
+        """Handles the callback to Stormpath (for example, from the ID
+        site or SAML Iderntity Provider).
 
         :param url_response: A string representing the full url (with
             it's params) to which the ID redirected to.
 
-        :return: A :class:`stormpath.id_site.IdSiteCallbackResult`
+        :return: A :class:`stormpath.resources.application.StormpathCallbackResult`
             object. Which holds the
-            :class:`stormpath.resources.account.Account` object and the
-            state (if any was passed along when creating the redirect
-            uri).
-
-       """
-        try:
-            from urlparse import urlparse
-        except ImportError:
-            from urllib.parse import urlparse
-
-        import jwt
+            :class:`stormpath.resources.account.Account` object, status
+            and the state (if any was passed along when creating the
+            redirect uri).
+        """
         try:
             jwt_response = urlparse(url_response).query.split('=')[1]
         except Exception:  # because we wan't to catch everything
@@ -290,7 +356,8 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
                 account = None
         else:
             account = None
-        return IdSiteCallbackResult(account=account, state=state, status=status)
+
+        return StormpathCallbackResult(account=account, state=state, status=status)
 
 
 class ApplicationList(CollectionResource):

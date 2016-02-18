@@ -118,7 +118,8 @@ class Resource(object):
     def _wrap_resource_attr(self, cls, value):
         if isinstance(value, Resource):
             return value
-        elif isinstance(value, dict):
+        elif isinstance(value, dict) or (
+                isinstance(value, list) and cls == ListOnResource):
             return cls(self._client, properties=value)
         elif value is None:
             return None
@@ -154,6 +155,8 @@ class Resource(object):
             if name in resource_attrs:
                 value = self._wrap_resource_attr(resource_attrs[name],
                     value)
+                if hasattr(resource_attrs[name], '_set_parent_and_name'):
+                    value._set_parent_and_name(self, name)
             elif isinstance(value, dict) and 'href' in value:
                 # No idea what kind of resource it is, but let's load it
                 # it anyways.
@@ -557,7 +560,7 @@ class FixedAttrsDict(DictMixin):
             raise TypeError("Can't convert '%s' to '%s'" %
                 (type(value), cls.__name__))
 
-    def _set_properties(self, properties):
+    def _set_properties(self, properties, overwrite=False):
         resource_attrs = self.get_dict_attributes()
         for name, value in properties.items():
             name = Resource.from_camel_case(name)
@@ -585,3 +588,99 @@ class FixedAttrsDict(DictMixin):
             return value._get_properties()
         else:
             return value
+
+
+class ListOnResource(list):
+    """
+    List on resource that refreshes on append.
+    """
+    parent_resource = None
+    list_name = None
+    type = None
+
+    def __init__(self, client, properties, type=None):
+        self.type = type
+
+        if self.type:
+            properties = [self.type(**el) for el in properties]
+
+        super(ListOnResource, self).__init__(properties)
+
+    def _set_properties(self, properties):
+        super(ListOnResource, self).__init__(properties)
+
+    def _get_properties(self):
+        if self.type:
+            return [
+                {
+                    Resource.to_camel_case(k): self.type._sanitize_property(v)
+                    for k, v in el.items() if k in self.type.writable_attrs
+                } for el in self
+            ]
+
+        else:
+            return self
+
+    def _set_parent_and_name(self, parent, name):
+        self.parent_resource = parent
+        self.list_name = name
+
+    def append(self, p_object):
+        self.parent_resource.refresh()
+        self._set_properties(getattr(self.parent_resource, self.list_name))
+        super(ListOnResource, self).append(p_object)
+
+        setattr(self.parent_resource, self.list_name, self)
+
+    def extend(self, list):
+        self.parent_resource.refresh()
+        self._set_properties(getattr(self.parent_resource, self.list_name))
+        super(ListOnResource, self).extend(list)
+
+        setattr(self.parent_resource, self.list_name, self)
+
+    def insert(self, index, object):
+        self.parent_resource.refresh()
+        self._set_properties(getattr(self.parent_resource, self.list_name))
+        super(ListOnResource, self).insert(index, object)
+
+        setattr(self.parent_resource, self.list_name, self)
+
+    def pop(self, index=None):
+        if index == None:
+            index = -1
+        value = self[index]
+
+        self.parent_resource.refresh()
+        self._set_properties(getattr(self.parent_resource, self.list_name))
+
+        if value in self:
+            super(ListOnResource, self).remove(value)
+
+        setattr(self.parent_resource, self.list_name, self)
+        return value
+
+    def remove(self, value):
+        had_value = value in self
+
+        self.parent_resource.refresh()
+        self._set_properties(getattr(self.parent_resource, self.list_name))
+        try:
+            super(ListOnResource, self).remove(value)
+        except ValueError as e:
+            if had_value:
+                pass
+            else:
+                raise e
+
+        setattr(self.parent_resource, self.list_name, self)
+
+    def __delitem__(self, key):
+        value = self[key]
+
+        self.parent_resource.refresh()
+        self._set_properties(getattr(self.parent_resource, self.list_name))
+        if value in self:
+            super(ListOnResource, self).remove(value)
+
+        setattr(self.parent_resource, self.list_name, self)

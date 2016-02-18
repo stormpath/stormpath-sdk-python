@@ -8,11 +8,17 @@ except ImportError:
     from unittest.mock import MagicMock, patch, create_autospec
 
 from stormpath.resources.agent import AgentConfig
-from stormpath.resources.base import (Expansion, Resource, CollectionResource,
-    SaveMixin, DeleteMixin, AutoSaveMixin, DictMixin, FixedAttrsDict)
+from stormpath.resources.base import (
+    AutoSaveMixin, CollectionResource, DeleteMixin, DictMixin, Expansion,
+    FixedAttrsDict, ListOnResource, Resource, SaveMixin
+)
 from stormpath.client import Client
 from stormpath.http import Session
+from stormpath.resources.attribute_statement_mapping_rule import (
+    AttributeStatementMappingRule, AttributeStatementMappingRules
+)
 from stormpath.resources.application import Application
+from stormpath.resources.provider import Provider
 
 
 class TestExpansion(TestCase):
@@ -737,10 +743,6 @@ class TestCollectionResource(TestCase):
         ds.uncache_resource.assert_called_once_with('/test_resources')
 
 
-if __name__ == '__main__':
-    main()
-
-
 class TestFixedAttrsDict(TestCase):
 
     def test_fad_init(self):
@@ -824,3 +826,117 @@ class TestFixedAttrsDict(TestCase):
 
         self.assertTrue(isinstance(r2, FixedAttrsDict))
         self.assertEqual(r2.attr_2, 2)
+
+
+class TestListOnResource(TestCase):
+
+    def test_lor_init(self):
+        lor = ListOnResource(MagicMock(), properties=['a', 'b'])
+
+        # getting a non-existing index is handled correctly
+        with self.assertRaises(IndexError):
+            lor[4]
+
+    def test_lor_typed_init(self):
+        class FadClass(FixedAttrsDict):
+            writable_attrs = ('attr1', 'attr2')
+
+            def __init__(self, **kwargs):
+                self._set_properties(kwargs)
+
+        lor = ListOnResource(
+            MagicMock(),
+            properties=[{'attr1': 1, 'attr2': 2}, {'attr1': 11}],
+            type=FadClass)
+
+        # getting a non-existing index is handled correctly
+        with self.assertRaises(IndexError):
+            lor[4]
+
+        self.assertEqual(len(lor), 2)
+        el1, el2 = lor
+        self.assertIsInstance(el1, FadClass)
+        self.assertIsInstance(el2, FadClass)
+        self.assertEqual(el1.attr1, 1)
+        self.assertEqual(el1.attr2, 2)
+        self.assertEqual(el2.attr1, 11)
+
+    def test_update_list_on_resource(self):
+        ds = MagicMock()
+        ds.get_resource.return_value = {}
+        client = MagicMock(data_store=ds, BASE_URL='http://example.com')
+
+        asmr1 = AttributeStatementMappingRule(name='name1')
+        asmr2 = AttributeStatementMappingRule(name='name2')
+
+        pp = Provider(client=client, properties={
+            'href': 'test/provider',
+            'provider_id': 'saml',
+            'attribute_statement_mapping_rules': {'items': [asmr1, asmr2]}
+        })
+        pp.save()
+
+        ds.update_resource.assert_called_once_with(
+            'test/provider',
+            {
+                'providerId': 'saml',
+                'attributeStatementMappingRules':
+                    {'items': [{'name': 'name1'}, {'name': 'name2'}]}
+            }
+        )
+
+    def test_get_list_on_resource(self):
+        ds = MagicMock()
+        ds.get_resource.return_value = {
+            'href': 'test/provider',
+            'providerId': 'saml',
+            'attributeStatementMappingRules': {
+                'items': [{'name': 'name1'}, {'name': 'name2'}]
+            }
+        }
+        client = MagicMock(data_store=ds, BASE_URL='http://example.com')
+
+        pp = Provider(client=client, href='test/provider')
+        asmrs = pp.attribute_statement_mapping_rules
+        self.assertIsInstance(asmrs, AttributeStatementMappingRules)
+        self.assertEqual(len(asmrs.items), 2)
+        asmr1, asmr2 = asmrs.items
+        self.assertTrue(asmr1.name == 'name1' or asmr2.name == 'name1')
+        self.assertTrue(asmr1.name == 'name2' or asmr2.name == 'name2')
+
+    def test_append_list_on_resource(self):
+        ds = MagicMock()
+        ds.get_resource.return_value = {
+            'href': 'test/provider',
+            'providerId': 'saml',
+            'attributeStatementMappingRules': {
+                'href': 'test/rules',
+                'items': [{'name': 'name'}]
+            }
+        }
+        client = MagicMock(data_store=ds, BASE_URL='http://example.com')
+
+        pp = Provider(client=client, href='test/provider')
+        asmrs = pp.attribute_statement_mapping_rules
+        self.assertEqual(asmrs.items[0].name, 'name')
+        self.assertEqual(asmrs.items.parent_resource, asmrs)
+        self.assertEqual(asmrs.items.list_name, 'items')
+
+        ds.get_resource.return_value = {
+            'href': 'test/rules',
+            'items': [{'name': 'name1'}]
+        }
+        asmr1 = AttributeStatementMappingRule(name='name2')
+        asmrs.items.append(asmr1)
+
+        ds.uncache_resource.assert_called_once_with('test/rules')
+
+        asmrs.save()
+        ds.update_resource.assert_called_once_with(
+            'test/rules',
+            {'items': [{'name': 'name1'}, {'name': 'name2'}]}
+        )
+
+
+if __name__ == '__main__':
+    main()

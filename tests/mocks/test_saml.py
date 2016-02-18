@@ -14,7 +14,7 @@ from stormpath.resources.application import (
 )
 
 
-class IDSiteBuildURITest(TestCase):
+class SamlBuildURITest(TestCase):
 
     def setUp(self):
         self.client = MagicMock(BASE_URL='')
@@ -23,7 +23,7 @@ class IDSiteBuildURITest(TestCase):
         self.client.auth.secret = 'SECRET'
 
 
-    def test_building_id_site_redirect_uri(self):
+    def test_building_saml_redirect_uri(self):
         try:
             from urlparse import urlparse
         except ImportError:
@@ -31,7 +31,8 @@ class IDSiteBuildURITest(TestCase):
 
         app = Application(client=self.client, properties={'href': 'apphref'})
 
-        ret = app.build_id_site_redirect_url('http://localhost/')
+        ret = app.build_saml_idp_redirect_url(
+            'http://localhost/', 'apphref/saml/sso/idpRedirect')
         try:
             jwt_response = urlparse(ret).query.split('=')[1]
         except:
@@ -52,14 +53,15 @@ class IDSiteBuildURITest(TestCase):
         self.assertIsNone(decoded_data.get('path'))
         self.assertIsNone(decoded_data.get('state'))
 
-        ret = app.build_id_site_redirect_url(
+        ret = app.build_saml_idp_redirect_url(
                 'http://testserver/',
+                'apphref/saml/sso/idpRedirect',
                 path='/#/register',
                 state='test')
         try:
             jwt_response = urlparse(ret).query.split('=')[1]
         except:
-            self.fail("Failed to parse ID site redirect uri")
+            self.fail("Failed to parse SAML redirect uri")
 
         try:
             decoded_data = jwt.decode(
@@ -71,10 +73,10 @@ class IDSiteBuildURITest(TestCase):
         self.assertEqual(decoded_data.get('state'), 'test')
 
 
-class IDSiteCallbackTest(IDSiteBuildURITest):
+class SamlCallbackTest(SamlBuildURITest):
 
     def setUp(self):
-        super(IDSiteCallbackTest, self).setUp()
+        super(SamlCallbackTest, self).setUp()
         self.store = MagicMock()
         self.store.get_resource.return_value = {
             'href': 'acchref',
@@ -119,7 +121,7 @@ class IDSiteCallbackTest(IDSiteBuildURITest):
             self.app._client.auth.secret,
             'HS256'), 'UTF-8')
 
-    def test_id_site_callback_handler(self):
+    def test_saml_callback_handler(self):
         fake_jwt_response = 'http://localhost/?jwtResponse=%s' % self.fake_jwt
 
         with patch.object(Application, 'has_account') as mock_has_account:
@@ -130,20 +132,3 @@ class IDSiteCallbackTest(IDSiteBuildURITest):
         self.assertIsInstance(ret, StormpathCallbackResult)
         self.assertEqual(ret.account.href, self.acc.href)
         self.assertIsNone(ret.state)
-
-    def test_id_site_callback_handler_jwt_already_used(self):
-        self.store._cache_get.return_value = True # Fake Nonce already used
-
-        fake_jwt_response = 'http://localhost/?jwtResponse=%s' % self.fake_jwt
-        self.assertRaises(
-            ValueError, self.app.handle_stormpath_callback, fake_jwt_response)
-
-    def test_id_site_callback_handler_invalid_jwt(self):
-        fake_jwt_response = 'http://localhost/?jwtResponse=%s' % 'INVALID_JWT'
-        ret = self.app.handle_stormpath_callback(fake_jwt_response)
-        self.assertIsNone(ret)
-
-    def test_id_site_callback_handler_invalid_url_response(self):
-        fake_jwt_response = 'invalid_url_response'
-        ret = self.app.handle_stormpath_callback(fake_jwt_response)
-        self.assertIsNone(ret)
