@@ -61,7 +61,7 @@ class DataStore(object):
             cache_options = {}
 
         for region in self.CACHE_REGIONS:
-            opts = cache_options.get(region, {})
+            opts = cache_options.get('regions', {}).get(region, {})
             for k, v in cache_options.items():
                 if k not in opts and k != 'regions':
                     opts[k] = v
