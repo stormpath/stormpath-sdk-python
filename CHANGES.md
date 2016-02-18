@@ -1,3 +1,15 @@
+Version 2.1.8
+-------------
+
+**Released February 18, 2015.**
+
+- Adding support for SAML. Yey!
+- Supporting a new `NullCache` which completely disables all caching for the
+  SDK.
+- Fixing cache region bug that would break cache when the configuration was
+  used.
+
+
 Version 2.1.7
 -------------
 
