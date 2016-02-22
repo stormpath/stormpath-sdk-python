@@ -1,7 +1,7 @@
 Version 2.1.8
 -------------
 
-**Released February 18, 2015.**
+**Released February 18, 2016.**
 
 - Adding support for SAML. Yey!
 - Supporting a new `NullCache` which completely disables all caching for the
