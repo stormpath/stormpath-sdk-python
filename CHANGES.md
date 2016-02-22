@@ -1,3 +1,13 @@
+Version 2.1.9
+-------------
+
+**Released February 22, 2016.**
+
+- Fixing typos in this very changelog.
+- Making new release without conflicted copies of local files (thanks
+  @dropbox...).
+
+
 Version 2.1.8
 -------------
 
@@ -13,7 +23,7 @@ Version 2.1.8
 Version 2.1.7
 -------------
 
-**Released February 12, 2015.**
+**Released February 12, 2016.**
 
 - Fixing bugs in Error handling class.  We now have standardized Error objects
   that properly reflect our error messages.
