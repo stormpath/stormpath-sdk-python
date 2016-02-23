@@ -672,13 +672,23 @@ class TestIdSite(ApiKeyBase):
 class TestSaml(ApiKeyBase):
 
     def test_building_saml_redirect_uri(self):
+        name = self.get_random_name()
+        name_key = name[:63]
+        organization = self.client.tenant.organizations.create({
+            'name': name,
+            'description': 'test organization',
+            'name_key': name_key,
+            'status': 'ENABLED'
+        })
+
         try:
             from urlparse import urlparse
         except ImportError:
             from urllib.parse import urlparse
 
         ret = self.app.build_saml_idp_redirect_url(
-            'http://localhost/', '%s/saml/sso/idpRedirect' % self.app.href)
+            'http://localhost/', '%s/saml/sso/idpRedirect' % self.app.href,
+            account_store=self.dir, organization=organization)
         try:
             jwt_response = urlparse(ret).query.split('=')[1]
         except:
@@ -699,13 +709,19 @@ class TestSaml(ApiKeyBase):
         self.assertEqual(decoded_data.get('cb_uri'), 'http://localhost/')
         self.assertIsNone(decoded_data.get('path'))
         self.assertIsNone(decoded_data.get('state'))
+        self.assertIsNotNone(decoded_data.get('ash'))
+        self.assertEqual(decoded_data.get('ash'), self.dir.href)
+        self.assertIsNotNone(decoded_data.get('onk'))
+        self.assertEqual(decoded_data.get('onk'), organization.name_key)
 
 
         ret = self.app.build_saml_idp_redirect_url(
                 'http://testserver/',
                 '%s/saml/sso/idpRedirect' % self.app.href,
                 path='/#/register',
-                state='test')
+                state='test',
+                account_store=self.dir.href,
+                organization=organization.name_key)
         try:
             jwt_response = urlparse(ret).query.split('=')[1]
         except:
@@ -719,6 +735,10 @@ class TestSaml(ApiKeyBase):
 
         self.assertEqual(decoded_data.get('path'), '/#/register')
         self.assertEqual(decoded_data.get('state'), 'test')
+        self.assertIsNotNone(decoded_data.get('ash'))
+        self.assertEqual(decoded_data.get('ash'), self.dir.href)
+        self.assertIsNotNone(decoded_data.get('onk'))
+        self.assertEqual(decoded_data.get('onk'), organization.name_key)
 
     def test_saml_callback_handler(self):
         _, acc = self.create_account(self.app.accounts)

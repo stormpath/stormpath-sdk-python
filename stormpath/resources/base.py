@@ -589,6 +589,10 @@ class FixedAttrsDict(DictMixin):
         else:
             return value
 
+    @staticmethod
+    def get_resource_attributes():
+        return {}
+
 
 class ListOnResource(list):
     """
