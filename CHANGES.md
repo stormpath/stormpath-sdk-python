@@ -1,3 +1,12 @@
+Version 2.2.0
+-------------
+
+**Released February 23, 2015.**
+
+- Adding more SAML features: ``DefaultRelayState``, and adding ``account_store``
+  and ``organization`` support to SAML IDP redirect URL helper.
+
+
 Version 2.1.9
 -------------
 
