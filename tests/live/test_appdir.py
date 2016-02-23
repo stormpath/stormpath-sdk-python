@@ -10,9 +10,13 @@ from stormpath.resources import (
     SsoInitiationEndpoint
 )
 from stormpath.resources.application import Application
+from stormpath.resources.default_relay_state import (
+    DefaultRelayState, DefaultRelayStateList
+)
 from stormpath.resources.tenant import Tenant
-from stormpath.resources.agent import Agent, AgentConfig, AgentAccountConfig, \
-    AgentGroupConfig
+from stormpath.resources.agent import (
+    Agent, AgentConfig, AgentAccountConfig, AgentGroupConfig
+)
 from stormpath.resources.email_template import EmailTemplate
 from stormpath.resources.password_policy import PasswordPolicy
 
@@ -807,31 +811,39 @@ class TestSamlApplication(AuthenticatedLiveBase):
         self.assertIsInstance(
             self.app.saml_policy.service_provider.sso_initiation_endpoint,
             SsoInitiationEndpoint)
+        self.assertIsInstance(
+            self.app.saml_policy.service_provider.default_relay_states,
+            DefaultRelayStateList)
         self.assertIn(
             '/saml/sso/idpRedirect',
             self.app.saml_policy.service_provider.sso_initiation_endpoint.href)
 
-    def test_authorized_callback_uris_append(self):
-        self.assertEqual(self.app.authorized_callback_uris, [])
-        uri1 = 'https://myapplication.com/whatever/callback1'
-        uri2 = 'https://myapplication.com/whatever/callback2'
-        uri3 = 'https://myapplication.com/whatever/callback3'
-        self.app.authorized_callback_uris = [uri1]
+    def test_default_relay_states(self):
+        self.app.authorized_callback_uris = [
+            'https://myapplication.com/whatever/callback']
         self.app.save()
-        self.app.refresh()
 
-        self.assertEqual(self.app.authorized_callback_uris, [uri1])
+        name = self.get_random_name()
+        name_key = name[:63]
+        organization = self.client.tenant.organizations.create({
+            'name': name,
+            'description': 'test organization',
+            'name_key': name_key,
+            'status': 'ENABLED'
+        })
 
-        # case when uris are changed elsewhere
-        properties = self.app._get_properties()
-        properties['authorizedCallbackUris'] = [uri2]
-        self.client.data_store.executor.post(self.app.href, properties)
-
-        self.app.authorized_callback_uris.append(uri3)
-        self.app.save()
-        self.app.refresh()
-        self.assertEqual(len(self.app.authorized_callback_uris), 2)
-        self.assertEqual(set(self.app.authorized_callback_uris), {uri2, uri3})
+        drss = self.app.saml_policy.service_provider.default_relay_states
+        drs = drss.create()
+        self.assertIsInstance(drs, DefaultRelayState)
+        self.assertTrue(drs.default_relay_state)
+        drs = drss.create(
+            {
+                'callback_uri': 'https://myapplication.com/whatever/callback',
+                'organization': organization,
+                'state': 'IAmState',
+            })
+        self.assertIsInstance(drs, DefaultRelayState)
+        self.assertTrue(drs.default_relay_state)
 
     def test_authorized_callback_uris_append(self):
         self.assertEqual(self.app.authorized_callback_uris, [])

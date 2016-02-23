@@ -12,8 +12,9 @@ from .attribute_statement_mapping_rule import (
     AttributeStatementMappingRules
 )
 from .auth_token import AuthToken, AuthTokenList
-from .provider import Provider
+from .default_relay_state import DefaultRelayState, DefaultRelayStateList
 from .group import Group, GroupList
+from .provider import Provider
 from .tenant import Tenant
 from .directory import Directory
 from .group_membership import GroupMembership, GroupMembershipList

@@ -12,6 +12,10 @@ except ImportError:
 from stormpath.resources.application import (
     Application, ApplicationList, StormpathCallbackResult
 )
+from stormpath.resources.default_relay_state import (
+    DefaultRelayState, DefaultRelayStateList
+)
+from stormpath.resources.organization import Organization
 
 
 class SamlBuildURITest(TestCase):
@@ -132,3 +136,36 @@ class SamlCallbackTest(SamlBuildURITest):
         self.assertIsInstance(ret, StormpathCallbackResult)
         self.assertEqual(ret.account.href, self.acc.href)
         self.assertIsNone(ret.state)
+
+
+class DefaultRelayStateTest(SamlBuildURITest):
+
+    def setUp(self):
+        super(DefaultRelayStateTest, self).setUp()
+        self.store = MagicMock()
+        self.client.data_store = self.store
+
+        self.drss = DefaultRelayStateList(
+            client=self.client, properties={'href': 'drss'})
+        self.organization = Organization(
+            client=self.client, properties={'name_key': 'NAME KEY'})
+
+    def test_default_relay_state_create_empty(self):
+        self.drss.create()
+
+        self.store.create_resource.assert_called_once_with(
+            'drss', {}, params={})
+
+    def test_default_relay_state_create_organization(self):
+        self.drss.create({'organization': self.organization})
+
+        self.store.create_resource.assert_called_once_with(
+            'drss', {'organization': {'nameKey': 'NAME KEY'}}, params={})
+
+    def test_default_relay_state_create_organization_name_key(self):
+        self.drss.create({'organization': {'name_key': 'ANOTHER NAME KEY'}})
+
+        self.store.create_resource.assert_called_once_with(
+            'drss',
+            {'organization': {'nameKey': 'ANOTHER NAME KEY'}},
+            params={})
