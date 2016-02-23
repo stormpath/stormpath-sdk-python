@@ -24,8 +24,10 @@ from .base import (
     StatusMixin,
     AutoSaveMixin,
 )
+from .account_store import AccountStore
 from .login_attempt import LoginAttemptList
 from .password_reset_token import PasswordResetTokenList
+from .organization import Organization
 from .saml_policy import SamlPolicy
 from ..api_auth import LEEWAY
 from ..error import Error as StormpathError
@@ -234,7 +236,8 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
         return False
 
     def build_saml_idp_redirect_url(self, callback_uri, saml_provider_endpoint,
-                                    path=None, state=None, logout=False):
+                                    path=None, state=None, account_store=None,
+                                    organization=None, logout=False):
         """Builds a redirect uri for SAML IdP.
 
         :param callback_uri: Callback URI to which Stormpath will redirect after
@@ -252,6 +255,13 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
 
         :param state: an optional string that stores information that your application needs
             after the user is redirected back to your application
+
+        :param account_store: an optional parameter that specifies an
+            Account Store to attempt to authenticate against.
+
+        :param organization: an optional parameter that specifies an
+            Organization that is an Account Store for your application.
+            This is used for multitenant applications that use SAML.
 
         :param logout: a Boolean value indicating if this should redirect to the logout endpoint
 
@@ -280,6 +290,14 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
             body['path'] = path
         if state:
             body['state'] = state
+        if account_store:
+            if hasattr(account_store, 'href'):
+                account_store = account_store.href
+            body['ash'] = account_store
+        if organization:
+            if isinstance(organization, Organization):
+                organization = organization.name_key
+            body['onk'] = organization
 
         jwt_signature = to_unicode(
             jwt.encode(
