@@ -3,3 +3,6 @@ include CHANGES.md
 graft docs
 prune docs/_build
 recursive-exclude tests *.py *.yml
+
+# Get rid of any Dropbox 'conflicted' file stuff -- just a precaution.
+global-exclude *conflict*
