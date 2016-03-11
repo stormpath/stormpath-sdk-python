@@ -6,6 +6,7 @@ from stormpath.error import Error
 
 from .base import AccountBase
 from stormpath.resources.application import ApplicationList
+from stormpath.resources.api_key import ApiKeyList
 
 
 class TestAccountGet(AccountBase):
@@ -17,6 +18,18 @@ class TestAccountGet(AccountBase):
         self.assertTrue(isinstance(account.applications, ApplicationList))
         self.assertEqual(len(account.applications), 1)
         self.assertEqual(account.applications[0].href, self.app.href)
+
+    def test_account_has_api_keys(self):
+        _, account = self.create_account(self.app.accounts)
+
+        self.assertTrue(hasattr(account, 'api_keys'))
+        self.assertTrue(isinstance(account.api_keys, ApiKeyList))
+        self.assertEqual(len(account.api_keys), 0)
+
+        key = account.api_keys.create()
+
+        self.assertEqual(len(account.api_keys), 1)
+        self.assertEqual(account.api_keys[0].href, key.href)
 
 
 class TestAccountCreateUpdateDelete(AccountBase):
