@@ -140,7 +140,7 @@ class DataStore(object):
 
             # If trying to find API key by its ID, put the key in the
             # cache using its href.
-            if href.split('/')[-1] == 'apiKeys' and 'id' in params:
+            if href.split('/')[-1] == 'apiKeys' and params and 'id' in params:
                 for item in data.get('items'):
                     self._cache_put(item['href'], item)
             self._cache_put(href, data)
