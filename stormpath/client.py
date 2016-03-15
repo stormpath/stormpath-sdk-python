@@ -72,7 +72,7 @@ class Client(object):
 
     @property
     def api_keys(self):
-        return ApiKeyList(self, '/apiKeys')
+        return ApiKeyList(self, href='/apiKeys')
 
     @property
     def applications(self):
