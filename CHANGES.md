@@ -1,3 +1,11 @@
+Version 2.2.1
+-------------
+
+**Not yet released.**
+
+- Removing some unused code.
+
+
 Version 2.2.0
 -------------
 
