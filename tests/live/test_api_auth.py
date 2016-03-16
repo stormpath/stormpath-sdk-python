@@ -385,6 +385,50 @@ class TestApiRequestAuthenticator(ApiKeyBase):
         result = authenticator.authenticate(headers={}, body=body)
         self.assertIsNotNone(result)
 
+    def test_correct_basic_api_authentication_fails(self):
+        _, acc = self.create_account(self.app.accounts)
+        api_key = self.create_api_key(acc)
+
+        headers = {
+            'Authorization':
+                b'Basic ' + base64.b64encode(
+                    "{}:{}".format(api_key.id, api_key.secret).encode('utf-8'))
+        }
+
+        authenticator = OAuthClientCredentialsRequestAuthenticator(self.app)
+        result = authenticator.authenticate(headers=headers)
+
+        self.assertIsNone(result)
+
+    def test_bearer_api_authentication_succeeds_then_fails(self):
+        _, acc = self.create_account(self.app.accounts)
+        api_key = self.create_api_key(acc)
+
+        headers = {
+            'Authorization':
+                b'Basic ' + base64.b64encode(
+                    "{}:{}".format(api_key.id, api_key.secret).encode('utf-8'))
+        }
+        body = {'grant_type': 'client_credentials', 'scope': 's1 s2'}
+        scopes = ['s1', 's2']
+
+        authenticator = OAuthClientCredentialsRequestAuthenticator(self.app)
+        result = authenticator.authenticate(
+            body=body, headers=headers, scopes=scopes)
+
+        self.assertEqual(api_key.id, result.api_key.id)
+        self.assertEqual(api_key.secret, result.api_key.secret)
+        self.assertEqual(acc.href, result.api_key.account.href)
+        self.assertEqual(result.token.scopes, scopes)
+
+        headers = {
+            'Authorization': b'Bearer ' + result.token.token.encode('utf-8')}
+
+        authenticator = OAuthClientCredentialsRequestAuthenticator(self.app)
+        result = authenticator.authenticate(headers=headers, scopes=scopes)
+
+        self.assertIsNone(result)
+
 
 class TestBasicRequestAuthenticator(ApiKeyBase):
 
@@ -938,268 +982,6 @@ class TestOAuthBearerRequestAuthenticator(ApiKeyBase):
             headers=headers, scopes=allowed_scopes)
 
         self.assertIsNone(result)
-
-
-class TestApiRequestAuthenticator(ApiKeyBase):
-
-    def test_correct_basic_api_authentication_fails(self):
-        _, acc = self.create_account(self.app.accounts)
-        api_key = self.create_api_key(acc)
-
-        headers = {
-            'Authorization':
-                b'Basic ' + base64.b64encode(
-                    "{}:{}".format(api_key.id, api_key.secret).encode('utf-8'))
-        }
-
-        authenticator = OAuthClientCredentialsRequestAuthenticator(self.app)
-        result = authenticator.authenticate(headers=headers)
-
-        self.assertIsNone(result)
-
-    def test_bearer_api_authentication_succeeds_then_fails(self):
-        _, acc = self.create_account(self.app.accounts)
-        api_key = self.create_api_key(acc)
-
-        headers = {
-            'Authorization':
-                b'Basic ' + base64.b64encode(
-                    "{}:{}".format(api_key.id, api_key.secret).encode('utf-8'))
-        }
-        body = {'grant_type': 'client_credentials', 'scope': 's1 s2'}
-        scopes = ['s1', 's2']
-
-        authenticator = OAuthClientCredentialsRequestAuthenticator(self.app)
-        result = authenticator.authenticate(
-            body=body, headers=headers, scopes=scopes)
-
-        self.assertEqual(api_key.id, result.api_key.id)
-        self.assertEqual(api_key.secret, result.api_key.secret)
-        self.assertEqual(acc.href, result.api_key.account.href)
-        self.assertEqual(result.token.scopes, scopes)
-
-        headers = {
-            'Authorization': b'Bearer ' + result.token.token.encode('utf-8')}
-
-        authenticator = OAuthClientCredentialsRequestAuthenticator(self.app)
-        result = authenticator.authenticate(headers=headers, scopes=scopes)
-
-        self.assertIsNone(result)
-
-    def test_bearer_api_authentication_without_scopes_and_body_succeeds(self):
-        _, acc = self.create_account(self.app.accounts)
-        api_key = self.create_api_key(acc)
-
-        headers = {
-            'Authorization':
-                b'Basic ' + base64.b64encode(
-                    "{}:{}".format(api_key.id, api_key.secret).encode('utf-8'))
-        }
-        uri = 'https://example.com/get?grant_type=client_credentials'
-
-        authenticator = OAuthClientCredentialsRequestAuthenticator(self.app)
-        result = authenticator.authenticate(uri=uri, headers=headers)
-
-        self.assertEqual(api_key.id, result.api_key.id)
-        self.assertEqual(api_key.secret, result.api_key.secret)
-        self.assertEqual(acc.href, result.api_key.account.href)
-
-        headers = {
-            'Authorization': b'Bearer ' + result.token.token.encode('utf-8')}
-
-        authenticator = ApiRequestAuthenticator(self.app)
-        result = authenticator.authenticate(headers=headers)
-
-        self.assertIsNotNone(result)
-        self.assertEqual(acc.href, result.account.href)
-
-    def test_basic_api_authentication_with_grant_type_in_uri_gets_token(self):
-        _, acc = self.create_account(self.app.accounts)
-        api_key = self.create_api_key(acc)
-
-        headers = {
-            'Authorization':
-                b'Basic ' + base64.b64encode(
-                    "{}:{}".format(api_key.id, api_key.secret).encode('utf-8'))
-        }
-        body = {'scope': 's1 s2'}
-        scopes = ['s1', 's2']
-        uri = 'https://example.com/get?grant_type=client_credentials'
-
-        authenticator = OAuthClientCredentialsRequestAuthenticator(self.app)
-        result = authenticator.authenticate(
-            uri=uri, body=body, headers=headers, scopes=scopes)
-
-        self.assertIsNotNone(result.token)
-        self.assertEqual(result.token.scopes, scopes)
-
-    def test_basic_api_auth_w_wrong_grant_type_in_uri_does_not_get_token(self):
-        _, acc = self.create_account(self.app.accounts)
-        api_key = self.create_api_key(acc)
-
-        headers = {
-            'Authorization':
-                b'Basic ' + base64.b64encode(
-                    "{}:{}".format(api_key.id, api_key.secret).encode('utf-8'))
-        }
-        body = {'scope': 's1 s2'}
-        scopes = ['s1', 's2']
-        uri = 'https://example.com/get?grant_type=invalid_grant_type'
-
-        authenticator = OAuthClientCredentialsRequestAuthenticator(self.app)
-        result = authenticator.authenticate(
-            uri=uri, body=body, headers=headers, scopes=scopes)
-
-        self.assertIsNone(result.token)
-
-    def test_bearer_api_authentication_with_unicode_succeeds(self):
-        _, acc = self.create_account(self.app.accounts)
-        api_key = self.create_api_key(acc)
-
-        b64_key = base64.b64encode(
-            '{}:{}'.format(api_key.id, api_key.secret).encode('utf-8'))
-        headers = {
-            'Authorization': u('Basic ') + b64_key.decode('utf-8')
-        }
-        body = {'grant_type': 'client_credentials', 'scope': 's1 s2'}
-        scopes = ['s1', 's2']
-
-        authenticator = OAuthClientCredentialsRequestAuthenticator(self.app)
-        result = authenticator.authenticate(
-            body=body, headers=headers, scopes=scopes)
-
-        self.assertEqual(api_key.id, result.api_key.id)
-        self.assertEqual(api_key.secret, result.api_key.secret)
-        self.assertEqual(acc.href, result.api_key.account.href)
-        self.assertEqual(result.token.scopes, scopes)
-
-        headers = {
-            'Authorization': u('Bearer ') + result.token.token}
-
-        authenticator = ApiRequestAuthenticator(self.app)
-        result = authenticator.authenticate(headers=headers, scopes=scopes)
-
-        self.assertIsNotNone(result)
-        self.assertEqual(acc.href, result.account.href)
-
-    def test_bearer_api_authentication_with_wrong_scope_fails(self):
-        _, acc = self.create_account(self.app.accounts)
-        api_key = self.create_api_key(acc)
-
-        headers = {
-            'Authorization':
-                b'Basic ' + base64.b64encode(
-                    "{}:{}".format(api_key.id, api_key.secret).encode('utf-8'))
-        }
-        body = {'grant_type': 'client_credentials', 'scope': 's1'}
-
-        authenticator = OAuthClientCredentialsRequestAuthenticator(self.app)
-        result = authenticator.authenticate(
-            body=body, headers=headers, scopes=['s1'])
-
-        self.assertEqual(api_key.id, result.api_key.id)
-        self.assertEqual(api_key.secret, result.api_key.secret)
-        self.assertEqual(acc.href, result.api_key.account.href)
-        self.assertEqual(result.token.scopes, ['s1'])
-
-        headers = {
-            'Authorization': b'Bearer ' + result.token.token.encode('utf-8')}
-
-        authenticator = ApiRequestAuthenticator(self.app)
-        result = authenticator.authenticate(
-            headers=headers, scopes=['s1', 's2'])
-
-        self.assertIsNone(result)
-
-    def test_valid_bearer_token_but_deleted_api_key(self):
-        _, acc = self.create_account(self.app.accounts)
-        api_key = self.create_api_key(acc)
-
-        basic_auth = base64.b64encode(
-            "{}:{}".format(api_key.id, api_key.secret).encode('utf-8'))
-
-        body = {'grant_type': 'client_credentials', 'scope': 'test1'}
-        headers = {
-                'Authorization': b'Basic ' + basic_auth
-                }
-
-        allowed_scopes = ['test1']
-
-        authenticator = OAuthClientCredentialsRequestAuthenticator(self.app)
-        result = authenticator.authenticate(
-            body=body, headers=headers, scopes=allowed_scopes)
-
-        self.assertIsNotNone(result)
-        self.assertIsNotNone(result.token)
-        token = result.token
-        body = {}
-        headers = {
-                'Authorization': b'Bearer ' + token.token.encode('utf-8')
-                }
-
-        api_key.delete()
-
-        authenticator = ApiRequestAuthenticator(self.app)
-        result = authenticator.authenticate(
-            headers=headers, scopes=allowed_scopes)
-
-        self.assertIsNone(result)
-
-    def test_valid_bearer_token_but_disabled_api_key(self):
-        _, acc = self.create_account(self.app.accounts)
-        api_key = self.create_api_key(acc)
-
-        basic_auth = base64.b64encode(
-            "{}:{}".format(api_key.id, api_key.secret).encode('utf-8'))
-
-        body = {'grant_type': 'client_credentials', 'scope': 'test1'}
-        headers = {
-                'Authorization': b'Basic ' + basic_auth
-                }
-
-        allowed_scopes = ['test1']
-
-        authenticator = OAuthClientCredentialsRequestAuthenticator(self.app)
-        result = authenticator.authenticate(
-            body=body, headers=headers, scopes=allowed_scopes)
-
-        self.assertIsNotNone(result)
-        self.assertIsNotNone(result.token)
-        token = result.token
-        body = {}
-        headers = {
-                'Authorization': b'Bearer ' + token.token.encode('utf-8')
-                }
-
-        api_key.status = 'disabled'
-        api_key.save()
-
-        authenticator = ApiRequestAuthenticator(self.app)
-        result = authenticator.authenticate(
-            headers=headers, scopes=allowed_scopes)
-
-        self.assertIsNone(result)
-
-    def test_invalid_grant_type_no_token_gets_generated(self):
-        _, acc = self.create_account(self.app.accounts)
-        api_key = self.create_api_key(acc)
-
-        basic_auth = base64.b64encode(
-            "{}:{}".format(api_key.id, api_key.secret).encode('utf-8'))
-
-        body = {'grant_type': 'invalid_grant', 'scope': 'test1'}
-        headers = {
-                'Authorization': b'Basic ' + basic_auth
-                }
-
-        allowed_scopes = ['test1']
-
-        authenticator = OAuthClientCredentialsRequestAuthenticator(self.app)
-        result = authenticator.authenticate(
-            body=body, headers=headers, scopes=allowed_scopes)
-
-        self.assertIsNotNone(result)
-        self.assertIsNone(result.token)
 
 
 class TestPasswordGrantAuthenticator(ApiKeyBase):
