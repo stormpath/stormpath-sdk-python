@@ -110,7 +110,7 @@ class Sauthc1Signer(AuthBase):
         # be a part of sig computation
         if 'Connection' in auth_headers:
             del auth_headers['Connection']
-            
+
         sorted_headers = OrderedDict(sorted(auth_headers.items()))
         canonical_headers_string = ''
         for key, value in sorted_headers.items():
