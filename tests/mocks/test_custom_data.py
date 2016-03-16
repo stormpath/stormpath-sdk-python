@@ -45,6 +45,7 @@ class TestCustomData(TestCase):
 
         with self.assertRaises(AttributeError):
             self.createdAt
+
         self.assertEqual(d.created_at, self.created_at)
 
     def test_exposed_readonly_timestamp_values_in_dict_are_datetime(self):

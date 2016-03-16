@@ -8,8 +8,8 @@ from .base import SingleApplicationBase, AccountBase
 class TestGroups(SingleApplicationBase):
 
     def test_groups_client_iteration(self):
-        for group in self.client.groups:
-            group.name
+        for _ in self.client.groups:
+            pass
 
     def test_groups_client_create(self):
         with self.assertRaises(ValueError):
@@ -148,7 +148,7 @@ class TestAccountGroups(AccountBase):
 
     def test_account_group_helpers(self):
         username, account = self.create_account(self.app.accounts)
-        group_name, group = self.create_group()
+        _, group = self.create_group()
 
         group.add_account(username)
 

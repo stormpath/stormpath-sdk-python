@@ -264,7 +264,7 @@ class SPOauth2RequestValidator(Oauth2RequestValidator):
         request.expires_in = self.ttl
         authorization = request.headers.get('Authorization')
         try:
-            auth_scheme, b64encoded_data = authorization.split(' ')
+            _, b64encoded_data = authorization.split(' ')
             decoded_data = to_unicode(
                 base64.b64decode(b64encoded_data.encode('utf-8')), 'ascii')
             client_id, _ = decoded_data.split(':')

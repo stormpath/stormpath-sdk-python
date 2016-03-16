@@ -291,7 +291,7 @@ class TestAccountStoreMappings(AuthenticatedLiveBase):
 
     def test_account_store_mapping_client_iteration(self):
         with self.assertRaises(ValueError):
-            for account_store_mapping in self.client.account_store_mappings:
+            for _ in self.client.account_store_mappings:
                 pass
 
 
@@ -321,11 +321,11 @@ class TestApplicationDirectoryModification(SingleApplicationBase):
 class TestApplicationVerificationEmail(AccountBase):
     def test_verification_emails_iteration(self):
         with self.assertRaises(ValueError):
-            for verification_email in self.app.verification_emails:
+            for _ in self.app.verification_emails:
                 pass
 
     def test_resend_fails_for_directory_with_disabled_verificiation(self):
-        name, acc = self.create_account(self.app.accounts)
+        _ , acc = self.create_account(self.app.accounts)
         with self.assertRaises(Error):
             self.app.verification_emails.resend(acc, self.dir)
 

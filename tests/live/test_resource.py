@@ -465,7 +465,7 @@ class TestIdSite(ApiKeyBase):
             self.app.handle_stormpath_callback(fake_jwt_response)
 
     def test_id_site_callback_handler_session_timed_out(self):
-        _, acc = self.create_account(self.app.accounts)
+        self.create_account(self.app.accounts)
         now = datetime.datetime.utcnow()
 
         code = 12001

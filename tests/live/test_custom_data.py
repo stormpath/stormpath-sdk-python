@@ -82,7 +82,7 @@ class TestAccountCustomData(AccountBase):
         self.assertEqual(acc.custom_data.get('nonexistent', 42), 42)
 
     def test_custom_data_modification(self):
-        name, acc = self.create_account(self.app.accounts)
+        _, acc = self.create_account(self.app.accounts)
 
         self.assertEqual(
             set(acc.custom_data),

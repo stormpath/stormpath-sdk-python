@@ -35,7 +35,7 @@ class TestAccountGet(AccountBase):
 class TestAccountCreateUpdateDelete(AccountBase):
 
     def test_application_account_creation(self):
-        name, acc = self.create_account(self.app.accounts)
+        name, _ = self.create_account(self.app.accounts)
 
         accs = self.app.accounts.query(username=name)
 
@@ -51,7 +51,7 @@ class TestAccountCreateUpdateDelete(AccountBase):
         self.assertEqual(len(self.app.accounts.query(username=name)), 0)
 
     def test_directory_account_creation(self):
-        name, acc = self.create_account(self.dir.accounts)
+        name, _ = self.create_account(self.dir.accounts)
 
         dir_accs = self.dir.accounts.query(username=name)
 

@@ -23,7 +23,7 @@ class TestDataStore(TestCase):
     def test_cache_creation_with_global_and_region_opts(self, CacheManager):
         store_1 = MagicMock()
         store_2 = MagicMock()
-        ds = DataStore(
+        DataStore(
             MagicMock(),
             {
                 'store': store_1,
