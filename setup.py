@@ -1,23 +1,25 @@
-from setuptools import setup, find_packages, Command
-import sys
-import os
+"""Python packaging stuff."""
 
+
+from os import chdir, system
 from os.path import abspath, dirname, join, normpath
-import subprocess
+from subprocess import call
+from sys import exit, version_info
+
+from setuptools import setup, find_packages, Command
 
 from stormpath import __version__
 
 
-PY_VERSION = sys.version_info[:2]
+PY_VERSION = version_info[:2]
 
 
 class BaseCommand(Command):
     user_options = []
 
     def pytest(self, *args):
-        ret = subprocess.call(["py.test", "--quiet",
-            "--cov-report=term-missing", "--cov", "stormpath"] + list(args))
-        sys.exit(ret)
+        ret = call(['py.test', '--quiet', '--cov-report=term-missing', '--cov', 'stormpath'] + list(args))
+        exit(ret)
 
     def initialize_options(self):
         pass
@@ -28,7 +30,7 @@ class BaseCommand(Command):
 
 class TestCommand(BaseCommand):
 
-    description = "run self-tests"
+    description = 'run self-tests'
 
     def run(self):
         self.pytest('--ignore', 'tests/live', 'tests')
@@ -36,7 +38,7 @@ class TestCommand(BaseCommand):
 
 class LiveTestCommand(BaseCommand):
 
-    description = "run live-tests"
+    description = 'run live-tests'
 
     def run(self):
         self.pytest('tests/live')
@@ -44,33 +46,27 @@ class LiveTestCommand(BaseCommand):
 
 class TestDepCommand(BaseCommand):
 
-    description = "install test dependencies"
+    description = 'install test dependencies'
 
     def run(self):
-        cmd = [
-            "pip", "install", "pytest", "pytest-cov", "mock",
-            "python-dateutil"]
-        ret = subprocess.call(cmd)
-        sys.exit(ret)
+        cmd = ['pip', 'install', 'pytest', 'pytest-cov', 'mock', 'python-dateutil']
+        ret = call(cmd)
+        exit(ret)
 
 
 class DocCommand(BaseCommand):
 
-    description = "generate documentation"
+    description = 'generate documentation'
 
     def run(self):
         try:
-            os.chdir('docs')
-            ret = os.system('make html')
-            sys.exit(ret)
+            chdir('docs')
+            ret = system('make html')
+            exit(ret)
         except OSError as e:
             print(e)
-            sys.exit(-1)
+            exit(-1)
 
-# To install the stormpath library, open a Terminal shell, then run this
-# file by typing:
-#
-# python setup.py install
 
 setup(
     name = 'stormpath',
