@@ -14,7 +14,7 @@ JSON_VALUE = 2
 
 
 def json_serializer(key, value):
-    if type(value) == str:
+    if isinstance(value, str):
         return value, STR_VALUE
     return dumps(value.to_dict()).encode('utf-8'), JSON_VALUE
 
