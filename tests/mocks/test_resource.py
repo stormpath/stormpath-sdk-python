@@ -3,9 +3,9 @@ from datetime import datetime
 from dateutil.tz import tzutc, tzoffset
 
 try:
-    from mock import MagicMock, patch, create_autospec
+    from mock import MagicMock, patch
 except ImportError:
-    from unittest.mock import MagicMock, patch, create_autospec
+    from unittest.mock import MagicMock, patch
 
 from stormpath.resources.agent import AgentConfig
 from stormpath.resources.base import (
@@ -13,7 +13,6 @@ from stormpath.resources.base import (
     FixedAttrsDict, ListOnResource, Resource, SaveMixin
 )
 from stormpath.client import Client
-from stormpath.http import Session
 from stormpath.resources.attribute_statement_mapping_rule import (
     AttributeStatementMappingRule, AttributeStatementMappingRules
 )

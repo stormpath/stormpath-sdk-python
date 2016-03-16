@@ -5,9 +5,9 @@ from stormpath.resources.account_store import AccountStore
 from stormpath.resources.api_key import ApiKeyList
 
 try:
-    from mock import patch, MagicMock, PropertyMock, create_autospec
+    from mock import MagicMock
 except ImportError:
-    from unittest.mock import patch, MagicMock, PropertyMock, create_autospec
+    from unittest.mock import MagicMock
 
 from stormpath.resources.account import Account, AccountList
 from stormpath.resources.directory import Directory
@@ -318,7 +318,7 @@ class TestAccountApiKey(TestAccount):
         self.assertEqual(ak.href, api_key.href)
 
     def test_get_api_key_by_id_and_wrong_secret(self):
-        api_key = self.account.api_keys.create()
+        self.account.api_keys.create()
 
         self.ak_ds.get_resource.return_value = {
             'items': [

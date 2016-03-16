@@ -3,9 +3,9 @@ from stormpath.resources.password_reset_token import \
     PasswordResetToken, PasswordResetTokenList
 
 try:
-    from mock import patch, MagicMock, PropertyMock, create_autospec
+    from mock import MagicMock
 except ImportError:
-    from unittest.mock import patch, MagicMock, PropertyMock, create_autospec
+    from unittest.mock import MagicMock
 
 
 class TestPasswordResetToken(TestCase):

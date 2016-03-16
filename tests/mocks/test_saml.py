@@ -5,16 +5,14 @@ from oauthlib.common import to_unicode
 
 from unittest import TestCase
 try:
-    from mock import create_autospec, MagicMock, patch
+    from mock import MagicMock, patch
 except ImportError:
-    from unittest.mock import create_autospec, MagicMock, patch
+    from unittest.mock import MagicMock, patch
 
 from stormpath.resources.application import (
     Application, ApplicationList, StormpathCallbackResult
 )
-from stormpath.resources.default_relay_state import (
-    DefaultRelayState, DefaultRelayStateList
-)
+from stormpath.resources.default_relay_state import DefaultRelayStateList
 from stormpath.resources.organization import Organization
 
 

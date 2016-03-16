@@ -8,9 +8,7 @@ from .resources.account import AccountList
 from .resources.account_store_mapping import AccountStoreMappingList
 from .resources.api_key import ApiKeyList
 from .resources.agent import AgentList
-from .resources.group import GroupList
 from .resources.group_membership import GroupMembershipList
-from .resources.organization import OrganizationList
 from .resources.organization_account_store_mapping import OrganizationAccountStoreMappingList
 from .resources.tenant import Tenant
 

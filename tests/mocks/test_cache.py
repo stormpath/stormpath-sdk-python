@@ -8,7 +8,7 @@ from stormpath.cache.entry import CacheEntry
 from stormpath.cache.stats import CacheStats
 from stormpath.cache.cache import Cache
 from stormpath.cache.manager import CacheManager
-from stormpath.cache.memory_store import MemoryStore, LimitedSizeDict
+from stormpath.cache.memory_store import MemoryStore
 from stormpath.cache.redis_store import RedisStore
 from stormpath.cache.memcached_store import MemcachedStore, \
     json_deserializer, json_serializer

@@ -13,10 +13,7 @@ from stormpath.resources import (
     AttributeStatementMappingRule,
     AttributeStatementMappingRules,
     Provider,
-    SamlPolicy,
-    SamlServiceProvider,
     SamlServiceProviderMetadata,
-    SsoInitiationEndpoint
 )
 
 

@@ -11,7 +11,7 @@ except ImportError:
 
 from stormpath.resources.account import Account
 from stormpath.resources.application import Application
-from stormpath.resources.directory import Directory, DirectoryList
+from stormpath.resources.directory import Directory
 from stormpath.resources.verification_email import VerificationEmailList
 
 

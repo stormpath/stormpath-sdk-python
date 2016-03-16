@@ -1,6 +1,6 @@
 """Stormpath Application resource mappings."""
 
-from datetime import datetime, timedelta
+from datetime import datetime
 from uuid import uuid4
 try:
     from urllib import urlencode
@@ -24,7 +24,6 @@ from .base import (
     StatusMixin,
     AutoSaveMixin,
 )
-from .account_store import AccountStore
 from .login_attempt import LoginAttemptList
 from .password_reset_token import PasswordResetTokenList
 from .organization import Organization

@@ -5,7 +5,6 @@ from .base import AuthenticatedLiveBase
 
 from stormpath.client import Client
 from stormpath.resources.application import Application
-from stormpath.cache.memory_store import MemoryStore
 from stormpath.cache.null_cache_store import NullCacheStore
 
 

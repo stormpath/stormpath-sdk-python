@@ -1,7 +1,5 @@
 """Live tests of client authentication against the Stormpath service API."""
 
-from os import environ
-
 from stormpath.client import Client
 from stormpath.error import Error
 

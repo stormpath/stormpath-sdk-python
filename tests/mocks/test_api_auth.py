@@ -5,9 +5,9 @@ import jwt
 from unittest import TestCase, main
 from six import u
 try:
-    from mock import patch, MagicMock, PropertyMock
+    from mock import patch, MagicMock
 except ImportError:
-    from unittest.mock import patch, MagicMock, PropertyMock
+    from unittest.mock import patch, MagicMock
 
 from stormpath.api_auth import *
 from stormpath.client import Client

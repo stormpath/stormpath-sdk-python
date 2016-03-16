@@ -94,7 +94,7 @@ class TestCollectionResource(AccountBase):
     def setUp(self):
         super(TestCollectionResource, self).setUp()
         self.accounts = []
-        for i in range(5):
+        for _ in range(5):
             _, acc = self.create_account(self.app.accounts,
                 given_name='Test', surname='Account')
             self.accounts.append(acc)
@@ -466,11 +466,6 @@ class TestIdSite(ApiKeyBase):
     def test_id_site_callback_handler_session_timed_out(self):
         _, acc = self.create_account(self.app.accounts)
         now = datetime.datetime.utcnow()
-
-        try:
-            irt = uuid4().get_hex()
-        except AttributeError:
-            irt = uuid4().hex
 
         code = 12001
         developer_message = 'The session on ID Site has timed out. This ' + \
