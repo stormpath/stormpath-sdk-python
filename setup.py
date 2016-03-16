@@ -1,6 +1,8 @@
 from setuptools import setup, find_packages, Command
 import sys
 import os
+
+from os.path import abspath, dirname, join, normpath
 import subprocess
 
 from stormpath import __version__
@@ -114,23 +116,5 @@ setup(
         'testdep': TestDepCommand,
         'docs': DocCommand,
     },
-    long_description="""\
-    Stormpath SDK
-    -------------
-
-    DESCRIPTION
-
-    The Stormpath Python SDK allows any Python-based application to easily use
-    the Stormpath user management service for all authentication and
-    access control needs.
-
-    When you make SDK method calls, the calls are translated into HTTPS
-    requests to the Stormpath REST+JSON API. The Stormpath Python SDK provides
-    a clean object-oriented paradigm natural to Python developers and
-    alleviates the need to know how to make REST+JSON requests.
-
-    LICENSE
-
-    The Stormpath Python SDK is distributed under the Apache Software License.
-    """,
+    long_description = open(normpath(join(dirname(abspath(__file__)), 'README.rst'))).read(),
 )
