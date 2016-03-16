@@ -612,56 +612,6 @@ class TestDirectoryAccountCreationPolicy(SingleApplicationBase):
         self.assertEqual(
             template.name, 'New Default Verification Success Email Template')
 
-    def test_directory_verification_email_template(self):
-        account_creation_policy = self.dir.account_creation_policy
-        templates = account_creation_policy.verification_email_templates
-
-        self.assertTrue(templates.href)
-        self.assertEqual(templates.limit, 25)
-        self.assertEqual(templates.offset, 0)
-
-        template = next(iter(templates))
-
-        self.assertTrue(template.href)
-        self.assertEqual(template.subject, 'Verify your account')
-        self.assertEqual(
-            template.name, 'Default Verification Email Template')
-        self.assertEqual(
-            template.default_model,
-            {
-                'linkBaseUrl':
-                    'https://api.stormpath.com/emailVerificationTokens'
-            })
-        self.assertEqual(
-            template.get_link_base_url(),
-            'https://api.stormpath.com/emailVerificationTokens')
-
-        template.subject = 'New Verify your account'
-        template.name = 'New Default Verification Email Template'
-        template.set_link_base_url(
-            'https://api.stormpath.com/newEmailVerificationTokens')
-        template.save()
-
-        template = next(iter(templates))
-
-        self.assertTrue(template.href)
-        self.assertEqual(
-            template.default_model,
-            {
-                'linkBaseUrl':
-                    'https://api.stormpath.com/newEmailVerificationTokens'
-            })
-        self.assertEqual(
-            template.get_link_base_url(),
-            'https://api.stormpath.com/newEmailVerificationTokens')
-        self.assertEqual(template.subject, 'New Verify your account')
-        self.assertEqual(
-            template.name, 'New Default Verification Email Template')
-
-        template.default_model = {}
-        with self.assertRaises(Error):
-            template.save()
-
     def test_directory_welcome_email_templates(self):
         acp = self.dir.account_creation_policy
         templates = acp.welcome_email_templates
