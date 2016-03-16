@@ -110,7 +110,8 @@ class TestCollectionResource(AccountBase):
         )
 
     def test_limit_after_iteration(self):
-        [a.delete() for a in self.app.accounts]
+        for acc in self.app.accounts:
+            acc.delete()
 
         for i in range(0, 120):
             _, acc = self.create_account(self.app.accounts, given_name=str(i))
