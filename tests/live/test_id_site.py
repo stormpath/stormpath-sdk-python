@@ -1,10 +1,9 @@
 """Live tests for IDSite functionality."""
 
 
-#from stormpath.error import Error
-
 from .base import AuthenticatedLiveBase
 from stormpath.resources.id_site import IDSite, IDSiteList
+from stormpath.resources.tenant import Tenant
 
 
 class TestIDSite(AuthenticatedLiveBase):
@@ -46,3 +45,7 @@ class TestIDSite(AuthenticatedLiveBase):
         self.assertEqual(id_site.session_tti, 'P1D')
         self.assertEqual(id_site.session_ttl, 'P1D')
         self.assertEqual(id_site.session_cookie_persistent, True)
+
+    def test_id_site_tenant(self):
+        id_site = self.client.tenant.id_sites[0]
+        self.assertIsInstance(id_site.tenant, Tenant)
