@@ -33,6 +33,7 @@ class TestIDSite(AuthenticatedLiveBase):
 
         id_site.save()
         id_site = self.client.tenant.id_sites[0]
+        id_site.refresh()
 
         self.assertEqual(id_site.key, 'hi')
         self.assertEqual(id_site.domain_name, 'test.hi.com')
