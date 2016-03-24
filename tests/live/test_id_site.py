@@ -32,6 +32,7 @@ class TestIDSite(AuthenticatedLiveBase):
         id_site.session_cookie_persistent = True
 
         id_site.save()
+        id_site = self.client.tenant.id_sites[0]
 
         self.assertEqual(id_site.key, 'hi')
         self.assertEqual(id_site.domain_name, 'test.hi.com')
