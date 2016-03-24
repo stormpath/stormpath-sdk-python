@@ -49,7 +49,7 @@ class TestDepCommand(BaseCommand):
     description = 'install test dependencies'
 
     def run(self):
-        cmd = ['pip', 'install', 'pytest', 'pytest-cov', 'mock', 'python-dateutil']
+        cmd = ['pip', 'install', 'codacy-coverage', 'python-coveralls', 'pytest', 'pytest-cov', 'mock', 'python-dateutil']
         ret = call(cmd)
         exit(ret)
 
