@@ -31,6 +31,7 @@ class Tenant(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin):
         from .custom_data import CustomData
         from .directory import DirectoryList
         from .group import GroupList
+        from .id_site import IDSiteList
         from .organization import OrganizationList
 
         return {
@@ -40,5 +41,6 @@ class Tenant(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin):
             'custom_data': CustomData,
             'directories': DirectoryList,
             'groups': GroupList,
+            'id_sites': IDSiteList,
             'organizations': OrganizationList,
         }

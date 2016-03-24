@@ -45,8 +45,7 @@ class LiveBase(TestCase):
         # This will call sleep function on every resource creation.
         # That is done to prevent random test failures
         # (https://github.com/stormpath/stormpath-sdk-python/issues/149).
-        dispatcher.connect(
-            sleep_receiver_function, signal=SIGNAL_RESOURCE_CREATED)
+        dispatcher.connect(sleep_receiver_function, signal=SIGNAL_RESOURCE_CREATED)
 
 
 class AuthenticatedLiveBase(LiveBase):
