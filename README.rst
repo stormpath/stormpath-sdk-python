@@ -17,6 +17,10 @@ Stormpath Python SDK
     :alt: stormpath-sdk-python Build
     :target: https://travis-ci.org/stormpath/stormpath-sdk-python
 
+.. image:: https://coveralls.io/repos/github/stormpath/stormpath-sdk-python/badge.svg?branch=master
+    :alt: stormpath-sdk-python Coverage
+    :target: https://coveralls.io/github/stormpath/stormpath-sdk-python?branch=master
+
 *A simple user management library for Python.*
 
 `Stormpath`_ is a hosted user management API service. This library gives your
