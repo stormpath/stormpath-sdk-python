@@ -16,7 +16,6 @@ class IDSite(Resource, DictMixin, SaveMixin):
     https://docs.stormpath.com/rest/product-guide/latest/reference.html#ref-id-site
     """
     writable_attrs = (
-        'key',
         'domain_name',
         'tls_public_cert',
         'tls_private_key',
