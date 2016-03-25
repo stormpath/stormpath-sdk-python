@@ -1,9 +1,10 @@
-Version 2.2.1
+Version 2.3.0
 -------------
 
 **Not yet released.**
 
 - Removing some unused code.
+- Supporting IDSite in it's entirety: modifying IDSites, etc.
 
 
 Version 2.2.0
