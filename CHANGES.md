@@ -5,6 +5,7 @@ Version 2.3.0
 
 - Removing some unused code.
 - Supporting IDSite in it's entirety: modifying IDSites, etc.
+- Updating test runners to be a bit more pythonic.
 
 
 Version 2.2.0
