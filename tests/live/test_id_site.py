@@ -35,7 +35,6 @@ class TestIDSite(AuthenticatedLiveBase):
         id_site = self.client.tenant.id_sites[0]
         id_site.refresh()
 
-        self.assertEqual(id_site.key, 'hi')
         self.assertEqual(id_site.domain_name, 'test.hi.com')
         self.assertEqual(id_site.tls_public_cert, 'hi')
         self.assertEqual(id_site.tls_private_key, 'hi')
