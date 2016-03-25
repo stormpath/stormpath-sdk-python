@@ -6,8 +6,7 @@ python:
 - '3.4'
 - '3.5'
 - pypy
-install: python setup.py develop
-before_script: python setup.py testdep
+install: pip install -e .[test]
 script:
 - python setup.py test
 - test -z "$STORMPATH_API_KEY_SECRET" || python setup.py livetest

@@ -44,16 +44,6 @@ class LiveTestCommand(BaseCommand):
         self.pytest('tests/live')
 
 
-class TestDepCommand(BaseCommand):
-
-    description = 'install test dependencies'
-
-    def run(self):
-        cmd = ['pip', 'install', 'codacy-coverage', 'python-coveralls', 'pytest', 'pytest-cov', 'mock', 'python-dateutil']
-        ret = call(cmd)
-        exit(ret)
-
-
 class DocCommand(BaseCommand):
 
     description = 'generate documentation'
@@ -86,6 +76,9 @@ setup(
         'pydispatcher>=2.0.5',
         'isodate>=0.5.4',
     ],
+    extras_require = {
+        'test': ['codacy-coverage', 'mock', 'python-coveralls', 'pytest', 'pytest-cov'],
+    },
     packages = find_packages(exclude=['*.tests', '*.tests.*', 'tests.*', 'tests']),
     classifiers = [
         'Development Status :: 5 - Production/Stable',
@@ -109,7 +102,6 @@ setup(
     cmdclass = {
         'test': TestCommand,
         'livetest': LiveTestCommand,
-        'testdep': TestDepCommand,
         'docs': DocCommand,
     },
     long_description = open(normpath(join(dirname(abspath(__file__)), 'README.rst'))).read(),
