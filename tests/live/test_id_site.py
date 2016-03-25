@@ -24,8 +24,8 @@ class TestIDSite(AuthenticatedLiveBase):
         id_site.tls_private_key = 'hi'
         id_site.git_repo_url = 'https://github.com/stormpath/stormpath-sdk-python.git'
         id_site.git_branch = 'master'
-        id_site.authorized_origin_urls = ['https://hi.com']
-        id_site.authorized_redirect_urls = ['https://hi.com']
+        id_site.authorized_origin_uris = ['https://hi.com']
+        id_site.authorized_redirect_uris = ['https://hi.com']
         id_site.logo_url = 'https://hi.com/woot.jpg'
         id_site.session_tti = 'P1D'
         id_site.session_ttl = 'P1D'
@@ -40,8 +40,8 @@ class TestIDSite(AuthenticatedLiveBase):
         self.assertEqual(id_site.tls_private_key, 'hi')
         self.assertEqual(id_site.git_repo_url, 'https://github.com/stormpath/stormpath-sdk-python.git')
         self.assertEqual(id_site.git_branch, 'master')
-        self.assertEqual(id_site.authorized_origin_urls, ['https://hi.com'])
-        self.assertEqual(id_site.authorized_redirect_urls, ['https://hi.com'])
+        self.assertEqual(id_site.authorized_origin_uris, ['https://hi.com'])
+        self.assertEqual(id_site.authorized_redirect_uris, ['https://hi.com'])
         self.assertEqual(id_site.logo_url, 'https://hi.com/woot.jpg')
         self.assertEqual(id_site.session_tti, 'P1D')
         self.assertEqual(id_site.session_ttl, 'P1D')
