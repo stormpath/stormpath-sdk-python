@@ -18,7 +18,6 @@ class TestIDSite(AuthenticatedLiveBase):
     def test_id_site_attributes_can_be_written(self):
         id_site = self.client.tenant.id_sites[0]
 
-        id_site.key = 'hi'
         id_site.domain_name = 'test.hi.com'
         id_site.tls_public_cert = 'hi'
         id_site.tls_private_key = 'hi'
