@@ -81,6 +81,15 @@ class TestAccountCustomData(AccountBase):
         self.assertIsInstance(acc.custom_data.modified_at, datetime)
         self.assertEqual(acc.custom_data.get('nonexistent', 42), 42)
 
+    def test_custom_data_keys_work_with_dot_notation(self):
+        _, acc = self.create_account(self.app.accounts)
+        acc.custom_data['data'] = 'hithere'
+        acc.save()
+
+        acc = self.app.accounts.query(email=acc.email)[0]
+        self.assertEqual(acc.custom_data.data, 'hithere')
+        self.assertEqual(acc.custom_data['data'], 'hithere')
+
     def test_custom_data_modification(self):
         _, acc = self.create_account(self.app.accounts)
 
