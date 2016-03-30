@@ -243,9 +243,14 @@ class TestAccountStoreMappings(AuthenticatedLiveBase):
             'description': 'test dir'
         })
 
+        self.dirs_to_delete = []
+
     def tearDown(self):
         self.app.delete()
         self.dir.delete()
+
+        for d in self.dirs_to_delete:
+            d.delete()
 
     def test_application_account_mapping_assignment_and_removal(self):
         self.assertEqual(len(self.app.account_store_mappings), 0)
@@ -288,6 +293,28 @@ class TestAccountStoreMappings(AuthenticatedLiveBase):
         self.assertEqual(len(self.app.account_store_mappings), 0)
         self.assertIsNone(self.app.default_account_store_mapping)
         self.assertIsNone(self.app.default_group_store_mapping)
+
+    def test_iterating_over_many_mappings(self):
+        # I'm purposely creating a lot of Directories / Mappings here because
+        # this is where the bug lies: outside of the normal range of pagination
+        # limits.
+        for i in xrange(150):
+            d = self.client.directories.create({
+                'name': self.get_random_name(),
+                'description': 'test dir',
+            })
+            self.app.account_store_mappings.create({
+                'application': self.app,
+                'account_store': d,
+                'list_index': i,
+                'is_default_account_store': True if i == 0 else False,
+                'is_default_group_store': True if i == 0 else False,
+            })
+
+        self.assertEqual(len(self.app.account_store_mappings), 150)
+
+        for mapping in self.app.account_store_mappings:
+            self.assertTrue(mapping.list_index < 150)
 
     def test_account_store_mapping_client_iteration(self):
         with self.assertRaises(ValueError):
