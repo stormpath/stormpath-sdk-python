@@ -246,7 +246,11 @@ class TestAccountStoreMappings(AuthenticatedLiveBase):
         self.dirs_to_delete = []
 
     def tearDown(self):
-        self.app.delete()
+        try:
+            self.app.delete()
+        except:
+            pass
+
         self.dir.delete()
 
         for d in self.dirs_to_delete:
