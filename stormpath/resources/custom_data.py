@@ -42,12 +42,19 @@ class CustomData(Resource, DeleteMixin, SaveMixin):
         self._deletes = set([])
 
     def __getitem__(self, key):
-        if (key not in self.data) and (self._get_key_href(key) not in self._deletes):
+        if key == self.data_field:
+            return self.__dict__[self.data_field]
+
+        if (key not in self.__dict__[self.data_field]) and \
+                (self._get_key_href(key) not in self._deletes):
             self._ensure_data()
 
         return getattr(self, self.data_field)[key]
 
     def __setitem__(self, key, value):
+        if key == self.data_field:
+            self.__dict__[self.data_field] = value
+
         if key in self.readonly_attrs or \
                 self.from_camel_case(key) in self.readonly_attrs:
             raise KeyError(
@@ -101,8 +108,8 @@ class CustomData(Resource, DeleteMixin, SaveMixin):
         if name == 'href':
             return self.__dict__.get('href')
 
+        print "Ensuring customdata"
         self._ensure_data()
-
         if name in self.__dict__:
             return self.__dict__[name]
         elif name in self.__dict__[self.data_field]:
@@ -138,9 +145,9 @@ class CustomData(Resource, DeleteMixin, SaveMixin):
         return iter(self.data)
 
     def _get_properties(self):
-        writable_attrs = set(self.data) - set(
+        writable_attrs = set(self.__dict__[self.data_field]) - set(
             self.exposed_readonly_timestamp_attrs)
-        return {k: self.data[k] for k in writable_attrs}
+        return {k: self.__dict__[self.data_field][k] for k in writable_attrs}
 
     def _set_properties(self, properties, overwrite=False):
         self.__dict__[self.data_field] = self.__dict__.get(self.data_field, {})
@@ -161,7 +168,8 @@ class CustomData(Resource, DeleteMixin, SaveMixin):
 
         self._deletes = set()
 
-        if self.data_field in self.__dict__ and len(self._get_properties()):
+        if self.data_field in self.__dict__ and \
+                len(self._get_properties()):
             super(CustomData, self).save()
 
     def delete(self):

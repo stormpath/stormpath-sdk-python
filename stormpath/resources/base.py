@@ -232,6 +232,7 @@ class Resource(object):
 
     def _ensure_data(self, overwrite=False):
         if self.is_new():
+            print "I am new!!!!"
             return
 
         params = {}
@@ -249,6 +250,9 @@ class Resource(object):
             params = None
 
         data = self._store.get_resource(self.href, params=params)
+        print "============================"
+        print data
+        print "============================"
         self._set_properties(data, overwrite=overwrite)
 
     def refresh(self):
