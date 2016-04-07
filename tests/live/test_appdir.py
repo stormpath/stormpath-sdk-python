@@ -304,7 +304,9 @@ class TestAccountStoreMappings(AuthenticatedLiveBase):
         # I'm purposely creating a lot of Directories / Mappings here because
         # this is where the bug lies: outside of the normal range of pagination
         # limits.
-        for i in range(250):
+        total_mappings = 150
+
+        for i in range(total_mappings):
             d = self.client.directories.create({
                 'name': self.get_random_name(),
                 'description': 'test dir',
@@ -318,10 +320,10 @@ class TestAccountStoreMappings(AuthenticatedLiveBase):
                 'is_default_group_store': True if i == 0 else False,
             })
 
-        self.assertEqual(len(self.app.account_store_mappings), 150)
+        self.assertEqual(len(self.app.account_store_mappings), total_mappings)
 
         for mapping in self.app.account_store_mappings:
-            self.assertTrue(mapping.list_index < 150)
+            self.assertTrue(mapping.list_index < total_mappings)
 
     def test_account_store_mapping_client_iteration(self):
         with self.assertRaises(ValueError):
