@@ -236,12 +236,7 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
             body["sp_token"] = sp_token
 
         if organization_name_key is not None:
-            if show_organization_field:
-                raise ValueError(
-                    "Can't set both sof (show organization field) and onk (organization) claims"
-                )
             body['onk'] = organization_name_key
-
 
         if path:
             body['path'] = path
