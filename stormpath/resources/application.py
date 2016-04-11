@@ -218,14 +218,9 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
 
         endpoint = self.SSO_LOGOUT_ENDPOINT if logout else self.SSO_ENDPOINT
 
-        try:
-            irt = uuid4().get_hex()
-        except AttributeError:
-            irt = uuid4().hex
-
         body = {
             'iat': datetime.utcnow(),
-            'jti': irt,
+            'jti': uuid4().hex,
             'iss': api_key_id,
             'sub': self.href,
             'cb_uri': callback_uri,
