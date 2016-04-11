@@ -228,7 +228,7 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
         }
 
         if sp_token is not None:
-            body["sp_token"] = sp_token
+            body['sp_token'] = sp_token
 
         if organization_name_key is not None:
             body['onk'] = organization_name_key
