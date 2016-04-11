@@ -1,7 +1,10 @@
 from uuid import uuid4
 import datetime
-import jwt
-from oauthlib.common import to_unicode
+
+try:
+    from urlparse import urlparse
+except ImportError:
+    from urllib.parse import urlparse
 
 from unittest import TestCase
 try:
@@ -9,10 +12,12 @@ try:
 except ImportError:
     from unittest.mock import MagicMock, patch
 
+import jwt
+from oauthlib.common import to_unicode
+
 from stormpath.resources.application import (
     Application, ApplicationList, StormpathCallbackResult
 )
-
 
 class IDSiteBuildURITest(TestCase):
 
@@ -24,25 +29,10 @@ class IDSiteBuildURITest(TestCase):
 
 
     def test_building_id_site_redirect_uri(self):
-        try:
-            from urlparse import urlparse
-        except ImportError:
-            from urllib.parse import urlparse
 
         app = Application(client=self.client, properties={'href': 'apphref'})
-
         ret = app.build_id_site_redirect_url('http://localhost/')
-        try:
-            jwt_response = urlparse(ret).query.split('=')[1]
-        except:
-            self.fail("Failed to parse ID site redirect uri")
-
-        try:
-            decoded_data = jwt.decode(
-                jwt_response, verify=False, algorithms=['HS256'])
-        except jwt.DecodeError:
-            self.fail("Invaid JWT generated.")
-
+        decoded_data = self.decode_jwt(ret)
         self.assertIsNotNone(decoded_data.get('iat'))
         self.assertIsNotNone(decoded_data.get('jti'))
         self.assertIsNotNone(decoded_data.get('iss'))
@@ -51,11 +41,33 @@ class IDSiteBuildURITest(TestCase):
         self.assertEqual(decoded_data.get('cb_uri'), 'http://localhost/')
         self.assertIsNone(decoded_data.get('path'))
         self.assertIsNone(decoded_data.get('state'))
+        self.assertNotEqual(decoded_data.get('sof'), True)
+        self.assertIsNone(decoded_data.get('onk'))
+        self.assertIsNone(decoded_data.get('sp_token'))
 
         ret = app.build_id_site_redirect_url(
                 'http://testserver/',
                 path='/#/register',
                 state='test')
+        decoded_data = self.decode_jwt(ret)
+        self.assertEqual(decoded_data.get('path'), '/#/register')
+        self.assertEqual(decoded_data.get('state'), 'test')
+
+        sp_token = '{"test":"test"}'
+        ret = app.build_id_site_redirect_url(
+            'http://localhost/', show_organization_field=True, sp_token=sp_token)
+        decoded_data = self.decode_jwt(ret)
+        self.assertEqual(decoded_data["sof"], True)
+        self.assertEqual(decoded_data["sp_token"], sp_token)
+        self.assertIsNone(decoded_data.get('onk'))
+
+        ret = app.build_id_site_redirect_url(
+            'http://localhost/', organization_name_key="testorg")
+        decoded_data = self.decode_jwt(ret)
+        self.assertEqual(decoded_data["onk"], "testorg")
+        self.assertNotEqual(decoded_data.get('sof'), True)
+
+    def decode_jwt(self, ret):
         try:
             jwt_response = urlparse(ret).query.split('=')[1]
         except:
@@ -66,9 +78,7 @@ class IDSiteBuildURITest(TestCase):
                 jwt_response, verify=False, algorithms=['HS256'])
         except jwt.DecodeError:
             self.fail("Invaid JWT generated.")
-
-        self.assertEqual(decoded_data.get('path'), '/#/register')
-        self.assertEqual(decoded_data.get('state'), 'test')
+        return decoded_data
 
 
 class IDSiteCallbackTest(IDSiteBuildURITest):
