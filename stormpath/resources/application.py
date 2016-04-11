@@ -182,7 +182,9 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
         data = {'password': password}
         self._store.create_resource(href=href, data=data)
 
-    def build_id_site_redirect_url(self, callback_uri, path=None, state=None, logout=False):
+    def build_id_site_redirect_url(self, callback_uri, path=None, state=None, logout=False, 
+                                   show_organization_field=False, sp_token=None, 
+                                   organization_name_key=None):
         """Builds a redirect uri for ID site.
 
         :param callback_uri: Callback URI to witch Stormpaath will redirect after
@@ -199,6 +201,15 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
             after the user is redirected back to your application
 
         :param logout: a Boolean value indicating if this should redirect to the logout endpoint
+
+        :param show_organization_field bool: If True, will display organization name field
+            to user on ID Site login page.  Default False.
+
+        :param sp_token string: JWT used for password rest.  See
+            https://docs.stormpath.com/rest/product-guide/latest/idsite.html?highlight=sp_token#resetting-your-password-with-id-site
+
+        :param organization_name_key string: If set, the users credentials will be tried
+            against only this organization.  Default is not set.  
 
         :return: A URI to witch to redirect the user.
         """
@@ -218,7 +229,20 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
             'iss': api_key_id,
             'sub': self.href,
             'cb_uri': callback_uri,
+            'sof': show_organization_field,
         }
+
+        if sp_token is not None:
+            body["sp_token"] = sp_token
+
+        if organization_name_key is not None:
+            if show_organization_field:
+                raise ValueError(
+                    "Can't set both sof (show organization field) and onk (organization) claims"
+                )
+            body['onk'] = organization_name_key
+
+
         if path:
             body['path'] = path
         if state:
