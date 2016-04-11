@@ -41,6 +41,7 @@ class ReleaseCommand(BaseCommand):
     description = 'cut a new PyPI release'
 
     def run(self):
+        call(['rm', '-rf', 'build', 'dist'])
         ret = call(['python', 'setup.py', 'sdist', 'bdist_wheel', '--universal', 'upload'])
         exit(ret)
 
