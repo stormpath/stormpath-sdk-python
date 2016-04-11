@@ -1,3 +1,12 @@
+Version 2.3.1
+-------------
+
+**Released April 11, 2016.**
+
+- Supporting new attributes for `Application.build_id_site_redirect_url()`.
+  Thanks to [@lwcolton](https://github.com/lwcolton) for the pull request!
+
+
 Version 2.3.0
 -------------
 
