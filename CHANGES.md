@@ -1,11 +1,14 @@
 Version 2.3.0
 -------------
 
-**Not yet released.**
+**Released April 11, 2016.**
 
 - Removing some unused code.
 - Supporting IDSite in it's entirety: modifying IDSites, etc.
 - Updating test runners to be a bit more pythonic.
+- Adding tests for custom data attributes, and more advanced live testing.
+- Adding better docs for PyPI.
+- Adding code coverage logging / support.
 
 
 Version 2.2.0
