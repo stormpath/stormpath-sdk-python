@@ -209,7 +209,7 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
             https://docs.stormpath.com/rest/product-guide/latest/idsite.html?highlight=sp_token#resetting-your-password-with-id-site
 
         :param organization_name_key string: If set, the users credentials will be tried
-            against only this organization.  Default is not set.  
+            against only this organization.  Default is not set.
 
         :return: A URI to witch to redirect the user.
         """
