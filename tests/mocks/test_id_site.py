@@ -98,7 +98,7 @@ class IDSiteCallbackTest(IDSiteBuildURITest):
                     'limit': 25
                 })
         }
-        self.store._cache_get.return_value = False # ignore nonce
+        self.store._cache_get.return_value = False  # ignore nonce
 
         self.client.data_store = self.store
 

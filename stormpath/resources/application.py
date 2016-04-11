@@ -182,8 +182,8 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
         data = {'password': password}
         self._store.create_resource(href=href, data=data)
 
-    def build_id_site_redirect_url(self, callback_uri, path=None, state=None, logout=False, 
-                                   show_organization_field=False, sp_token=None, 
+    def build_id_site_redirect_url(self, callback_uri, path=None, state=None, logout=False,
+                                   show_organization_field=False, sp_token=None,
                                    organization_name_key=None):
         """Builds a redirect uri for ID site.
 
