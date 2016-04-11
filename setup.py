@@ -36,6 +36,15 @@ class TestCommand(BaseCommand):
         self.pytest('--ignore', 'tests/live', 'tests')
 
 
+class ReleaseCommand(BaseCommand):
+
+    description = 'cut a new PyPI release'
+
+    def run(self):
+        ret = call(['python', 'setup.py', 'sdist', 'bdist_wheel', '--universal', 'upload'])
+        exit(ret)
+
+
 class LiveTestCommand(BaseCommand):
 
     description = 'run live-tests'
@@ -103,6 +112,7 @@ setup(
         'test': TestCommand,
         'livetest': LiveTestCommand,
         'docs': DocCommand,
+        'release': ReleaseCommand,
     },
     long_description = open(normpath(join(dirname(abspath(__file__)), 'README.rst'))).read(),
 )
