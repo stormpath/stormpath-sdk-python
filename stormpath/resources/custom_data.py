@@ -19,7 +19,7 @@ class CustomData(Resource, DeleteMixin, SaveMixin):
     More info in documentation:
     http://docs.stormpath.com/rest/product-guide/#custom-data
     """
-    data_field = 'data'
+    data_field = '_data'
     readonly_attrs = (
         'created_at',
         'href',
@@ -79,18 +79,18 @@ class CustomData(Resource, DeleteMixin, SaveMixin):
 
         for href in self._deletes:
             try:
-                del self.data[href.split('/')[-1]]
+                del self.__dict__.get(self.data_field, {})[href.split('/')[-1]]
             except KeyError:
                 pass
 
-        del self.data[key]
+        del self.__dict__.get(self.data_field, {})[key]
 
         if not self.is_new():
             self._deletes.add(self._get_key_href(key))
 
     def __contains__(self, key):
         self._ensure_data()
-        return key in self.data
+        return key in self.__dict__.get(self.data_field, {})
 
     def __setattr__(self, name, value):
         ctype = self.get_resource_attributes().get(name)
@@ -122,15 +122,15 @@ class CustomData(Resource, DeleteMixin, SaveMixin):
 
     def keys(self):
         self._ensure_data()
-        return self.data.keys()
+        return self.__dict__.get(self.data_field, {}).keys()
 
     def values(self):
         self._ensure_data()
-        return self.data.values()
+        return self.__dict__.get(self.data_field, {}).values()
 
     def items(self):
         self._ensure_data()
-        return self.data.items()
+        return self.__dict__.get(self.data_field, {}).items()
 
     def get(self, key, default=None):
         try:
@@ -140,7 +140,7 @@ class CustomData(Resource, DeleteMixin, SaveMixin):
 
     def __iter__(self):
         self._ensure_data()
-        return iter(self.data)
+        return iter(self.__dict__.get(self.data_field, {}))
 
     def _get_properties(self):
         data = self.__dict__.get(self.data_field, {})

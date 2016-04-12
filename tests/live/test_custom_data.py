@@ -87,9 +87,16 @@ class TestAccountCustomData(AccountBase):
         acc.save()
 
         acc = self.app.accounts.query(email=acc.email)[0]
-        acc.custom_data
-        # self.assertEqual(acc.custom_data.data, 'hithere')
-        # self.assertEqual(acc.custom_data['data'], 'hithere')
+        self.assertEqual(acc.custom_data.hi, 'there')
+        self.assertEqual(acc.custom_data['hi'], 'there')
+
+        _, acc = self.create_account(self.app.accounts)
+        acc.custom_data.hi = 'there'
+        acc.save()
+
+        acc = self.app.accounts.query(email=acc.email)[0]
+        self.assertEqual(acc.custom_data.hi, 'there')
+        self.assertEqual(acc.custom_data['hi'], 'there')
 
     def test_custom_data_modification(self):
         _, acc = self.create_account(self.app.accounts)
