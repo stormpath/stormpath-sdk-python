@@ -63,6 +63,22 @@ class AuthenticatedLiveBase(LiveBase):
         for cache in self.client.data_store.cache_manager.caches.values():
             cache.clear()
 
+    def tearDown(self):
+        """
+        On tear-down, we'll pro-actively clean up after ourselves by deleting
+        any resources our test has created on Stormpath with our given test
+        prefix.
+
+        This means that as long as each test uses the `self.get_random_name()`
+        method when naming resources, these resources will be magically cleaned
+        up =)
+        """
+        collections = ['applications', 'organizations', 'directories']
+
+        for collection in collections:
+            for resource in getattr(self.client, collection).search(self.prefix):
+                resource.delete()
+
 
 class SingleApplicationBase(AuthenticatedLiveBase):
 
