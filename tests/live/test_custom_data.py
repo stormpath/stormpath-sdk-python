@@ -168,7 +168,6 @@ class TestApplicationAndDirectoryCustomData(CustomDataTest):
         for e in self.custom_data_resources.values():
             res = e.create({'name': self.get_random_name(),
                 'custom_data': CUSTOM_DATA})
-            self.deletes.append(res)
 
             res = e.get(res.href)
             self.assertEqual(
@@ -184,7 +183,6 @@ class TestApplicationAndDirectoryCustomData(CustomDataTest):
                 'custom_data': CUSTOM_DATA})
             exposed_timestamps = \
                 res.custom_data.exposed_readonly_timestamp_attrs
-            self.deletes.append(res)
 
             self.assertEqual(
                 set(list(CUSTOM_DATA.keys()) + list(exposed_timestamps)),
@@ -217,7 +215,6 @@ class TestApplicationAndDirectoryCustomData(CustomDataTest):
     def test_custom_data_modification(self):
         for e in self.custom_data_resources.values():
             res = e.create({'name': self.get_random_name()})
-            self.deletes.append(res)
 
             self.assertEqual(
                 set(res.custom_data),

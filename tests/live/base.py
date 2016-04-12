@@ -84,19 +84,12 @@ class SingleApplicationBase(AuthenticatedLiveBase):
 
     def setUp(self):
         super(SingleApplicationBase, self).setUp()
-        self.deletes = []
         self.app_name = self.get_random_name()
         self.app = self.client.applications.create({
             'name': self.app_name,
             'description': 'test app'
         }, create_directory=self.app_name)
         self.dir = self.app.default_account_store_mapping.account_store
-
-    def tearDown(self):
-        self.dir.delete()
-        self.app.delete()
-        for r in self.deletes:
-            r.delete()
 
 
 class AccountBase(SingleApplicationBase):
