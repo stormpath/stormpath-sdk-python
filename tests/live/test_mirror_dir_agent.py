@@ -52,10 +52,6 @@ class TestMirrorDirectoryAgent(AuthenticatedLiveBase):
 
         self.ad_agent = self.ad_directory.provider.agent
 
-    def tearDown(self):
-        super(TestMirrorDirectoryAgent, self).tearDown()
-        self.ad_directory.delete()
-
     def test_get_agent_from_agents(self):
         agent = self.client.agents.get(self.ad_agent.href)
 

@@ -1073,10 +1073,6 @@ class TestJwtAuthenticator(ApiKeyBase):
             'description': 'test app'
         }, create_directory=app2_name)
 
-    def tearDown(self):
-        super(TestJwtAuthenticator, self).tearDown()
-        self.app2.delete()
-
     def test_authenticate_succeeds(self):
         authenticator = JwtAuthenticator(self.app)
         result = authenticator.authenticate(self.access_token.token)
@@ -1226,10 +1222,6 @@ class TestRefreshGrantAuthenticator(ApiKeyBase):
             'name': app2_name,
             'description': 'test app'
         }, create_directory=app2_name)
-
-    def tearDown(self):
-        super(TestRefreshGrantAuthenticator, self).tearDown()
-        self.app2.delete()
 
     def test_authenticate_succeeds(self):
         # access token expires

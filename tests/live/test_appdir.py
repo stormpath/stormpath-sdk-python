@@ -243,19 +243,6 @@ class TestAccountStoreMappings(AuthenticatedLiveBase):
             'description': 'test dir'
         })
 
-        self.dirs_to_delete = []
-
-    def tearDown(self):
-        try:
-            self.app.delete()
-        except:
-            pass
-
-        self.dir.delete()
-
-        for d in self.dirs_to_delete:
-            d.delete()
-
     def test_application_account_mapping_assignment_and_removal(self):
         self.assertEqual(len(self.app.account_store_mappings), 0)
         self.assertIsNone(self.app.default_account_store_mapping)
@@ -311,7 +298,6 @@ class TestAccountStoreMappings(AuthenticatedLiveBase):
                 'name': self.get_random_name(),
                 'description': 'test dir',
             })
-            self.dirs_to_delete.append(d)
             self.app.account_store_mappings.create({
                 'application': self.app,
                 'account_store': d,
@@ -785,10 +771,6 @@ class TestSamlApplication(AuthenticatedLiveBase):
                 'is_default_account_store': False,
                 'is_default_group_store': False
             })
-
-    def tearDown(self):
-        self.app.delete()
-        self.directory.delete()
 
     def test_saml_policy_properties(self):
         self.assertIsInstance(self.app.saml_policy, SamlPolicy)
