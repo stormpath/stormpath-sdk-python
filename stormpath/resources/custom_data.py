@@ -45,7 +45,7 @@ class CustomData(Resource, DeleteMixin, SaveMixin):
         if key == self.data_field:
             return self.__dict__[self.data_field]
 
-        if (key not in self.__dict__[self.data_field]) and \
+        if (key not in self.__dict__.get(self.data_field, {})) and \
                 (self._get_key_href(key) not in self._deletes):
             self._ensure_data()
 
@@ -96,19 +96,17 @@ class CustomData(Resource, DeleteMixin, SaveMixin):
         ctype = self.get_resource_attributes().get(name)
 
         if ctype and not isinstance(value, ctype) \
-                and name in self.writable_attrs:
+                and name not in self.readonly_attrs:
             getattr(self, name)._set_properties(value)
         elif name.startswith('_') or name in self.writable_attrs:
             super(Resource, self).__setattr__(name, value)
         else:
-            raise AttributeError("Attribute '%s' of %s is not writable" %
-                (name, self.__class__.__name__))
+            self._set_properties({name: value})
 
     def __getattr__(self, name):
         if name == 'href':
             return self.__dict__.get('href')
 
-        print "Ensuring customdata"
         self._ensure_data()
         if name in self.__dict__:
             return self.__dict__[name]
@@ -145,22 +143,27 @@ class CustomData(Resource, DeleteMixin, SaveMixin):
         return iter(self.data)
 
     def _get_properties(self):
-        writable_attrs = set(self.__dict__[self.data_field]) - set(
+        data = self.__dict__.get(self.data_field, {})
+        writable_attrs = set(data) - set(
             self.exposed_readonly_timestamp_attrs)
-        return {k: self.__dict__[self.data_field][k] for k in writable_attrs}
+        if data:
+            return {k: self.__dict__[self.data_field][k] for k in writable_attrs}
+        return data
 
     def _set_properties(self, properties, overwrite=False):
-        self.__dict__[self.data_field] = self.__dict__.get(self.data_field, {})
+        data = self.__dict__.get(self.data_field, {})
         for k, v in properties.items():
             kcc = self.from_camel_case(k)
             if kcc in self.readonly_attrs:
                 if kcc in self.exposed_readonly_timestamp_attrs:
                     v = parse(v)
-                    self.__dict__[self.data_field][kcc] = v
+                    data[kcc] = v
                 self.__dict__[kcc] = v
             else:
-                if k not in self.__dict__[self.data_field]:
-                    self.__dict__[self.data_field][k] = v
+                if k not in data:
+                    data[k] = v
+        if data:
+            self.__dict__[self.data_field] = data
 
     def save(self):
         for href in self._deletes:
