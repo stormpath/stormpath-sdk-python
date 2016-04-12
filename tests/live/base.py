@@ -50,14 +50,14 @@ class LiveBase(TestCase):
 
 class AuthenticatedLiveBase(LiveBase):
     AUTH_SCHEME = 'basic'
+    TEST_PREFIX = 'stormpath-sdk-python-test'
 
     def setUp(self):
-        self.client = Client(id=self.api_key_id, secret=self.api_key_secret,
-            scheme=self.AUTH_SCHEME)
-        self.prefix = 'stormpath-test-%s-' % uuid4().hex
+        self.client = Client(id=self.api_key_id, secret=self.api_key_secret, scheme=self.AUTH_SCHEME)
+        self.prefix = '{}-{}'.format(self.TEST_PREFIX, uuid4().hex)
 
     def get_random_name(self):
-        return self.prefix + uuid4().hex
+        return '{}-{}'.format(self.prefix, uuid4().hex)
 
     def clear_cache(self):
         for cache in self.client.data_store.cache_manager.caches.values():
