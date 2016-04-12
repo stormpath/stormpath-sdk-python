@@ -34,6 +34,7 @@ class LiveBase(TestCase):
 class AuthenticatedLiveBase(LiveBase):
     AUTH_SCHEME = 'basic'
     TEST_PREFIX = 'stormpath-sdk-python-test'
+    COLLECTION_RESOURCES = ['applications', 'organizations', 'directories']
 
     def setUp(self):
         self.client = Client(id=self.api_key_id, secret=self.api_key_secret, scheme=self.AUTH_SCHEME)
@@ -56,9 +57,7 @@ class AuthenticatedLiveBase(LiveBase):
         method when naming resources, these resources will be magically cleaned
         up =)
         """
-        collections = ['applications', 'organizations', 'directories']
-
-        for collection in collections:
+        for collection in self.COLLECTION_RESOURCES:
             for resource in getattr(self.client, collection).search(self.prefix):
                 resource.delete()
 
