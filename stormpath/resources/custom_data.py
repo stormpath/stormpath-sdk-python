@@ -99,7 +99,7 @@ class CustomData(Resource, DeleteMixin, SaveMixin):
                 and name not in self.readonly_attrs:
             getattr(self, name)._set_properties(value)
         elif name.startswith('_') or name in self.writable_attrs:
-            super(Resource, self).__setattr__(name, value)
+            super(CustomData, self).__setattr__(name, value)
         else:
             self._set_properties({name: value})
 
