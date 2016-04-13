@@ -25,18 +25,21 @@ SIGNAL_RESOURCE_DELETED = 'resource-deleted'
 class ResourceEncoder(JSONEncoder):
     def default(self, o):
         data = {}
-        resource_attrs = o._get_property_names()
+        if isinstance(o, Resource):
+            resource_attrs = o._get_property_names()
+            expand_attrs = o._expand.items.keys() if o._expand else []
 
-        expand_attrs = o._expand.items.keys() if o._expand else []
-        for attr in resource_attrs:
-            value = o.__dict__.get(o.from_camel_case(attr))
-            if isinstance(value, Resource):
-                if attr in map(o.from_camel_case, expand_attrs):
-                    data[attr] = self.default(value)
-            elif isinstance(value, datetime.datetime):
-                data[attr] = value.isoformat()
-            else:
-                data[attr] = value
+            for attr in resource_attrs:
+                value = o.__dict__.get(o.from_camel_case(attr))
+                if isinstance(value, Resource):
+                    if attr in map(o.from_camel_case, expand_attrs):
+                        sub_resource = self.default(value)
+                        if sub_resource:
+                            data[attr] = sub_resource
+                elif isinstance(value, datetime.datetime):
+                    data[attr] = value.isoformat()
+                else:
+                    data[attr] = value
         return data
 
 
