@@ -311,6 +311,9 @@ class TestAccountStoreMappings(AuthenticatedLiveBase):
         for mapping in self.app.account_store_mappings:
             self.assertTrue(mapping.list_index < total_mappings)
 
+        from time import sleep
+        sleep(10)
+
     def test_account_store_mapping_client_iteration(self):
         with self.assertRaises(ValueError):
             for _ in self.client.account_store_mappings:
