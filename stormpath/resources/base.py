@@ -7,6 +7,7 @@ import datetime
 from copy import deepcopy
 from dateutil.parser import parse
 from isodate import duration_isoformat, parse_duration
+from json import JSONEncoder, dumps
 
 try:
     string_type = basestring
@@ -19,6 +20,24 @@ from pydispatch import dispatcher
 SIGNAL_RESOURCE_CREATED = 'resource-created'
 SIGNAL_RESOURCE_UPDATED = 'resource-updated'
 SIGNAL_RESOURCE_DELETED = 'resource-deleted'
+
+
+class ResourceEncoder(JSONEncoder):
+    def default(self, o):
+        data = {}
+        resource_attrs = o._get_property_names()
+
+        expand_attrs = o._expand.items.keys() if o._expand else []
+        for attr in resource_attrs:
+            value = o.__dict__.get(o.from_camel_case(attr))
+            if isinstance(value, Resource):
+                if attr in map(o.from_camel_case, expand_attrs):
+                    data[attr] = self.default(value)
+            elif isinstance(value, datetime.datetime):
+                data[attr] = value.isoformat()
+            else:
+                data[attr] = value
+        return data
 
 
 class Expansion(object):
@@ -267,6 +286,9 @@ class Resource(object):
 
         self._store.uncache_resource(self.href)
         self._ensure_data(True)
+
+    def to_json(self):
+        return dumps(self, cls=ResourceEncoder)
 
 
 class SaveMixin(object):
