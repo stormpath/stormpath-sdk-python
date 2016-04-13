@@ -19,6 +19,7 @@ class CustomData(Resource, DeleteMixin, SaveMixin):
     More info in documentation:
     http://docs.stormpath.com/rest/product-guide/#custom-data
     """
+    data_field = '_data'
     readonly_attrs = (
         'created_at',
         'href',
@@ -41,12 +42,19 @@ class CustomData(Resource, DeleteMixin, SaveMixin):
         self._deletes = set([])
 
     def __getitem__(self, key):
-        if (key not in self.data) and (self._get_key_href(key) not in self._deletes):
+        if key == self.data_field:
+            return self.__dict__[self.data_field]
+
+        if (key not in self.__dict__.get(self.data_field, {})) and \
+                (self._get_key_href(key) not in self._deletes):
             self._ensure_data()
 
-        return self.data[key]
+        return getattr(self, self.data_field)[key]
 
     def __setitem__(self, key, value):
+        if key == self.data_field:
+            self.__dict__[self.data_field] = value
+
         if key in self.readonly_attrs or \
                 self.from_camel_case(key) in self.readonly_attrs:
             raise KeyError(
@@ -60,7 +68,7 @@ class CustomData(Resource, DeleteMixin, SaveMixin):
             if key_href in self._deletes:
                 self._deletes.remove(key_href)
 
-            self.data[key] = value
+            getattr(self, self.data_field)[key] = value
 
     def __delitem__(self, key):
         if key in self.exposed_readonly_timestamp_attrs:
@@ -71,33 +79,58 @@ class CustomData(Resource, DeleteMixin, SaveMixin):
 
         for href in self._deletes:
             try:
-                del self.data[href.split('/')[-1]]
+                del self.__dict__.get(self.data_field, {})[href.split('/')[-1]]
             except KeyError:
                 pass
 
-        del self.data[key]
+        del self.__dict__.get(self.data_field, {})[key]
 
         if not self.is_new():
             self._deletes.add(self._get_key_href(key))
 
     def __contains__(self, key):
         self._ensure_data()
-        return key in self.data
+        return key in self.__dict__.get(self.data_field, {})
+
+    def __setattr__(self, name, value):
+        ctype = self.get_resource_attributes().get(name)
+
+        if ctype and not isinstance(value, ctype) \
+                and name not in self.readonly_attrs:
+            getattr(self, name)._set_properties(value)
+        elif name.startswith('_') or name in self.writable_attrs:
+            super(CustomData, self).__setattr__(name, value)
+        else:
+            self._set_properties({name: value})
+
+    def __getattr__(self, name):
+        if name == 'href':
+            return self.__dict__.get('href')
+
+        self._ensure_data()
+        if name in self.__dict__:
+            return self.__dict__[name]
+        elif name in self.__dict__[self.data_field]:
+            return self.__dict__[self.data_field][name]
+        else:
+            raise AttributeError(
+                "%s has no attribute '%s'" %
+                (self.__class__.__name__, name))
 
     def _get_key_href(self, key):
         return '%s/%s' % (self.href, key)
 
     def keys(self):
         self._ensure_data()
-        return self.data.keys()
+        return self.__dict__.get(self.data_field, {}).keys()
 
     def values(self):
         self._ensure_data()
-        return self.data.values()
+        return self.__dict__.get(self.data_field, {}).values()
 
     def items(self):
         self._ensure_data()
-        return self.data.items()
+        return self.__dict__.get(self.data_field, {}).items()
 
     def get(self, key, default=None):
         try:
@@ -107,25 +140,30 @@ class CustomData(Resource, DeleteMixin, SaveMixin):
 
     def __iter__(self):
         self._ensure_data()
-        return iter(self.data)
+        return iter(self.__dict__.get(self.data_field, {}))
 
     def _get_properties(self):
-        writable_attrs = set(self.data) - set(
+        data = self.__dict__.get(self.data_field, {})
+        writable_attrs = set(data) - set(
             self.exposed_readonly_timestamp_attrs)
-        return {k: self.data[k] for k in writable_attrs}
+        if data:
+            return {k: self.__dict__[self.data_field][k] for k in writable_attrs}
+        return data
 
     def _set_properties(self, properties, overwrite=False):
-        self.__dict__['data'] = self.__dict__.get('data', {})
+        data = self.__dict__.get(self.data_field, {})
         for k, v in properties.items():
             kcc = self.from_camel_case(k)
             if kcc in self.readonly_attrs:
                 if kcc in self.exposed_readonly_timestamp_attrs:
                     v = parse(v)
-                    self.__dict__['data'][kcc] = v
+                    data[kcc] = v
                 self.__dict__[kcc] = v
             else:
-                if k not in self.__dict__['data']:
-                    self.__dict__['data'][k] = v
+                if k not in data:
+                    data[k] = v
+        if data:
+            self.__dict__[self.data_field] = data
 
     def save(self):
         for href in self._deletes:
@@ -133,9 +171,10 @@ class CustomData(Resource, DeleteMixin, SaveMixin):
 
         self._deletes = set()
 
-        if 'data' in self.__dict__ and len(self._get_properties()):
+        if self.data_field in self.__dict__ and \
+                len(self._get_properties()):
             super(CustomData, self).save()
 
     def delete(self):
         super(CustomData, self).delete()
-        self.__dict__['data'] = {}
+        self.__dict__[self.data_field] = {}

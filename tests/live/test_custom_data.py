@@ -83,12 +83,26 @@ class TestAccountCustomData(AccountBase):
 
     def test_custom_data_keys_work_with_dot_notation(self):
         _, acc = self.create_account(self.app.accounts)
-        acc.custom_data['data'] = 'hithere'
+        acc.custom_data['hi'] = 'there'
         acc.save()
 
         acc = self.app.accounts.query(email=acc.email)[0]
-        self.assertEqual(acc.custom_data.data, 'hithere')
-        self.assertEqual(acc.custom_data['data'], 'hithere')
+        self.assertEqual(acc.custom_data.hi, 'there')
+        self.assertEqual(acc.custom_data['hi'], 'there')
+
+        _, acc = self.create_account(self.app.accounts)
+        acc.custom_data.hi = 'there'
+        acc.save()
+
+        data_field = acc.custom_data.data_field
+        acc = self.app.accounts.query(email=acc.email)[0]
+        self.assertEqual(
+            id(acc.custom_data.hi),
+            id(acc.custom_data.__dict__[data_field]['hi']))
+        self.assertEqual(
+            id(acc.custom_data['hi']),
+            id(acc.custom_data.__dict__[data_field]['hi']))
+        self.assertEqual(acc.custom_data.hi, 'there')
 
     def test_custom_data_modification(self):
         _, acc = self.create_account(self.app.accounts)

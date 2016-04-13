@@ -154,13 +154,13 @@ class TestCustomData(TestCase):
         d['quux'] = 'a-little-corgi'
         d._set_properties(props)
 
-        quux = d.data.pop('quux')
+        quux = d._data.pop('quux')
         props.pop('quux')
         props.pop('href')
 
         # quux property is as set
         self.assertEqual(quux, 'a-little-corgi')
-        self.assertEqual(d.data, props)
+        self.assertEqual(d._data, props)
 
     def test_del_delays_deletion_until_save(self):
         ds = MagicMock()
