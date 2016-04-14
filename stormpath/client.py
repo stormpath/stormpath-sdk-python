@@ -106,5 +106,4 @@ class Client(object):
 
     @property
     def organization_account_store_mappings(self):
-        return OrganizationAccountStoreMappingList(
-            self, href='/organizationAccountStoreMappings')
+        return OrganizationAccountStoreMappingList(self, href='/organizationAccountStoreMappings')
