@@ -49,7 +49,7 @@ class TestClientProperties(AuthenticatedLiveBase):
         self.assertEqual(len(self.client.applications), current_apps)
 
         total_applications_to_create = 150
-        for i in total_applications_to_create:
+        for i in range(total_applications_to_create):
             self.client.applications.create({'name': self.get_random_name()})
 
         self.assertEqual(len(self.client.applications), current_apps + 150)
