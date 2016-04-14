@@ -296,7 +296,7 @@ class TestPasswordReset(AccountBase):
 
     def setUp(self):
         super(TestPasswordReset, self).setUp()
-        self.email = 'some@email.com'
+        self.email = self.get_random_name() + '@email.com'
         _, self.acc = self.create_account(self.app.accounts, email=self.email)
 
     def test_password_reset_workflow(self):
@@ -323,7 +323,7 @@ class TestAccountGroups(AccountBase):
     def test_resolve_group(self):
         _, account = self.create_account(self.app.accounts)
 
-        group = account.directory.groups.create({'name': 'test_group'})
+        group = account.directory.groups.create({'name': self.get_random_name()})
 
         self.assertEqual(account._resolve_group(group).href, group.href)
         self.assertEqual(account._resolve_group(group.href).href, group.href)
@@ -334,8 +334,8 @@ class TestAccountGroups(AccountBase):
     def test_add_groups(self):
         _, account = self.create_account(self.app.accounts)
 
-        group1 = account.directory.groups.create({'name': 'test_group'})
-        group2 = account.directory.groups.create({'name': 'test_group2'})
+        group1 = account.directory.groups.create({'name': self.get_random_name()})
+        group2 = account.directory.groups.create({'name': self.get_random_name()})
 
         account.add_groups([group1, group2.href])
 
@@ -345,15 +345,15 @@ class TestAccountGroups(AccountBase):
     def test_in_group(self):
         _, account = self.create_account(self.app.accounts)
 
-        group1 = account.directory.groups.create({'name': 'test_group'})
+        group1 = account.directory.groups.create({'name': self.get_random_name()})
         account.add_group(group1)
         self.assertTrue(account.in_group(group1))
 
     def test_in_groups(self):
         _, account = self.create_account(self.app.accounts)
 
-        group1 = account.directory.groups.create({'name': 'test_group'})
-        group2 = account.directory.groups.create({'name': 'test_group2'})
+        group1 = account.directory.groups.create({'name': self.get_random_name()})
+        group2 = account.directory.groups.create({'name': self.get_random_name()})
 
         account.add_groups([group1, group2])
         self.assertTrue(account.in_groups([group1, group2.href]))
@@ -361,9 +361,9 @@ class TestAccountGroups(AccountBase):
     def test_remove_groups(self):
         _, account = self.create_account(self.app.accounts)
 
-        group1 = account.directory.groups.create({'name': 'test_group'})
-        group2 = account.directory.groups.create({'name': 'test_group2'})
-        group3 = account.directory.groups.create({'name': 'test_group3'})
+        group1 = account.directory.groups.create({'name': self.get_random_name()})
+        group2 = account.directory.groups.create({'name': self.get_random_name()})
+        group3 = account.directory.groups.create({'name': self.get_random_name()})
 
         account.add_groups([group1, group2])
         self.assertTrue(account.in_groups([group1, group2.href]))

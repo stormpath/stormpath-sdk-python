@@ -185,7 +185,7 @@ class TestGroupAccounts(AccountBase):
 
     def test_resolve_account(self):
         _, account = self.create_account(self.app.accounts)
-        group = account.directory.groups.create({'name': 'test_group'})
+        group = account.directory.groups.create({'name': self.get_random_name()})
 
         self.assertEqual(group._resolve_account(account).href, account.href)
         self.assertEqual(group._resolve_account(account.href).href, account.href)
@@ -198,7 +198,7 @@ class TestGroupAccounts(AccountBase):
         _, account1 = self.create_account(self.app.accounts)
         _, account2 = self.create_account(self.app.accounts)
 
-        group = account1.directory.groups.create({'name': 'test_group'})
+        group = account1.directory.groups.create({'name': self.get_random_name()})
         group.add_accounts([account1, account2.href])
 
         self.assertTrue(group.has_account(account1))
@@ -209,7 +209,7 @@ class TestGroupAccounts(AccountBase):
         _, account2 = self.create_account(self.app.accounts)
         _, account3 = self.create_account(self.app.accounts)
 
-        group = account1.directory.groups.create({'name': 'test_group'})
+        group = account1.directory.groups.create({'name': self.get_random_name()})
         group.add_accounts([account1, account2.href])
         self.assertTrue(group.has_accounts([account1, account2]))
 
