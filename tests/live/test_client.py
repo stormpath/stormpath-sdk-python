@@ -29,7 +29,7 @@ class TestClientProperties(AuthenticatedLiveBase):
 
         total_keys_to_create = 150
         for i in range(total_keys_to_create):
-            key = account.api_keys.create()
+            account.api_keys.create()
 
         self.assertEqual(len(self.client.api_keys), current_api_keys + total_keys_to_create)
 
