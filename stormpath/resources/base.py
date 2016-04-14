@@ -36,6 +36,8 @@ class ResourceEncoder(JSONEncoder):
                         sub_resource = self.default(value)
                         if sub_resource:
                             data[attr] = sub_resource
+                    else:
+                        data[attr] = {'href': value.href}
                 elif isinstance(value, datetime.datetime):
                     data[attr] = value.isoformat()
                 else:
