@@ -40,3 +40,36 @@ class TestClientProperties(AuthenticatedLiveBase):
             self.client.directories.create({'name': self.get_random_name()})
 
         self.assertEqual(len(self.client.directories), current_dirs + 150)
+
+    def test_accounts(self):
+        current_accounts = len(self.client.accounts)
+
+        app = self.client.applications.create({
+            'name': self.get_random_name(),
+        }, create_directory=True)
+
+        self.assertEqual(len(self.client.accounts), current_accounts)
+
+        account = app.create_account({
+            'given_name': 'Randall',
+            'surname': 'Degges',
+            'email': '{}@example.com'.format(self.get_random_name()),
+            'password': 'wootILOVEc00kies!!<33',
+        })
+
+        self.assertEqual(len(self.client.accounts), current_accounts + 1)
+
+        account.delete()
+
+        self.assertEqual(len(self.client.accounts), current_accounts)
+
+        total_accounts_to_create = 150
+        for i in range(total_accounts_to_create):
+            app.accounts.create({
+                'given_name': 'Randall',
+                'surname': 'Degges',
+                'email': '{}@example.com'.format(self.get_random_name()),
+                'password': 'wootILOVEc00kies!!<33',
+            })
+
+        self.assertEqual(len(self.client.accounts), current_accounts + total_accounts_to_create)
