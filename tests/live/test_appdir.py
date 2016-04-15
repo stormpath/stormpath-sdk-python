@@ -166,7 +166,6 @@ class TestApplicationDirectoryCreation(AuthenticatedLiveBase):
         directory.delete()
         self.assertFalse(self.dir_exists(name))
 
-
     def test_ad_directory_creation_and_deletion(self):
         name = self.get_random_name()
         directory = self.client.directories.create({
