@@ -5,7 +5,6 @@ from unittest import TestCase
 from uuid import uuid4
 
 from stormpath.client import Client
-from stormpath.resources.base import SIGNAL_RESOURCE_CREATED
 
 
 class LiveBase(TestCase):
@@ -59,6 +58,7 @@ class AuthenticatedLiveBase(LiveBase):
         """
         for collection in self.COLLECTION_RESOURCES:
             for resource in list(getattr(self.client, collection).search(self.prefix)):
+                print('Deleting... {}', resource)
                 resource.delete()
 
 

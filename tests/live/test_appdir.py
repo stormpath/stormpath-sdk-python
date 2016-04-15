@@ -108,7 +108,6 @@ class TestApplicationDirectoryCreation(AuthenticatedLiveBase):
         finally:
             dir.delete()
 
-
     def test_ldap_directory_creation_and_deletion(self):
         name = self.get_random_name()
         directory = self.client.directories.create({
@@ -193,7 +192,7 @@ class TestApplicationDirectoryCreation(AuthenticatedLiveBase):
                             'middle_name_rdn': 'middleName',
                             'surname_rdn': 'sn',
                             'username_rdn': 'uid',
-                            },
+                        },
                         'group_config': {
                             'dn_suffix': 'ou=groups',
                             'object_class': 'groupOfUniqueNames',
@@ -284,7 +283,7 @@ class TestAccountStoreMappings(AuthenticatedLiveBase):
         self.assertIsNone(self.app.default_account_store_mapping)
         self.assertIsNone(self.app.default_group_store_mapping)
 
-    def test_iterating_over_many_mappings(self):
+    def test_iterating_over_oany_mappings(self):
         # I'm purposely creating a lot of Directories / Mappings here because
         # this is where the bug lies: outside of the normal range of pagination
         # limits.
@@ -738,54 +737,41 @@ class TestSamlApplication(AuthenticatedLiveBase):
         -----END CERTIFICATE-----
         """
 
-        self.directory = self.client.directories.create(
-            {
-                'name': self.get_random_name(),
-                'description': 'Testing SAML Provider',
-                'provider':
-                    {
-                        'sso_login_url': sso_login_url,
-                        'sso_logout_url': sso_logout_url,
-                        'encoded_x509_signing_cert': encoded_x509_signing_cert,
-                        'request_signature_algorithm':
-                            Provider.SIGNING_ALGORITHM_RSA_SHA_256,
-                        'provider_id': Provider.SAML
-                    },
-            })
+        self.directory = self.client.directories.create({
+            'name': self.get_random_name(),
+            'description': 'Testing SAML Provider',
+            'provider': {
+                'sso_login_url': sso_login_url,
+                'sso_logout_url': sso_logout_url,
+                'encoded_x509_signing_cert': encoded_x509_signing_cert,
+                'request_signature_algorithm': Provider.SIGNING_ALGORITHM_RSA_SHA_256,
+                'provider_id': Provider.SAML
+            },
+        })
 
-        self.app = self.client.applications.create(
-            {
-                'name': self.get_random_name(),
-                'description': 'Testing app for SAML Auth',
-                'status': 'enabled'
-            })
+        self.app = self.client.applications.create({
+            'name': self.get_random_name(),
+            'description': 'Testing app for SAML Auth',
+            'status': 'enabled'
+        })
 
-        self.client.account_store_mappings.create(
-            {
-                'application': self.app,
-                'account_store': self.directory,
-                'list_index': 0,
-                'is_default_account_store': False,
-                'is_default_group_store': False
-            })
+        self.client.account_store_mappings.create({
+            'application': self.app,
+            'account_store': self.directory,
+            'list_index': 0,
+            'is_default_account_store': False,
+            'is_default_group_store': False
+        })
 
     def test_saml_policy_properties(self):
         self.assertIsInstance(self.app.saml_policy, SamlPolicy)
-        self.assertIsInstance(
-            self.app.saml_policy.service_provider, SamlServiceProvider)
-        self.assertIsInstance(
-            self.app.saml_policy.service_provider.sso_initiation_endpoint,
-            SsoInitiationEndpoint)
-        self.assertIsInstance(
-            self.app.saml_policy.service_provider.default_relay_states,
-            DefaultRelayStateList)
-        self.assertIn(
-            '/saml/sso/idpRedirect',
-            self.app.saml_policy.service_provider.sso_initiation_endpoint.href)
+        self.assertIsInstance(self.app.saml_policy.service_provider, SamlServiceProvider)
+        self.assertIsInstance(self.app.saml_policy.service_provider.sso_initiation_endpoint, SsoInitiationEndpoint)
+        self.assertIsInstance(self.app.saml_policy.service_provider.default_relay_states, DefaultRelayStateList)
+        self.assertIn('/saml/sso/idpRedirect', self.app.saml_policy.service_provider.sso_initiation_endpoint.href)
 
     def test_default_relay_states(self):
-        self.app.authorized_callback_uris = [
-            'https://myapplication.com/whatever/callback']
+        self.app.authorized_callback_uris = ['https://myapplication.com/whatever/callback']
         self.app.save()
 
         name = self.get_random_name()
@@ -801,12 +787,11 @@ class TestSamlApplication(AuthenticatedLiveBase):
         drs = drss.create()
         self.assertIsInstance(drs, DefaultRelayState)
         self.assertTrue(drs.default_relay_state)
-        drs = drss.create(
-            {
-                'callback_uri': 'https://myapplication.com/whatever/callback',
-                'organization': organization,
-                'state': 'IAmState',
-            })
+        drs = drss.create({
+            'callback_uri': 'https://myapplication.com/whatever/callback',
+            'organization': organization,
+            'state': 'IAmState',
+        })
         self.assertIsInstance(drs, DefaultRelayState)
         self.assertTrue(drs.default_relay_state)
 
