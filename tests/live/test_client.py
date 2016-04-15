@@ -73,3 +73,26 @@ class TestClientProperties(AuthenticatedLiveBase):
             })
 
         self.assertEqual(len(self.client.accounts), current_accounts + total_accounts_to_create)
+
+    def test_groups(self):
+        current_groups = len(self.client.groups)
+
+        app = self.client.applications.create({
+            'name': self.get_random_name(),
+        }, create_directory=True)
+
+        self.assertEqual(len(self.client.groups), current_groups)
+
+        group = app.create_group({'name': self.get_random_name()})
+
+        self.assertEqual(len(self.client.groups), current_groups + 1)
+
+        group.delete()
+
+        self.assertEqual(len(self.client.groups), current_groups)
+
+        total_groups_to_create = 150
+        for i in range(total_groups_to_create):
+            app.groups.create({'name': self.get_random_name()})
+
+        self.assertEqual(len(self.client.groups), current_groups + total_groups_to_create)
