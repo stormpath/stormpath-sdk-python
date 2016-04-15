@@ -1,3 +1,4 @@
+import json
 from unittest import TestCase, main
 from datetime import datetime
 from dateutil.tz import tzutc, tzoffset
@@ -420,6 +421,39 @@ class TestBaseResource(TestCase):
         ds.update_resource.assert_called_once_with('test/resource',
             {'fooVal': True, 'bar': False})
 
+    def test_resource_to_json(self):
+        ds = MagicMock()
+
+        class Res(Resource, SaveMixin, DictMixin):
+            writable_attrs = ('foo_val', 'bar', 'res')
+
+        r = Res(MagicMock(data_store=ds), href='test/resource1')
+        res = Res(MagicMock(data_store=ds), href='test/resource2')
+
+        data = {
+            'foo_val': True,
+            'bar': False
+        }
+
+        # basic resource
+        r.update(data)
+        r.bar = 'quux'
+        data.update({'href': 'test/resource1', 'bar': 'quux'})
+        self.assertEqual(json.dumps(data), r.to_json())
+
+        # resource of resource if not extended
+        res.foo_val = [1, 2, 3]
+        r.res = res
+        data.update({'res': {'href': 'test/resource2'}})
+        self.assertEqual(json.dumps(data), r.to_json())
+
+        # resource of resource if extended
+        res.foo_val = [1, 2, 3]
+        r.res = res
+        r._expand = Expansion(*['res'])
+        data.update({'res': {'foo_val': [1, 2, 3], 'href': 'test/resource2'}})
+        self.assertEqual(json.dumps(data), r.to_json())
+
 
 class TestCollectionResource(TestCase):
 
@@ -740,6 +774,55 @@ class TestCollectionResource(TestCase):
         rl.refresh()
 
         ds.uncache_resource.assert_called_once_with('/test_resources')
+
+    def test_collection_resource_to_json(self):
+        ds = MagicMock()
+        ds.get_resource.return_value = {
+            'href': '/',
+            'offset': 0,
+            'limit': 25,
+            'size': 2,
+            'items': [
+                {'href': 'test/resource'},
+                {'href': 'another/resource'}
+            ]
+        }
+
+        props = {
+            'href': '/',
+            'offset': 0,
+            'limit': 25,
+            'size': 2,
+            'items': [
+                {'href': 'test/resource'},
+                {'href': 'another/resource'}
+            ]
+        }
+
+        rl = CollectionResource(
+            client=MagicMock(data_store=ds), properties=props)
+
+        self.assertEqual(json.dumps(props), rl.to_json())
+
+        # collection resource as attribute
+        rds = MagicMock()
+
+        class Res(Resource, SaveMixin, DictMixin):
+            writable_attrs = ('foo_val', 'bar', 'rl')
+
+        res = Res(MagicMock(data_store=rds), href='test/resource1')
+        res.rl = rl
+
+        data = {
+            'foo_val': True,
+            'bar': False
+        }
+
+        res.update(data)
+        data.update({'href': 'test/resource1'})
+        data.update({'rl': props})
+        res._expand = Expansion(*['rl'])
+        self.assertEqual(json.dumps(data), res.to_json())
 
 
 class TestFixedAttrsDict(TestCase):

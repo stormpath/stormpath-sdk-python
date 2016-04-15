@@ -398,9 +398,10 @@ class CollectionResource(Resource):
     resource_class = Resource
 
     def _set_properties(self, properties, overwrite=False):
-        items = properties.pop('items', None)
+        props = properties.copy()
+        items = props.pop('items', None)
         super(CollectionResource, self)._set_properties(
-            properties, overwrite=overwrite)
+            props, overwrite=overwrite)
 
         if items is not None:
             self.__dict__['items'] = [self._wrap_resource_attr(
