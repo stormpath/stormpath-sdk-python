@@ -96,3 +96,36 @@ class TestClientProperties(AuthenticatedLiveBase):
             app.groups.create({'name': self.get_random_name()})
 
         self.assertEqual(len(self.client.groups), current_groups + total_groups_to_create)
+
+    def test_group_memberships(self):
+        current_group_memberships = len(self.client.group_memberships)
+
+        d = self.client.directories.create({'name': self.get_random_name()})
+
+        account = d.create_account({
+            'given_name': 'Randall',
+            'surname': 'Degges',
+            'email': '{}@example.com'.format(self.get_random_name()),
+            'password': 'wootILOVEc00kies!!<33',
+        })
+        group = d.groups.create({'name': self.get_random_name()})
+        membership = account.group_memberships.create({
+            'account': account,
+            'group': group,
+        })
+
+        self.assertEqual(len(self.client.groups), current_group_memberships + 1)
+
+        membership.delete()
+
+        self.assertEqual(len(self.client.groups), current_group_memberships)
+
+        total_group_memberships_to_create = 150
+        for i in range(total_group_memberships_to_create):
+            d.groups.create({'name': self.get_random_name()})
+            account.group_memberships.create({
+                'account': account,
+                'group': group,
+            })
+
+        self.assertEqual(len(self.client.group_memberships), current_group_memberships + total_group_memberships_to_create)
