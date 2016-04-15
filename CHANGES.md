@@ -1,3 +1,11 @@
+Version 2.4.0
+-------------
+
+**Not yet released.**
+
+- Removing `Client.api_keys` generator -- this isn't a valid API collection.
+
+
 Version 2.3.1
 -------------
 
