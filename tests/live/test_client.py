@@ -7,7 +7,7 @@ from .base import AuthenticatedLiveBase
 class TestClientProperties(AuthenticatedLiveBase):
     """Assert all Client properties work as expected."""
 
-    def test_client_applications(self):
+    def test_applications(self):
         current_apps = len(self.client.applications)
 
         app = self.client.applications.create({'name': self.get_random_name()})
