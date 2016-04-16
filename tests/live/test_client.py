@@ -7,6 +7,9 @@ from .base import AuthenticatedLiveBase
 class TestClientProperties(AuthenticatedLiveBase):
     """Assert all Client properties work as expected."""
 
+    def test_api_keys(self):
+        pass
+
     def test_applications(self):
         current_apps = len(self.client.applications)
 
@@ -156,3 +159,29 @@ class TestClientProperties(AuthenticatedLiveBase):
             })
 
         self.assertEqual(len(self.client.account_store_mappings), current_account_store_mappings + total_account_store_mappings_to_create)
+
+    def test_agents(self):
+        pass
+
+    def test_organizations(self):
+        current_orgs = len(self.client.organizations)
+
+        org = self.client.organizations.create({
+            'name': self.get_random_name(),
+            'name_key': self.get_random_name(),
+        })
+
+        self.assertEqual(len(self.client.organizations), current_orgs + 1)
+
+        org.delete()
+
+        self.assertEqual(len(self.client.organizations), current_orgs)
+
+        total_organizations_to_create = 150
+        for i in range(total_organizations_to_create):
+            self.client.organizations.create({
+                'name': self.get_random_name(),
+                'name_key': self.get_random_name(),
+            })
+
+        self.assertEqual(len(self.client.organizations), current_orgs + 150)
