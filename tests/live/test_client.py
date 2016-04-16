@@ -83,7 +83,7 @@ class TestClientProperties(AuthenticatedLiveBase):
 
         self.assertEqual(len(self.client.groups), current_groups)
 
-        group = app.create_group({'name': self.get_random_name()})
+        group = app.groups.create({'name': self.get_random_name()})
 
         self.assertEqual(len(self.client.groups), current_groups + 1)
 
