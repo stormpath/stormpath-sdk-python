@@ -185,3 +185,6 @@ class TestClientProperties(AuthenticatedLiveBase):
             })
 
         self.assertEqual(len(self.client.organizations), current_orgs + 150)
+
+    def test_organization_account_store_mappings(self):
+        pass
