@@ -306,7 +306,7 @@ class TestAccountStoreMappings(AuthenticatedLiveBase):
 
         self.assertEqual(len(app.account_store_mappings), total_mappings)
 
-        for mapping in self.app.account_store_mappings:
+        for mapping in app.account_store_mappings:
             self.assertTrue(mapping.list_index < total_mappings)
 
     def test_account_store_mapping_client_iteration(self):
