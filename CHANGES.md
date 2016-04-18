@@ -3,7 +3,9 @@ Version 2.4.0
 
 **Not yet released.**
 
-- Removing `Client.api_keys` generator -- this isn't a valid API collection.
+- Fixing `Client.api_keys` generator, it now works properly.
+- Adding support for `Client.id_sites`.
+- Fixing broken `Client.agents` functionality.
 
 
 Version 2.3.1
