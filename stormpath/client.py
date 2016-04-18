@@ -4,7 +4,6 @@
 from .auth import Auth
 from .data_store import DataStore
 from .http import HttpExecutor
-from .resources.account import AccountList
 from .resources.account_store_mapping import AccountStoreMappingList
 from .resources.api_key import ApiKeyList
 from .resources.agent import AgentList
@@ -82,7 +81,7 @@ class Client(object):
 
     @property
     def accounts(self):
-        return AccountList(self, href='/accounts')
+        return self.tenant.accounts
 
     @property
     def groups(self):
