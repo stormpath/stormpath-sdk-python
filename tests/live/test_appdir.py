@@ -292,10 +292,7 @@ class TestAccountStoreMappings(AuthenticatedLiveBase):
         app = self.client.applications.create({'name': self.get_random_name()})
 
         for i in range(total_mappings):
-            d = self.client.directories.create({
-                'name': self.get_random_name(),
-                'description': 'test dir',
-            })
+            d = self.client.directories.create({'name': self.get_random_name()})
             app.account_store_mappings.create({
                 'application': app,
                 'account_store': d,
