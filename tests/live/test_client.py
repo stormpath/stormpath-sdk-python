@@ -168,7 +168,7 @@ class TestClientProperties(AuthenticatedLiveBase):
 
         org = self.client.organizations.create({
             'name': self.get_random_name(),
-            'name_key': self.get_random_name()[:15],
+            'name_key': self.get_random_name()[:60],
         })
 
         self.assertEqual(len(self.client.organizations), current_orgs + 1)
@@ -181,7 +181,7 @@ class TestClientProperties(AuthenticatedLiveBase):
         for i in range(total_organizations_to_create):
             self.client.organizations.create({
                 'name': self.get_random_name(),
-                'name_key': self.get_random_name()[:15],
+                'name_key': self.get_random_name()[:60],
             })
 
         self.assertEqual(len(self.client.organizations), current_orgs + 150)
