@@ -283,7 +283,7 @@ class TestAccountStoreMappings(AuthenticatedLiveBase):
         self.assertIsNone(self.app.default_account_store_mapping)
         self.assertIsNone(self.app.default_group_store_mapping)
 
-    def test_iterating_over_oany_mappings(self):
+    def test_iterating_over_many_mappings(self):
         # I'm purposely creating a lot of Directories / Mappings here because
         # this is where the bug lies: outside of the normal range of pagination
         # limits.
