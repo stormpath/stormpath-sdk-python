@@ -289,20 +289,22 @@ class TestAccountStoreMappings(AuthenticatedLiveBase):
         # limits.
         total_mappings = 150
 
+        app = self.client.applications.create({'name': self.get_random_name()})
+
         for i in range(total_mappings):
             d = self.client.directories.create({
                 'name': self.get_random_name(),
                 'description': 'test dir',
             })
-            self.app.account_store_mappings.create({
-                'application': self.app,
+            app.account_store_mappings.create({
+                'application': app,
                 'account_store': d,
                 'list_index': i,
                 'is_default_account_store': True if i == 0 else False,
                 'is_default_group_store': True if i == 0 else False,
             })
 
-        self.assertEqual(len(self.app.account_store_mappings), total_mappings)
+        self.assertEqual(len(app.account_store_mappings), total_mappings)
 
         for mapping in self.app.account_store_mappings:
             self.assertTrue(mapping.list_index < total_mappings)
