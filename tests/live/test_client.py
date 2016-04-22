@@ -21,11 +21,11 @@ class TestClientProperties(AuthenticatedLiveBase):
 
         self.assertEqual(len(self.client.applications), current_apps)
 
-        total_applications_to_create = 150
-        for i in range(total_applications_to_create):
+        to_create = 100
+        for i in range(to_create):
             self.client.applications.create({'name': self.get_random_name()})
 
-        self.assertEqual(len(self.client.applications), current_apps + 150)
+        self.assertEqual(len(self.client.applications), current_apps + to_create)
 
     def test_directories(self):
         current_dirs = len(self.client.directories)
@@ -38,11 +38,11 @@ class TestClientProperties(AuthenticatedLiveBase):
 
         self.assertEqual(len(self.client.directories), current_dirs)
 
-        total_directories_to_create = 150
-        for i in range(total_directories_to_create):
+        to_create = 100
+        for i in range(to_create):
             self.client.directories.create({'name': self.get_random_name()})
 
-        self.assertEqual(len(self.client.directories), current_dirs + 150)
+        self.assertEqual(len(self.client.directories), current_dirs + to_create)
 
 #    def test_accounts(self):
 #        current_accounts = len(self.client.accounts)
@@ -94,11 +94,11 @@ class TestClientProperties(AuthenticatedLiveBase):
 
         self.assertEqual(len(self.client.groups), current_groups)
 
-        total_groups_to_create = 150
-        for i in range(total_groups_to_create):
+        to_create = 100
+        for i in range(to_create):
             app.groups.create({'name': self.get_random_name()})
 
-        self.assertEqual(len(self.client.groups), current_groups + total_groups_to_create)
+        self.assertEqual(len(self.client.groups), current_groups + to_create)
 
 #    def test_group_memberships(self):
 #        current_group_memberships = len(self.client.group_memberships)
@@ -177,14 +177,14 @@ class TestClientProperties(AuthenticatedLiveBase):
 
         self.assertEqual(len(self.client.organizations), current_orgs)
 
-        total_organizations_to_create = 150
-        for i in range(total_organizations_to_create):
+        to_create = 100
+        for i in range(to_create):
             self.client.organizations.create({
                 'name': self.get_random_name(),
                 'name_key': self.get_random_name()[:63],
             })
 
-        self.assertEqual(len(self.client.organizations), current_orgs + 150)
+        self.assertEqual(len(self.client.organizations), current_orgs + to_create)
 
     def test_organization_account_store_mappings(self):
         pass
