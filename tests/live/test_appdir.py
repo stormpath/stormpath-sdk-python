@@ -134,7 +134,7 @@ class TestApplicationDirectoryCreation(AuthenticatedLiveBase):
                             'surname_rdn': 'sn',
                             'username_rdn': 'uid',
                             'password_rdn': 'userPassword',
-                            },
+                        },
                         'group_config': {
                             'dn_suffix': 'ou=groups',
                             'object_class': 'groupOfUniqueNames',
