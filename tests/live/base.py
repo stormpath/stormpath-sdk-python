@@ -58,9 +58,6 @@ class AuthenticatedLiveBase(LiveBase):
         """
         for collection in self.COLLECTION_RESOURCES:
             for resource in list(getattr(self.client, collection).search(self.prefix)):
-                from time import sleep
-                sleep(10)
-                print('Deleting... {}', resource)
                 resource.delete()
 
 
