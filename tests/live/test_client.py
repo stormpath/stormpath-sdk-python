@@ -11,7 +11,25 @@ class TestClientProperties(AuthenticatedLiveBase):
     TO_CREATE = 10
 
     def test_api_keys(self):
-        pass
+        # Ensure that trying to iterate over API keys directly raises a
+        # ValueError. This is because the Stormpath API doesn't allow iterating
+        # over API keys from the Tenant resource.
+        with self.assertRaises(ValueError):
+            for api_key in self.client.api_keys:
+                print 'hi'
+
+        app = self.client.applications.create({'name': self.get_random_name()}, create_directory=True)
+        account = app.accounts.create({
+            'given_name': self.get_random_name(),
+            'surname': self.get_random_name(),
+            'email': '{}@example.com'.format(self.get_random_name()),
+            'password': 'wootILOVEc00kies!!<33',
+        })
+        key = account.api_keys.create()
+
+        fkey = self.client.api_keys.get(api_key.href)
+        self.assertEqual(fkey.id, key.id)
+        self.assertEqual(fkey.secret, key.secret)
 
     def test_applications(self):
         num_apps = len(self.client.applications)
