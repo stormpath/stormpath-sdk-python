@@ -27,7 +27,7 @@ class TestClientProperties(AuthenticatedLiveBase):
         })
         key = account.api_keys.create()
 
-        fkey = self.client.api_keys.get(api_key.href)
+        fkey = self.client.api_keys.get(key.href)
         self.assertEqual(fkey.id, key.id)
         self.assertEqual(fkey.secret, key.secret)
 
