@@ -31,6 +31,14 @@ class ApiKeyList(CollectionResource):
     """Application resource list."""
     resource_class = ApiKey
 
+    def _ensure_data(self):
+        if self.href == '/apiKeys':
+            raise ValueError(
+                "It is not possible to access api_keys from the "
+                "Client resource! Try using the Application resource instead.")
+
+        super(ApiKeyList, self)._ensure_data()
+
     def get_key(self, client_id, client_secret=None):
         search = {'id': client_id}
         try:
