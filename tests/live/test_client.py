@@ -11,21 +11,19 @@ class TestClientProperties(AuthenticatedLiveBase):
         pass
 
     def test_applications(self):
-        current_apps = len(self.client.applications)
+        num_apps = len(self.client.applications)
 
         app = self.client.applications.create({'name': self.get_random_name()})
-
-        self.assertEqual(len(self.client.applications), current_apps + 1)
+        self.assertEqual(len(self.client.applications), num_apps + 1)
 
         app.delete()
+        self.assertEqual(len(self.client.applications), num_apps)
 
-        self.assertEqual(len(self.client.applications), current_apps)
-
-        to_create = 100
+        to_create = 10
         for i in range(to_create):
             self.client.applications.create({'name': self.get_random_name()})
 
-        self.assertEqual(len(self.client.applications), current_apps + to_create)
+        self.assertEqual(len(self.client.applications), num_apps + to_create)
 
     def test_directories(self):
         current_dirs = len(self.client.directories)
