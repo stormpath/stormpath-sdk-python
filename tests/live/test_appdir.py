@@ -287,7 +287,7 @@ class TestAccountStoreMappings(AuthenticatedLiveBase):
         # I'm purposely creating a lot of Directories / Mappings here because
         # this is where the bug lies: outside of the normal range of pagination
         # limits.
-        to_create = 75
+        to_create = 100
 
         for i in range(to_create):
             d = self.client.directories.create({'name': self.get_random_name()})
