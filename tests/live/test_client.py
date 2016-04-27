@@ -7,6 +7,8 @@ from .base import AuthenticatedLiveBase
 class TestClientProperties(AuthenticatedLiveBase):
     """Assert all Client properties work as expected."""
 
+    TO_CREATE = 10
+
     def test_api_keys(self):
         pass
 
@@ -19,28 +21,24 @@ class TestClientProperties(AuthenticatedLiveBase):
         app.delete()
         self.assertEqual(len(self.client.applications), num_apps)
 
-        to_create = 10
-        for i in range(to_create):
+        for i in range(self.TO_CREATE):
             self.client.applications.create({'name': self.get_random_name()})
 
-        self.assertEqual(len(self.client.applications), num_apps + to_create)
+        self.assertEqual(len(self.client.applications), num_apps + self.TO_CREATE)
 
     def test_directories(self):
-        current_dirs = len(self.client.directories)
+        num_dirs = len(self.client.directories)
 
         d = self.client.directories.create({'name': self.get_random_name()})
-
-        self.assertEqual(len(self.client.directories), current_dirs + 1)
+        self.assertEqual(len(self.client.directories), num_dirs + 1)
 
         d.delete()
+        self.assertEqual(len(self.client.directories), num_dirs)
 
-        self.assertEqual(len(self.client.directories), current_dirs)
-
-        to_create = 100
-        for i in range(to_create):
+        for i in range(self.TO_CREATE):
             self.client.directories.create({'name': self.get_random_name()})
 
-        self.assertEqual(len(self.client.directories), current_dirs + to_create)
+        self.assertEqual(len(self.client.directories), num_dirs + self.TO_CREATE)
 
 #    def test_accounts(self):
 #        current_accounts = len(self.client.accounts)
