@@ -7,6 +7,7 @@ from .base import AuthenticatedLiveBase
 class TestClientProperties(AuthenticatedLiveBase):
     """Assert all Client properties work as expected."""
 
+    # Maximum amount of resources to create when testing.
     TO_CREATE = 10
 
     def test_api_keys(self):
