@@ -10,6 +10,10 @@ try:
     from urlparse import urlparse
 except ImportError:
     from urllib.parse import urlparse
+try:
+    from urlparse import parse_qs
+except ImportError:
+    from urllib.parse import parse_qs
 
 import jwt
 from oauthlib.common import to_unicode
@@ -332,11 +336,12 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
             and the state (if any was passed along when creating the
             redirect uri).
         """
-        try:
-            jwt_response = urlparse(url_response).query.split('=')[1]
-        except Exception:  # because we wan't to catch everything
+        url_info = urlparse(url_response)
+        query_params = parse_qs(url_info.query)
+        jwt_response_params = query_params.get("jwtResponse")
+        if not jwt_response_params or len(jwt_response_params) != 1:
             return None
-
+        jwt_response = jwt_response_params[0]
         api_key_secret = self._client.auth.secret
 
         # validate signature
