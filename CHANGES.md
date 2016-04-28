@@ -6,6 +6,7 @@ Version 2.4.0
 - Fixing `Client.api_keys` generator, it now works properly.
 - Adding support for `Client.id_sites`.
 - Fixing broken `Client.agents` functionality.
+- Allowing users to create `GroupMemberships` from the `Client`.
 
 
 Version 2.3.1
