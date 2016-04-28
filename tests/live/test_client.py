@@ -197,33 +197,6 @@ class TestClientProperties(AuthenticatedLiveBase):
         fgroup = self.client.groups.get(group.href)
         self.assertEqual(fgroup.href, group.href)
 
-#    def test_account_store_mappings(self):
-#        current_account_store_mappings = len(self.client.account_store_mappings)
-#
-#        app = self.client.applications.create({'name': self.get_random_name()})
-#        d = self.client.directories.create({'name': self.get_random_name()})
-#
-#        mapping = app.account_store_mappings.create({
-#            'application': app,
-#            'account_store': d,
-#        })
-#
-#        self.assertEqual(len(self.client.account_store_mappings), current_account_store_mappings + 1)
-#
-#        mapping.delete()
-#
-#        self.assertEqual(len(self.client.account_store_mappings), current_account_store_mappings)
-#
-#        total_account_store_mappings_to_create = 150
-#        for i in range(total_account_store_mappings_to_create):
-#            d = self.client.directories.create({'name': self.get_random_name()})
-#            app.account_store_mappings.create({
-#                'application': app,
-#                'account_store': d,
-#            })
-#
-#        self.assertEqual(len(self.client.account_store_mappings), current_account_store_mappings + total_account_store_mappings_to_create)
-
     def test_organizations(self):
         num_orgs = len(self.client.organizations)
 
