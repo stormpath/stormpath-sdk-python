@@ -35,3 +35,11 @@ class GroupMembershipList(CollectionResource):
 
     create_path = '/groupMemberships'
     resource_class = GroupMembership
+
+    def _ensure_data(self):
+        if self.href == '/groupMemberships':
+            raise ValueError(
+                "It is not possible to access group_memberships from the "
+                "Client resource! Try using the Account resource instead.")
+
+        super(GroupMembershipList, self)._ensure_data()
