@@ -67,6 +67,10 @@ class Client(object):
         self.tenant = Tenant(client=self, href='/tenants/current', expand=expand)
 
     @property
+    def accounts(self):
+        return self.tenant.accounts
+
+    @property
     def api_keys(self):
         return ApiKeyList(self, href='/apiKeys')
 
@@ -77,10 +81,6 @@ class Client(object):
     @property
     def directories(self):
         return self.tenant.directories
-
-    @property
-    def accounts(self):
-        return self.tenant.accounts
 
     @property
     def groups(self):

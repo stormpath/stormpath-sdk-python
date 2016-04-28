@@ -10,6 +10,36 @@ class TestClientProperties(AuthenticatedLiveBase):
     # Maximum amount of resources to create when testing.
     TO_CREATE = 10
 
+    def test_accounts(self):
+        num_accs = len(self.client.accounts)
+
+        dir = self.client.directories.create({'name': self.get_random_name()})
+        self.assertEqual(len(self.client.accounts), num_accs)
+
+        acc = dir.accounts.create({
+            'given_name': 'Randall',
+            'surname': 'Degges',
+            'email': '{}@example.com'.format(self.get_random_name()),
+            'password': 'wootILOVEc00kies!!<33',
+        })
+        self.assertEqual(len(self.client.accounts), num_accs + 1)
+
+        acc.delete()
+        self.assertEqual(len(self.client.accounts), num_accs)
+
+        for i in range(self.TO_CREATE):
+            acc = dir.accounts.create({
+                'given_name': 'Randall',
+                'surname': 'Degges',
+                'email': '{}@example.com'.format(self.get_random_name()),
+                'password': 'wootILOVEc00kies!!<33',
+            })
+
+        self.assertEqual(len(self.client.accounts), num_accs + self.TO_CREATE)
+
+        facc = self.client.accounts.get(acc.href)
+        self.assertEqual(facc.href, acc.href)
+
     def test_api_keys(self):
         with self.assertRaises(ValueError):
             for api_key in self.client.api_keys:
@@ -55,39 +85,6 @@ class TestClientProperties(AuthenticatedLiveBase):
             self.client.directories.create({'name': self.get_random_name()})
 
         self.assertEqual(len(self.client.directories), num_dirs + self.TO_CREATE)
-
-#    def test_accounts(self):
-#        current_accounts = len(self.client.accounts)
-#
-#        app = self.client.applications.create({
-#            'name': self.get_random_name(),
-#        }, create_directory=True)
-#
-#        self.assertEqual(len(self.client.accounts), current_accounts)
-#
-#        account = app.create_account({
-#            'given_name': 'Randall',
-#            'surname': 'Degges',
-#            'email': '{}@example.com'.format(self.get_random_name()),
-#            'password': 'wootILOVEc00kies!!<33',
-#        })
-#
-#        self.assertEqual(len(self.client.accounts), current_accounts + 1)
-#
-#        account.delete()
-#
-#        self.assertEqual(len(self.client.accounts), current_accounts)
-#
-#        total_accounts_to_create = 150
-#        for i in range(total_accounts_to_create):
-#            app.accounts.create({
-#                'given_name': 'Randall',
-#                'surname': 'Degges',
-#                'email': '{}@example.com'.format(self.get_random_name()),
-#                'password': 'wootILOVEc00kies!!<33',
-#            })
-#
-#        self.assertEqual(len(self.client.accounts), current_accounts + total_accounts_to_create)
 
     def test_groups(self):
         num_groups = len(self.client.groups)
