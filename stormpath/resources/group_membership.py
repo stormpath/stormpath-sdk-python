@@ -32,4 +32,6 @@ class GroupMembership(Resource, DeleteMixin):
 
 class GroupMembershipList(CollectionResource):
     """GroupMembership resource list."""
+
+    create_path = '/groupMemberships'
     resource_class = GroupMembership
