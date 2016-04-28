@@ -47,7 +47,7 @@ class AccountStoreMappingList(CollectionResource):
     def _ensure_data(self):
         if self.href == '/accountStoreMappings':
             raise ValueError(
-                "It is not possible to access account_store_mappings from "
-                "Client resource! Try using Application resource instead.")
+                "It is not possible to access account_store_mappings from the "
+                "Client resource! Try using the Application resource instead.")
 
         super(AccountStoreMappingList, self)._ensure_data()

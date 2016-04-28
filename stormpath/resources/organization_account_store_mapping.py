@@ -49,7 +49,7 @@ class OrganizationAccountStoreMappingList(CollectionResource):
         if self.href == '/organizationAccountStoreMappings':
             raise ValueError(
                 "It is not possible to access "
-                "organization_account_store_mappings from Client "
-                "resource! Try using Application resource instead.")
+                "organization_account_store_mappings from the Client "
+                "resource! Try using the Organization resource instead.")
 
         super(OrganizationAccountStoreMappingList, self)._ensure_data()
