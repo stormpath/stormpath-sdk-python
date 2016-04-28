@@ -7,6 +7,8 @@ Version 2.4.0
 - Adding support for `Client.id_sites`.
 - Fixing broken `Client.agents` functionality.
 - Allowing users to create `GroupMemberships` from the `Client`.
+- Replacing old string manipulation on URLs with proper URL parsing library
+  calls.
 
 
 Version 2.3.1
