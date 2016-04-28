@@ -142,23 +142,45 @@ class TestClientProperties(AuthenticatedLiveBase):
     def test_directories(self):
         num_dirs = len(self.client.directories)
 
-        d = self.client.directories.create({'name': self.get_random_name()})
+        dir = self.client.directories.create({'name': self.get_random_name()})
         self.assertEqual(len(self.client.directories), num_dirs + 1)
 
-        d.delete()
+        dir.delete()
         self.assertEqual(len(self.client.directories), num_dirs)
 
         for i in range(self.TO_CREATE):
-            self.client.directories.create({'name': self.get_random_name()})
+            dir = self.client.directories.create({'name': self.get_random_name()})
 
         self.assertEqual(len(self.client.directories), num_dirs + self.TO_CREATE)
+
+        fdir = self.client.directories.get(dir.href)
+        self.assertEqual(fdir.href, dir.href)
+
+    def test_group_memberships(self):
+        with self.assertRaises(ValueError):
+            for gm in self.client.group_memberships:
+                pass
+
+        dir = self.client.directories.create({'name': self.get_random_name()})
+        group = dir.groups.create({'name': self.get_random_name()})
+        account = dir.accounts.create({
+            'given_name': self.get_random_name(),
+            'surname': self.get_random_name(),
+            'email': '{}@example.com'.format(self.get_random_name()),
+            'password': 'wootILOVEc00kies!!<33',
+        })
+        gm = self.client.group_memberships.create({
+            'account': account,
+            'group': group,
+        })
+
+        fgm = self.client.group_memberships.get(gm.href)
+        self.assertEqual(fgm.href, gm.href)
 
     def test_groups(self):
         num_groups = len(self.client.groups)
 
-        app = self.client.applications.create({
-            'name': self.get_random_name(),
-        }, create_directory=True)
+        app = self.client.applications.create({'name': self.get_random_name()}, create_directory=True)
         self.assertEqual(len(self.client.groups), num_groups)
 
         group = app.groups.create({'name': self.get_random_name()})
@@ -168,42 +190,12 @@ class TestClientProperties(AuthenticatedLiveBase):
         self.assertEqual(len(self.client.groups), num_groups)
 
         for i in range(self.TO_CREATE):
-            app.groups.create({'name': self.get_random_name()})
+            group = app.groups.create({'name': self.get_random_name()})
 
         self.assertEqual(len(self.client.groups), num_groups + self.TO_CREATE)
 
-#    def test_group_memberships(self):
-#        current_group_memberships = len(self.client.group_memberships)
-#
-#        d = self.client.directories.create({'name': self.get_random_name()})
-#
-#        account = d.create_account({
-#            'given_name': 'Randall',
-#            'surname': 'Degges',
-#            'email': '{}@example.com'.format(self.get_random_name()),
-#            'password': 'wootILOVEc00kies!!<33',
-#        })
-#        group = d.groups.create({'name': self.get_random_name()})
-#        membership = account.group_memberships.create({
-#            'account': account,
-#            'group': group,
-#        })
-#
-#        self.assertEqual(len(self.client.groups), current_group_memberships + 1)
-#
-#        membership.delete()
-#
-#        self.assertEqual(len(self.client.groups), current_group_memberships)
-#
-#        total_group_memberships_to_create = 150
-#        for i in range(total_group_memberships_to_create):
-#            d.groups.create({'name': self.get_random_name()})
-#            account.group_memberships.create({
-#                'account': account,
-#                'group': group,
-#            })
-#
-#        self.assertEqual(len(self.client.group_memberships), current_group_memberships + total_group_memberships_to_create)
+        fgroup = self.client.groups.get(group.href)
+        self.assertEqual(fgroup.href, group.href)
 
 #    def test_account_store_mappings(self):
 #        current_account_store_mappings = len(self.client.account_store_mappings)
