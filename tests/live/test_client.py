@@ -210,12 +210,15 @@ class TestClientProperties(AuthenticatedLiveBase):
         self.assertEqual(len(self.client.organizations), num_orgs)
 
         for i in range(self.TO_CREATE):
-            self.client.organizations.create({
+            org = self.client.organizations.create({
                 'name': self.get_random_name(),
                 'name_key': self.get_random_name()[:63],
             })
 
         self.assertEqual(len(self.client.organizations), num_orgs + self.TO_CREATE)
+
+        forg = self.client.organizations.get(org.href)
+        self.assertEqual(forg.href, org.href)
 
     def test_organization_account_store_mappings(self):
         pass
