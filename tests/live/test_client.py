@@ -6,7 +6,6 @@ from .base import AuthenticatedLiveBase, LiveBase
 from stormpath.cache.null_cache_store import NullCacheStore
 from stormpath.client import Client
 from stormpath.error import Error
-from stormpath.resources import Expansion
 
 
 class TestClientInitialization(LiveBase):
