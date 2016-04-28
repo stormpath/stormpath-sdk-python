@@ -99,13 +99,13 @@ class Client(object):
         return self.tenant.groups
 
     @property
-    def organizations(self):
-        return self.tenant.organizations
-
-    @property
     def id_sites(self):
         return self.tenant.id_sites
 
     @property
     def organization_account_store_mappings(self):
         return OrganizationAccountStoreMappingList(self, href='/organizationAccountStoreMappings')
+
+    @property
+    def organizations(self):
+        return self.tenant.organizations

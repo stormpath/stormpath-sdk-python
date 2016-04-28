@@ -197,6 +197,14 @@ class TestClientProperties(AuthenticatedLiveBase):
         fgroup = self.client.groups.get(group.href)
         self.assertEqual(fgroup.href, group.href)
 
+    def test_id_sites(self):
+        self.assertEqual(len(self.client.id_sites), 1)
+
+        id_site = self.client.id_sites[0]
+        fid_site = self.client.id_sites.get(id_site.href)
+
+        self.assertEqual(fid_site.href, id_site.href)
+
     def test_organizations(self):
         num_orgs = len(self.client.organizations)
 
