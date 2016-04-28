@@ -91,12 +91,12 @@ class Client(object):
         return self.tenant.directories
 
     @property
-    def groups(self):
-        return self.tenant.groups
-
-    @property
     def group_memberships(self):
         return GroupMembershipList(self, href='/groupMemberships')
+
+    @property
+    def groups(self):
+        return self.tenant.groups
 
     @property
     def organizations(self):
