@@ -68,44 +68,250 @@ class Client(object):
 
     @property
     def account_store_mappings(self):
+        """
+        This property allows you to access AccountStoreMapping resources.
+
+        .. note::
+            You *cannot* iterate over AccountStoreMappings directly from this
+            Client object.  This is not supported by the Stormpath API.
+
+        Examples:
+
+        Creating an AccountStoreMapping::
+
+            mapping = client.account_store_mappings.create({
+                'application': application,
+                'account_store': account_store,
+            })
+
+        Fetching an existing AccountStoreMapping::
+
+            mapping = client.account_store_mappings.get(href)
+        """
         return AccountStoreMappingList(self, href='/accountStoreMappings')
 
     @property
     def accounts(self):
+        """
+        This property allows you to access Account resources.
+
+        .. note::
+            You *cannot* create Accounts directly from this Client object.  This
+            is not supported by the Stormpath API.
+
+        Examples:
+
+        Iterate over existing Accounts::
+
+            for account in client.accounts:
+                ...
+
+        Fetching an existing Account::
+
+            account = client.accounts.get(href)
+        """
         return self.tenant.accounts
 
     @property
     def agents(self):
+        """
+        This property allows you to access Agent resources.
+
+        .. note::
+            You *cannot* create Agents directly from this Client object.  This
+            is not supported by the Stormpath API.
+
+        Examples:
+
+        Iterate over existing Agents::
+
+            for agent in client.agents:
+                ...
+
+        Fetching an existing Agent::
+
+            agent = client.agents.get(href)
+        """
         return self.tenant.agents
 
     @property
     def api_keys(self):
+        """
+        This property allows you to access ApiKey resources.
+
+        .. note::
+            You *cannot* create ApiKeys directly from this Client object.  This
+            is not supported by the Stormpath API.
+
+            You *cannot* iterate over ApiKeys directly from this Client object.
+            This is not supported by the Stormpath API.
+
+        Examples:
+
+        Fetching an existing ApiKey::
+
+            api_key = client.api_keys.get(href)
+        """
         return ApiKeyList(self, href='/apiKeys')
 
     @property
     def applications(self):
+        """
+        This property allows you to access Application resources.
+
+        Examples:
+
+        Creating an Application::
+
+            application = client.applications.create({'name': 'xxx'})
+
+        Iterate over existing Applications::
+
+            for application in client.applications:
+                ...
+
+        Fetching an existing Application::
+
+            application = client.applications.get(href)
+        """
         return self.tenant.applications
 
     @property
     def directories(self):
+        """
+        This property allows you to access Directory resources.
+
+        Examples:
+
+        Creating an Directory::
+
+            directory = client.directories.create({'name': 'xxx'})
+
+        Iterate over existing Directories::
+
+            for directory in client.directories:
+                ...
+
+        Fetching an existing Directory::
+
+            directory = client.directories.get(href)
+        """
         return self.tenant.directories
 
     @property
     def group_memberships(self):
+        """
+        This property allows you to access GroupMembership resources.
+
+        .. note::
+            You *cannot* iterate over GroupMemberships directly from this
+            Client object.  This is not supported by the Stormpath API.
+
+        Examples:
+
+        Creating a GroupMembership::
+
+            membership = client.group_memberships.create({
+                'account': account,
+                'group': group,
+            })
+
+        Fetching an existing GroupMembership::
+
+            membership = client.group_memberships.get(href)
+        """
         return GroupMembershipList(self, href='/groupMemberships')
 
     @property
     def groups(self):
+        """
+        This property allows you to access Group resources.
+
+        .. note::
+            You *cannot* create Groups directly from this Client object.  This
+            is not supported by the Stormpath API.
+
+        Examples:
+
+        Iterate over existing Groups::
+
+            for group in client.groups:
+                ...
+
+        Fetching an existing Group::
+
+            group = client.groups.get(href)
+        """
         return self.tenant.groups
 
     @property
     def id_sites(self):
+        """
+        This property allows you to access IDSite resources.
+
+        .. note::
+            You *cannot* create IDSites directly from this Client object.  This
+            is not supported by the Stormpath API.
+
+        Examples:
+
+        Iterate over existing IDSites::
+
+            for id_site in client.id_sites:
+                ...
+
+        Fetching an existing IDSite::
+
+            id_site = client.id_sites.get(href)
+        """
         return self.tenant.id_sites
 
     @property
     def organization_account_store_mappings(self):
+        """
+        This property allows you to access OrganizationAccountStoreMapping resources.
+
+        .. note::
+            You *cannot* iterate over OrganizationAccountStoreMappings directly
+            from this Client object.  This is not supported by the Stormpath
+            API.
+
+        Examples:
+
+        Creating an OrganizationAccountStoreMapping::
+
+            mapping = client.organization_account_store_mappings.create({
+                'organization': organization,
+                'account_store': account_store,
+            })
+
+        Fetching an existing OrganizationAccountStoreMapping::
+
+            mapping = client.organization_account_store_mappings.get(href)
+        """
         return OrganizationAccountStoreMappingList(self, href='/organizationAccountStoreMappings')
 
     @property
     def organizations(self):
+        """
+        This property allows you to access Organization resources.
+
+        Examples:
+
+        Creating an Organization::
+
+            organization = client.organizations.create({
+                'name': 'xxx',
+                'name_key': 'xxx',
+            })
+
+        Iterate over existing Organizations::
+
+            for organization in client.organizations:
+                ...
+
+        Fetching an existing Organization::
+
+            organization = client.organizations.get(href)
+        """
         return self.tenant.organizations
