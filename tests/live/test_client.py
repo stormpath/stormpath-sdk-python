@@ -10,6 +10,13 @@ from stormpath.error import Error
 class TestClientInitialization(LiveBase):
     """Assert that Client initialization works as expected."""
 
+    def test_base_url(self):
+        client = Client(id=self.api_key_id, secret=self.api_key_secret)
+        self.assertEqual(client.BASE_URL, 'https://api.stormpath.com/v1')
+
+        client = Client(id=self.api_key_id, secret=self.api_key_secret, base_url='https://example.com')
+        self.assertEqual(client.BASE_URL, 'https://example.com')
+
     def test_basic_authentication_succeeds(self):
         client = Client(
             id=self.api_key_id,
