@@ -68,9 +68,12 @@ class TestClientProperties(AuthenticatedLiveBase):
         self.assertEqual(len(self.client.applications), num_apps)
 
         for i in range(self.TO_CREATE):
-            self.client.applications.create({'name': self.get_random_name()})
+            app = self.client.applications.create({'name': self.get_random_name()})
 
         self.assertEqual(len(self.client.applications), num_apps + self.TO_CREATE)
+
+        fapp = self.client.applications.get(app.href)
+        self.assertEqual(fapp.href, app.href)
 
     def test_directories(self):
         num_dirs = len(self.client.directories)
