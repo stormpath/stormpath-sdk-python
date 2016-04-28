@@ -205,6 +205,24 @@ class TestClientProperties(AuthenticatedLiveBase):
 
         self.assertEqual(fid_site.href, id_site.href)
 
+    def test_organization_account_store_mappings(self):
+        with self.assertRaises(ValueError):
+            for oasm in self.client.organization_account_store_mappings:
+                pass
+
+        org = self.client.organizations.create({
+            'name': self.get_random_name(),
+            'name_key': self.get_random_name()[:63],
+        })
+        dir = self.client.directories.create({'name': self.get_random_name()})
+        oasm = self.client.organization_account_store_mappings.create({
+            'organization': org,
+            'account_store': dir,
+        })
+
+        foasm = self.client.organization_account_store_mappings.get(oasm.href)
+        self.assertEqual(foasm.href, oasm.href)
+
     def test_organizations(self):
         num_orgs = len(self.client.organizations)
 
@@ -227,6 +245,3 @@ class TestClientProperties(AuthenticatedLiveBase):
 
         forg = self.client.organizations.get(org.href)
         self.assertEqual(forg.href, org.href)
-
-    def test_organization_account_store_mappings(self):
-        pass
