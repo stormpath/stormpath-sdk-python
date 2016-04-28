@@ -10,6 +10,21 @@ class TestClientProperties(AuthenticatedLiveBase):
     # Maximum amount of resources to create when testing.
     TO_CREATE = 10
 
+    def test_account_store_mappings(self):
+        with self.assertRaises(ValueError):
+            for asm in self.client.account_store_mappings:
+                pass
+
+        app = self.client.applications.create({'name': self.get_random_name()})
+        dir = self.client.directories.create({'name': self.get_random_name()})
+        asm = self.client.account_store_mappings.create({
+            'application': app,
+            'account_store': dir,
+        })
+
+        fasm = self.client.account_store_mappings.get(asm.href)
+        self.assertEqual(fasm.href, asm.href)
+
     def test_accounts(self):
         num_accs = len(self.client.accounts)
 
@@ -39,6 +54,55 @@ class TestClientProperties(AuthenticatedLiveBase):
 
         facc = self.client.accounts.get(acc.href)
         self.assertEqual(facc.href, acc.href)
+
+    def test_agents(self):
+        num_agents = len(self.client.agents)
+
+        for i in range(self.TO_CREATE):
+            dir = self.client.directories.create({
+                'name': self.get_random_name(),
+                'provider': {
+                    'provider_id': 'ldap',
+                    'agent': {
+                        'status': 'offline',
+                        'config': {
+                            'directory_host': 'xxx',
+                            'directory_port': 31337,
+                            'ssl_required': True,
+                            'agent_user_dn': 'xxx',
+                            'agent_user_dn_password': 'xxx',
+                            'base_dn': 'xxx',
+                            'poll_interval': 1,
+                            'account_config': {
+                                'dn_suffix': 'xxx',
+                                'object_class': 'xxx',
+                                'object_filter': 'xxx',
+                                'email_rdn': 'xxx',
+                                'given_name_rdn': 'xxx',
+                                'middle_name_rdn': 'xxx',
+                                'surname_rdn': 'xxx',
+                                'username_rdn': 'xxx',
+                                'password_rdn': 'xxx',
+                            },
+                            'group_config': {
+                                'dn_suffix': 'xxx',
+                                'object_class': 'xxx',
+                                'object_filter': 'xxx',
+                                'name_rdn': 'xxx',
+                                'description_rdn': 'xxx',
+                                'members_rdn': 'xxx',
+                            }
+                        }
+                    }
+                }
+            })
+            agent = dir.provider.agent
+
+        self.assertEqual(agent.status, 'OFFLINE')
+        self.assertEqual(len(self.client.agents), num_agents + self.TO_CREATE)
+
+        fagent = self.client.agents.get(agent.href)
+        self.assertEqual(fagent.href, agent.href)
 
     def test_api_keys(self):
         with self.assertRaises(ValueError):
@@ -167,9 +231,6 @@ class TestClientProperties(AuthenticatedLiveBase):
 #            })
 #
 #        self.assertEqual(len(self.client.account_store_mappings), current_account_store_mappings + total_account_store_mappings_to_create)
-
-    def test_agents(self):
-        pass
 
     def test_organizations(self):
         num_orgs = len(self.client.organizations)

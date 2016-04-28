@@ -67,8 +67,16 @@ class Client(object):
         self.tenant = Tenant(client=self, href='/tenants/current', expand=expand)
 
     @property
+    def account_store_mappings(self):
+        return AccountStoreMappingList(self, href='/accountStoreMappings')
+
+    @property
     def accounts(self):
         return self.tenant.accounts
+
+    @property
+    def agents(self):
+        return self.tenant.agents
 
     @property
     def api_keys(self):
@@ -89,14 +97,6 @@ class Client(object):
     @property
     def group_memberships(self):
         return GroupMembershipList(self, href='/groupMemberships')
-
-    @property
-    def account_store_mappings(self):
-        return AccountStoreMappingList(self, href='/accountStoreMappings')
-
-    @property
-    def agents(self):
-        return self.tenant.agents
 
     @property
     def organizations(self):
