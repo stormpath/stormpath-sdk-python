@@ -1,3 +1,6 @@
+.. module:: stormpath.resources
+
+
 Account Object
 ==============
 
