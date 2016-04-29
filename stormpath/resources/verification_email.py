@@ -39,4 +39,3 @@ class VerificationEmailList(CollectionResource):
         })
 
         return self.resource_class(client=self._client, properties=data)
-
