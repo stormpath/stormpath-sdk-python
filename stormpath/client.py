@@ -12,33 +12,28 @@ from .resources.tenant import Tenant
 
 
 class Client(object):
-    """The root entry point for SDK functionality.
+    """The Client object is what handles all connections to Stormpath, and is
+    the entry point for all Stormpath usage.
 
-    Using the client instance, you can access all tenant data, such as
-    applications, directories, groups, and accounts.
+    Using the Client instance, you can access all Tenant data, such as
+    Applications, Directories, Organizations, Groups, and Accounts.
 
-    More info in documentation:
+    More info can be found in our documentation:
     http://docs.stormpath.com/python/product-guide/#sdk-concepts
 
-    The client contains the following attributes that represent resource lists:
+    The Client contains the following attributes that represent resource lists:
 
-    :py:attr:`applications` -
-    :class:`stormpath.resources.application.ApplicationList`
-
-    :py:attr:`directories` -
-    :class:`stormpath.resources.directory.DirectoryList`
-
-    :py:attr:`accounts` -
-    :class:`stormpath.resources.account.AccountList`
-
-    :py:attr:`groups` -
-    :class:`stormpath.resources.group.GroupList`
-
-    :py:attr:`group_memberships` -
-    :class:`stormpath.resources.group_membership.GroupMembershipList`
-
-    :py:attr:`account_store_mappings` -
-    :class:`stormpath.resources.account_store_mapping.AccountStoreMappingList`
+    :attr:`account_store_mappings` - :class:`stormpath.resources.account_store_mapping.AccountStoreMappingList`
+    :attr:`accounts` - :class:`stormpath.resources.account.AccountList`
+    :attr:`agents` - :class:`stormpath.resources.agent.AgentList`
+    :attr:`api_keys` - :class:`stormpath.resources.api_key.ApiKeyList`
+    :attr:`applications` - :class:`stormpath.resources.application.ApplicationList`
+    :attr:`directories` - :class:`stormpath.resources.directory.DirectoryList`
+    :attr:`group_memberships` - :class:`stormpath.resources.group_membership.GroupMembershipList`
+    :attr:`groups` - :class:`stormpath.resources.group.GroupList`
+    :attr:`id_sites` - :class:`stormpath.resources.id_site.IDSiteList`
+    :attr:`organization_account_store_mappings` - :class:`stormpath.resources.organization_account_store_mapping.OrganizationAccountStoreMappingList`
+    :attr:`organizations` - :class:`stormpath.resources.organization.OrganizationList`
     """
     BASE_URL = 'https://api.stormpath.com/v1'
 
