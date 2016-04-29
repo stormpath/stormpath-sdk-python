@@ -43,17 +43,16 @@ advanced users.  Regardless of your user needs, Stormpath can help.
     the-basics
 
 
-API Documentation
-=================
+API Reference
+=============
 
-This section of the docs links to our auto-generated API documentation.  If you
-have any questions, don't hesitate to email the Stormpath support team:
-`support@stormpath.com <mailto:support@stormpath.com>`_
+If you are looking for information on a specific function, class or method, this
+part of the documentation is for you.
 
 .. toctree::
-    :maxdepth: 3
+    :maxdepth: 2
 
-    stormpath
+    api
 
 
 Indices and Tables
