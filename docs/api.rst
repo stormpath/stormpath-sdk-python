@@ -11,8 +11,8 @@ parts where Flask depends on external libraries, we document the most
 important right here and provide links to the canonical documentation.
 
 
-Client
-------
+Client Object
+-------------
 
 
 .. autoclass:: stormpath.client.Client
@@ -32,11 +32,6 @@ Client
 .. automodule:: stormpath.auth
     :members:
 
-:mod:`client` Module
---------------------
-
-.. automodule:: stormpath.client
-    :members:
 
 :mod:`data_store` Module
 ------------------------
@@ -64,8 +59,8 @@ Client
 
     stormpath.cache
 
-:mod:`resource` Module
-----------------------
+Resources
+---------
 
 .. toctree::
     :maxdepth: 3
