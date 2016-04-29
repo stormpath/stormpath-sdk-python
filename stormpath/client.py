@@ -21,19 +21,11 @@ class Client(object):
     More info can be found in our documentation:
     http://docs.stormpath.com/python/product-guide/#sdk-concepts
 
-    The Client contains the following attributes that represent resource lists:
+    Examples::
 
-    :attr:`account_store_mappings` - :class:`stormpath.resources.account_store_mapping.AccountStoreMappingList`
-    :attr:`accounts` - :class:`stormpath.resources.account.AccountList`
-    :attr:`agents` - :class:`stormpath.resources.agent.AgentList`
-    :attr:`api_keys` - :class:`stormpath.resources.api_key.ApiKeyList`
-    :attr:`applications` - :class:`stormpath.resources.application.ApplicationList`
-    :attr:`directories` - :class:`stormpath.resources.directory.DirectoryList`
-    :attr:`group_memberships` - :class:`stormpath.resources.group_membership.GroupMembershipList`
-    :attr:`groups` - :class:`stormpath.resources.group.GroupList`
-    :attr:`id_sites` - :class:`stormpath.resources.id_site.IDSiteList`
-    :attr:`organization_account_store_mappings` - :class:`stormpath.resources.organization_account_store_mapping.OrganizationAccountStoreMappingList`
-    :attr:`organizations` - :class:`stormpath.resources.organization.OrganizationList`
+        client = Client(id='xxx', secret='xxx')
+        client = Client(id='xxx', secret='xxx', base_url='https://enterprise.stormpath.io/v1')
+        client = Client(api_key_id='xxx', api_key_secret='xxx')
     """
     BASE_URL = 'https://api.stormpath.com/v1'
 
