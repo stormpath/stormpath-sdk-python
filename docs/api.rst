@@ -1,8 +1,24 @@
-:mod:`stormpath` Package
-========================
+.. _api:
 
-.. automodule:: stormpath
+
+Stormpath
+=========
+
+.. module:: stormpath
+
+This part of the documentation covers all the interfaces of Stormpath.  For
+parts where Flask depends on external libraries, we document the most
+important right here and provide links to the canonical documentation.
+
+
+Client
+------
+
+
+.. autoclass:: Client
     :members:
+    :inherited-members:
+
 
 :mod:`api_auth` Module
 ------------------
