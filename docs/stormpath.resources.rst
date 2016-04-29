@@ -1,174 +1,534 @@
-:mod:`resources` Package
-````````````````````````
+Account Object
+==============
 
-.. automodule:: stormpath.resources
+.. autoclass:: stormpath.resources.account.Account
     :members:
-    :show-inheritance:
+    :inherited-members:
 
-:mod:`account` Module
-`````````````````````
 
-.. automodule:: stormpath.resources.account
+AccountList Object
+==================
+
+.. autoclass:: stormpath.resources.account.AccountList
     :members:
-    :show-inheritance:
+    :inherited-members:
 
-:mod:`account_creation_policy` Module
-`````````````````````````````````````
 
-.. automodule:: stormpath.resources.account_creation_policy
+AccountCreationPolicy Object
+============================
+
+.. autoclass:: stormpath.resources.account_creation_policy.AccountCreationPolicy
     :members:
-    :show-inheritance:
+    :inherited-members:
 
-:mod:`account_store` Module
-```````````````````````````
 
-.. automodule:: stormpath.resources.account_store
+AccountStore Object
+===================
+
+.. autoclass:: stormpath.resources.account_store.AccountStore
     :members:
-    :show-inheritance:
+    :inherited-members:
 
-:mod:`account_store_mapping` Module
-```````````````````````````````````
 
-.. automodule:: stormpath.resources.account_store_mapping
+AccountStoreMapping Object
+==========================
+
+.. autoclass:: stormpath.resources.account_store_mapping.AccountStoreMapping
     :members:
-    :show-inheritance:
+    :inherited-members:
 
-:mod:`agent` Module
-```````````````````
 
-.. automodule:: stormpath.resources.agent
+AccountStoreMappingList Object
+==============================
+
+.. autoclass:: stormpath.resources.account_store_mapping.AccountStoreMappingList
     :members:
-    :show-inheritance:
+    :inherited-members:
 
-:mod:`api_key` Module
-`````````````````````
 
-.. automodule:: stormpath.resources.api_key
+Agent Object
+============
+
+.. autoclass:: stormpath.resources.agent.Agent
     :members:
-    :show-inheritance:
+    :inherited-members:
 
-:mod:`application` Module
-`````````````````````````
 
-.. automodule:: stormpath.resources.application
+AgentList Object
+================
+
+.. autoclass:: stormpath.resources.agent.AgentList
     :members:
-    :show-inheritance:
+    :inherited-members:
 
-:mod:`auth_token` Module
-````````````````````````
 
-.. automodule:: stormpath.resources.auth_token
+AgentAccountConfig Object
+=========================
+
+.. autoclass:: stormpath.resources.agent.AgentAccountConfig
     :members:
-    :show-inheritance:
+    :inherited-members:
 
-:mod:`custom_data` Module
-`````````````````````````
 
-.. automodule:: stormpath.resources.custom_data
+AgentGroupConfig Object
+=======================
+
+.. autoclass:: stormpath.resources.agent.AgentGroupConfig
     :members:
-    :show-inheritance:
+    :inherited-members:
 
-:mod:`directory` Module
-```````````````````````
 
-.. automodule:: stormpath.resources.directory
+AgentConfig Object
+==================
+
+.. autoclass:: stormpath.resources.agent.AgentConfig
     :members:
-    :show-inheritance:
+    :inherited-members:
 
-:mod:`email_template` Module
-````````````````````````````
 
-.. automodule:: stormpath.resources.email_template
+AgentDownload Object
+====================
+
+.. autoclass:: stormpath.resources.agent.AgentDownload
     :members:
-    :show-inheritance:
+    :inherited-members:
 
-:mod:`group` Module
-```````````````````
 
-.. automodule:: stormpath.resources.group
+ApiKey Object
+=============
+
+.. autoclass:: stormpath.resources.api_key.ApiKey
     :members:
-    :show-inheritance:
+    :inherited-members:
 
-:mod:`group_membership` Module
-``````````````````````````````
 
-.. automodule:: stormpath.resources.group_membership
+ApiKeyList Object
+=================
+
+.. autoclass:: stormpath.resources.api_key.ApiKeyList
     :members:
-    :show-inheritance:
+    :inherited-members:
 
-:mod:`login_attempt` Module
-```````````````````````````
 
-.. automodule:: stormpath.resources.login_attempt
+Application Object
+==================
+
+.. autoclass:: stormpath.resources.application.Application
     :members:
-    :show-inheritance:
+    :inherited-members:
 
-:mod:`oauth_policy` Module
-``````````````````````````
 
-.. automodule:: stormpath.resources.oauth_policy
+ApplicationList Object
+======================
+
+.. autoclass:: stormpath.resources.application.ApplicationList
     :members:
-    :show-inheritance:
+    :inherited-members:
 
-:mod:`organization` Module
-``````````````````````````
 
-.. automodule:: stormpath.resources.organization
+AssertionConsumerServicePostEndpoint Object
+===========================================
+
+.. autoclass:: stormpath.resources.assertion_consumer_service_post_endpoint.AssertionConsumerServicePostEndpoint
     :members:
-    :show-inheritance:
+    :inherited-members:
 
-:mod:`organization_account_store_mapping` Module
-````````````````````````````````````````````````
 
-.. automodule:: stormpath.resources.organization_account_store_mapping
+AttributeStatementMappingRule Object
+====================================
+
+.. autoclass:: stormpath.resources.attribute_statement_mapping_rule.AttributeStatementMappingRule
     :members:
-    :show-inheritance:
+    :inherited-members:
 
-:mod:`password_policy` Module
-`````````````````````````````
 
-.. automodule:: stormpath.resources.password_policy
+AttributeStatementMappingRules Object
+=====================================
+
+.. autoclass:: stormpath.resources.attribute_statement_mapping_rule.AttributeStatementMappingRules
     :members:
-    :show-inheritance:
+    :inherited-members:
 
-:mod:`password_reset_token` Module
-``````````````````````````````````
 
-.. automodule:: stormpath.resources.password_reset_token
+AuthToken Object
+================
+
+.. autoclass:: stormpath.resources.auth_token.AuthToken
     :members:
-    :show-inheritance:
+    :inherited-members:
 
-:mod:`password_strength` Module
-``````````````````````````
 
-.. automodule:: stormpath.resources.password_strength
+AuthTokenList Object
+====================
+
+.. autoclass:: stormpath.resources.auth_token.AuthTokenList
     :members:
-    :show-inheritance:
+    :inherited-members:
 
-:mod:`provider` Module
-``````````````````````
 
-.. automodule:: stormpath.resources.provider
+Expansion Object
+================
+
+.. autoclass:: stormpath.resources.base.Expansion
     :members:
-    :show-inheritance:
+    :inherited-members:
 
-:mod:`provider_data` Module
-``````````````````````````
 
-.. automodule:: stormpath.resources.provider_data
+Resource Object
+===============
+
+.. autoclass:: stormpath.resources.base.Resource
     :members:
-    :show-inheritance:
+    :inherited-members:
 
-:mod:`tenant` Module
-````````````````````
 
-.. automodule:: stormpath.resources.tenant
+SaveMixin Object
+================
+
+.. autoclass:: stormpath.resources.base.SaveMixin
     :members:
-    :show-inheritance:
+    :inherited-members:
 
-:mod:`verification_email` Module
-```````````````````````````````
 
-.. automodule:: stormpath.resources.verification_email
+AutoSaveMixin Object
+====================
+
+.. autoclass:: stormpath.resources.base.AutoSaveMixin
     :members:
-    :show-inheritance:
+    :inherited-members:
+
+
+DeleteMixin Object
+==================
+
+.. autoclass:: stormpath.resources.base.DeleteMixin
+    :members:
+    :inherited-members:
+
+
+StatusMixin Object
+==================
+
+.. autoclass:: stormpath.resources.base.StatusMixin
+    :members:
+    :inherited-members:
+
+
+DictMixin Object
+================
+
+.. autoclass:: stormpath.resources.base.DictMixin
+    :members:
+    :inherited-members:
+
+
+CollectionResource Object
+=========================
+
+.. autoclass:: stormpath.resources.base.CollectionResource
+    :members:
+    :inherited-members:
+
+
+FixedAttrsDict Object
+=====================
+
+.. autoclass:: stormpath.resources.base.FixedAttrsDict
+    :members:
+    :inherited-members:
+
+
+ListOnResource Object
+=====================
+
+.. autoclass:: stormpath.resources.base.ListOnResource
+    :members:
+    :inherited-members:
+
+
+CustomData Object
+=================
+
+.. autoclass:: stormpath.resources.custom_data.CustomData
+    :members:
+    :inherited-members:
+
+
+DefaultRelayState Object
+========================
+
+.. autoclass:: stormpath.resources.default_relay_state.DefaultRelayState
+    :members:
+    :inherited-members:
+
+
+DefaultRelayStateList Object
+============================
+
+.. autoclass:: stormpath.resources.default_relay_state.DefaultRelayStateList
+    :members:
+    :inherited-members:
+
+
+DefaultRelayStateList Object
+============================
+
+.. autoclass:: stormpath.resources.default_relay_state.DefaultRelayStateList
+    :members:
+    :inherited-members:
+
+
+Directory Object
+================
+
+.. autoclass:: stormpath.resources.directory.Directory
+    :members:
+    :inherited-members:
+
+
+DirectoryList Object
+====================
+
+.. autoclass:: stormpath.resources.directory.DirectoryList
+    :members:
+    :inherited-members:
+
+
+EmailTemplate Object
+====================
+
+.. autoclass:: stormpath.resources.email_template.EmailTemplate
+    :members:
+    :inherited-members:
+
+
+EmailTemplateList Object
+========================
+
+.. autoclass:: stormpath.resources.email_template.EmailTemplateList
+    :members:
+    :inherited-members:
+
+
+DefaultModelEmailTemplate Object
+================================
+
+.. autoclass:: stormpath.resources.email_template.DefaultModelEmailTemplate
+    :members:
+    :inherited-members:
+
+
+DefaultModelEmailTemplateList Object
+====================================
+
+.. autoclass:: stormpath.resources.email_template.DefaultModelEmailTemplateList
+    :members:
+    :inherited-members:
+
+
+GroupMembership Object
+======================
+
+.. autoclass:: stormpath.resources.group_membership.GroupMembership
+    :members:
+    :inherited-members:
+
+
+GroupMembershipList Object
+==========================
+
+.. autoclass:: stormpath.resources.group_membership.GroupMembershipList
+    :members:
+    :inherited-members:
+
+
+Group Object
+============
+
+.. autoclass:: stormpath.resources.group.Group
+    :members:
+    :inherited-members:
+
+
+GroupList Object
+================
+
+.. autoclass:: stormpath.resources.group.GroupList
+    :members:
+    :inherited-members:
+
+
+IDSite Object
+=============
+
+.. autoclass:: stormpath.resources.id_site.IDSite
+    :members:
+    :inherited-members:
+
+
+IDSiteList Object
+=================
+
+.. autoclass:: stormpath.resources.id_site.IDSiteList
+    :members:
+    :inherited-members:
+
+
+AuthenticationResult Object
+===========================
+
+.. autoclass:: stormpath.resources.login_attempt.AuthenticationResult
+    :members:
+    :inherited-members:
+
+
+LoginAttemptList Object
+=======================
+
+.. autoclass:: stormpath.resources.login_attempt.LoginAttemptList
+    :members:
+    :inherited-members:
+
+
+OauthPolicy Object
+==================
+
+.. autoclass:: stormpath.resources.oauth_policy.OauthPolicy
+    :members:
+    :inherited-members:
+
+
+Organization Object
+===================
+
+.. autoclass:: stormpath.resources.organization.Organization
+    :members:
+    :inherited-members:
+
+
+OrganizationList Object
+=======================
+
+.. autoclass:: stormpath.resources.organization.OrganizationList
+    :members:
+    :inherited-members:
+
+
+OrganizationAccountStoreMapping Object
+======================================
+
+.. autoclass:: stormpath.resources.organization_account_store_mapping.OrganizationAccountStoreMapping
+    :members:
+    :inherited-members:
+
+
+OrganizationAccountStoreMappingList Object
+==========================================
+
+.. autoclass:: stormpath.resources.organization_account_store_mapping.OrganizationAccountStoreMappingList
+    :members:
+    :inherited-members:
+
+
+PasswordPolicy Object
+=====================
+
+.. autoclass:: stormpath.resources.password_policy.PasswordPolicy
+    :members:
+    :inherited-members:
+
+
+PasswordResetToken Object
+=========================
+
+.. autoclass:: stormpath.resources.password_reset_token.PasswordResetToken
+    :members:
+    :inherited-members:
+
+
+PasswordResetTokenList Object
+=============================
+
+.. autoclass:: stormpath.resources.password_reset_token.PasswordResetTokenList
+    :members:
+    :inherited-members:
+
+
+PasswordStrength Object
+=======================
+
+.. autoclass:: stormpath.resources.password_strength.PasswordStrength
+    :members:
+    :inherited-members:
+
+
+Provider Object
+===============
+
+.. autoclass:: stormpath.resources.provider.Provider
+    :members:
+    :inherited-members:
+
+
+ProviderData Object
+===================
+
+.. autoclass:: stormpath.resources.provider_data.ProviderData
+    :members:
+    :inherited-members:
+
+
+SamlPolicy Object
+=================
+
+.. autoclass:: stormpath.resources.saml_policy.SamlPolicy
+    :members:
+    :inherited-members:
+
+
+SamlServiceProvider Object
+==========================
+
+.. autoclass:: stormpath.resources.saml_service_provider.SamlServiceProvider
+    :members:
+    :inherited-members:
+
+
+SamlServiceProviderMetadata Object
+==================================
+
+.. autoclass:: stormpath.resources.saml_service_provider_metadata.SamlServiceProviderMetadata
+    :members:
+    :inherited-members:
+
+
+SsoInitiationEndpoint Object
+============================
+
+.. autoclass:: stormpath.resources.sso_initiation_endpoint.SsoInitiationEndpoint
+    :members:
+    :inherited-members:
+
+
+Tenant Object
+=============
+
+.. autoclass:: stormpath.resources.tenant.Tenant
+    :members:
+    :inherited-members:
+
+
+VerificationEmail Object
+========================
+
+.. autoclass:: stormpath.resources.verification_email.VerificationEmail
+    :members:
+    :inherited-members:
+
+
+VerificationEmailList Object
+============================
+
+.. autoclass:: stormpath.resources.verification_email.VerificationEmailList
+    :members:
+    :inherited-members:
