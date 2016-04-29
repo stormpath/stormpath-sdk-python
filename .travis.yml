@@ -9,6 +9,7 @@ python:
 install: pip install -e .[test]
 script:
 - python setup.py test
+- python setup.py docs
 - test -z "$STORMPATH_API_KEY_SECRET" || python setup.py livetest
 after_success:
 - coverage xml
