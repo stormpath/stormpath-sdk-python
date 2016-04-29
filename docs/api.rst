@@ -15,7 +15,7 @@ Client
 ------
 
 
-.. autoclass:: Client
+.. autoclass:: stormpath.client.Client
     :members:
     :inherited-members:
 
