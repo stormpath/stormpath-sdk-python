@@ -1,68 +1,11 @@
 .. _api:
 
 
-Stormpath
-=========
+API Reference
+=============
 
 .. module:: stormpath
 
 This part of the documentation covers all the interfaces of Stormpath.  For
 parts where Flask depends on external libraries, we document the most
 important right here and provide links to the canonical documentation.
-
-
-Client Object
--------------
-
-
-.. autoclass:: stormpath.client.Client
-    :members:
-    :inherited-members:
-
-
-:mod:`api_auth` Module
-------------------
-
-.. automodule:: stormpath.api_auth
-    :members:
-
-:mod:`auth` Module
-------------------
-
-.. automodule:: stormpath.auth
-    :members:
-
-
-:mod:`data_store` Module
-------------------------
-
-.. automodule:: stormpath.data_store
-    :members:
-
-:mod:`error` Module
--------------------
-
-.. automodule:: stormpath.error
-    :members:
-
-:mod:`http` Module
-------------------
-
-.. automodule:: stormpath.http
-    :members:
-
-:mod:`cache` Module
-------------------
-
-.. toctree::
-    :maxdepth: 3
-
-    stormpath.cache
-
-Resources
----------
-
-.. toctree::
-    :maxdepth: 3
-
-    stormpath.resources

@@ -1,13 +1,19 @@
-.. _stormpath-resources:
+.. _stormpath:
 
 .. module:: stormpath
 
 
-Accounts
-========
+Stormpath Module
+================
 
-This section of the documentation contains information about Stormpath
-Accounts.
+This documentation includes all core Stormpath API reference information.  This
+is what most developers will likely be working with from a high-level.
+
+
+Resources
+---------
+
+.. module:: stormpath.resources
 
 
 Account Object
@@ -34,26 +40,12 @@ AccountCreationPolicy Object
     :inherited-members:
 
 
-Account Stores
-==============
-
-This section of the documentation contains information about Stormpath
-Account Stores.
-
-
 AccountStore Object
 ...................
 
 .. autoclass:: stormpath.resources.account_store.AccountStore
     :members:
     :inherited-members:
-
-
-Account Store Mappings
-======================
-
-This section of the documentation contains information about Stormpath
-Account Store Mappings.
 
 
 AccountStoreMapping Object
@@ -70,12 +62,6 @@ AccountStoreMappingList Object
 .. autoclass:: stormpath.resources.account_store_mapping.AccountStoreMappingList
     :members:
     :inherited-members:
-
-
-Agents
-======
-
-This section of the documentation contains information about Stormpath Agents.
 
 
 Agent Object
@@ -126,13 +112,6 @@ AgentDownload Object
     :inherited-members:
 
 
-API Keys
-========
-
-This section of the documentation contains information about Stormpath API
-Keys.
-
-
 ApiKey Object
 .............
 
@@ -147,13 +126,6 @@ ApiKeyList Object
 .. autoclass:: stormpath.resources.api_key.ApiKeyList
     :members:
     :inherited-members:
-
-
-Applications
-============
-
-This section of the documentation contains information about Stormpath
-Applications.
 
 
 Application Object
@@ -196,13 +168,6 @@ AttributeStatementMappingRules Object
     :inherited-members:
 
 
-Auth Tokens
-===========
-
-This section of the documentation contains information about Stormpath
-Auth Tokens.
-
-
 AuthToken Object
 ................
 
@@ -219,26 +184,12 @@ AuthTokenList Object
     :inherited-members:
 
 
-Expansions
-==========
-
-This section of the documentation contains information about Stormpath
-Expansions.
-
-
 Expansion Object
 ................
 
 .. autoclass:: stormpath.resources.base.Expansion
     :members:
     :inherited-members:
-
-
-Base Resources
-==============
-
-This section of the documentation contains information about Stormpath Base
-Resources.
 
 
 Resource Object
@@ -313,13 +264,6 @@ ListOnResource Object
     :inherited-members:
 
 
-Custom Data
-===========
-
-This section of the documentation contains information about Stormpath
-CustomData.
-
-
 CustomData Object
 .................
 
@@ -350,13 +294,6 @@ DefaultRelayStateList Object
 .. autoclass:: stormpath.resources.default_relay_state.DefaultRelayStateList
     :members:
     :inherited-members:
-
-
-Directories
-===========
-
-This section of the documentation contains information about Stormpath
-Directories.
 
 
 Directory Object
@@ -407,45 +344,6 @@ DefaultModelEmailTemplateList Object
     :inherited-members:
 
 
-PasswordPolicy Object
-.....................
-
-.. autoclass:: stormpath.resources.password_policy.PasswordPolicy
-    :members:
-    :inherited-members:
-
-
-PasswordStrength Object
-.......................
-
-.. autoclass:: stormpath.resources.password_strength.PasswordStrength
-    :members:
-    :inherited-members:
-
-
-VerificationEmail Object
-........................
-
-.. autoclass:: stormpath.resources.verification_email.VerificationEmail
-    :members:
-    :inherited-members:
-
-
-VerificationEmailList Object
-............................
-
-.. autoclass:: stormpath.resources.verification_email.VerificationEmailList
-    :members:
-    :inherited-members:
-
-
-Group Memberships
-=================
-
-This section of the documentation contains information about Stormpath
-Group Memberships.
-
-
 GroupMembership Object
 ......................
 
@@ -460,13 +358,6 @@ GroupMembershipList Object
 .. autoclass:: stormpath.resources.group_membership.GroupMembershipList
     :members:
     :inherited-members:
-
-
-Groups
-======
-
-This section of the documentation contains information about Stormpath
-Groups.
 
 
 Group Object
@@ -485,13 +376,6 @@ GroupList Object
     :inherited-members:
 
 
-ID Sites
-========
-
-This section of the documentation contains information about Stormpath
-ID Sites.
-
-
 IDSite Object
 .............
 
@@ -506,13 +390,6 @@ IDSiteList Object
 .. autoclass:: stormpath.resources.id_site.IDSiteList
     :members:
     :inherited-members:
-
-
-Authentication Results
-======================
-
-This section of the documentation contains information about Stormpath
-Authentication Results.
 
 
 AuthenticationResult Object
@@ -531,26 +408,12 @@ LoginAttemptList Object
     :inherited-members:
 
 
-OAuth Policies
-==============
-
-This section of the documentation contains information about Stormpath
-OAuth Policies.
-
-
 OauthPolicy Object
 ..................
 
 .. autoclass:: stormpath.resources.oauth_policy.OauthPolicy
     :members:
     :inherited-members:
-
-
-Organizations
-=============
-
-This section of the documentation contains information about Stormpath
-Organizations.
 
 
 Organization Object
@@ -569,13 +432,6 @@ OrganizationList Object
     :inherited-members:
 
 
-Organization Account Store Mappings
-===================================
-
-This section of the documentation contains information about Stormpath
-Organization Account Store Mappings.
-
-
 OrganizationAccountStoreMapping Object
 ......................................
 
@@ -592,11 +448,12 @@ OrganizationAccountStoreMappingList Object
     :inherited-members:
 
 
-Password Reset Tokens
-=====================
+PasswordPolicy Object
+.....................
 
-This section of the documentation contains information about Stormpath
-Password Reset Tokens.
+.. autoclass:: stormpath.resources.password_policy.PasswordPolicy
+    :members:
+    :inherited-members:
 
 
 PasswordResetToken Object
@@ -615,11 +472,12 @@ PasswordResetTokenList Object
     :inherited-members:
 
 
-Providers
-=========
+PasswordStrength Object
+.......................
 
-This section of the documentation contains information about Stormpath
-Providers.
+.. autoclass:: stormpath.resources.password_strength.PasswordStrength
+    :members:
+    :inherited-members:
 
 
 Provider Object
@@ -638,26 +496,12 @@ ProviderData Object
     :inherited-members:
 
 
-SAML Policies
-=============
-
-This section of the documentation contains information about Stormpath
-SAML Policies.
-
-
 SamlPolicy Object
 .................
 
 .. autoclass:: stormpath.resources.saml_policy.SamlPolicy
     :members:
     :inherited-members:
-
-
-SAML Service Providers
-======================
-
-This section of the documentation contains information about Stormpath
-SAML Service Providers.
 
 
 SamlServiceProvider Object
@@ -684,16 +528,25 @@ SsoInitiationEndpoint Object
     :inherited-members:
 
 
-Tenants
-=======
-
-This section of the documentation contains information about Stormpath
-Tenants.
-
-
 Tenant Object
 .............
 
 .. autoclass:: stormpath.resources.tenant.Tenant
+    :members:
+    :inherited-members:
+
+
+VerificationEmail Object
+........................
+
+.. autoclass:: stormpath.resources.verification_email.VerificationEmail
+    :members:
+    :inherited-members:
+
+
+VerificationEmailList Object
+............................
+
+.. autoclass:: stormpath.resources.verification_email.VerificationEmailList
     :members:
     :inherited-members:
