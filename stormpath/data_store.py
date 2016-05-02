@@ -5,14 +5,15 @@ from .cache.manager import CacheManager
 
 
 class DataStore(object):
-    """An intermediary between Resource objects and the data they represent.
+    """
+    The DataStore object is an intermediary between Stormpath resources and the
+    Stormpath API. It handles fetching Stormpath data from either the Stormpath
+    API service, or a cache.
 
-    It fetches the data either from the Stormpath service by using
-    the :class:`stormpath.http.HttpExecutor` if the cache doesn't already have
-    it and caches it by using :class:`stormpath.cache.manager.CacheManager` or
-    fetches the data directly from the cache. Those two components are part of
-    DataStore but implemented separately with the intent of being easily
-    replacable without changing the the rest of the codebase.
+    More info can be found in our documentation:
+    http://docs.stormpath.com/python/product-guide/#sdk-concepts
+
+    Examples::
     """
     CACHE_REGIONS = (
         'accounts',
@@ -21,6 +22,7 @@ class DataStore(object):
         'applications',
         'customData',
         'directories',
+        'organizations',
         'groups',
         'groupMemberships',
         'tenants',
