@@ -133,8 +133,25 @@ class DataStore(object):
 
     def uncache_resource(self, href):
         """
-        Uncaching customData's key should uncache customData.
+        This method will purge a resource from the cache.
+
+        :param str href: The resource href to uncache.
+
+        .. note::
+            CustomData is a special case here.  If a developer is deleting only
+            a specific CustomData key, we need to delete the entire CustomData
+            cache we have, since we only cache CustomData as a whole, and not on
+            a per-key basis.
+
+        Examples::
+
+            data_store.uncache_resource('https://api.stormpath.com/v1/accounts/xxx')
+            data_store.uncache_resource('https://api.stormpath.com/v1/accounts/xxx/customData/blah')
         """
+        # This modifies any URLs that look like:
+        # https://api.stormpath.com/v1/accounts/xxx/customData/key and makes
+        # them look like this:
+        # https://api.stormpath.com/v1/accounts/xxx/customData
         if 'customData' in href and not href.endswith('customData'):
             parts = href.split('/')
             href = '/'.join(parts[:-1])
