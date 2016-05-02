@@ -9,6 +9,7 @@ Version 2.4.0
 - Allowing users to create `GroupMemberships` from the `Client`.
 - Replacing old string manipulation on URLs with proper URL parsing library
   calls.
+- Adding `to_json()` method for all Stormpath resources.
 
 
 Version 2.3.1
