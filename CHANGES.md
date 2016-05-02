@@ -10,6 +10,7 @@ Version 2.4.0
 - Replacing old string manipulation on URLs with proper URL parsing library
   calls.
 - Adding `to_json()` method for all Stormpath resources.
+- Adding cache support for Organization resources.
 
 
 Version 2.3.1
