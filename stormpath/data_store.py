@@ -14,6 +14,28 @@ class DataStore(object):
     http://docs.stormpath.com/python/product-guide/#sdk-concepts
 
     Examples::
+
+        from stormpath.cache.memory_store import MemoryStore
+        from stormpath.cache.redis_store import RedisStore
+
+        data_store = DataStore(executor, {
+            'store': MemoryStore,
+            'regions': {
+                'applications': {
+                    'store': RedisStore,
+                    'ttl': 300,
+                    'tti': 300,
+                    'store_opts': {
+                        'host': 'localhost',
+                        'port': 6739,
+                    }
+                },
+                'directories': {
+                    'ttl': 60,
+                    'tti': 60,
+                }
+            }
+        })
     """
     CACHE_REGIONS = (
         'accounts',
@@ -31,30 +53,14 @@ class DataStore(object):
 
     def __init__(self, executor, cache_options=None):
         """
-        :param executor: A HTTP request executor,
-            like :class:`stormpath.http.HttpExecutor`
+        Initialize the DataStore.
+
+        :param obj executor: An HTTP request executor.
+        :type executor: :class:`stormpath.http.HttpExecutor`
         :param cache_options: A dictionary with cache settings.
-
-        Example of a dictionary with all available options::
-
-            {
-                'store': MemoryStore,
-                'regions': {
-                    'applications': {
-                        'store': RedisStore,
-                        'ttl': 300,
-                        'tti': 300,
-                        'store_opts': {
-                            'host': 'localhost',
-                            'port': 6739,
-                        },
-                    },
-                    'directories': {
-                        'store': MemoryStore,
-                        'ttl': 60,
-                    },
-                },
-            }
+        :type cache_options: dict or None, optional
+        :returns: The initialized DataStore object.
+        :rtype: :class:`stormpath.data_store.DataStore`
         """
         self.cache_manager = CacheManager()
         self.executor = executor
