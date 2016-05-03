@@ -63,11 +63,11 @@ Below are some resources you might find useful:
 - `django-stormpath Documentation`_
 
 
-.. _Stormpath: https://stormpath.com/ "Stormpath"
-.. _email us: mailto:support@stormpath.com "Stormpath Support Email"
-.. _Quickstart: https://docs.stormpath.com/python/quickstart/ "Stormpath Python Quickstart"
-.. _Stormpath Python Documentation: http://docs.stormpath.com/python/product-guide/ "Stormpath Python Documentation"
-.. _Flask-Stormpath on Github: https://github.com/stormpath/stormpath-flask "Flask-Stormpath on Github"
-.. _Flask-Stormpath Documentation: http://flask-stormpath.readthedocs.org/en/latest/ "Flask-Stormpath Documentation"
-.. _django-stormpath on Github: https://github.com/stormpath/stormpath-django "django-stormpath on Github"
-.. _django-stormpath Documentation: https://github.com/stormpath/stormpath-django#django-stormpath "django-stormpath Documentation"
+.. _Stormpath: https://stormpath.com/
+.. _email us: mailto:support@stormpath.com
+.. _Quickstart: https://docs.stormpath.com/python/quickstart/
+.. _Stormpath Python Documentation: http://docs.stormpath.com/python/product-guide/
+.. _Flask-Stormpath on Github: https://github.com/stormpath/stormpath-flask
+.. _Flask-Stormpath Documentation: http://flask-stormpath.readthedocs.org/en/latest/
+.. _django-stormpath on Github: https://github.com/stormpath/stormpath-django
+.. _django-stormpath Documentation: https://github.com/stormpath/stormpath-django#django-stormpath
