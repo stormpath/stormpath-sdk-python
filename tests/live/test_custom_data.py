@@ -34,8 +34,7 @@ CUSTOM_DATA = {
 
 
 def remove_timestamp_attrs(custom_data):
-    remaining_keys = set(custom_data) - set(
-        custom_data.exposed_readonly_timestamp_attrs)
+    remaining_keys = set(custom_data) - set(custom_data.exposed_readonly_timestamp_attrs)
     return {k: custom_data[k] for k in remaining_keys}
 
 
@@ -80,42 +79,22 @@ class TestAccountCustomData(AccountBase):
             custom_data=CUSTOM_DATA)
 
         acc = self.app.accounts.get(acc.href)
-        self.assertEqual(
-            CUSTOM_DATA,
-            remove_timestamp_attrs(acc.custom_data))
-        self.assertTrue(
-            set(acc.custom_data.exposed_readonly_timestamp_attrs).issubset(
-                set(acc.custom_data.keys())))
+        self.assertEqual(CUSTOM_DATA, remove_timestamp_attrs(acc.custom_data))
+        self.assertTrue(set(acc.custom_data.exposed_readonly_timestamp_attrs).issubset(set(acc.custom_data.keys())))
 
     def test_custom_data_behaves_as_dict(self):
-        _, acc = self.create_account(self.app.accounts,
-            custom_data=CUSTOM_DATA)
-
+        _, acc = self.create_account(self.app.accounts, custom_data=CUSTOM_DATA)
         exposed_timestamps = acc.custom_data.exposed_readonly_timestamp_attrs
 
-        self.assertEqual(
-            set(list(CUSTOM_DATA.keys()) + list(exposed_timestamps)),
-            set(acc.custom_data.keys()))
-
-        self.assertEqual(
-            len(CUSTOM_DATA.values()) + len(exposed_timestamps),
-            len(acc.custom_data.values()))
-
-        self.assertEqual(
-            len(CUSTOM_DATA.items()) + len(exposed_timestamps),
-            len(acc.custom_data.items()))
-
-        self.assertEqual(
-            set(CUSTOM_DATA) | set(exposed_timestamps),
-            set(acc.custom_data))
-
+        self.assertEqual(set(list(CUSTOM_DATA.keys()) + list(exposed_timestamps)), set(acc.custom_data.keys()))
+        self.assertEqual(len(CUSTOM_DATA.values()) + len(exposed_timestamps), len(acc.custom_data.values()))
+        self.assertEqual(len(CUSTOM_DATA.items()) + len(exposed_timestamps), len(acc.custom_data.items()))
+        self.assertEqual(set(CUSTOM_DATA) | set(exposed_timestamps), set(acc.custom_data))
         self.assertEqual(acc.custom_data['foo'], CUSTOM_DATA['foo'])
         self.assertEqual(acc.custom_data.get('foo'), CUSTOM_DATA['foo'])
-        self.assertEqual(
-            acc.custom_data.get('created_at'), acc.custom_data.created_at)
+        self.assertEqual(acc.custom_data.get('created_at'), acc.custom_data.created_at)
         self.assertIsInstance(acc.custom_data.created_at, datetime)
-        self.assertEqual(
-            acc.custom_data.get('modified_at'), acc.custom_data.modified_at)
+        self.assertEqual(acc.custom_data.get('modified_at'), acc.custom_data.modified_at)
         self.assertIsInstance(acc.custom_data.modified_at, datetime)
         self.assertEqual(acc.custom_data.get('nonexistent', 42), 42)
 
@@ -134,25 +113,18 @@ class TestAccountCustomData(AccountBase):
 
         data_field = acc.custom_data.data_field
         acc = self.app.accounts.query(email=acc.email)[0]
-        self.assertEqual(
-            id(acc.custom_data.hi),
-            id(acc.custom_data.__dict__[data_field]['hi']))
-        self.assertEqual(
-            id(acc.custom_data['hi']),
-            id(acc.custom_data.__dict__[data_field]['hi']))
+        self.assertEqual(id(acc.custom_data.hi), id(acc.custom_data.__dict__[data_field]['hi']))
+        self.assertEqual(id(acc.custom_data['hi']), id(acc.custom_data.__dict__[data_field]['hi']))
         self.assertEqual(acc.custom_data.hi, 'there')
 
     def test_custom_data_modification(self):
         _, acc = self.create_account(self.app.accounts)
 
-        self.assertEqual(
-            set(acc.custom_data),
-            set(acc.custom_data.exposed_readonly_timestamp_attrs))
+        self.assertEqual(set(acc.custom_data), set(acc.custom_data.exposed_readonly_timestamp_attrs))
 
         acc.custom_data['foo'] = 'F00!'
         acc.custom_data['bar_value'] = 1
         acc.custom_data['bazCamelCase'] = {'a': 1}
-
         acc.save()
 
         acc = self.app.accounts.get(acc.href)
@@ -163,16 +135,18 @@ class TestAccountCustomData(AccountBase):
 
         with self.assertRaises(KeyError):
             acc.custom_data['href'] = 'whatever'
+
         with self.assertRaises(KeyError):
             acc.custom_data['-foo'] = 'whatever'
+
         with self.assertRaises(KeyError):
             acc.custom_data['created_at'] = 'whatever'
+
         with self.assertRaises(KeyError):
             acc.custom_data['modified_at'] = 'whatever'
 
         acc.custom_data['foo'] = 'Not Foo anymore!'
         del acc.custom_data['bar_value']
-
         acc.custom_data.save()
 
         acc = self.app.accounts.get(acc.href)
@@ -182,26 +156,22 @@ class TestAccountCustomData(AccountBase):
 
         del acc.custom_data['foo']
         del acc.custom_data['bazCamelCase']
-
         acc.custom_data.save()
 
         acc = self.app.accounts.get(acc.href)
 
         with self.assertRaises(KeyError):
             del acc.custom_data['created_at']
+
         with self.assertRaises(KeyError):
             del acc.custom_data['modified_at']
 
-        self.assertEqual(
-            set(acc.custom_data),
-            set(acc.custom_data.exposed_readonly_timestamp_attrs))
+        self.assertEqual(set(acc.custom_data), set(acc.custom_data.exposed_readonly_timestamp_attrs))
 
     def test_custom_data_set_as_dict(self):
         name, acc = self.create_account(self.app.accounts)
 
-        self.assertEqual(
-            set(acc.custom_data),
-            set(acc.custom_data.exposed_readonly_timestamp_attrs))
+        self.assertEqual(set(acc.custom_data), set(acc.custom_data.exposed_readonly_timestamp_attrs))
 
         acc.custom_data = CUSTOM_DATA
         acc.save()
@@ -218,64 +188,38 @@ class TestApplicationAndDirectoryCustomData(CustomDataTest):
 
     def test_creation_with_custom_data(self):
         for e in self.custom_data_resources.values():
-            res = e.create({'name': self.get_random_name(),
-                'custom_data': CUSTOM_DATA})
-
+            res = e.create({'name': self.get_random_name(), 'custom_data': CUSTOM_DATA})
             res = e.get(res.href)
-            self.assertEqual(
-                CUSTOM_DATA,
-                remove_timestamp_attrs(res.custom_data))
-            self.assertTrue(
-                set(res.custom_data.exposed_readonly_timestamp_attrs).issubset(
-                    set(res.custom_data.keys())))
+
+            self.assertEqual(CUSTOM_DATA, remove_timestamp_attrs(res.custom_data))
+            self.assertTrue(set(res.custom_data.exposed_readonly_timestamp_attrs).issubset(set(res.custom_data.keys())))
 
     def test_custom_data_behaves_as_dict(self):
         for e in self.custom_data_resources.values():
-            res = e.create({'name': self.get_random_name(),
-                'custom_data': CUSTOM_DATA})
-            exposed_timestamps = \
-                res.custom_data.exposed_readonly_timestamp_attrs
+            res = e.create({'name': self.get_random_name(), 'custom_data': CUSTOM_DATA})
+            exposed_timestamps = res.custom_data.exposed_readonly_timestamp_attrs
 
-            self.assertEqual(
-                set(list(CUSTOM_DATA.keys()) + list(exposed_timestamps)),
-                set(res.custom_data.keys()))
-
-            self.assertEqual(
-                len(CUSTOM_DATA.values()) + len(exposed_timestamps),
-                len(res.custom_data.values()))
-
-            self.assertEqual(
-                len(CUSTOM_DATA.items()) + len(exposed_timestamps),
-                len(res.custom_data.items()))
-
-            self.assertEqual(
-                set(CUSTOM_DATA) | set(exposed_timestamps),
-                set(res.custom_data))
-
+            self.assertEqual(set(list(CUSTOM_DATA.keys()) + list(exposed_timestamps)), set(res.custom_data.keys()))
+            self.assertEqual(len(CUSTOM_DATA.values()) + len(exposed_timestamps), len(res.custom_data.values()))
+            self.assertEqual(len(CUSTOM_DATA.items()) + len(exposed_timestamps), len(res.custom_data.items()))
+            self.assertEqual(set(CUSTOM_DATA) | set(exposed_timestamps), set(res.custom_data))
             self.assertEqual(res.custom_data['foo'], CUSTOM_DATA['foo'])
             self.assertEqual(res.custom_data.get('foo'), CUSTOM_DATA['foo'])
             self.assertEqual(res.custom_data.get('nonexistent', 42), 42)
-            self.assertEqual(
-                res.custom_data.get('created_at'),
-                res.custom_data.created_at)
+            self.assertEqual(res.custom_data.get('created_at'), res.custom_data.created_at)
             self.assertIsInstance(res.custom_data.created_at, datetime)
-            self.assertEqual(
-                res.custom_data.get('modified_at'),
-                res.custom_data.modified_at)
+            self.assertEqual(res.custom_data.get('modified_at'), res.custom_data.modified_at)
             self.assertIsInstance(res.custom_data.modified_at, datetime)
 
     def test_custom_data_modification(self):
         for e in self.custom_data_resources.values():
             res = e.create({'name': self.get_random_name()})
 
-            self.assertEqual(
-                set(res.custom_data),
-                set(res.custom_data.exposed_readonly_timestamp_attrs))
+            self.assertEqual(set(res.custom_data), set(res.custom_data.exposed_readonly_timestamp_attrs))
 
             res.custom_data['foo'] = 'F00!'
             res.custom_data['bar_value'] = 1
             res.custom_data['bazCamelCase'] = {'a': 1}
-
             res.save()
 
             res = e.get(res.href)
@@ -286,16 +230,18 @@ class TestApplicationAndDirectoryCustomData(CustomDataTest):
 
             with self.assertRaises(KeyError):
                 res.custom_data['href'] = 'whatever'
+
             with self.assertRaises(KeyError):
                 res.custom_data['-foo'] = 'whatever'
+
             with self.assertRaises(KeyError):
                 res.custom_data['created_at'] = 'whatever'
+
             with self.assertRaises(KeyError):
                 res.custom_data['modified_at'] = 'whatever'
 
             res.custom_data['foo'] = 'Not Foo anymore!'
             del res.custom_data['bar_value']
-
             res.custom_data.save()
 
             res = e.get(res.href)
@@ -305,81 +251,52 @@ class TestApplicationAndDirectoryCustomData(CustomDataTest):
 
             del res.custom_data['foo']
             del res.custom_data['bazCamelCase']
-
             res.custom_data.save()
 
             res = e.get(res.href)
 
             with self.assertRaises(KeyError):
                 del res.custom_data['created_at']
+
             with self.assertRaises(KeyError):
                 del res.custom_data['modified_at']
 
-            self.assertEqual(
-                set(res.custom_data),
-                set(res.custom_data.exposed_readonly_timestamp_attrs))
+            self.assertEqual(set(res.custom_data), set(res.custom_data.exposed_readonly_timestamp_attrs))
 
 
 class TestGroupCustomData(SingleApplicationBase):
 
     def test_creation_with_custom_data(self):
-
-        res = self.app.groups.create({'name': self.get_random_name(),
-            'custom_data': CUSTOM_DATA})
-
+        res = self.app.groups.create({'name': self.get_random_name(), 'custom_data': CUSTOM_DATA})
         res = self.app.groups.get(res.href)
-        self.assertEqual(
-            CUSTOM_DATA,
-            remove_timestamp_attrs(res.custom_data))
-        self.assertTrue(
-            set(res.custom_data.exposed_readonly_timestamp_attrs).issubset(
-                set(res.custom_data.keys())))
+
+        self.assertEqual(CUSTOM_DATA, remove_timestamp_attrs(res.custom_data))
+        self.assertTrue(set(res.custom_data.exposed_readonly_timestamp_attrs).issubset(set(res.custom_data.keys())))
 
     def test_custom_data_behaves_as_dict(self):
-        res = self.app.groups.create({'name': self.get_random_name(),
-            'custom_data': CUSTOM_DATA})
-
+        res = self.app.groups.create({'name': self.get_random_name(), 'custom_data': CUSTOM_DATA})
         exposed_timestamps = res.custom_data.exposed_readonly_timestamp_attrs
 
-        self.assertEqual(
-            set(list(CUSTOM_DATA.keys()) + list(exposed_timestamps)),
-            set(res.custom_data.keys()))
-
-        self.assertEqual(
-            len(CUSTOM_DATA.values()) + len(exposed_timestamps),
-            len(res.custom_data.values()))
-
-        self.assertEqual(
-            len(CUSTOM_DATA.items()) + len(exposed_timestamps),
-            len(res.custom_data.items()))
-
-        self.assertEqual(
-            set(CUSTOM_DATA) | set(exposed_timestamps),
-            set(res.custom_data))
-
+        self.assertEqual(set(list(CUSTOM_DATA.keys()) + list(exposed_timestamps)), set(res.custom_data.keys()))
+        self.assertEqual(len(CUSTOM_DATA.values()) + len(exposed_timestamps), len(res.custom_data.values()))
+        self.assertEqual(len(CUSTOM_DATA.items()) + len(exposed_timestamps), len(res.custom_data.items()))
+        self.assertEqual(set(CUSTOM_DATA) | set(exposed_timestamps), set(res.custom_data))
         self.assertEqual(res.custom_data['foo'], CUSTOM_DATA['foo'])
         self.assertEqual(res.custom_data.get('foo'), CUSTOM_DATA['foo'])
         self.assertEqual(res.custom_data.get('nonexistent', 42), 42)
-        self.assertEqual(
-            res.custom_data.get('created_at'),
-            res.custom_data.created_at)
+        self.assertEqual(res.custom_data.get('created_at'), res.custom_data.created_at)
         self.assertIsInstance(res.custom_data.created_at, datetime)
-        self.assertEqual(
-            res.custom_data.get('modified_at'),
-            res.custom_data.modified_at)
+        self.assertEqual(res.custom_data.get('modified_at'), res.custom_data.modified_at)
         self.assertIsInstance(res.custom_data.modified_at, datetime)
 
     def test_custom_data_modification(self):
         res = self.app.groups.create({'name': self.get_random_name()})
 
-        self.assertEqual(
-            set(res.custom_data),
-            set(res.custom_data.exposed_readonly_timestamp_attrs))
+        self.assertEqual(set(res.custom_data), set(res.custom_data.exposed_readonly_timestamp_attrs))
 
         res.custom_data['foo'] = 'F00!'
         res.custom_data['bar_value'] = 1
         res.custom_data['bazCamelCase'] = {'a': 1}
-
         res.save()
 
         res = self.app.groups.get(res.href)
@@ -390,16 +307,18 @@ class TestGroupCustomData(SingleApplicationBase):
 
         with self.assertRaises(KeyError):
             res.custom_data['href'] = 'whatever'
+
         with self.assertRaises(KeyError):
             res.custom_data['-foo'] = 'whatever'
+
         with self.assertRaises(KeyError):
             res.custom_data['created_at'] = 'whatever'
+
         with self.assertRaises(KeyError):
             res.custom_data['modified_at'] = 'whatever'
 
         res.custom_data['foo'] = 'Not Foo anymore!'
         del res.custom_data['bar_value']
-
         res.custom_data.save()
 
         res = self.app.groups.get(res.href)
@@ -409,19 +328,17 @@ class TestGroupCustomData(SingleApplicationBase):
 
         del res.custom_data['foo']
         del res.custom_data['bazCamelCase']
-
         res.custom_data.save()
 
         res = self.app.groups.get(res.href)
 
         with self.assertRaises(KeyError):
             del res.custom_data['created_at']
+
         with self.assertRaises(KeyError):
             del res.custom_data['modified_at']
 
-        self.assertEqual(
-            set(res.custom_data),
-            set(res.custom_data.exposed_readonly_timestamp_attrs))
+        self.assertEqual(set(res.custom_data), set(res.custom_data.exposed_readonly_timestamp_attrs))
 
 
 class TestTenantCustomData(SingleApplicationBase):
@@ -429,28 +346,21 @@ class TestTenantCustomData(SingleApplicationBase):
     def setUp(self):
         super(TestTenantCustomData, self).setUp()
         self.client.tenant.custom_data.delete()
-        self.exposed_timestamps = \
-            self.client.tenant.custom_data.exposed_readonly_timestamp_attrs
+        self.exposed_timestamps = self.client.tenant.custom_data.exposed_readonly_timestamp_attrs
 
     def tearDown(self):
         super(TestTenantCustomData, self).tearDown()
         self.client.tenant.custom_data.delete()
 
     def test_tenant_has_custom_data_with_exposed_timestamp_attrs(self):
-        self.assertEqual(
-            set(self.client.tenant.custom_data),
-            set(self.exposed_timestamps))
+        self.assertEqual(set(self.client.tenant.custom_data), set(self.exposed_timestamps))
 
     def test_tenant_with_custom_data(self):
         self.client.tenant.custom_data['testCamelCase'] = 'TEST'
         self.client.tenant.save()
-        self.assertEqual(
-            {'testCamelCase': 'TEST'},
-            remove_timestamp_attrs(self.client.tenant.custom_data))
-        self.assertTrue(
-            set(self.client.tenant.custom_data.
-                exposed_readonly_timestamp_attrs).issubset(
-                set(self.client.tenant.custom_data.keys())))
+
+        self.assertEqual({'testCamelCase': 'TEST'}, remove_timestamp_attrs(self.client.tenant.custom_data))
+        self.assertTrue(set(self.client.tenant.custom_data.exposed_readonly_timestamp_attrs).issubset(set(self.client.tenant.custom_data.keys())))
 
     def test_custom_data_behaves_as_dict(self):
         res = self.client.tenant
@@ -459,22 +369,10 @@ class TestTenantCustomData(SingleApplicationBase):
         for key in CUSTOM_DATA.keys():
             res.custom_data[key] = CUSTOM_DATA[key]
 
-        self.assertEqual(
-            set(list(CUSTOM_DATA.keys()) + list(exposed_timestamps)),
-            set(res.custom_data.keys()))
-
-        self.assertEqual(
-            len(CUSTOM_DATA.values()) + len(exposed_timestamps),
-            len(res.custom_data.values()))
-
-        self.assertEqual(
-            len(CUSTOM_DATA.items()) + len(exposed_timestamps),
-            len(res.custom_data.items()))
-
-        self.assertEqual(
-            set(CUSTOM_DATA) | set(self.exposed_timestamps),
-            set(res.custom_data))
-
+        self.assertEqual(set(list(CUSTOM_DATA.keys()) + list(exposed_timestamps)), set(res.custom_data.keys()))
+        self.assertEqual(len(CUSTOM_DATA.values()) + len(exposed_timestamps), len(res.custom_data.values()))
+        self.assertEqual(len(CUSTOM_DATA.items()) + len(exposed_timestamps), len(res.custom_data.items()))
+        self.assertEqual(set(CUSTOM_DATA) | set(self.exposed_timestamps), set(res.custom_data))
         self.assertEqual(res.custom_data['foo'], CUSTOM_DATA['foo'])
         self.assertEqual(res.custom_data.get('foo'), CUSTOM_DATA['foo'])
         self.assertEqual(res.custom_data.get('nonexistent', 42), 42)
@@ -489,7 +387,6 @@ class TestTenantCustomData(SingleApplicationBase):
         res.custom_data['foo'] = 'F00!'
         res.custom_data['bar_value'] = 1
         res.custom_data['bazCamelCase'] = {'a': 1}
-
         res.save()
 
         self.assertEqual(res.custom_data['foo'], 'F00!')
@@ -498,16 +395,18 @@ class TestTenantCustomData(SingleApplicationBase):
 
         with self.assertRaises(KeyError):
             res.custom_data['href'] = 'whatever'
+
         with self.assertRaises(KeyError):
             res.custom_data['-foo'] = 'whatever'
+
         with self.assertRaises(KeyError):
             res.custom_data['created_at'] = 'whatever'
+
         with self.assertRaises(KeyError):
             res.custom_data['modified_at'] = 'whatever'
 
         res.custom_data['foo'] = 'Not Foo anymore!'
         del res.custom_data['bar_value']
-
         res.custom_data.save()
 
         self.assertEqual(res.custom_data['foo'], 'Not Foo anymore!')
@@ -518,11 +417,11 @@ class TestTenantCustomData(SingleApplicationBase):
         del res.custom_data['list_of_foo']
         del res.custom_data['fooCamelCase']
         del res.custom_data['bazCamelCase']
-
         res.custom_data.save()
 
         with self.assertRaises(KeyError):
             del res.custom_data['created_at']
+
         with self.assertRaises(KeyError):
             del res.custom_data['modified_at']
 
@@ -543,10 +442,8 @@ class TestTenantCustomData(SingleApplicationBase):
 
 class TestCustomDataMock(TestCase):
     def setUp(self):
-        self.created_at = datetime(
-            2014, 7, 16, 13, 48, 22, 378000, tzinfo=tzutc())
-        self.modified_at = datetime(
-            2014, 7, 16, 13, 48, 22, 378000, tzinfo=tzoffset(None, -1*60*60))
+        self.created_at = datetime(2014, 7, 16, 13, 48, 22, 378000, tzinfo=tzutc())
+        self.modified_at = datetime(2014, 7, 16, 13, 48, 22, 378000, tzinfo=tzoffset(None, -1 * 60 * 60))
         self.props = {
             'href': 'test/resource',
             'sp_http_status': 200,
@@ -603,8 +500,7 @@ class TestCustomDataMock(TestCase):
 
         keys = set(sorted(d.keys(), key=str))
         self.assertEqual(keys, set(d))
-        self.assertEqual(
-            keys, {'created_at', 'modified_at', 'bar', 'baz', 'foo', 'quux'})
+        self.assertEqual(keys, {'created_at', 'modified_at', 'bar', 'baz', 'foo', 'quux'})
         values = sorted(list(d.values()), key=str)
 
         keys_from_items = {k for k, v in d.items()}
@@ -700,7 +596,9 @@ class TestCustomDataMock(TestCase):
         del d['bar']
 
         self.assertFalse(ds.delete_resource.called)
+
         d.save()
+
         ds.delete_resource.assert_any_call('test/resource/foo')
         ds.delete_resource.assert_any_call('test/resource/bar')
         self.assertEqual(ds.delete_resource.call_count, 2)
@@ -715,6 +613,7 @@ class TestCustomDataMock(TestCase):
         del d['foo']
         is_new.return_value = False
         d.save()
+
         self.assertFalse(ds.delete_resource.called)
 
     def test_save_empties_delete_list(self):
@@ -726,6 +625,7 @@ class TestCustomDataMock(TestCase):
         d.save()
         ds.delete_resource.reset_mock()
         d.save()
+
         self.assertFalse(ds.delete_resource.called)
 
     def test_setitem_removes_from_delete_list(self):
@@ -735,6 +635,7 @@ class TestCustomDataMock(TestCase):
         d = CustomData(client, properties=self.props)
         del d['foo']
         d['foo'] = 'i-wasnt-even-gone'
+
         self.assertFalse(ds.delete_resource.called)
 
     def test_del_then_read_doesnt_set_deleted(self):
@@ -750,8 +651,10 @@ class TestCustomDataMock(TestCase):
 
         d = CustomData(client, properties=props)
         del d['foo']
+
         with self.assertRaises(KeyError):
             d['foo']
+
         d.save()
         ds.delete_resource.assert_called_once_with('test/resource/foo')
 
@@ -759,18 +662,20 @@ class TestCustomDataMock(TestCase):
         ds = MagicMock()
         ds.get_resource.return_value = self.props
         client = MagicMock(data_store=ds)
-
         d = CustomData(client, properties=self.props)
+
         with self.assertRaises(KeyError):
             del d['corge']
+
         d.save()
+
         self.assertFalse(ds.delete_resource.called)
 
     def test_dash_not_allowed_at_beggining_of_key(self):
         ds = MagicMock()
         client = MagicMock(data_store=ds)
-
         d = CustomData(client, properties=self.props)
+
         with self.assertRaises(KeyError):
             d['-'] = 'dashing'
 
@@ -791,12 +696,12 @@ class TestCustomDataMock(TestCase):
         }
         ds = MagicMock()
         client = MagicMock(data_store=ds)
-        d = CustomData(client, properties=props)
 
+        d = CustomData(client, properties=props)
         d['another_underscores'] = 3
         d['anotherCamelCase'] = 4
-
         d.save()
+
         ds.update_resource.assert_called_once_with('test/resource', {
             'foo_with_underscores': 1,
             'camelCaseBar': 2,
@@ -827,10 +732,9 @@ class TestCustomDataMock(TestCase):
             resource_class = Res
 
         rl = ResList(
-            client=MagicMock(data_store=ds, BASE_URL='http://www.example.com'),
-            properties={'href': '/'}
+            client = MagicMock(data_store=ds, BASE_URL='http://www.example.com'),
+            properties={'href': '/'},
         )
-
         cd = {
             'foo_value': 42,
             'bar_dict': {
@@ -840,19 +744,14 @@ class TestCustomDataMock(TestCase):
         }
 
         rl.create({'sub_resource': cd})
-
-        ds.create_resource.assert_called_once_with(
-            'http://www.example.com/', {
-                'subResource': cd
-            }, params={})
+        ds.create_resource.assert_called_once_with('http://www.example.com/', {'subResource': cd}, params={})
 
     def test_cusom_data_elem_in_dict_check(self):
-        ds = MagicMock()
-        ds.get_resource.return_value = {
-            'href': 'test/customData',
-            'test': 1
-        }
         from stormpath.resources.account import Account
+
+        ds = MagicMock()
+        ds.get_resource.return_value = {'href': 'test/customData', 'test': 1}
+
         client = MagicMock(data_store=ds)
         client.accounts.get.return_value = Account(client, properties={
             'href': 'test/account',
