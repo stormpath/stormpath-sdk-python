@@ -1,3 +1,6 @@
+"""Live tests of CustomData functionality."""
+
+
 from datetime import datetime
 
 from .base import SingleApplicationBase, AccountBase
@@ -26,13 +29,8 @@ def remove_timestamp_attrs(custom_data):
     return {k: custom_data[k] for k in remaining_keys}
 
 
-class CustomDataTest(SingleApplicationBase):
-    def setUp(self):
-        super(CustomDataTest, self).setUp()
-        self.custom_data_resources = {
-                'applications': self.client.applications,
-                'directories': self.client.directories
-        }
+class TestCustomData(SingleApplicationBase):
+    """Assert CustomData behaves as expected."""
 
     def test_key_delete(self):
         self.app.custom_data['hi'] = 'there'
@@ -54,6 +52,15 @@ class CustomDataTest(SingleApplicationBase):
 
         with self.assertRaises(KeyError):
             self.app.custom_data['hi']
+
+
+class CustomDataTest(SingleApplicationBase):
+    def setUp(self):
+        super(CustomDataTest, self).setUp()
+        self.custom_data_resources = {
+            'applications': self.client.applications,
+            'directories': self.client.directories,
+        }
 
 
 class TestAccountCustomData(AccountBase):
