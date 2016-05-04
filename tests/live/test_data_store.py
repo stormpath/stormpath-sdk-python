@@ -1,147 +1,53 @@
+"""Live tests of DataStore functionality."""
+
+
 from unittest import TestCase, main
 try:
-    from mock import patch, call, MagicMock
+    from mock import MagicMock
 except ImportError:
-    from unittest.mock import patch, call, MagicMock
+    from unittest.mock import MagicMock
 
 from stormpath.cache.null_cache_store import NullCacheStore
 from stormpath.data_store import DataStore
+from stormpath.http import HttpExecutor
+
+from .base import SingleApplicationBase
 
 
-@patch('stormpath.data_store.CacheManager')
-class TestDataStore(TestCase):
+class TestLiveDataStore(SingleApplicationBase):
+    """Assert the DataStore works as expected."""
 
-    def test_cache_creation_with_global_store(self, CacheManager):
-        store = MagicMock()
-        ds = DataStore(MagicMock(), {'store': store})
+    def setUp(self):
+        super(TestLiveDataStore, self).setUp()
+        self.executor = HttpExecutor(
+            base_url = 'https://api.stormpath.com/v1',
+            auth = (self.api_key_id, self.api_key_secret),
+        )
 
-        expected = [call(region, store=store) for region in ds.CACHE_REGIONS]
+    def test_get_resource(self):
+        data_store = DataStore(executor=self.executor)
+        self.assertIsInstance(data_store.get_resource(self.app.href), dict)
 
-        self.assertEqual(CacheManager.return_value.create_cache.call_args_list,
-            expected)
+        acc = self.app.accounts.create({
+            'given_name': 'Randall',
+            'surname': 'Degges',
+            'email': '{}@example.com'.format(self.get_random_name()),
+            'password': 'wootILOVEc00kies!!<33',
+        })
+        key = acc.api_keys.create()
+        self.assertIsInstance(key.id, unicode)
 
-    def test_cache_creation_with_global_and_region_opts(self, CacheManager):
-        store_1 = MagicMock()
-        store_2 = MagicMock()
-        DataStore(
-            MagicMock(),
-            {
-                'store': store_1,
-                'ttl': 300,
-                'regions': {
-                    'accounts': {'store': store_2},
-                    'applications': {'ttl': 301}
-                }
-            })
+        data_store = DataStore(executor=self.executor)
+        data = data_store.get_resource(self.app.href + '/apiKeys', {'id': key.id})
+        self.assertIsInstance(data, dict)
+        self.assertEqual(data['items'][0]['id'], key.id)
 
-        self.assertTrue(
-            call('accounts', store=store_2, ttl=300) in
-            CacheManager.return_value.create_cache.call_args_list)
-        self.assertTrue(
-            call('applications', store=store_1, ttl=301) in
-            CacheManager.return_value.create_cache.call_args_list)
-        self.assertTrue(
-            call('customData', store=store_1, ttl=300) in
-            CacheManager.return_value.create_cache.call_args_list)
+        data_store = DataStore(executor=self.executor)
+        data = data_store.get_resource(self.app.tenant.href + '/applications')
+        self.assertIsInstance(data, dict)
 
-    def test_get_cache_no_cache(self, CacheManager):
-        ds = DataStore(MagicMock())
-
-        c = ds._get_cache('invalid')
-
-        # make sure the methods exist and do nothing
-        self.assertEqual(c.get(), None)
-        c.put()
-        c.delete()
-
-    def test_get_cache_parse_instance_href(self, CacheManager):
-        ds = DataStore(MagicMock())
-
-        get_cache = CacheManager.return_value.get_cache
-
-        c = ds._get_cache('https://www.example.com/accounts/ACCOUNTID')
-        self.assertTrue(c, get_cache.return_value)
-        get_cache.assert_called_once_with('accounts')
-
-    def test_get_cache_parse_custom_data_href(self, CacheManager):
-        ds = DataStore(MagicMock())
-
-        get_cache = CacheManager.return_value.get_cache
-
-        c = ds._get_cache(
-            'https://www.example.com/accounts/ACCOUNTID/customData')
-        self.assertTrue(c, get_cache.return_value)
-        get_cache.assert_called_once_with('customData')
-
-    def test_uncache_custom_data_key_uncaches_custom_data(self, CacheManager):
-        ds = DataStore(MagicMock())
-
-        get_cache = CacheManager.return_value.get_cache
-
-        ds.uncache_resource(
-            'https://www.example.com/accounts/ACCOUNTID/customData/KEY')
-        get_cache.assert_called_once_with('customData')
-
-    def test_recursive_cache_put(self, CacheManager):
-        ds = DataStore(MagicMock())
-
-        data = {
-            'href': 'http://example.com/accounts/FOO',
-            'name': 'Foo',
-            'groups': {
-                'href': 'http://example.com/accounts/FOO/groups',
-                'items': [
-                    {
-                        'href': 'http://example.com/groups/G1',
-                        'name': 'Foo Group 1',
-                    },
-                    {
-                        'href': 'http://example.com/groups/G2',
-                        'name': 'Foo Group 2',
-                    }
-                ]
-            },
-            'directory': {
-                'href': 'http://example.com/directories/BAR',
-                'name': 'Directory',
-            }
-        }
-
-        ds._cache_put('http://example.com/accounts/FOO', data=data)
-
-        put = CacheManager.return_value.get_cache.return_value.put
-
-        expected = sorted([
-            call('http://example.com/groups/G1', {
-                'href': 'http://example.com/groups/G1',
-                'name': 'Foo Group 1'
-            }, new=True),
-            call('http://example.com/groups/G2', {
-                'href': 'http://example.com/groups/G2',
-                'name': 'Foo Group 2'
-            }, new=True),
-            call('http://example.com/directories/BAR', {
-                'href': 'http://example.com/directories/BAR',
-                'name': 'Directory'
-            }, new=True),
-            call('http://example.com/accounts/FOO', {
-                'href': 'http://example.com/accounts/FOO',
-                'name': 'Foo',
-                'groups': {
-                    'href': 'http://example.com/accounts/FOO/groups',
-                    'items': [
-                        {'href': 'http://example.com/groups/G1'},
-                        {'href': 'http://example.com/groups/G2'},
-                    ]
-                },
-                'directory': {
-                    'href': 'http://example.com/directories/BAR'
-                }
-            }, new=True)
-        ], key=lambda c: c[1][0])
-
-        actual = sorted(put.call_args_list, key=lambda c: c[0][0])
-        self.assertEqual(actual, expected)
+        hrefs = [data['items'][i]['href'] for i in range(len(data['items']))]
+        self.assertTrue(self.app.href in hrefs)
 
 
 class TestDataStoreWithMemoryCache(TestCase):
