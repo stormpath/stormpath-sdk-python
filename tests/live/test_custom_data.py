@@ -34,6 +34,27 @@ class CustomDataTest(SingleApplicationBase):
                 'directories': self.client.directories
         }
 
+    def test_key_delete(self):
+        self.app.custom_data['hi'] = 'there'
+        self.app.custom_data['yo'] = 'momma'
+        self.app.custom_data.save()
+
+        app = self.client.applications.search({'name': self.app.name})[0]
+
+        self.assertEqual(app.custom_data['hi'], 'there')
+        self.assertEqual(app.custom_data['yo'], 'momma')
+
+        del self.app.custom_data['hi']
+        self.app.custom_data.save()
+
+        app = self.client.applications.search({'name': self.app.name})[0]
+
+        with self.assertRaises(KeyError):
+            app.custom_data['hi']
+
+        with self.assertRaises(KeyError):
+            self.app.custom_data['hi']
+
 
 class TestAccountCustomData(AccountBase):
 
