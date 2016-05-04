@@ -25,6 +25,7 @@ SIGNAL_RESOURCE_DELETED = 'resource-deleted'
 class ResourceEncoder(JSONEncoder):
     def default(self, o):
         data = {}
+
         if isinstance(o, Resource):
             resource_attrs = o._get_property_names()
             expand_attrs = o._expand.items.keys() if o._expand else []
@@ -42,6 +43,7 @@ class ResourceEncoder(JSONEncoder):
                     data[attr] = value.isoformat()
                 else:
                     data[attr] = value
+
         return data
 
 
