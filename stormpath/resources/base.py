@@ -96,8 +96,7 @@ class Resource(object):
     resolvable_attrs = ()
     timedelta_attrs = ()
 
-    def __init__(self, client, href=None, properties=None, query=None,
-            expand=None):
+    def __init__(self, client, href=None, properties=None, query=None, expand=None):
         self._client = client
         self._expand = expand
         self._query = query
@@ -116,14 +115,12 @@ class Resource(object):
     def __setattr__(self, name, value):
         ctype = self.get_resource_attributes().get(name)
 
-        if ctype and not isinstance(value, ctype) \
-                and name in self.writable_attrs:
+        if ctype and not isinstance(value, ctype) and name in self.writable_attrs:
             getattr(self, name)._set_properties(value)
         elif name.startswith('_') or name in self.writable_attrs:
             super(Resource, self).__setattr__(name, value)
         else:
-            raise AttributeError("Attribute '%s' of %s is not writable" %
-                (name, self.__class__.__name__))
+            raise AttributeError("Attribute '%s' of %s is not writable" % (name, self.__class__.__name__))
 
     def __getattr__(self, name):
         if name == 'href':
@@ -134,8 +131,7 @@ class Resource(object):
         if name in self.__dict__:
             return self.__dict__[name]
         else:
-            raise AttributeError("%s has no attribute '%s'" %
-                (self.__class__.__name__, name))
+            raise AttributeError("%s has no attribute '%s'" % (self.__class__.__name__, name))
 
     @staticmethod
     def get_resource_attributes():
@@ -144,14 +140,12 @@ class Resource(object):
     def _wrap_resource_attr(self, cls, value):
         if isinstance(value, Resource):
             return value
-        elif isinstance(value, dict) or (
-                isinstance(value, list) and cls == ListOnResource):
+        elif isinstance(value, dict) or (isinstance(value, list) and cls == ListOnResource):
             return cls(self._client, properties=value)
         elif value is None:
             return None
         else:
-            raise TypeError("Can't convert '%s' to '%s'" %
-                (type(value), cls.__name__))
+            raise TypeError("Can't convert '%s' to '%s'" % (type(value), cls.__name__))
 
     @staticmethod
     def _sanitize_property(value):
@@ -170,6 +164,7 @@ class Resource(object):
 
     def _set_properties(self, properties, overwrite=False):
         resource_attrs = self.get_resource_attributes()
+
         for name, value in properties.items():
             name = self.from_camel_case(name)
 
@@ -179,8 +174,7 @@ class Resource(object):
                     continue
 
             if name in resource_attrs:
-                value = self._wrap_resource_attr(resource_attrs[name],
-                    value)
+                value = self._wrap_resource_attr(resource_attrs[name], value)
                 if hasattr(resource_attrs[name], '_set_parent_and_name'):
                     value._set_parent_and_name(self, name)
             elif isinstance(value, dict) and 'href' in value:
@@ -222,11 +216,12 @@ class Resource(object):
 
     def _get_properties(self):
         data = {}
+
         for k, v in self.__dict__.items():
             if k in self.writable_attrs:
-                if k in self.timedelta_attrs and \
-                        isinstance(v, datetime.timedelta):
+                if k in self.timedelta_attrs and isinstance(v, datetime.timedelta):
                     v = duration_isoformat(v)
+
                 data[self.to_camel_case(k)] = self._sanitize_property(v)
 
         return data
@@ -290,7 +285,6 @@ class Resource(object):
         .. note::
             This will ignore all changes made on a resource if it has not been saved previously.
         """
-
         self._store.uncache_resource(self.href)
         self._ensure_data(True)
 
@@ -299,7 +293,6 @@ class Resource(object):
 
 
 class SaveMixin(object):
-
     def save(self):
         if self.is_new():
             raise ValueError("Can't save new resources, use create instead")
@@ -307,18 +300,16 @@ class SaveMixin(object):
         properties = self._get_properties()
         data = self._store.update_resource(self.href, properties)
 
-        dispatcher.send(
-            signal=SIGNAL_RESOURCE_UPDATED, sender=self, href=self.href,
-            properties=properties)
+        dispatcher.send(signal=SIGNAL_RESOURCE_UPDATED, sender=self, href=self.href, properties=properties)
 
         if hasattr(self, 'modified_at') and 'modifiedAt' in data:
             self.__dict__['modified_at'] = parse(data.get('modifiedAt'))
 
 
 class AutoSaveMixin(SaveMixin):
-
     def save(self):
         super(AutoSaveMixin, self).save()
+
         for res in self.autosaves:
             if res in self.__dict__:
                 self.__dict__[res].save()
@@ -331,9 +322,7 @@ class DeleteMixin(object):
             return
 
         self._store.delete_resource(self.href)
-
-        dispatcher.send(
-            signal=SIGNAL_RESOURCE_DELETED, sender=self, href=self.href)
+        dispatcher.send(signal=SIGNAL_RESOURCE_DELETED, sender=self, href=self.href)
 
 
 class StatusMixin(object):
@@ -380,6 +369,7 @@ class DictMixin(object):
     def update(self, dct):
         for k, v in dct.items():
             setattr(self, k, v)
+
         if isinstance(self, SaveMixin):
             self.save()
 
@@ -402,12 +392,11 @@ class CollectionResource(Resource):
     def _set_properties(self, properties, overwrite=False):
         props = properties.copy()
         items = props.pop('items', None)
-        super(CollectionResource, self)._set_properties(
-            props, overwrite=overwrite)
+
+        super(CollectionResource, self)._set_properties(props, overwrite=overwrite)
 
         if items is not None:
-            self.__dict__['items'] = [self._wrap_resource_attr(
-                self.resource_class, item) for item in items]
+            self.__dict__['items'] = [self._wrap_resource_attr(self.resource_class, item) for item in items]
 
     def _get_next_page(self, offset, limit):
         params = deepcopy(self._query) or {}
@@ -426,9 +415,7 @@ class CollectionResource(Resource):
         params['limit'] = limit
 
         data = self._store.get_resource(self.href, params=params)
-
-        items = [self._wrap_resource_attr(self.resource_class,
-            item) for item in data.get('items', [])]
+        items = [self._wrap_resource_attr(self.resource_class, item) for item in data.get('items', [])]
         self.__dict__['items'].extend(items)
         self.__dict__['limit'] += len(items)
 
@@ -436,8 +423,8 @@ class CollectionResource(Resource):
 
     def __iter__(self):
         self._ensure_data()
-        items = self.__dict__['items']
 
+        items = self.__dict__['items']
         offset = self.__dict__['offset']
         limit = self.__dict__['limit']
 
@@ -471,20 +458,21 @@ class CollectionResource(Resource):
             # We need to make sure we either report the total size of the collection
             # or the sliced size if we used. for example, coll[2:8]
             r.__dict__['_sliced_size'] = min(query.get('limit', r.size), max(0, r.size - query['offset']))
+
             return r
 
         elif isinstance(idx, string_type):
             return self.get(idx)
 
         self._ensure_data()
+
         return self.__dict__['items'][idx]
 
     def get(self, href, expand=None):
         if '/' not in href:
             href = self._get_create_path() + '/' + href
 
-        return self.resource_class(self._client, href=href,
-            expand=expand)
+        return self.resource_class(self._client, href=href, expand=expand)
 
     def search(self, query):
         if isinstance(query, dict):
@@ -530,18 +518,8 @@ class CollectionResource(Resource):
     def create(self, properties, expand=None, **params):
         data, params = self._prepare_for_create(properties, expand, **params)
 
-        created = self.resource_class(
-            self._client,
-            properties=self._store.create_resource(
-                self._get_create_path(),
-                data,
-                params=params
-            )
-        )
-
-        dispatcher.send(
-            signal=SIGNAL_RESOURCE_CREATED, sender=self.resource_class,
-            data=data, params=params)
+        created = self.resource_class(self._client, properties=self._store.create_resource(self._get_create_path(), data, params=params))
+        dispatcher.send(signal=SIGNAL_RESOURCE_CREATED, sender=self.resource_class, data=data, params=params)
 
         return created
 
@@ -563,15 +541,13 @@ class FixedAttrsDict(DictMixin):
         if name.startswith('_') or name in self.writable_attrs:
             super(FixedAttrsDict, self).__setattr__(name, value)
         else:
-            raise AttributeError("Attribute '%s' of %s is not writable" %
-                (name, self.__class__.__name__))
+            raise AttributeError("Attribute '%s' of %s is not writable" % (name, self.__class__.__name__))
 
     def __getattr__(self, name):
         if name in self.__dict__:
             return self.__dict__[name]
         else:
-            raise AttributeError("%s has no attribute '%s'" %
-                (self.__class__.__name__, name))
+            raise AttributeError("%s has no attribute '%s'" % (self.__class__.__name__, name))
 
     def __dir__(self):
         return self.__dict__.keys()
@@ -587,8 +563,7 @@ class FixedAttrsDict(DictMixin):
         elif value is None:
             return None
         else:
-            raise TypeError("Can't convert '%s' to '%s'" %
-                (type(value), cls.__name__))
+            raise TypeError("Can't convert '%s' to '%s'" % (type(value), cls.__name__))
 
     def _set_properties(self, properties, overwrite=False):
         resource_attrs = self.get_dict_attributes()
@@ -596,8 +571,7 @@ class FixedAttrsDict(DictMixin):
             name = Resource.from_camel_case(name)
 
             if name in resource_attrs:
-                value = self._wrap_resource_attr(resource_attrs[name],
-                    value)
+                value = self._wrap_resource_attr(resource_attrs[name], value)
 
             self.__dict__[name] = value
 
@@ -612,8 +586,7 @@ class FixedAttrsDict(DictMixin):
     @staticmethod
     def _sanitize_property(value):
         if isinstance(value, dict):
-            return {Resource.to_camel_case(k): Resource._sanitize_property(v)
-                for k, v in value.items()}
+            return {Resource.to_camel_case(k): Resource._sanitize_property(v) for k, v in value.items()}
         elif isinstance(value, FixedAttrsDict):
             return value._get_properties()
         else:
@@ -645,13 +618,10 @@ class ListOnResource(list):
 
     def _get_properties(self):
         if self.type:
-            return [
-                {
-                    Resource.to_camel_case(k): self.type._sanitize_property(v)
-                    for k, v in el.items() if k in self.type.writable_attrs
-                } for el in self
-            ]
-
+            return [{
+                Resource.to_camel_case(k): self.type._sanitize_property(v)
+                for k, v in el.items() if k in self.type.writable_attrs
+            } for el in self]
         else:
             return self
 
@@ -681,8 +651,9 @@ class ListOnResource(list):
         setattr(self.parent_resource, self.list_name, self)
 
     def pop(self, index=None):
-        if index == None:
+        if index is None:
             index = -1
+
         value = self[index]
 
         self.parent_resource.refresh()
@@ -692,6 +663,7 @@ class ListOnResource(list):
             super(ListOnResource, self).remove(value)
 
         setattr(self.parent_resource, self.list_name, self)
+
         return value
 
     def remove(self, value):
@@ -714,6 +686,7 @@ class ListOnResource(list):
 
         self.parent_resource.refresh()
         self._set_properties(getattr(self.parent_resource, self.list_name))
+
         if value in self:
             super(ListOnResource, self).remove(value)
 
