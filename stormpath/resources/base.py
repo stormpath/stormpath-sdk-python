@@ -288,8 +288,8 @@ class Resource(object):
         self._store.uncache_resource(self.href)
         self._ensure_data(True)
 
-    def to_json(self):
-        return dumps(self, cls=ResourceEncoder)
+    #def to_json(self):
+    #    return dumps(self, cls=ResourceEncoder)
 
 
 class SaveMixin(object):
