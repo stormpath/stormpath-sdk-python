@@ -159,15 +159,40 @@ class DataStore(object):
         self._get_cache(href).delete(href)
 
     def get_resource(self, href, params=None):
+        """
+        This method will retrieve a resource from either the cache, or the
+        Stormpath API service.
+
+        If the resource needs to be retrieved from the Stormpath API service, it
+        will also be inserted into the cache.
+
+        :param str href: The href of the resource to retrieve.
+        :param params: Any additional params to use when fetching the resource.
+        :type params: dict or None, optional
+        :returns: The retrieved resource.
+        :rtype: dict
+
+        Examples::
+
+            account = data_store.get_resource('https://api.stormpath.com/v1/accounts/xxx')
+            api_key = data_store.get_resource('https://api.stormpath.com/v1/applications/xxx/apiKeys', params={'id': 'yyy'})
+        """
+
+        # TODO:
+        #   - encrypt cached api keys
+        #   - decrypt cached api keys when retrieving
+        #   - check to see if object is cacheable at all (is it a collection?
+        #   no)
+        #   - recursively cache resources via expansions
+        #   - remove expanded resources and 'clean' objects before caching
         data = self._cache_get(href)
         if data is None:
             data = self.executor.get(href, params=params)
 
-            # If trying to find API key by its ID, put the key in the
-            # cache using its href.
-            if href.split('/')[-1] == 'apiKeys' and params and 'id' in params:
+            if data.get('items') and len(data['items']) > 0:
                 for item in data.get('items'):
                     self._cache_put(item['href'], item)
+
             self._cache_put(href, data)
 
         return data
