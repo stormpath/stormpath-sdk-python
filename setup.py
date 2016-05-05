@@ -79,7 +79,7 @@ setup(
     keywords = ['stormpath', 'authentication', 'users', 'security'],
     install_requires = [
         'PyJWT>=1.0.0',
-        'oauthlib>=0.6.3',
+        'oauthlib<=1.0.3',
         'requests>=2.4.3',
         'six>=1.6.1',
         'python-dateutil>=2.4.0',
