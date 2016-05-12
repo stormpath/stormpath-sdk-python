@@ -114,7 +114,7 @@ class ApiRequestAuthenticatorTest(TestCase):
         api_keys = MagicMock()
         api_keys.get_key = lambda k, s=None: None
         app.api_keys = api_keys
-        basic_auth = base64.b64encode("invalid_client_id:invalid_client_secret".encode('utf-8'))
+        basic_auth = base64.b64encode('invalid_client_id:invalid_client_secret'.encode('utf-8'))
         uri = 'https://example.com/get'
         http_method = 'GET'
         # body = {}
