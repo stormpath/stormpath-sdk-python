@@ -7,7 +7,7 @@ import datetime
 from copy import deepcopy
 from dateutil.parser import parse
 from isodate import duration_isoformat, parse_duration
-from json import JSONEncoder, dumps
+from json import JSONEncoder
 
 try:
     string_type = basestring
