@@ -158,7 +158,8 @@ class HttpExecutor(object):
             if self.should_retry(retry_count, e):
                 self.pause_exponentially(retry_count)
                 self.request(method, url, data=data, params=params, headers=headers, retry_count=retry_count + 1)
-            raise Error({'developerMessage': str(e)})
+            else:
+                raise Error({'developerMessage': str(e)})
 
         log.debug('HttpExecutor.request(method=%s, url=%s, params=%s, data=%s, headers=%s) -> [%d] %s' %
             (method, url, repr(params), repr(data), repr(headers), r.status_code, r.text))
