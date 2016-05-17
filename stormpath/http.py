@@ -157,7 +157,7 @@ class HttpExecutor(object):
         except Exception as e:
             if self.should_retry(retry_count, e):
                 self.pause_exponentially(retry_count)
-                self.request(method, url, data=data, params=params, headers=headers, retry_count=retry_count + 1)
+                return self.request(method, url, data=data, params=params, headers=headers, retry_count=retry_count + 1)
             else:
                 raise Error({'developerMessage': str(e)})
 
@@ -174,7 +174,7 @@ class HttpExecutor(object):
         if r.status_code >= 400 and r.status_code <= 600:
             if self.should_retry(retry_count, r.status_code):
                 self.pause_exponentially(retry_count)
-                self.request(method, url, data=data, params=params, headers=headers, retry_count=retry_count + 1)
+                return self.request(method, url, data=data, params=params, headers=headers, retry_count=retry_count + 1)
             else:
                 self.raise_error(r)
 
