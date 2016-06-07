@@ -36,7 +36,7 @@ class AuthenticatedLiveBase(LiveBase):
     COLLECTION_RESOURCES = ['applications', 'organizations', 'directories']
 
     def setUp(self):
-        self.client = Client(id=self.api_key_id, secret=self.api_key_secret, scheme=self.AUTH_SCHEME)
+        self.client = Client(id=self.api_key_id, secret=self.api_key_secret, base_url=getenv('STORMPATH_BASE_URL'), scheme=self.AUTH_SCHEME)
         self.prefix = '{}-{}'.format(self.TEST_PREFIX, uuid4().hex)
 
     def get_random_name(self):
