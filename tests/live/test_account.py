@@ -375,6 +375,21 @@ class TestAccountGroups(AccountBase):
 
         self.assertRaises(Error, account.remove_groups, [group3])
 
+    def test_iterate_over_groups(self):
+        _, account = self.create_account(self.app.accounts)
+        groups = []
+
+        for i in range(500):
+            groups.append(account.directory.groups.create({'name': self.get_random_name()}))
+
+        for group in groups:
+            account.add_group(group)
+
+        account.refresh()
+
+        for group in account.groups:
+            self.assertTrue(group.href)
+
 
 class TestAccountProviderData(AccountBase):
 
