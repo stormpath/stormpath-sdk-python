@@ -110,32 +110,30 @@ class HttpTest(TestCase):
     @patch('stormpath.http.Session')
     def test_get_request_exception_and_retry_and_success(self, Session):
         self.count = 0
-        request_exception = RequestException('I raise RequestException!')
-        def exception_raiser(method, url, data, params, headers=None,
-                             allow_redirects=None):
-            if self.count < 4:
+        request_exception = RequestException('mocked error')
+        successful_response = MagicMock(status_code=200, json=MagicMock(return_value={'success': 'True'}))
+
+        def faker(*args, **kwargs):
+            if self.count < 3:
                 self.count += 1
                 raise request_exception
 
-            return MagicMock(
-                status_code=200,
-                json=MagicMock(return_value={'success': 'True'}))
+            return successful_response
 
-        Session.return_value = MagicMock(request=exception_raiser)
+        Session.return_value = MagicMock(request=faker)
 
         ex = HttpExecutor('http://api.stormpath.com/v1', ('user', 'pass'))
+        should_retry = MagicMock(return_value=True)
 
-        ShouldRetry = MagicMock(return_value=True)
+        with patch('stormpath.http.HttpExecutor.should_retry', should_retry):
+            resp = ex.get('/test')
 
-        with patch('stormpath.http.HttpExecutor.should_retry', ShouldRetry):
-            with self.assertRaises(Error):
-                ex.get('/test')
-
-        should_retry_calls = [
-            call(0, request_exception), call(1, request_exception),
-            call(2, request_exception), call(3, request_exception),
-        ]
-        ShouldRetry.assert_has_calls(should_retry_calls)
+        self.assertEqual(resp['sp_http_status'], 200)
+        should_retry.assert_has_calls([
+            call(0, request_exception),
+            call(1, request_exception),
+            call(2, request_exception),
+        ])
 
     @patch('stormpath.http.Session')
     def test_get_request_exception_and_retry_four_times(self, Session):
@@ -164,7 +162,6 @@ class HttpTest(TestCase):
             call(4, request_exception)
         ]
         ShouldRetry.assert_has_calls(should_retry_calls)
-
 
     @patch('stormpath.http.Session')
     def test_follow_redirects(self, Session):
