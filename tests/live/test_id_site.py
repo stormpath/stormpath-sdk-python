@@ -19,8 +19,9 @@ class TestIDSite(AuthenticatedLiveBase):
 
     def test_id_site_attributes_can_be_written(self):
         id_site = self.client.tenant.id_sites[0]
+        domain_name = uuid4().hex + '.example.com'
 
-        id_site.domain_name = uuid4().hex + '.example.com'
+        id_site.domain_name = domain_name
         id_site.tls_public_cert = 'hi'
         id_site.tls_private_key = 'hi'
         id_site.git_repo_url = 'https://github.com/stormpath/stormpath-sdk-python.git'
@@ -36,7 +37,7 @@ class TestIDSite(AuthenticatedLiveBase):
         id_site = self.client.tenant.id_sites[0]
         id_site.refresh()
 
-        self.assertEqual(id_site.domain_name, 'test.hi.com')
+        self.assertEqual(id_site.domain_name, domain_name)
         self.assertEqual(id_site.tls_public_cert, 'hi')
         self.assertEqual(id_site.tls_private_key, 'hi')
         self.assertEqual(id_site.git_repo_url, 'https://github.com/stormpath/stormpath-sdk-python.git')
