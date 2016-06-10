@@ -1,6 +1,8 @@
 """Live tests for IDSite functionality."""
 
 
+from uuid import uuid4
+
 from .base import AuthenticatedLiveBase
 from stormpath.resources.id_site import IDSite, IDSiteList
 from stormpath.resources.tenant import Tenant
@@ -18,7 +20,7 @@ class TestIDSite(AuthenticatedLiveBase):
     def test_id_site_attributes_can_be_written(self):
         id_site = self.client.tenant.id_sites[0]
 
-        id_site.domain_name = 'test.hi.com'
+        id_site.domain_name = uuid4().hex + '.example.com'
         id_site.tls_public_cert = 'hi'
         id_site.tls_private_key = 'hi'
         id_site.git_repo_url = 'https://github.com/stormpath/stormpath-sdk-python.git'
