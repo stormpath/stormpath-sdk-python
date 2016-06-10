@@ -152,8 +152,7 @@ class HttpExecutor(object):
             url = self.base_url + url
 
         try:
-            r = self.session.request(method, url, data=data, params=params, headers=headers,
-                allow_redirects=False)
+            r = self.session.request(method, url, data=data, params=params, headers=headers, allow_redirects=False)
         except Exception as e:
             if self.should_retry(retry_count, e):
                 self.pause_exponentially(retry_count)
@@ -161,14 +160,15 @@ class HttpExecutor(object):
             else:
                 raise Error({'developerMessage': str(e)})
 
-        log.debug('HttpExecutor.request(method=%s, url=%s, params=%s, data=%s, headers=%s) -> [%d] %s' %
-            (method, url, repr(params), repr(data), repr(headers), r.status_code, r.text))
+        log.debug('HttpExecutor.request(method={}, url={}, params={}, data={}, headers={}) -> [{}] {}'.format(
+            method, url, repr(params), repr(data), repr(headers), r.status_code, r.text
+        ))
 
         if r.status_code in [301, 302] and 'location' in r.headers:
             if not r.headers['location'].startswith(self.base_url):
-                message = 'Trying to redirect outside of API base url: %s' % \
-                    r.headers['location']
-                raise Error({'developerMessage': message} )
+                message = 'Trying to redirect outside of API base url: {}'.format(r.headers['location'])
+                raise Error({'developerMessage': message})
+
             return self.request('GET', r.headers['location'], params=params)
 
         if r.status_code >= 400 and r.status_code <= 600:
