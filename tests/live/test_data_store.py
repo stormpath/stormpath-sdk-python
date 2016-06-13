@@ -35,7 +35,6 @@ class TestLiveDataStore(SingleApplicationBase):
             'password': 'wootILOVEc00kies!!<33',
         })
         key = acc.api_keys.create()
-        self.assertIsInstance(key.id, str)
 
         data_store = DataStore(executor=self.executor)
         data = data_store.get_resource(self.app.href + '/apiKeys', {'id': key.id})
