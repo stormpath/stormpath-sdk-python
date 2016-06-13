@@ -7,7 +7,7 @@ import datetime
 from copy import deepcopy
 from dateutil.parser import parse
 from isodate import duration_isoformat, parse_duration
-from json import JSONEncoder
+from json import JSONEncoder, dumps
 
 try:
     string_type = basestring
@@ -288,8 +288,8 @@ class Resource(object):
         self._store.uncache_resource(self.href)
         self._ensure_data(True)
 
-    #def to_json(self):
-    #    return dumps(self, cls=ResourceEncoder)
+    def to_json(self):
+        return dumps(self, cls=ResourceEncoder)
 
 
 class SaveMixin(object):
