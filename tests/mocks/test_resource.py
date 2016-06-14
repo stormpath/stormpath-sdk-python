@@ -439,20 +439,20 @@ class TestBaseResource(TestCase):
         r.update(data)
         r.bar = 'quux'
         data.update({'href': 'test/resource1', 'bar': 'quux'})
-        self.assertEqual(json.dumps(data), r.to_json())
+        self.assertEqual(data, json.loads(r.to_json()))
 
         # resource of resource if not extended
         res.foo_val = [1, 2, 3]
         r.res = res
         data.update({'res': {'href': 'test/resource2'}})
-        self.assertEqual(json.dumps(data), r.to_json())
+        self.assertEqual(data, json.loads(r.to_json()))
 
         # resource of resource if extended
         res.foo_val = [1, 2, 3]
         r.res = res
         r._expand = Expansion(*['res'])
         data.update({'res': {'foo_val': [1, 2, 3], 'href': 'test/resource2'}})
-        self.assertEqual(json.dumps(data), r.to_json())
+        self.assertEqual(data, json.loads(r.to_json()))
 
 
 class TestCollectionResource(TestCase):
