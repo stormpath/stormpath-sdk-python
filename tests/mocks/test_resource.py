@@ -799,10 +799,9 @@ class TestCollectionResource(TestCase):
             ]
         }
 
-        rl = CollectionResource(
-            client=MagicMock(data_store=ds), properties=props)
+        rl = CollectionResource(client=MagicMock(data_store=ds), properties=props)
 
-        self.assertEqual(json.dumps(props), rl.to_json())
+        self.assertEqual(props, json.loads(rl.to_json()))
 
         # collection resource as attribute
         rds = MagicMock()
@@ -822,7 +821,7 @@ class TestCollectionResource(TestCase):
         data.update({'href': 'test/resource1'})
         data.update({'rl': props})
         res._expand = Expansion(*['rl'])
-        self.assertEqual(json.dumps(data), res.to_json())
+        self.assertEqual(data, json.loads(res.to_json()))
 
 
 class TestFixedAttrsDict(TestCase):
