@@ -21,9 +21,9 @@ branches:
   - develop
 env:
   global:
-  - secure: gko6nu8HDi0hi784QkSKK/PhZZvDqdIeMrsY7+vN6f2xmWlDhxRLJG7TQ9YvAtHVzyhrfYeYZpoAhfD3f4tA/e7R2PdnOx3aJskxYxgMeQYj1wJOYa65+dqpXBQhtDF9BL4hPdC4F74NkDWVEUnxO6j1diLwyXiQwo0u9c3HBHA=
-  - secure: OWcPeI6KxsUulFM7SxcTR2oHhrVJeyWZweBHg9/hZPfKQ7zzLfmsfjYyyXREKXwm4nwOwwwOyQ4Dx+bjwzZJWBBB/or2vCSNV2/gL12MCUnWPNMA9f7NA/6o26ry81FV6TnOca+ogAd+oeYEk/hoB2Ikl4yvKl/sCT15JHWxHj0=
-  - secure: bOzeBzHkNkc8cyo1yAP26NqEaPCO4R3lnelHPhY9Uv5gDHD1BEPSVf5Yqxb6xO+2zaWxrc/nnLNSTzp9b23B9yYcZe3BADPJQXn2ZcmFRPUBTP/Bjdt5vAngowEGn+74uTCfDmgf1A01c191a7bTRk/W8Yv+fQ5DbKQoY0rN7YY=
-  - secure: U9u71VK9+Z5QRipyym+h7glg+zdUULCJnLljB881r12BngXbclRiXDOOS8vn/gSnX5R9X9eGUI3ec4nXFpmDo1fLmYN+pMXD4dMx9iHcqzxfsbU+GSI2jq1QjGbaDo3JCfsDx9GIXpMP0LXTChs2n4kPRlp9muKb1gHWVgsJrgc=
   - secure: A9wEUphFS7vwLzQ2aseYhobr0gR+YtmFWSj4Dths0Fp9ip/dhCtx5maABBMwJuNYO+GZolP9TjpUqppy0wq14SiTBOphpTmnZxmgNpHxVX9vXWGIO6Be/Re7Z2iamA3whiA/Ogx6PVkFbjCctlxl9Sy2dfvkkj3QAeJfkGLgXR4=
   - STORMPATH_BASE_URL=https://api.stormpath.com/v1
+  - secure: hoXPNFIcNy4iqR/bTBgUZhCBT66pb+QXI39ArMXAUvx5lAYhdpnpnN8j4xmiY8d6KOgf9lM3eBBJe/F17lE+xBUrZ/ympgGu6ctQjt0RtmwtyQg+OH40+2K9Gz15dxNxv67WySx5rGfGuX+tEw3pxcsXi2anAqQAOdqq1w2Sc1A=
+  - secure: P3kOlZN04EVT6WoQ/P+Ri1CRUz+4LuFEUAElvOBdbAoU7BPyLRSReUG8xsq4MfyjPyGFxD2Tv/OthlRcNgNcdGdaLnMJa7JRnVkeLmDG/HbFNkw/auwID4ut3k3tKyV9jlETN8T814BDKZnfwIeXiUJElsslXl8Q+IQKmz0JqAY=
+  - secure: Rg3r6TRbBbiszXNkASfhAW5/as56VuT+oFR50bYohHn1+OqyRcinIjwV2lFZb/C/FYhb6qqPGRitDGx92sOhI8Sgq3JSVPDfgcIale0bC9YRQxZKOo+TSzNrIMQEChi5hKTmLGSMopJRuie+MJSFdYTpzLa4+HvojSuh+EsGGIU=
+  - secure: cBBBFFzNmelXp0ZLGy5XL9N/7Aho55qXs5SxHDsGNAzxBtGx71vNw3/FYlODZg4wvXKGp2AMm8sS+/bIfXVya5m7JLwIZwYF781xg33CrIaYKI/C5eyZeoA9CmQzDNp9cxpAtz7sz5h/W1YRImV3mHMPD5QMZD2hHftDYqFFhQw=
