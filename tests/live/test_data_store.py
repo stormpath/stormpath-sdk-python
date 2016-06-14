@@ -45,7 +45,11 @@ class TestLiveDataStore(SingleApplicationBase):
         data = data_store.get_resource(self.app.tenant.href + '/applications')
         self.assertIsInstance(data, dict)
 
+        # DEBUG
+        print('DEBUG: {}'.format(self.app.href))
+
         hrefs = [data['items'][i]['href'] for i in range(len(data['items']))]
+        self.assertEqual(hrefs, 'hi')
         self.assertTrue(self.app.href in hrefs)
 
 

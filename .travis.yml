@@ -8,6 +8,7 @@ python:
 - pypy
 install: pip install -e .[test]
 script:
+- py.test tests/live/test_data_store.py
 - python setup.py test
 - python setup.py docs
 - test -z "$STORMPATH_API_KEY_SECRET" || python setup.py livetest
