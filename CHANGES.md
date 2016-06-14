@@ -1,7 +1,7 @@
 Version 2.4.0
 -------------
 
-**Not yet released.**
+**Released June 14, 2016.**
 
 - Fixing `Client.api_keys` generator, it now works properly.
 - Adding support for `Client.id_sites`.
@@ -11,6 +11,11 @@ Version 2.4.0
   calls.
 - Adding `to_json()` method for all Stormpath resources.
 - Adding cache support for Organization resources.
+- Adding more integration tests.
+- Fixing broken Python 3 tests. Fully 3k compatible =)
+- Properly handling retry requests.
+- Fixing tests so they no longer leave Stormpath resources around after a run.
+- Pinning oauthlib version to avoid issues with `__repr__`.
 
 
 Version 2.3.1
