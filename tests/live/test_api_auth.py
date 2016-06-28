@@ -1,7 +1,10 @@
 """Live tests of client authentication against the Stormpath service API."""
+
 import base64
-from six import u
 from time import sleep
+
+from jwt import decode
+from six import u
 
 from .base import ApiKeyBase
 from stormpath.api_auth import *
@@ -991,8 +994,24 @@ class TestPasswordGrantAuthenticator(ApiKeyBase):
 
         self.username = self.get_random_name()
         self.password = 'W00t123!' + self.username
-        _, self.acc = self.create_account(
-            self.app.accounts, username=self.username, password=self.password)
+        _, self.acc = self.create_account(self.app.accounts, username=self.username, password=self.password)
+
+        org_name = self.get_random_name()
+        org_name_key = org_name[:63]
+
+        self.org = self.client.tenant.organizations.create({
+            'name': org_name,
+            'name_key': org_name_key,
+        })
+        self.client.organization_account_store_mappings.create({
+            'account_store': self.dir,
+            'organization': self.org,
+        })
+        self.client.account_store_mappings.create({
+            'account_store': self.org,
+            'application': self.app,
+        })
+
 
     def test_authenticate_succeeds(self):
         authenticator = PasswordGrantAuthenticator(self.app)
@@ -1014,8 +1033,7 @@ class TestPasswordGrantAuthenticator(ApiKeyBase):
 
     def test_authenticate_with_account_store_succeeds(self):
         authenticator = PasswordGrantAuthenticator(self.app)
-        result = authenticator.authenticate(
-            self.username, self.password, account_store=self.dir)
+        result = authenticator.authenticate(self.username, self.password, account_store=self.dir)
 
         self.assertTrue(result.access_token)
         self.assertTrue(result.refresh_token)
@@ -1023,23 +1041,22 @@ class TestPasswordGrantAuthenticator(ApiKeyBase):
         self.assertTrue('access_token' in result.access_token.to_json())
         self.assertTrue('refresh_token' in result.refresh_token.to_json())
         self.assertTrue(hasattr(result.stormpath_access_token, 'href'))
-        self.assertEqual(
-            result.stormpath_access_token.account.href, self.acc.href)
+        self.assertEqual(result.stormpath_access_token.account.href, self.acc.href)
         self.assertEqual(result.token_type, 'Bearer')
         self.assertEqual(result.expires_in, 3600)
         self.assertEqual(result.account.href, self.acc.href)
 
     def test_authenticate_with_account_store_fails(self):
         authenticator = PasswordGrantAuthenticator(self.app)
-        result = authenticator.authenticate(
-            self.username, 'invalid', account_store=self.dir)
+        result = authenticator.authenticate(self.username, 'invalid', account_store=self.dir)
 
         self.assertIsNone(result)
 
-    def test_authenticate_with_account_store_href_succeeds(self):
+    def test_authenticate_with_account_store_org_succeeds(self):
         authenticator = PasswordGrantAuthenticator(self.app)
-        result = authenticator.authenticate(
-            self.username, self.password, account_store=self.dir.href)
+        result = authenticator.authenticate(self.username, self.password, account_store=self.org)
+
+        claims = decode(result.access_token.token, verify=False)
 
         self.assertTrue(result.access_token)
         self.assertTrue(result.refresh_token)
@@ -1047,11 +1064,29 @@ class TestPasswordGrantAuthenticator(ApiKeyBase):
         self.assertTrue('access_token' in result.access_token.to_json())
         self.assertTrue('refresh_token' in result.refresh_token.to_json())
         self.assertTrue(hasattr(result.stormpath_access_token, 'href'))
-        self.assertEqual(
-            result.stormpath_access_token.account.href, self.acc.href)
+        self.assertEqual(result.stormpath_access_token.account.href, self.acc.href)
         self.assertEqual(result.token_type, 'Bearer')
         self.assertEqual(result.expires_in, 3600)
         self.assertEqual(result.account.href, self.acc.href)
+        self.assertEqual(claims.get('org'), self.org.href)
+
+    def test_authenticate_with_account_store_org_href_succeeds(self):
+        authenticator = PasswordGrantAuthenticator(self.app)
+        result = authenticator.authenticate(self.username, self.password, account_store=self.org.href)
+
+        claims = decode(result.access_token.token, verify=False)
+
+        self.assertTrue(result.access_token)
+        self.assertTrue(result.refresh_token)
+        self.assertEqual(result.account.href, self.acc.href)
+        self.assertTrue('access_token' in result.access_token.to_json())
+        self.assertTrue('refresh_token' in result.refresh_token.to_json())
+        self.assertTrue(hasattr(result.stormpath_access_token, 'href'))
+        self.assertEqual(result.stormpath_access_token.account.href, self.acc.href)
+        self.assertEqual(result.token_type, 'Bearer')
+        self.assertEqual(result.expires_in, 3600)
+        self.assertEqual(result.account.href, self.acc.href)
+        self.assertEqual(claims.get('org'), self.org.href)
 
 
 class TestJwtAuthenticator(ApiKeyBase):
