@@ -1,3 +1,15 @@
+Version 2.4.1
+-------------
+
+**Relased June 28, 2016.**
+
+- Fixing bug in API authentication that would result in multiple invalid HTTP
+  calls being generated when attempting to do token based authentication.
+- Cleaning up token management code.
+- Adding tests for asserting that account stores are properly set for token
+  multi-tenancy.
+
+
 Version 2.4.0
 -------------
 
