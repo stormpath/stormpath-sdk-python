@@ -85,8 +85,8 @@ class Token(object):
     :param token: Token string.
     """
     def __init__(self, app, token):
-        self.token = token
         self.app = app
+        self.token = token
         self.token_scopes = []
         self.account = None
         self.api_key = None
@@ -230,16 +230,14 @@ class PasswordAuthenticationResult(object):
 
     :param refresh_token: Refresh token string.
     """
-    def __init__(self, app, stormpath_access_token_href, access_token, expires_in,
-                 token_type, refresh_token):
+    def __init__(self, app, stormpath_access_token_href, access_token, expires_in, token_type, refresh_token):
         self.app = app
-        self.stormpath_access_token = AuthToken(
-            self.app._client, stormpath_access_token_href)
+        self.stormpath_access_token = AuthToken(self.app._client, stormpath_access_token_href)
+        self.access_token = AccessToken(self.app, access_token)
         self.expires_in = expires_in
         self.token_type = token_type
-        self.access_token = AccessToken(self.app, access_token)
-        self.account = self.access_token.account
         self.refresh_token = RefreshToken(self.app, refresh_token)
+        self.account = self.access_token.account
 
 
 class SPOauth2RequestValidator(Oauth2RequestValidator):
@@ -552,7 +550,8 @@ class PasswordGrantAuthenticator(Authenticator):
         """
         if not url:
             url = self.app.href + '/oauth/token'
-        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+
+        headers = {'Content-Type': 'application/x-www-form-urlencoded', 'Accept': 'application/json'}
 
         data = {
             'grant_type': 'password',
@@ -561,21 +560,18 @@ class PasswordGrantAuthenticator(Authenticator):
         }
         if account_store:
             if isinstance(account_store, string_types):
-                data['account_store'] = account_store
+                data['accountStore'] = account_store
             elif hasattr(account_store, 'href'):
-                data['account_store'] = account_store.href
+                data['accountStore'] = account_store.href
             else:
                 raise TypeError('Unsupported type for account_store.')
 
         try:
-            res = self.app._store.executor.request(
-                'POST', url, headers=headers, params=data)
-        except StormpathError:
+            res = self.app._store.executor.request('POST', url, headers=headers, data=data)
+        except StormpathError as err:
             return None
 
-        return PasswordAuthenticationResult(
-            self.app, res['stormpath_access_token_href'], res['access_token'],
-            res['expires_in'], res['token_type'], res['refresh_token'])
+        return PasswordAuthenticationResult(self.app, res['stormpath_access_token_href'], res['access_token'], res['expires_in'], res['token_type'], res['refresh_token'])
 
 
 class JwtAuthenticator(Authenticator):
