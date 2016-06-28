@@ -1395,14 +1395,14 @@ class AuthenticatorsTest(TestCase):
         pga.authenticate('some@user.com', 'secret')
 
         self.session.return_value.request.assert_called_with('POST', 'https://api.stormpath.com/v1/applications/application_url/oauth/token',
-            headers = {'Content-Type': 'application/x-www-form-urlencoded'},
+            headers = {'Content-Type': 'application/x-www-form-urlencoded', 'Accept': 'application/json'},
             allow_redirects = False,
-            params = OrderedDict([
-                ('grant_type', 'password'),
-                ('password', 'secret'),
-                ('username', 'some@user.com')
-            ]),
-            data = None
+            params = None,
+            data = {
+                'grant_type': 'password',
+                'password': 'secret',
+                'username': 'some@user.com',
+            }
         )
 
     def test_refresh_grant_authenticator(self):
