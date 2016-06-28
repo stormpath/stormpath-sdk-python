@@ -106,9 +106,13 @@ class Token(object):
                 self.account.username
             except StormpathError:
                 self.account = None
+
             if self.account:
                 self.for_api_key = False
-            self.api_key = self.app.api_keys.get_key(self.client_id)
+
+            if self.for_api_key:
+                self.api_key = self.app.api_keys.get_key(self.client_id)
+
             self.exp = data.get('exp', 0)
             self.scopes = data.get('scope', '') if data.get('scope') else ''
             self.scopes = self.scopes.split(' ')
