@@ -162,33 +162,37 @@ class Token(object):
 
 
 class AccessToken(Token):
-    """Class that represents OAuth access token.
-    """
+    """Class that represents OAuth access token."""
+
     def to_json(self):
         """Method that gets JSON for this access token.
 
         :rtype: string
         :returns: JSON for this access token
         """
-        return json.dumps({'access_token': self.token,
-                'expires_in': self.exp,
-                'scope': ' '.join(self.scopes),
-                'token_type': 'jwt-bearer'})
+        return json.dumps({
+            'access_token': self.token,
+            'expires_in': self.exp,
+            'scope': ' '.join(self.scopes),
+            'token_type': 'jwt-bearer',
+        })
 
 
 class RefreshToken(Token):
-    """Class that represents OAuth refresh token.
-    """
+    """Class that represents OAuth refresh token."""
+
     def to_json(self):
         """Method that gets JSON for this refresh token.
 
         :rtype: string
         :returns: JSON for this refresh token
         """
-        return json.dumps({'refresh_token': self.token,
-                'expires_in': self.exp,
-                'scope': ' '.join(self.scopes),
-                'token_type': 'jwt-bearer'})
+        return json.dumps({
+            'refresh_token': self.token,
+            'expires_in': self.exp,
+            'scope': ' '.join(self.scopes),
+            'token_type': 'jwt-bearer',
+        })
 
 
 class ApiAuthenticationResult(object):
@@ -261,16 +265,18 @@ class SPOauth2RequestValidator(Oauth2RequestValidator):
         request.app = self.app
         request.expires_in = self.ttl
         authorization = request.headers.get('Authorization')
+
         try:
             _, b64encoded_data = authorization.split(' ')
-            decoded_data = to_unicode(
-                base64.b64decode(b64encoded_data.encode('utf-8')), 'ascii')
+            decoded_data = to_unicode(base64.b64decode(b64encoded_data.encode('utf-8')), 'ascii')
             client_id, _ = decoded_data.split(':')
             request.client = Oauth2BackendApplicationClient(client_id)
         except Exception:
             return False
+
         if self.validate_client_id(client_id, request):
             return True
+
         return False
 
     def authenticate_client_id(self, client_id, request, *args, **kwargs):
@@ -288,8 +294,10 @@ class SPOauth2RequestValidator(Oauth2RequestValidator):
         access_token = AccessToken(self.app, token)
         request.account = access_token.account
         request.api_key = access_token.api_key
+
         if access_token._is_valid() and access_token._within_scope(scopes):
             return True
+
         return False
 
 
@@ -302,14 +310,12 @@ def _generate_signed_token(request):
     # flow  even though the entire request will be deemed invalid
     # in the end.
     secret = request.app._client.auth.secret
-
     now = datetime.datetime.utcnow()
-
     data = {
         'iss': request.app.href,
         'sub': client_id,
         'iat': now,
-        'exp': now + datetime.timedelta(seconds=request.expires_in)
+        'exp': now + datetime.timedelta(seconds=request.expires_in),
     }
 
     if hasattr(request, 'scope'):
@@ -323,15 +329,13 @@ def _generate_signed_token(request):
 
 def _get_bearer_token(app, allowed_scopes, http_method, uri, body, headers, ttl=DEFAULT_TTL):
     validator = SPOauth2RequestValidator(app=app, allowed_scopes=allowed_scopes, ttl=ttl)
-    server = Oauth2BackendApplicationServer(validator,
-        token_generator=_generate_signed_token)
-
-    headers, body, status = server.create_token_response(
-        uri, http_method, body, headers, {})
+    server = Oauth2BackendApplicationServer(validator, token_generator=_generate_signed_token)
+    headers, body, status = server.create_token_response(uri, http_method, body, headers, {})
 
     if status == 200:
         token_response = json.loads(body)
         return token_response.get('access_token')
+
     return None
 
 
@@ -340,7 +344,6 @@ class Authenticator(object):
 
     :param app: An application to which this Authenticator
         authenticates.
-
     """
     def __init__(self, app):
         self.app = app
@@ -355,57 +358,50 @@ class RequestAuthenticator(Authenticator):
         except (AttributeError, KeyError):
             return None
 
-    def _get_auth_scheme_and_token(self, headers, http_method, url_qs, body,
-                                   scopes, ttl):
+    def _get_auth_scheme_and_token(self, headers, http_method, url_qs, body, scopes, ttl):
         raise NotImplementedError('Subclasses must implement this method.')
 
-    def _authenticate_request(self, auth_type, scopes, http_method, uri, body,
-                              headers, ttl):
-        """Authenticates request based on auth type.
-        """
+    def _authenticate_request(self, auth_type, scopes, http_method, uri, body, headers, ttl):
+        """Authenticates request based on auth type."""
         if auth_type == 'Basic':
-            validator = SPBasicAuthRequestValidator(
-                app=self.app, headers=headers)
+            validator = SPBasicAuthRequestValidator(app=self.app, headers=headers)
             valid, result = validator.verify_request()
+
             return valid, result
+
         if auth_type == 'Bearer':
-            validator = SPOauth2RequestValidator(
-                app=self.app, allowed_scopes=scopes, ttl=ttl)
+            validator = SPOauth2RequestValidator(app=self.app, allowed_scopes=scopes, ttl=ttl)
             server = Oauth2BackendApplicationServer(validator)
-            valid, result = server.verify_request(
-                uri, http_method, body, headers, scopes)
+            valid, result = server.verify_request(uri, http_method, body, headers, scopes)
+
             return valid, result
+
         return None, None
 
-    def authenticate(self, headers, http_method='', uri='', body=None,
-                     scopes=None, ttl=DEFAULT_TTL):
+    def authenticate(self, headers, http_method='', uri='', body=None, scopes=None, ttl=DEFAULT_TTL):
         """Method that authenticates an HTTP request.
 
         :rtype: :class:`stormpath.api_auth.ApiAuthenticationResult`
         :returns: result if request is valid, `None` otherwise.
         """
         headers = {k: to_unicode(v, 'ascii') for k, v in headers.items()}
+
         if body is None:
             body = {}
+
         if scopes is None:
             scopes = []
 
-        auth_scheme, jwt_token = self._get_scheme_and_token(
-            headers, http_method, uri, body, scopes, ttl)
-
+        auth_scheme, jwt_token = self._get_scheme_and_token(headers, http_method, uri, body, scopes, ttl)
         access_token = None
         if jwt_token:
             access_token = AccessToken(self.app, jwt_token)
 
-        valid, result = self._authenticate_request(
-            auth_scheme, scopes, http_method, uri, body, headers, ttl)
-
+        valid, result = self._authenticate_request(auth_scheme, scopes, http_method, uri, body, headers, ttl)
         if not valid:
             return None
 
-        return ApiAuthenticationResult(
-            account=result.account, api_key=result.api_key,
-            access_token=access_token)
+        return ApiAuthenticationResult(account=result.account, api_key=result.api_key, access_token=access_token)
 
 
 class ApiRequestAuthenticator(RequestAuthenticator):
@@ -414,8 +410,7 @@ class ApiRequestAuthenticator(RequestAuthenticator):
     request processing, you will likely want to use the
     OauthRequestAuthenticator class.
     """
-    def _get_scheme_and_token(self, headers, http_method, uri, body, scopes,
-                              ttl):
+    def _get_scheme_and_token(self, headers, http_method, uri, body, scopes, ttl):
         url_qs = parse_qs(urlparse(uri).query)
 
         if 'access_token' in url_qs:
@@ -425,12 +420,14 @@ class ApiRequestAuthenticator(RequestAuthenticator):
             auth_header = headers.get('Authorization')
             auth_scheme = self._get_auth_scheme_from_header(auth_header)
             jwt_token = None
+
             if auth_scheme == 'Basic':
                 if body.get('grant_type') or url_qs.get('grant_type'):
-                    jwt_token =_get_bearer_token(
-                        self.app, scopes, http_method, uri, body, headers, ttl)
+                    jwt_token =_get_bearer_token(self.app, scopes, http_method, uri, body, headers, ttl)
+
             if auth_scheme == 'Bearer':
                 jwt_token = auth_header.split(' ')[1]
+
             return auth_scheme, jwt_token
 
         elif 'access_token' in body:
@@ -442,12 +439,10 @@ class ApiRequestAuthenticator(RequestAuthenticator):
 class BasicRequestAuthenticator(RequestAuthenticator):
     """This class should authenticate HTTP Basic Auth requests.
     """
-    def _get_scheme_and_token(self, headers, http_method, uri, body, scopes,
-                              ttl):
+    def _get_scheme_and_token(self, headers, http_method, uri, body, scopes, ttl):
         auth_scheme = 'Basic'
 
-        if self._get_auth_scheme_from_header(
-                headers.get('Authorization')) == auth_scheme:
+        if self._get_auth_scheme_from_header(headers.get('Authorization')) == auth_scheme:
             return auth_scheme, None
 
         return None, None
@@ -460,8 +455,7 @@ class OAuthRequestAuthenticator(RequestAuthenticator):
     access tokens, as well as handle API key for access token exchanges
     using the OAuth2 client credentials grant type.
     """
-    def _get_scheme_and_token(self, headers, http_method, uri, body, scopes,
-                              ttl):
+    def _get_scheme_and_token(self, headers, http_method, uri, body, scopes, ttl):
         url_qs = parse_qs(urlparse(uri).query)
 
         if 'access_token' in url_qs:
@@ -471,13 +465,16 @@ class OAuthRequestAuthenticator(RequestAuthenticator):
             auth_header = headers.get('Authorization')
             auth_scheme = self._get_auth_scheme_from_header(auth_header)
             jwt_token = None
+
             if auth_scheme == 'Basic':
                 if not 'grant_type' in body and not 'grant_type' in url_qs:
                     return None, None
-                jwt_token =_get_bearer_token(
-                    self.app, scopes, http_method, uri, body, headers, ttl)
+
+                jwt_token =_get_bearer_token(self.app, scopes, http_method, uri, body, headers, ttl)
+
             if auth_scheme == 'Bearer':
                 jwt_token = auth_header.split(' ')[1]
+
             return auth_scheme, jwt_token
 
         elif 'access_token' in body:
@@ -490,8 +487,7 @@ class OAuthBearerRequestAuthenticator(RequestAuthenticator):
     """This class should authenticate OAuth2 bearer token requests
     only. It will only look for the bearer token in the HTTP request.
     """
-    def _get_scheme_and_token(self, headers, http_method, uri, body, scopes,
-                              ttl):
+    def _get_scheme_and_token(self, headers, http_method, uri, body, scopes, ttl):
         auth_scheme = 'Bearer'
         url_qs = parse_qs(urlparse(uri).query)
         auth_header = headers.get('Authorization')
@@ -513,16 +509,14 @@ class OAuthClientCredentialsRequestAuthenticator(RequestAuthenticator):
     type requests only. It will handle authenticating a request based
     on API key credentials.
     """
-    def _get_scheme_and_token(self, headers, http_method, uri, body, scopes,
-                              ttl):
+    def _get_scheme_and_token(self, headers, http_method, uri, body, scopes, ttl):
         url_qs = parse_qs(urlparse(uri).query)
         auth_header = headers.get('Authorization')
         auth_scheme = 'Basic'
 
         if self._get_auth_scheme_from_header(auth_header) == auth_scheme:
             if body.get('grant_type') or url_qs.get('grant_type'):
-                return auth_scheme, _get_bearer_token(
-                    self.app, scopes, http_method, uri, body, headers, ttl)
+                return auth_scheme, _get_bearer_token(self.app, scopes, http_method, uri, body, headers, ttl)
 
         return None, None
 
@@ -548,12 +542,12 @@ class PasswordGrantAuthenticator(Authenticator):
             url = self.app.href + '/oauth/token'
 
         headers = {'Content-Type': 'application/x-www-form-urlencoded', 'Accept': 'application/json'}
-
         data = {
             'grant_type': 'password',
             'username': username,
             'password': password
         }
+
         if account_store:
             if isinstance(account_store, string_types):
                 data['accountStore'] = account_store
@@ -576,8 +570,7 @@ class JwtAuthenticator(Authenticator):
     """
     def _authenticate_with_local_validation(self, token):
         access_token = AccessToken(self.app, token)
-        if access_token._is_valid() and \
-                self.app.has_account(access_token.account):
+        if access_token._is_valid() and self.app.has_account(access_token.account):
             return access_token
 
         return None
@@ -632,9 +625,10 @@ class RefreshGrantAuthenticator(Authenticator):
         """
         if not url:
             url = self.app.href + '/oauth/token'
-        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
 
+        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
         data = {'grant_type': 'refresh_token'}
+
         if isinstance(refresh_token, string_types):
             data['refresh_token'] = refresh_token
         elif hasattr(refresh_token, 'token'):
@@ -643,14 +637,11 @@ class RefreshGrantAuthenticator(Authenticator):
             raise TypeError('Unsupported type for refresh_token.')
 
         try:
-            res = self.app._store.executor.request(
-                'POST', url, headers=headers, params=data)
+            res = self.app._store.executor.request('POST', url, headers=headers, params=data)
         except StormpathError:
             return None
 
-        return PasswordAuthenticationResult(
-            self.app, res['stormpath_access_token_href'], res['access_token'],
-            res['expires_in'], res['token_type'], res['refresh_token'])
+        return PasswordAuthenticationResult(self.app, res['stormpath_access_token_href'], res['access_token'], res['expires_in'], res['token_type'], res['refresh_token'])
 
 
 class IdSiteTokenAuthenticator(Authenticator):
@@ -671,16 +662,13 @@ class IdSiteTokenAuthenticator(Authenticator):
         """
         if not url:
             url = self.app.href + '/oauth/token'
-        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
 
+        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
         data = {'grant_type': 'id_site_token', 'token': jwt}
 
         try:
-            res = self.app._store.executor.request(
-                'POST', url, headers=headers, params=data)
+            res = self.app._store.executor.request('POST', url, headers=headers, params=data)
         except StormpathError:
             return None
 
-        return PasswordAuthenticationResult(
-            self.app, res['stormpath_access_token_href'], res['access_token'],
-            res['expires_in'], res['token_type'], res['refresh_token'])
+        return PasswordAuthenticationResult(self.app, res['stormpath_access_token_href'], res['access_token'], res['expires_in'], res['token_type'], res['refresh_token'])
