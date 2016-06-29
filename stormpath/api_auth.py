@@ -137,18 +137,14 @@ class Token(object):
         else:
             valid = bool(self.account)
 
-        if valid and \
-                datetime.datetime.utcnow() < \
-                    datetime.datetime.utcfromtimestamp(float(self.exp)):
-
+        if valid and datetime.datetime.utcnow() < datetime.datetime.utcfromtimestamp(float(self.exp)):
             try:
-                jwt.decode(
-                    self.token, self.app._client.auth.secret,
-                    algorithms=['HS256'], leeway=LEEWAY)
+                jwt.decode(self.token, self.app._client.auth.secret, algorithms=['HS256'], leeway=LEEWAY)
             except jwt.DecodeError:
                 return False
 
             return True
+
         return False
 
     def _within_scope(self, scopes):
