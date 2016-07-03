@@ -118,9 +118,7 @@ class DataStore(object):
 
                     for item in value['items']:
                         self._cache_put(item['href'], item)
-                        v2['items'].append({
-                            'href': item['href']
-                        })
+                        v2['items'].append({'href': item['href']})
                 else:
                     if len(value) > 1:
                         self._cache_put(value['href'], value)

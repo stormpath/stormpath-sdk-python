@@ -42,8 +42,7 @@ class Error(RuntimeError):
                 'moreInfo': '',
             }
 
-        msg = error.get('developerMessage', 'Unknown error' +
-            ((' (%d)' % http_status) if http_status else ''))
+        msg = error.get('developerMessage', 'Unknown error' + (' ({})'.format(http_status) if http_status else ''))
         super(Error, self).__init__(msg)
         self.status = try_int(error.get('status', http_status))
         self.code = try_int(error.get('code', -1))
