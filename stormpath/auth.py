@@ -54,12 +54,12 @@ class Sauthc1Signer(AuthBase):
         scheme = parsed_url.scheme.lower()
         port = parsed_url.port
 
-        return not port or (port == 80 and scheme == 'http') or \
-            (port == 443 and scheme == 'https')
+        return not port or (port == 80 and scheme == 'http') or (port == 443 and scheme == 'https')
 
     @staticmethod
     def _encode_url(query):
         str_dict = {'+': '%20', '*': '%2A', '%7E': '~'}
+
         for key, value in str_dict.items():
             if key in query:
                 query = query.replace(key, value)
@@ -69,7 +69,6 @@ class Sauthc1Signer(AuthBase):
     @staticmethod
     def _order_query_params(query):
         ordered_query_params = sorted(query.split('&'))
-
         return '&'.join(ordered_query_params)
 
     def __call__(self, r):
@@ -98,14 +97,14 @@ class Sauthc1Signer(AuthBase):
 
         canonical_query_string = ''
         if parsed_url.query:
-            canonical_query_string = self._encode_url(
-                    self._order_query_params(parsed_url.query))
+            canonical_query_string = self._encode_url(self._order_query_params(parsed_url.query))
 
         auth_headers = r.headers.copy()
 
         # FIXME: REST API doesn't want this header in the signature.
         if 'Content-Length' in auth_headers:
             del auth_headers['Content-Length']
+
         # Connection header can be transparently overridden by proxies anywhere and should not
         # be a part of sig computation
         if 'Connection' in auth_headers:
@@ -123,16 +122,13 @@ class Sauthc1Signer(AuthBase):
 
         canonical_request = '%s%s%s%s%s%s%s%s%s%s%s' % (
             method, NL, canonical_resource_path, NL, canonical_query_string,
-            NL, canonical_headers_string, NL, signed_headers_string,
-            NL, request_payload_hash_hex)
+            NL, canonical_headers_string, NL, signed_headers_string, NL,
+            request_payload_hash_hex
+        )
 
         id = '%s/%s/%s/%s' % (self._id, date_stamp, nonce, ID_TERMINATOR)
-
-        canonical_request_hash_hex = hashlib.sha256(
-            canonical_request.encode()).hexdigest()
-
-        string_to_sign = '%s%s%s%s%s%s%s' % (
-            ALGORITHM, NL, time_stamp, NL, id, NL, canonical_request_hash_hex)
+        canonical_request_hash_hex = hashlib.sha256(canonical_request.encode()).hexdigest()
+        string_to_sign = '%s%s%s%s%s%s%s' % (ALGORITHM, NL, time_stamp, NL, id, NL, canonical_request_hash_hex)
 
         def _sign(data, key):
             try:
@@ -156,7 +152,7 @@ class Sauthc1Signer(AuthBase):
             '%s %s=%s' % (AUTHENTICATION_SCHEME, SAUTHC1_ID, id),
             '%s=%s' % (SAUTHC1_SIGNED_HEADERS, signed_headers_string),
             '%s=%s' % (SAUTHC1_SIGNATURE, signature_hex),
-        ))
+       ))
 
         r.headers[AUTHORIZATION_HEADER] = to_native_string(authorization_header)
 
@@ -218,8 +214,7 @@ class Auth(object):
         if method is not None:
             self._scheme = 'basic' if method == 'basic' else 'SAuthc1'
 
-        if self._read_api_key_file(api_key_file or api_key_file_location,
-                api_key_id_property_name, api_key_secret_property_name):
+        if self._read_api_key_file(api_key_file or api_key_file_location, api_key_id_property_name, api_key_secret_property_name):
             return
 
         if api_key and 'id' in api_key and 'secret' in api_key:
@@ -246,8 +241,7 @@ class Auth(object):
 
             return
 
-        if self._read_api_key_file(environ.get('STORMPATH_API_KEY_FILE'),
-                api_key_id_property_name, api_key_secret_property_name):
+        if self._read_api_key_file(environ.get('STORMPATH_API_KEY_FILE'), api_key_id_property_name, api_key_secret_property_name):
             return
 
         if environ.get('STORMPATH_API_KEY_ID') and environ.get('STORMPATH_API_KEY_SECRET'):
@@ -257,8 +251,7 @@ class Auth(object):
             return
 
         default_file = join(expanduser('~'), '.stormpath', 'apiKey.properties')
-        if exists(default_file) and self._read_api_key_file(default_file,
-                api_key_id_property_name, api_key_secret_property_name):
+        if exists(default_file) and self._read_api_key_file(default_file, api_key_id_property_name, api_key_secret_property_name):
             return
 
         raise ValueError('No valid authentication sources found')
