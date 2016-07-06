@@ -2,12 +2,10 @@
 
 import socket
 from functools import wraps
-from json import (
-    dumps,
-    loads,
-)
+from json import dumps, loads
 
 from .entry import CacheEntry
+
 
 STR_VALUE = 1
 JSON_VALUE = 2
@@ -16,6 +14,7 @@ JSON_VALUE = 2
 def json_serializer(key, value):
     if isinstance(value, str):
         return value, STR_VALUE
+
     return dumps(value.to_dict()).encode('utf-8'), JSON_VALUE
 
 
