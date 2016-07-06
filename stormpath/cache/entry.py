@@ -1,10 +1,7 @@
 """Cache entry abstractions."""
 
 
-from datetime import (
-    datetime,
-    timedelta,
-)
+from datetime import datetime, timedelta
 
 
 class CacheEntry(object):
@@ -24,8 +21,7 @@ class CacheEntry(object):
 
     def is_expired(self, ttl, tti):
         now = datetime.utcnow()
-        return (now >= self.created_at + timedelta(seconds=ttl) or
-            now >= self.last_accessed_at + timedelta(seconds=tti))
+        return (now >= self.created_at + timedelta(seconds=ttl) or now >= self.last_accessed_at + timedelta(seconds=tti))
 
     @classmethod
     def parse(cls, data):
@@ -35,16 +31,13 @@ class CacheEntry(object):
             except Exception:
                 return None
 
-        return cls(data.get('value'),
-            created_at=parse_date(data.get('created_at')),
-            last_accessed_at=parse_date(data.get('last_accessed_at')))
+        return cls(data.get('value'), created_at=parse_date(data.get('created_at')), last_accessed_at=parse_date(data.get('last_accessed_at')))
 
     def to_dict(self):
-        def print_date(val):
-            return val.strftime('%Y-%m-%d %H:%M:%S.%f')
+        format_date = lambda d: d.strftime('%Y-%m-%d %H:%M:%S.%f')
 
         return {
-            'created_at': print_date(self.created_at),
-            'last_accessed_at': print_date(self.last_accessed_at),
+            'created_at': format_date(self.created_at),
+            'last_accessed_at': format_date(self.last_accessed_at),
             'value': self.value,
         }
