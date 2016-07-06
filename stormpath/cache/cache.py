@@ -23,29 +23,31 @@ class Cache(object):
         self.ttl = ttl
         self.tti = tti
         store_opts = kwargs.get('store_opts', {})
-        # pass along max entries only to memory store instances
+
+        # Pass along max entries only to memory store instances.
         if store != MemoryStore:
             store_opts.pop('max_entries', None)
+
         self.store = store(**store_opts)
         self.stats = CacheStats()
 
     def get(self, key):
         entry = self.store[key]
+
         if entry:
             if entry.is_expired(self.ttl, self.tti):
                 self.stats.miss(expired=True)
                 del self.store[key]
 
                 return None
-            else:
-                self.stats.hit()
-                entry.touch()
 
-                return entry.value
-        else:
-            self.stats.miss()
+            self.stats.hit()
+            entry.touch()
 
-            return None
+            return entry.value
+
+        self.stats.miss()
+        return None
 
     def put(self, key, value, new=True):
         self.store[key] = CacheEntry(value)
