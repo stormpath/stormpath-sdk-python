@@ -117,8 +117,7 @@ class Sauthc1Signer(AuthBase):
 
         signed_headers_string = ';'.join(sorted_headers.keys()).lower()
 
-        request_payload_hash_hex = hashlib.sha256(
-            (r.body or '').encode()).hexdigest()
+        request_payload_hash_hex = hashlib.sha256((r.body or '').encode()).hexdigest()
 
         canonical_request = '%s%s%s%s%s%s%s%s%s%s%s' % (
             method, NL, canonical_resource_path, NL, canonical_query_string,
