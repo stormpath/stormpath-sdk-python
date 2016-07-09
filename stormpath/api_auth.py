@@ -541,7 +541,7 @@ class PasswordGrantAuthenticator(Authenticator):
         if not url:
             url = self.app.href + '/oauth/token'
 
-        headers = {'Content-Type': 'application/x-www-form-urlencoded', 'Accept': 'application/json'}
+        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
         data = {
             'grant_type': 'password',
             'username': username,
