@@ -1,3 +1,13 @@
+Version 2.4.2
+-------------
+
+**Released July 18, 2016.**
+
+- Removing legacy logging logic from ``stormpath.http`` package.  This was
+  causing errors in certain circumstances where UTF-8 was not being supplied
+  over the network.
+
+
 Version 2.4.1
 -------------
 
