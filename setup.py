@@ -87,7 +87,7 @@ setup(
         'isodate>=0.5.4',
     ],
     extras_require = {
-        'test': ['codacy-coverage', 'mock', 'python-coveralls', 'pytest', 'pytest-cov'],
+        'test': ['codacy-coverage', 'mock', 'python-coveralls', 'pytest', 'pytest-cov', 'sphinx'],
     },
     packages = find_packages(exclude=['*.tests', '*.tests.*', 'tests.*', 'tests']),
     classifiers = [
