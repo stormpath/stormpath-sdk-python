@@ -1,3 +1,11 @@
+Version 2.4.3
+-------------
+
+**Released August 4, 2016.**
+
+- Attempting to automate API doc deployment through Travis CI.
+
+
 Version 2.4.2
 -------------
 
