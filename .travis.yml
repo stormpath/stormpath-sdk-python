@@ -27,3 +27,11 @@ env:
   - secure: P3kOlZN04EVT6WoQ/P+Ri1CRUz+4LuFEUAElvOBdbAoU7BPyLRSReUG8xsq4MfyjPyGFxD2Tv/OthlRcNgNcdGdaLnMJa7JRnVkeLmDG/HbFNkw/auwID4ut3k3tKyV9jlETN8T814BDKZnfwIeXiUJElsslXl8Q+IQKmz0JqAY=
   - secure: Rg3r6TRbBbiszXNkASfhAW5/as56VuT+oFR50bYohHn1+OqyRcinIjwV2lFZb/C/FYhb6qqPGRitDGx92sOhI8Sgq3JSVPDfgcIale0bC9YRQxZKOo+TSzNrIMQEChi5hKTmLGSMopJRuie+MJSFdYTpzLa4+HvojSuh+EsGGIU=
   - secure: cBBBFFzNmelXp0ZLGy5XL9N/7Aho55qXs5SxHDsGNAzxBtGx71vNw3/FYlODZg4wvXKGp2AMm8sS+/bIfXVya5m7JLwIZwYF781xg33CrIaYKI/C5eyZeoA9CmQzDNp9cxpAtz7sz5h/W1YRImV3mHMPD5QMZD2hHftDYqFFhQw=
+matrix:
+  include:
+  - env: BUILD_DOCS=true
+    python: '2.7'
+before_install:
+- openssl aes-256-cbc -K $encrypted_09e6ef1dc349_key -iv $encrypted_09e6ef1dc349_iv
+  -in docs_ssh_deploy_key.enc -out ~/.ssh/id_rsa -d
+- chmod 600 ~/.ssh/id_rsa
