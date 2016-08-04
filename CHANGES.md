@@ -1,3 +1,11 @@
+Version 2.4.4
+-------------
+
+**Released August 4, 2016.**
+
+- Attempting to fix Travis Deployments with Sphinx install changes.
+
+
 Version 2.4.3
 -------------
 
