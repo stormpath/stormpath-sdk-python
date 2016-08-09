@@ -3,15 +3,14 @@
 
 import datetime
 import jwt
+
 from base64 import b64encode
-from oauthlib.common import to_unicode
-from stormpath.api_auth import AccessToken
 from uuid import uuid4
 
-from .base import (
-    CollectionResource,
-    Resource,
-)
+from oauthlib.common import to_unicode
+from stormpath.api_auth import AccessToken
+
+from .base import CollectionResource, Resource
 
 
 class AuthenticationResult(Resource):
@@ -32,8 +31,7 @@ class AuthenticationResult(Resource):
         }
 
     def __repr__(self):
-        return '<%s attributes=%s>' % (self.__class__.__name__,
-            str(self._get_property_names()))
+        return '<%s attributes=%s>' % (self.__class__.__name__, str(self._get_property_names()))
 
     def get_jwt(self):
         if not hasattr(self, 'application'):
@@ -61,8 +59,7 @@ class AuthenticationResult(Resource):
 
     def get_access_token(self, jwt=None):
         if not hasattr(self, 'application'):
-            raise ValueError(
-                'Access token cannot be generated without application')
+            raise ValueError('Access token cannot be generated without application')
 
         if jwt is None:
             jwt = self.get_jwt()
@@ -75,10 +72,10 @@ class AuthenticationResult(Resource):
 
 class LoginAttemptList(CollectionResource):
     """List of login data."""
+
     resource_class = AuthenticationResult
 
-    def basic_auth(self, login, password, expand, account_store=None,
-                   app=None, organization_name_key=None):
+    def basic_auth(self, login, password, expand, account_store=None, app=None, organization_name_key=None):
         value = login + ':' + password
         value = b64encode(value.encode('utf-8')).decode('ascii')
         properties = {
@@ -89,9 +86,7 @@ class LoginAttemptList(CollectionResource):
         if account_store:
             properties['account_store'] = account_store
         if organization_name_key:
-            properties['account_store'] = {
-                'name_key': organization_name_key
-            }
+            properties['account_store'] = {'name_key': organization_name_key}
 
         result = self.create(properties, expand=expand)
 
