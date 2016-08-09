@@ -1,3 +1,29 @@
+Version 2.4.4
+-------------
+
+**Released August 4, 2016.**
+
+- Attempting to fix Travis Deployments with Sphinx install changes.
+
+
+Version 2.4.3
+-------------
+
+**Released August 4, 2016.**
+
+- Attempting to automate API doc deployment through Travis CI.
+
+
+Version 2.4.2
+-------------
+
+**Released July 18, 2016.**
+
+- Removing legacy logging logic from ``stormpath.http`` package.  This was
+  causing errors in certain circumstances where UTF-8 was not being supplied
+  over the network.
+
+
 Version 2.4.1
 -------------
 

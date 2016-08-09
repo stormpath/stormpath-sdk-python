@@ -24,10 +24,6 @@ from stormpath import __version__ as STORMPATH_VERSION
 from .error import Error
 
 
-import logging
-log = logging.getLogger(__name__)
-
-
 class HttpExecutor(object):
     """Handles the actual HTTP requests to the Stormpath service.
 
@@ -103,8 +99,6 @@ class HttpExecutor(object):
 
         delay = min(delay, self.MAX_BACKOFF_IN_MILLISECONDS)
 
-        log.debug("Retryable condition detected, will retry in %s ms, attempt number: %s" % (delay, retries))
-
         # sleep in seconds
         time.sleep(delay / float(1000))
 
@@ -159,10 +153,6 @@ class HttpExecutor(object):
                 return self.request(method, url, data=data, params=params, headers=headers, retry_count=retry_count + 1)
             else:
                 raise Error({'developerMessage': str(e)})
-
-        log.debug('HttpExecutor.request(method={}, url={}, params={}, data={}, headers={}) -> [{}] {}'.format(
-            method, url, repr(params), repr(data), repr(headers), r.status_code, r.text
-        ))
 
         if r.status_code in [301, 302] and 'location' in r.headers:
             if not r.headers['location'].startswith(self.base_url):

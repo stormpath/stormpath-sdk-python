@@ -6,7 +6,8 @@ python:
 - '3.4'
 - '3.5'
 - pypy
-install: pip install -e .[test]
+install:
+- pip install -e .[test]
 script:
 - python setup.py test
 - python setup.py docs
@@ -15,6 +16,34 @@ after_success:
 - coverage xml
 - coveralls
 - python-codacy-coverage -r coverage.xml
+- test -z "$BUILD_DOCS" || CURRENT_HASH=`git rev-parse HEAD`
+- test -z "$BUILD_DOCS" || RELEASE_VERSION=`git tag | xargs -I@ git log --format=format:"%ai @%n" -1 @ | sort | awk '{print $4}' | tail -n 1`
+- test -z "$BUILD_DOCS" || RELEASE_HASH=`git rev-list $RELEASE_VERSION -n 1`
+- test -z "$BUILD_DOCS" || if [ "$CURRENT_HASH" = "$RELEASE_HASH" ]; then DEPLOY_DOCS=true; fi
+- test -z "$DEPLOY_DOCS" || git config --global user.email "evangelists@stormpath.com"
+- test -z "$DEPLOY_DOCS" || git config --global user.name "stormpath-sdk-python Auto Doc Build"
+- test -z "$DEPLOY_DOCS" || git clone git@github.com:stormpath/stormpath.github.io.git
+- test -z "$DEPLOY_DOCS" || cd stormpath.github.io
+- test -z "$DEPLOY_DOCS" || git fetch origin source:source
+- test -z "$DEPLOY_DOCS" || git checkout source
+- test -z "$DEPLOY_DOCS" || rm -rf source/python/apidocs/latest
+- test -z "$DEPLOY_DOCS" || cp -r ../docs/_build/html source/python/apidocs/latest
+- test -z "$DEPLOY_DOCS" || cp -r ../docs/_build/html source/python/apidocs/$RELEASE_VERSION
+- test -z "$DEPLOY_DOCS" || git add --all
+- test -z "$DEPLOY_DOCS" || git commit -m "stormpath-sdk-python release $RELEASE_VERSION"
+- test -z "$DEPLOY_DOCS" || git push origin source
+- test -z "$DEPLOY_DOCS" || gem install bundler
+- test -z "$DEPLOY_DOCS" || bundle install
+- test -z "$DEPLOY_DOCS" || rake setup_github_pages[git@github.com:stormpath/stormpath.github.io.git]
+- test -z "$DEPLOY_DOCS" || cd _deploy
+- test -z "$DEPLOY_DOCS" || git pull --no-edit -s recursive -X theirs https://github.com/stormpath/stormpath.github.io.git
+- test -z "$DEPLOY_DOCS" || cd ..
+- test -z "$DEPLOY_DOCS" || rake generate
+- test -z "$DEPLOY_DOCS" || cd _deploy
+- test -z "$DEPLOY_DOCS" || git pull --no-edit -s recursive -X theirs https://github.com/stormpath/stormpath.github.io.git
+- test -z "$DEPLOY_DOCS" || cd ..
+- test -z "$DEPLOY_DOCS" || rake deploy
+- test -z "$DEPLOY_DOCS" || cd ..
 branches:
   only:
   - master
@@ -27,3 +56,11 @@ env:
   - secure: P3kOlZN04EVT6WoQ/P+Ri1CRUz+4LuFEUAElvOBdbAoU7BPyLRSReUG8xsq4MfyjPyGFxD2Tv/OthlRcNgNcdGdaLnMJa7JRnVkeLmDG/HbFNkw/auwID4ut3k3tKyV9jlETN8T814BDKZnfwIeXiUJElsslXl8Q+IQKmz0JqAY=
   - secure: Rg3r6TRbBbiszXNkASfhAW5/as56VuT+oFR50bYohHn1+OqyRcinIjwV2lFZb/C/FYhb6qqPGRitDGx92sOhI8Sgq3JSVPDfgcIale0bC9YRQxZKOo+TSzNrIMQEChi5hKTmLGSMopJRuie+MJSFdYTpzLa4+HvojSuh+EsGGIU=
   - secure: cBBBFFzNmelXp0ZLGy5XL9N/7Aho55qXs5SxHDsGNAzxBtGx71vNw3/FYlODZg4wvXKGp2AMm8sS+/bIfXVya5m7JLwIZwYF781xg33CrIaYKI/C5eyZeoA9CmQzDNp9cxpAtz7sz5h/W1YRImV3mHMPD5QMZD2hHftDYqFFhQw=
+matrix:
+  include:
+  - env: BUILD_DOCS=true
+    python: '2.7'
+before_install:
+- openssl aes-256-cbc -K $encrypted_09e6ef1dc349_key -iv $encrypted_09e6ef1dc349_iv
+  -in docs_ssh_deploy_key.enc -out ~/.ssh/id_rsa -d
+- chmod 600 ~/.ssh/id_rsa
