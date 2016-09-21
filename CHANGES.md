@@ -1,3 +1,11 @@
+Version 2.4.5
+-------------
+
+**Released September 21, 2016.**
+
+- Using our new Sphinx docs.
+
+
 Version 2.4.4
 -------------
 
