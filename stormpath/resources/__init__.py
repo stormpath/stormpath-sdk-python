@@ -30,3 +30,6 @@ from .organization import Organization, OrganizationList
 from .organization_account_store_mapping import (
     OrganizationAccountStoreMapping,
     OrganizationAccountStoreMappingList)
+from .factor import Factor, FactorList
+from .phone import Phone, PhoneList
+from .challenge import Challenge, ChallengeList
