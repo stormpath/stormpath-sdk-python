@@ -10,7 +10,10 @@ from .base import (
 )
 
 
-class Challenge(Resource):
+class Challenge(Resource, DeleteMixin):
+
+    writable_attrs = ('message', )
+
     @staticmethod
     def get_resource_attributes():
         from .account import Account
@@ -20,6 +23,22 @@ class Challenge(Resource):
             'account': Account,
             'factor': Factor,
         }
+
+    def submit_challenge(self, code):
+        """
+        This method will submit a challenge and attempt to activate the
+        associated account (if the code is valid).
+
+        :param str code: Account activation code.
+        """
+
+        # FIXME: test out the method with an invalid code.
+
+        data = {'code': code}
+        self._store.update_resource(self.href, data)
+        self.refresh()
+
+        return self
 
 
 class ChallengeList(CollectionResource):

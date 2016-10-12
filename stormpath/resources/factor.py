@@ -8,15 +8,17 @@ from .base import (
     SaveMixin,
     StatusMixin,
 )
+from .phone import Phone
 
 
-class Factor(Resource):
+class Factor(Resource, DeleteMixin):
+
+    writable_attrs = ('type', 'phone', 'challenge')
 
     @staticmethod
     def get_resource_attributes():
         from .account import Account
         from .challenge import Challenge, ChallengeList
-        from .phone import Phone
 
         return {
             'account': Account,
@@ -25,28 +27,23 @@ class Factor(Resource):
             'phone': Phone
         }
 
+    def challenge_factor(self):
+        data = {'message': '${code}'}
+        self._store.update_resource(self.href + '/challenges', data)
+        self.refresh()
+
+        return self
+
 
 class FactorList(CollectionResource):
     """Factor resource list."""
     resource_class = Factor
 
-    """
-    def create_factor(self, properties=None, expand=None, **params):
-        # FIXME: implement option that will challenge factor upon creating it
-        #result = self.create(properties, expand=expand)
+    def create(self, properties, challenge=True, expand=None, **params):
+        """
+        """
+        if not challenge:
+            properties.pop('challenge', None)
 
-        create_path = self.href
-
-        created = self.resource_class(
-            self._client,
-            properties=self._store.create_resource(
-                create_path,
-                data,
-                params=params
-            )
-        )
-
-        created = result
-
-        return result
-    """
+        return super(FactorList, self).create(
+            properties, challenge=challenge, expand=expand, **params)

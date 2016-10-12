@@ -11,6 +11,9 @@ from .base import (
 
 
 class Phone(Resource):
+
+    writable_attrs = ('number', )
+
     @staticmethod
     def get_resource_attributes():
         from .account import Account
