@@ -27,8 +27,20 @@ class Factor(Resource, DeleteMixin):
             'phone': Phone
         }
 
-    def challenge_factor(self):
-        data = {'message': '${code}'}
+    def challenge_factor(self, message='%s'):
+        """
+        This method will challenge a factor and activate sending an activation
+        code.
+
+        :param str message: SMS message template. Message must contain '%s'
+               format specifier that serves as the activation code placeholder.
+        """
+
+        # Make sure that the message can always append the activation code.
+        if '%s' not in message:
+            message += ' %s'
+
+        data = {'message': message % '${code}'}
         self._store.update_resource(self.href + '/challenges', data)
         self.refresh()
 

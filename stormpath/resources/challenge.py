@@ -31,9 +31,6 @@ class Challenge(Resource, DeleteMixin):
 
         :param str code: Account activation code.
         """
-
-        # FIXME: test out the method with an invalid code.
-
         data = {'code': code}
         self._store.update_resource(self.href, data)
         self.refresh()
