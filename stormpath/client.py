@@ -19,7 +19,7 @@ class Client(object):
     Applications, Directories, Organizations, Groups, and Accounts.
 
     More info can be found in our documentation:
-    http://docs.stormpath.com/python/product-guide/#sdk-concepts
+    https://docs.stormpath.com/rest/product-guide/latest/reference.html#rest-api-core-concepts
 
     Examples::
 
