@@ -25,7 +25,7 @@ class TestAccount(TestCase):
                     'username': 'username',
                     'given_name': 'given_name',
                     'surname': 'surname',
-                    'email': 'test@example.com',
+                    'email': 'test@testmail.stormpath.com',
                     'password': 'Password123!'})
         ds = MagicMock()
         self.gs = GroupList(MagicMock(data_store=ds), href='test/collection')
@@ -147,7 +147,7 @@ class TestAccount(TestCase):
                 'username': 'username2',
                 'given_name': 'given_name',
                 'surname': 'surname',
-                'email': 'test2@example.com',
+                'email': 'test2@testmail.stormpath.com',
                 'password': 'Password123!'
             })
         ds = MagicMock()

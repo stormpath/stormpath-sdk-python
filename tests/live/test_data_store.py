@@ -31,7 +31,7 @@ class TestLiveDataStore(SingleApplicationBase):
         acc = self.app.accounts.create({
             'given_name': 'Randall',
             'surname': 'Degges',
-            'email': '{}@example.com'.format(self.get_random_name()),
+            'email': '{}@testmail.stormpath.com'.format(self.get_random_name()),
             'password': 'wootILOVEc00kies!!<33',
         })
         key = acc.api_keys.create()

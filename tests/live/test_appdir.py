@@ -120,7 +120,7 @@ class TestApplicationDirectoryCreation(AuthenticatedLiveBase):
                         'directory_host': 'ldap.local',
                         'directory_port': '666',
                         'ssl_required': True,
-                        'agent_user_dn': 'user@somewhere.com',
+                        'agent_user_dn': 'user@testmail.stormpath.com',
                         'agent_user_dn_password': 'Password',
                         'base_dn': 'dc=example,dc=com',
                         'poll_interval': 60,
@@ -177,7 +177,7 @@ class TestApplicationDirectoryCreation(AuthenticatedLiveBase):
                         'directory_host': 'ldap.local',
                         'directory_port': '666',
                         'ssl_required': True,
-                        'agent_user_dn': 'user@somewhere.com',
+                        'agent_user_dn': 'user@testmail.stormpath.com',
                         'agent_user_dn_password': 'Password',
                         'base_dn': 'dc=example,dc=com',
                         'poll_interval': 60,
@@ -490,7 +490,7 @@ class TestDirectoryPasswordPolicy(SingleApplicationBase):
         template.subject = 'Your password has been reset.'
         template.description = 'My New Description'
         template.from_name = 'John Doe Jr.'
-        template.from_email_address = 'joejr@newemail.com'
+        template.from_email_address = 'joejr@testmail.stormpath.com'
         template.name = 'New Email Name'
         template.text_body = 'Your password has been successfully reset.'
         template.html_body = \
@@ -504,7 +504,7 @@ class TestDirectoryPasswordPolicy(SingleApplicationBase):
         self.assertEqual(template.subject, 'Your password has been reset.')
         self.assertEqual(template.description, 'My New Description')
         self.assertEqual(template.from_name, 'John Doe Jr.')
-        self.assertEqual(template.from_email_address, 'joejr@newemail.com')
+        self.assertEqual(template.from_email_address, 'joejr@testmail.stormpath.com')
         self.assertEqual(template.name, 'New Email Name')
         self.assertEqual(
             template.text_body, 'Your password has been successfully reset.')

@@ -94,7 +94,7 @@ class TestClientProperties(AuthenticatedLiveBase):
         acc = dir.accounts.create({
             'given_name': 'Randall',
             'surname': 'Degges',
-            'email': '{}@example.com'.format(self.get_random_name()),
+            'email': '{}@testmail.stormpath.com'.format(self.get_random_name()),
             'password': 'wootILOVEc00kies!!<33',
         })
         self.assertEqual(len(self.client.accounts), num_accs + 1)
@@ -106,7 +106,7 @@ class TestClientProperties(AuthenticatedLiveBase):
             acc = dir.accounts.create({
                 'given_name': 'Randall',
                 'surname': 'Degges',
-                'email': '{}@example.com'.format(self.get_random_name()),
+                'email': '{}@testmail.stormpath.com'.format(self.get_random_name()),
                 'password': 'wootILOVEc00kies!!<33',
             })
 
@@ -173,7 +173,7 @@ class TestClientProperties(AuthenticatedLiveBase):
         account = app.accounts.create({
             'given_name': self.get_random_name(),
             'surname': self.get_random_name(),
-            'email': '{}@example.com'.format(self.get_random_name()),
+            'email': '{}@testmail.stormpath.com'.format(self.get_random_name()),
             'password': 'wootILOVEc00kies!!<33',
         })
         key = account.api_keys.create()
@@ -226,7 +226,7 @@ class TestClientProperties(AuthenticatedLiveBase):
         account = dir.accounts.create({
             'given_name': self.get_random_name(),
             'surname': self.get_random_name(),
-            'email': '{}@example.com'.format(self.get_random_name()),
+            'email': '{}@testmail.stormpath.com'.format(self.get_random_name()),
             'password': 'wootILOVEc00kies!!<33',
         })
         gm = self.client.group_memberships.create({
