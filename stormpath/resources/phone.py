@@ -10,7 +10,10 @@ from .base import (
 )
 
 
-class Phone(Resource):
+class Phone(Resource, DeleteMixin, DictMixin, SaveMixin, StatusMixin):
+    """
+    Stormpath Phone resource.
+    """
 
     writable_attrs = ('number', )
 

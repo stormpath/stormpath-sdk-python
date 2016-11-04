@@ -21,9 +21,9 @@ class TestFactor(AccountBase):
         # Create a factor.
 
         data = {
-            "phone": {"number": self.phone_number},
-            "challenge": {"message": "${code}"},
-            "type": "SMS"
+            'phone': {'number': self.phone_number},
+            'challenge': {'message': '${code}'},
+            'type': 'SMS'
         }
         factor = self.account.factors.create(properties=data)
         self.account.refresh()
@@ -42,9 +42,9 @@ class TestFactor(AccountBase):
         # Try creating a factor using an invalid phone number.
 
         data = {
-            "phone": {"number": "+666"},
-            "challenge": {"message": "${code}"},
-            "type": "SMS"
+            'phone': {'number': '+666'},
+            'challenge': {'message': '${code}'},
+            'type': 'SMS'
         }
 
         with self.assertRaises(Error) as error:
@@ -56,9 +56,9 @@ class TestFactor(AccountBase):
         # Create factor with challenge.
 
         data = {
-            "phone": {"number": self.phone_number},
-            "challenge": {"message": "${code}"},
-            "type": "SMS"
+            'phone': {'number': self.phone_number},
+            'challenge': {'message': '${code}'},
+            'type': 'SMS'
         }
         factor = self.account.factors.create(properties=data)
         self.account.refresh()
@@ -75,8 +75,8 @@ class TestFactor(AccountBase):
         # Create factor without challenge.
 
         data = {
-            "phone": {"number": self.phone_number},
-            "type": "SMS"
+            'phone': {'number': self.phone_number},
+            'type': 'SMS'
         }
         factor = self.account.factors.create(properties=data, challenge=False)
         self.account.refresh()
@@ -93,9 +93,9 @@ class TestFactor(AccountBase):
         # won't create a challenge.
         factor.delete()
         data = {
-            "phone": {"number": self.phone_number},
-            "challenge": {"message": "${code}"},
-            "type": "SMS"
+            'phone': {'number': self.phone_number},
+            'challenge': {'message': '${code}'},
+            'type': 'SMS'
         }
         factor = self.account.factors.create(properties=data, challenge=False)
         self.account.refresh()
@@ -108,8 +108,8 @@ class TestFactor(AccountBase):
         # Create a challenge by challenging our factor.
 
         data = {
-            "phone": {"number": self.phone_number},
-            "type": "SMS"
+            'phone': {'number': self.phone_number},
+            'type': 'SMS'
         }
         factor = self.account.factors.create(properties=data, challenge=False)
         self.account.refresh()
@@ -124,12 +124,12 @@ class TestFactor(AccountBase):
         self.assertEqual(len(factor.challenges.items), 2)
         self.assertNotEqual(challenge, challenge2)
 
-    def test_challenge_message(self):
-        # Specifying a custom message.
+    def test_challenge_factor_message(self):
+        # Specifying a custom message on factor challenge.
 
         data = {
-            "phone": {"number": self.phone_number},
-            "type": "SMS"
+            'phone': {'number': self.phone_number},
+            'type': 'SMS'
         }
         factor = self.account.factors.create(properties=data, challenge=False)
         self.account.refresh()
@@ -149,3 +149,39 @@ class TestFactor(AccountBase):
         message = 'This is my custom message: ${code}.'
         factor.challenge_factor(message)
         self.assertEqual(factor.most_recent_challenge.message, message)
+
+        # Ensure that the default message will be set.
+        default_message = 'Your verification code is ${code}'
+        factor.challenge_factor()
+        self.assertEqual(factor.most_recent_challenge.message, default_message)
+
+    def test_create_factor_message(self):
+        # Specifying a custom message on factor create.
+
+        data = {
+            'phone': {'number': self.phone_number},
+            'challenge': {'message': 'This message is missing a placeholder.'},
+            'type': 'SMS'
+        }
+
+        # Ensure that you cannot specify a message without a '${code}'
+        # placeholder.
+        with self.assertRaises(Error) as error:
+            self.account.factors.create(properties=data, challenge=True)
+        self.assertEqual(
+            error.exception.message,
+            "The challenge message must include '${code}'.")
+
+        # Ensure that you can customize your message.
+        data['challenge']['message'] = 'This is my custom message: ${code}.'
+        factor = self.account.factors.create(properties=data, challenge=True)
+        self.assertEqual(
+            factor.most_recent_challenge.message, data['challenge']['message'])
+
+        factor.delete()
+        data.pop('challenge')
+
+        # Ensure that the default message will be set.
+        default_message = 'Your verification code is ${code}'
+        factor = self.account.factors.create(properties=data, challenge=True)
+        self.assertEqual(factor.most_recent_challenge.message, default_message)

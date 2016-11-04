@@ -10,7 +10,10 @@ from .base import (
 )
 
 
-class Challenge(Resource, DeleteMixin):
+class Challenge(Resource, DeleteMixin, DictMixin, SaveMixin, StatusMixin):
+    """
+    Stormpath Challenge resource.
+    """
 
     writable_attrs = ('message', )
 

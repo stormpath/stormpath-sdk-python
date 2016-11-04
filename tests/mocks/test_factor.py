@@ -18,7 +18,8 @@ class TestFactor(TestCase):
             self.client,
             properties={
                 'href': '/factors/factor_id',
-                'name': 'factor'
+                'name': 'factor',
+                'type': 'SMS'
             })
         self.factors = FactorList(client=self.client, href='test/factors')
         self.challenge = Challenge(
@@ -36,9 +37,9 @@ class TestFactor(TestCase):
         create.return_value = self.factor
 
         properties = {
-            "type": "SMS",
-            "phone": {"number": "+666"},
-            "challenge": {"message": "${code}"}
+            'type': 'SMS',
+            'phone': {'number': '+666'},
+            'challenge': {'message': '${code}'}
         }
 
         self.factors.create(properties=properties.copy(), challenge=False)
@@ -55,8 +56,119 @@ class TestFactor(TestCase):
         update.return_value = self.challenge
 
         self.factor._set_properties({'most_recent_challenge': self.challenge})
-        self.factor.challenge_factor('This is your message ${code}.')
+        self.factor.challenge_factor(message='This is your message ${code}.')
 
         update.assert_called_once_with(
             '/factors/factor_id/challenges',
             {'message': 'This is your message ${code}.'})
+
+    @patch('stormpath.data_store.DataStore.update_resource')
+    def test_challenge_factor_google_authenticator_code(self, update):
+        # Ensure that the code parameter is present when challenging
+        # a google-authenticator factor.
+
+        update.return_value = self.challenge
+
+        self.factor._set_properties({'most_recent_challenge': self.challenge})
+        self.factor.type = 'google-authenticator'
+
+        # Ensure that the missing code will raise an error.
+        with self.assertRaises(ValueError) as error:
+            self.factor.challenge_factor()
+        self.assertEqual(
+            error.exception.message, 'When challenging a ' +
+            'google-authenticator factor, activation code must be provided.')
+
+        # Ensure that the code will challenge the factor.
+        self.factor.challenge_factor(code='123456')
+
+        # Ensure that challenge_factor does not create a request if the code
+        # is missing.
+        update.assert_called_once_with(
+            '/factors/factor_id/challenges',
+            {'message': 'Your verification code is ${code}',
+             'code': '123456'})
+
+    @patch('stormpath.data_store.DataStore.update_resource')
+    def test_challenge_factor_message_default(self, update):
+        # Ensure that the default message is properly set when challenging
+        # factor.
+
+        update.return_value = self.challenge
+
+        self.factor._set_properties({'most_recent_challenge': self.challenge})
+        self.factor.challenge_factor()
+
+        update.assert_called_once_with(
+            '/factors/factor_id/challenges',
+            {'message': 'Your verification code is ${code}'})
+
+    @patch('stormpath.data_store.DataStore.update_resource')
+    def test_challenge_factor_message_custom(self, update):
+        # Ensure that the default message is properly overridden when
+        # challenging factor.
+
+        update.return_value = self.challenge
+
+        self.factor._set_properties({'most_recent_challenge': self.challenge})
+        self.factor.challenge_factor(message='This is your message ${code}.')
+
+        update.assert_called_once_with(
+            '/factors/factor_id/challenges',
+            {'message': 'This is your message ${code}.'})
+
+    @patch('stormpath.resources.base.CollectionResource.create')
+    def test_create_factor_message_custom(self, create):
+        # Ensure that the custom message is properly set when creating a
+        # factor with challenge=True.
+
+        create.return_value = self.challenge
+
+        properties = {
+            'type': 'SMS',
+            'phone': {'number': '+666'},
+            'challenge': {'message': 'This is my custom message ${code}.'}
+        }
+
+        self.factors.create(properties=properties.copy(), challenge=True)
+        create.assert_called_once_with(
+            properties, challenge=True, expand=None)
+
+    @patch('stormpath.resources.base.CollectionResource.create')
+    def test_create_factor_message_default_with_challenge(self, create):
+        # Ensure that the default message is properly set, even if message
+        # is missing from challenge dict.
+
+        properties = {
+            'type': 'SMS',
+            'phone': {'number': '+666'},
+            'challenge': {}
+        }
+        self.factors.create(properties=properties.copy(), challenge=True)
+
+        called_with_properties = {
+            'type': 'SMS',
+            'phone': {'number': '+666'},
+            'challenge': {'message': 'Your verification code is ${code}'}
+        }
+        create.assert_called_once_with(
+            called_with_properties, challenge=True, expand=None)
+
+    @patch('stormpath.resources.base.CollectionResource.create')
+    def test_create_factor_message_default_without_challenge(self, create):
+        # Ensure that the default message is properly set, even if challenge
+        # is missing from properties.
+
+        properties = {
+            'type': 'SMS',
+            'phone': {'number': '+666'}
+        }
+        self.factors.create(properties=properties.copy(), challenge=True)
+
+        called_with_properties = {
+            'type': 'SMS',
+            'phone': {'number': '+666'},
+            'challenge': {'message': 'Your verification code is ${code}'}
+        }
+        create.assert_called_once_with(
+            called_with_properties, challenge=True, expand=None)
