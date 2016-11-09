@@ -6,16 +6,21 @@ from .base import (
     DictMixin,
     Resource,
     SaveMixin,
-    StatusMixin,
 )
 
 
-class Challenge(Resource, DeleteMixin, DictMixin, SaveMixin, StatusMixin):
+class Challenge(Resource, DeleteMixin, DictMixin, SaveMixin):
     """
     Stormpath Challenge resource.
+
+    More info in documentation:
+    https://docs.stormpath.com/python/product-guide/latest/auth_n.html#using-multi-factor-authentication
     """
 
-    writable_attrs = ('message', )
+    writable_attrs = ('message', 'code')
+    STATUS_SUCCESS = 'SUCCESS'
+    STATUS_CREATED = 'CREATED'
+    STATUS_WAITING = 'WAITING'
 
     @staticmethod
     def get_resource_attributes():
@@ -27,18 +32,26 @@ class Challenge(Resource, DeleteMixin, DictMixin, SaveMixin, StatusMixin):
             'factor': Factor,
         }
 
-    def submit_challenge(self, code):
+    def submit(self, code):
         """
         This method will submit a challenge and attempt to activate the
         associated account (if the code is valid).
 
         :param str code: Account activation code.
         """
-        data = {'code': code}
-        self._store.update_resource(self.href, data)
-        self.refresh()
+        self.code = code
+        self.save()
 
         return self
+
+    def is_successful(self):
+        return self.status == self.STATUS_SUCCESS
+
+    def is_created(self):
+        return self.status == self.STATUS_CREATED
+
+    def is_waiting(self):
+        return self.STATUS_WAITING in self.status
 
 
 class ChallengeList(CollectionResource):

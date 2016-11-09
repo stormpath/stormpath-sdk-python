@@ -5,6 +5,7 @@ from unittest import TestCase
 from uuid import uuid4
 
 from stormpath.client import Client
+from stormpath.resources import Phone
 
 
 class LiveBase(TestCase):
@@ -107,6 +108,17 @@ class ApiKeyBase(AccountBase):
 
     def create_api_key(self, acc):
         return acc.api_keys.create()
+
+
+class MFABase(AccountBase):
+
+    def setUp(self):
+        super(MFABase, self).setUp()
+        self.username, self.account = self.create_account(self.app.accounts)
+
+        # This is Twilio's official testing phone number:
+        # https://www.twilio.com/docs/api/rest/test-credentials#test-sms-messages
+        self.phone = self.account.phones.create({'number': '+15005550006'})
 
 
 class SignalReceiver(object):

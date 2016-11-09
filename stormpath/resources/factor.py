@@ -14,10 +14,17 @@ from .phone import Phone
 class Factor(Resource, DeleteMixin, DictMixin, SaveMixin, StatusMixin):
     """
     Stormpath Factor resource.
+
+    More info in documentation:
+    https://docs.stormpath.com/python/product-guide/latest/auth_n.html#using-multi-factor-authentication
     """
 
-    writable_attrs = ('type', 'phone', 'challenge')
-    default_message = 'Your verification code is ${code}'
+    writable_attrs = (
+        'type', 'phone', 'challenge', 'status', 'issuer', 'account_name')
+    STATUS_VERIFIED = 'VERIFIED'
+    STATUS_UNVERIFIED = 'UNVERIFIED'
+    TYPE_SMS = 'SMS'
+    TYPE_GOOGLE = 'google-authenticator'
 
     @staticmethod
     def get_resource_attributes():
@@ -31,7 +38,13 @@ class Factor(Resource, DeleteMixin, DictMixin, SaveMixin, StatusMixin):
             'phone': Phone
         }
 
-    def challenge_factor(self, message=default_message, code=None):
+    def is_verified(self):
+        return self.verification_status == self.STATUS_VERIFIED
+
+    def is_sms(self):
+        return self.type == 'SMS'
+
+    def challenge_factor(self, message=None, code=None):
         """
         This method will challenge a factor and by sending the activation
         code.
@@ -41,17 +54,16 @@ class Factor(Resource, DeleteMixin, DictMixin, SaveMixin, StatusMixin):
         :param str code: Activation code that should be passed on challenge
                creation if factor type is 'google-authenticator'.
         """
-        data = {'message': message}
-        if self.type == 'google-authenticator':
+        if self.is_sms():
+            properties = {'message': message}
+        else:
             if code is None:
                 raise ValueError(
                     'When challenging a google-authenticator factor, ' +
                     'activation code must be provided.')
-            data['code'] = code
-        self._store.update_resource(self.href + '/challenges', data)
-        self.refresh()
+            properties = {'code': code}
 
-        return self.most_recent_challenge
+        return self.challenges.create(properties=properties)
 
 
 class FactorList(CollectionResource):
@@ -60,22 +72,20 @@ class FactorList(CollectionResource):
 
     def create(self, properties, challenge=True, expand=None, **params):
         """
-        This methods will check for the challenge argument, set the proper
+        This method will check for the challenge argument, set the proper
         message (custom or default), and call the CollectionResource create
         method.
 
         :param bool challenge: Determines if a challenge is created on factor
                creation.
         """
-        if not challenge:
+        if not challenge and 'challenge' in properties:
             # If we set url query string challenge to false, make sure that
             # challenge is also absent from the body, otherwise a challenge
             # will be created.
-            properties.pop('challenge', None)
-        elif challenge and 'message' not in properties.get('challenge', {}):
-            # Set default message if one is not specified.
-            properties['challenge'] = {
-                'message': self.resource_class.default_message}
+            raise ValueError(
+                'If challenge is set to False, it must also be absent ' +
+                'from properties.')
 
         return super(FactorList, self).create(
             properties, challenge=challenge, expand=expand, **params)

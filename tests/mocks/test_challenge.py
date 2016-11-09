@@ -48,13 +48,13 @@ class TestChallenge(TestCase):
                 'account': self.account
             })
 
-    def test_submit_challenge(self):
-        # Ensure that submitting challenge will produce the proper request.
+    def test_submit(self):
+        # Ensure that submitting a challenge will produce a proper request.
 
         # Set activation code and most recent challenge
         data = {'code': '000000'}
         self.factor._set_properties({'most_recent_challenge': self.challenge})
-        self.factor.most_recent_challenge.submit_challenge(data['code'])
+        self.factor.most_recent_challenge.submit(data['code'])
 
         # Ensure that a POST request was made to submit the challenge,
         # and a GET request to refresh the instance.
@@ -83,3 +83,22 @@ class TestChallenge(TestCase):
             }
         )
         self.assertEqual(tuple(call2), call_params)
+
+    def test_status_successful(self):
+        # Ensure that successful status method is properly working.
+
+        self.challenge._set_properties({'status': 'SUCCESS'})
+        self.assertTrue(self.challenge.is_successful())
+
+    def test_status_waiting(self):
+        # Ensure that waiting status method is properly working.
+
+        # Ensure that WAITING_FOR_PROVIDER (waiting for Twilio to send it out)
+        # will return True on is_waiting().
+        self.challenge._set_properties({'status': 'WAITING_FOR_PROVIDER'})
+        self.assertTrue(self.challenge.is_waiting())
+
+        # Ensure that WAITING_FOR_VALIDATION (waiting for user to submit code)
+        # will return True on is_waiting().
+        self.challenge._set_properties({'status': 'WAITING_FOR_VALIDATION'})
+        self.assertTrue(self.challenge.is_waiting())

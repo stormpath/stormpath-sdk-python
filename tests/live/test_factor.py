@@ -1,27 +1,19 @@
 """Live tests of Factors and MFA functionality."""
 
-from .base import AccountBase
+from .base import MFABase
 from stormpath.resources.factor import FactorList
 from stormpath.resources.challenge import Challenge, ChallengeList
 from stormpath.resources.phone import PhoneList
 from stormpath.error import Error
 
 
-class TestFactor(AccountBase):
-
-    def setUp(self):
-        super(TestFactor, self).setUp()
-        self.username, self.account = self.create_account(self.app.accounts)
-
-        # This is Twilio's official testing phone number:
-        # https://www.twilio.com/docs/api/rest/test-credentials#test-sms-messages
-        self.phone_number = '+15005550006'
+class TestFactor(MFABase):
 
     def test_create(self):
         # Create a factor.
 
         data = {
-            'phone': {'number': self.phone_number},
+            'phone': self.phone,
             'challenge': {'message': '${code}'},
             'type': 'SMS'
         }
@@ -56,7 +48,7 @@ class TestFactor(AccountBase):
         # Create factor with challenge.
 
         data = {
-            'phone': {'number': self.phone_number},
+            'phone': self.phone,
             'challenge': {'message': '${code}'},
             'type': 'SMS'
         }
@@ -75,7 +67,7 @@ class TestFactor(AccountBase):
         # Create factor without challenge.
 
         data = {
-            'phone': {'number': self.phone_number},
+            'phone': self.phone,
             'type': 'SMS'
         }
         factor = self.account.factors.create(properties=data, challenge=False)
@@ -89,38 +81,48 @@ class TestFactor(AccountBase):
         self.assertEqual(len(factor.challenges.items), 0)
         self.assertEqual(factor.most_recent_challenge, None)
 
-        # Ensure that passing the challenge params while challenge == False
+        # Ensure that passing the challenge params while challenge=False
         # won't create a challenge.
         factor.delete()
         data = {
-            'phone': {'number': self.phone_number},
+            'phone': self.phone,
             'challenge': {'message': '${code}'},
             'type': 'SMS'
         }
-        factor = self.account.factors.create(properties=data, challenge=False)
-        self.account.refresh()
+        with self.assertRaises(ValueError) as error:
+            factor = self.account.factors.create(
+                properties=data, challenge=False)
+        error_msg = (
+            'If challenge is set to False, it must also be absent ' +
+            'from properties.')
+        self.assertEqual(error.exception.message, error_msg)
 
         # Ensure that the newly created factor did not create a challenge.
         self.assertEqual(len(factor.challenges.items), 0)
         self.assertIsNone(factor.most_recent_challenge)
 
-    def test_challenge(self):
-        # Create a challenge by challenging our factor.
+    def test_challenge_list(self):
+        # Ensure that challenges are present in our ChallengeList after we've
+        # created them.
 
         data = {
-            'phone': {'number': self.phone_number},
+            'phone': self.phone,
             'type': 'SMS'
         }
+
+        # Ensure that challenge=False will not create a challenge
         factor = self.account.factors.create(properties=data, challenge=False)
-        self.account.refresh()
+        factor.refresh()
+        self.assertEqual(len(factor.challenges.items), 0)
 
         # Ensure that the factor will create a challenge.
-        self.assertEqual(len(factor.challenges.items), 0)
-        challenge = factor.challenge_factor('${code}')
+        challenge = factor.challenge_factor(message='${code}')
+        factor.refresh()
         self.assertEqual(len(factor.challenges.items), 1)
 
         # Ensure that you can create a new challenge on top of the old one.
-        challenge2 = factor.challenge_factor('${code}')
+        challenge2 = factor.challenge_factor(message='New ${code}')
+        factor.refresh()
         self.assertEqual(len(factor.challenges.items), 2)
         self.assertNotEqual(challenge, challenge2)
 
@@ -128,11 +130,10 @@ class TestFactor(AccountBase):
         # Specifying a custom message on factor challenge.
 
         data = {
-            'phone': {'number': self.phone_number},
+            'phone': self.phone,
             'type': 'SMS'
         }
         factor = self.account.factors.create(properties=data, challenge=False)
-        self.account.refresh()
 
         # Ensure that you cannot specify a message without a '${code}'
         # placeholder.
@@ -147,19 +148,21 @@ class TestFactor(AccountBase):
 
         # Ensure that you can customize your message.
         message = 'This is my custom message: ${code}.'
-        factor.challenge_factor(message)
+        factor.challenge_factor(message=message)
+        factor.refresh()
         self.assertEqual(factor.most_recent_challenge.message, message)
 
         # Ensure that the default message will be set.
         default_message = 'Your verification code is ${code}'
         factor.challenge_factor()
+        factor.refresh()
         self.assertEqual(factor.most_recent_challenge.message, default_message)
 
     def test_create_factor_message(self):
         # Specifying a custom message on factor create.
 
         data = {
-            'phone': {'number': self.phone_number},
+            'phone': self.phone,
             'challenge': {'message': 'This message is missing a placeholder.'},
             'type': 'SMS'
         }
