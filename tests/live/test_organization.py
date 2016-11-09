@@ -197,7 +197,7 @@ class TestOrganizations(SingleApplicationBase):
 
         acc_name = self.get_random_name()
         acc_password = 'W00t123!' + acc_name
-        acc_email = acc_name + '@example.com'
+        acc_email = acc_name + '@testmail.stormpath.com'
         acc = organization.accounts.create(
             {
                 'surname': acc_name,
@@ -244,7 +244,7 @@ class TestOrganizations(SingleApplicationBase):
 
         acc_name = self.get_random_name()
         acc_password = 'W00t123!' + acc_name
-        acc_email = acc_name + '@example.com'
+        acc_email = acc_name + '@testmail.stormpath.com'
         acc = organization.accounts.create(
             {
                 'surname': acc_name,

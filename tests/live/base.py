@@ -81,7 +81,7 @@ class AccountBase(SingleApplicationBase):
         if username is None:
             username = self.get_random_name()
         if email is None:
-            email = username + '@example.com'
+            email = username + '@testmail.stormpath.com'
         if given_name is None:
             given_name = 'Given ' + username
         if surname is None:

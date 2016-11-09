@@ -24,7 +24,7 @@ class TestVerificationEmail(TestCase):
 
         acc = Account(
             client=client,
-            properties={'href': 'test/app','email': 'some@email.com'})
+            properties={'href': 'test/app','email': 'some@testmail.stormpath.com'})
         vel = VerificationEmailList(client=client, href='test/emails')
         app = Application(
             client=client,
@@ -35,7 +35,7 @@ class TestVerificationEmail(TestCase):
 
         ds.create_resource.assert_called_once_with(
             'http://example.com/test/emails',
-            {'login': 'some@email.com', 'account_store': 'test/directory'})
+            {'login': 'some@testmail.stormpath.com', 'account_store': 'test/directory'})
 
 
 if __name__ == '__main__':

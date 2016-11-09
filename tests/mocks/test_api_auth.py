@@ -1392,7 +1392,7 @@ class AuthenticatorsTest(TestCase):
 
         pga = PasswordGrantAuthenticator(self.application)
         self.session.return_value.request.return_value = pga_return
-        pga.authenticate('some@user.com', 'secret')
+        pga.authenticate('some@testmail.stormpath.com', 'secret')
 
         self.session.return_value.request.assert_called_with('POST', 'https://api.stormpath.com/v1/applications/application_url/oauth/token',
             headers = {'Content-Type': 'application/x-www-form-urlencoded', 'Accept': 'application/json'},
@@ -1401,7 +1401,7 @@ class AuthenticatorsTest(TestCase):
             data = {
                 'grant_type': 'password',
                 'password': 'secret',
-                'username': 'some@user.com',
+                'username': 'some@testmail.stormpath.com',
             }
         )
 

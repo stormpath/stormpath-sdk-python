@@ -21,7 +21,7 @@ class TestMirrorDirectoryAgent(AuthenticatedLiveBase):
                         'directory_host': 'ldap.local',
                         'directory_port': '666',
                         'ssl_required': True,
-                        'agent_user_dn': 'user@somewhere.com',
+                        'agent_user_dn': 'user@testmail.stormpath.com',
                         'agent_user_dn_password': 'Password',
                         'base_dn': 'dc=example,dc=com',
                         'poll_interval': 60,

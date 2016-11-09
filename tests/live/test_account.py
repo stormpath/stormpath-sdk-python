@@ -68,7 +68,7 @@ class TestAccountCreateUpdateDelete(AccountBase):
 
     def test_directory_account_creation_with_existing_password_hash(self):
         name = self.get_random_name()
-        email = name + '@example.com'
+        email = name + '@testmail.stormpath.com'
         password = "123456"
         # password hash for "123456" password:
         password_hash = "$stormpath2$MD5$1$OWI3OTQwYjEwODEwOTdkNTcwZDY5NjQ2ZDNlNmZjNzM=$ULWTW74NXPyLYj3VfYHWrg=="
@@ -111,15 +111,15 @@ class TestAccountCreateUpdateDelete(AccountBase):
             self.create_account(self.app.accounts, username=name)
 
     def test_duplicate_email_acc_creation_fails(self):
-        self.create_account(self.app.accounts, email='foo@example.com')
+        self.create_account(self.app.accounts, email='foo@testmail.stormpath.com')
 
         with self.assertRaises(Error):
-            self.create_account(self.app.accounts, email='foo@example.com')
+            self.create_account(self.app.accounts, email='foo@testmail.stormpath.com')
 
     def test_account_modification(self):
         name, acc = self.create_account(self.app.accounts)
 
-        acc.email = 'foo@example.com'
+        acc.email = 'foo@testmail.stormpath.com'
         acc.status = acc.STATUS_DISABLED
         acc.save()
 
@@ -133,7 +133,7 @@ class TestAccountCreateUpdateDelete(AccountBase):
 
         acc = self.app.accounts.get(acc.href)
 
-        acc.email = 'foo@example.com'
+        acc.email = 'foo@testmail.stormpath.com'
         acc.status = acc.STATUS_DISABLED
         acc.custom_data['key'] = 'value'
         acc.save()
@@ -142,7 +142,7 @@ class TestAccountCreateUpdateDelete(AccountBase):
 
         self.assertEqual(len(accs), 1)
         acc = accs[0]
-        self.assertEqual(acc.email, 'foo@example.com')
+        self.assertEqual(acc.email, 'foo@testmail.stormpath.com')
         self.assertEqual(acc.custom_data['key'], 'value')
         self.assertFalse(accs[0].is_enabled())
 
@@ -152,7 +152,7 @@ class TestAccountCreateUpdateDelete(AccountBase):
 
         acc = self.app.accounts.get(acc.href)
 
-        acc.email = 'foo@example.com'
+        acc.email = 'foo@testmail.stormpath.com'
         acc.status = acc.STATUS_DISABLED
         acc.refresh()
         acc.custom_data['key'] = 'value'
@@ -171,7 +171,7 @@ class TestApplicationAuthentication(AccountBase):
 
     def setUp(self):
         super(TestApplicationAuthentication, self).setUp()
-        self.email = self.get_random_name() + '@example.com'
+        self.email = self.get_random_name() + '@testmail.stormpath.com'
         self.password = 'W00t123!' + self.get_random_name()
         self.username, self.acc = self.create_account(self.app.accounts,
             email=self.email, password=self.password)
@@ -217,7 +217,7 @@ class TestApplicationAuthentication(AccountBase):
 
         acc_name = self.get_random_name()
         acc_password = 'W00t123!' + acc_name
-        acc_email = acc_name + '@example.com'
+        acc_email = acc_name + '@testmail.stormpath.com'
         acc = organization.accounts.create(
             {
                 'surname': acc_name,
@@ -269,7 +269,7 @@ class TestApplicationAuthentication(AccountBase):
 
         acc_name = self.get_random_name()
         acc_password = 'W00t123!' + acc_name
-        acc_email = acc_name + '@example.com'
+        acc_email = acc_name + '@testmail.stormpath.com'
         acc = organization.accounts.create(
             {
                 'surname': acc_name,
@@ -296,7 +296,7 @@ class TestPasswordReset(AccountBase):
 
     def setUp(self):
         super(TestPasswordReset, self).setUp()
-        self.email = self.get_random_name() + '@email.com'
+        self.email = self.get_random_name() + '@testmail.stormpath.com'
         _, self.acc = self.create_account(self.app.accounts, email=self.email)
 
     def test_password_reset_workflow(self):
