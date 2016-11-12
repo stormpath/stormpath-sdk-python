@@ -858,7 +858,7 @@ class TestSamlApplication(AuthenticatedLiveBase):
         self.app.save()
         self.app.refresh()
         self.assertEqual(len(self.app.authorized_callback_uris), 3)
-        self.assertEqual(self.app.authorized_callback_uris, [uri2, uri3, uri4])
+        self.assertEqual(self.app.authorized_callback_uris, [uri2, uri4, uri3])
 
     def test_authorized_callback_uris_pop(self):
         self.assertEqual(self.app.authorized_callback_uris, [])
