@@ -106,12 +106,8 @@ class TestProviderDirectories(AuthenticatedLiveBase):
             'is_default_group_store': False
         })
 
-        with self.assertRaises(StormpathError) as se:
-            app.get_provider_account(provider=Provider.FACEBOOK, access_token=access_token)
-
-        self.assertTrue('Stormpath is unable to create or update the account because the '
-            'Facebook response did not contain the required \'email\' '
-            'property.' in str(se.exception.developer_message))
+        account = app.get_provider_account(provider=Provider.FACEBOOK, access_token=access_token)
+        self.assertTrue(account)
 
         directory.delete()
         app.delete()
