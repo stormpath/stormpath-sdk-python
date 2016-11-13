@@ -60,13 +60,6 @@ class AuthenticatedLiveBase(LiveBase):
             for resource in list(getattr(self.client, collection).search(self.prefix)):
                 resource.delete()
 
-        for collection in self.COLLECTION_RESOURCES:
-            for resource in list(getattr(self.client, collection)):
-                try:
-                    resource.delete()
-                except:
-                    pass
-
 
 class SingleApplicationBase(AuthenticatedLiveBase):
 
