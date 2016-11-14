@@ -7,6 +7,11 @@ Version 2.4.6
 - Adding support for `Account.password_modified_at` property.
 - Adding support for `Error.request_id` property.
 - Simplifying Travis build scripts for speed.
+- Re-arranging private SSH key files for builds.
+- Cleaning up Facebook Graph API test accounts after each test run to prevent
+  errors.
+- Adding support for `PasswordStrength.prevent_reuse` setting which allows
+  developers to control password reuse settings for their Directories.
 
 
 Version 2.4.5
