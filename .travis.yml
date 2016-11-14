@@ -9,8 +9,8 @@ install:
 - pip install -e .[test]
 script:
 - python setup.py test
-- test -z "$BUILD_DOCS" || python setup.py docs
 - test -z "$STORMPATH_API_KEY_SECRET" || python setup.py livetest
+- test -z "$BUILD_DOCS" || python setup.py docs
 after_success:
 - coverage xml
 - coveralls
