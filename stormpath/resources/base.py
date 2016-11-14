@@ -181,8 +181,8 @@ class Resource(object):
                 # No idea what kind of resource it is, but let's load it
                 # it anyways.
                 value = Resource(self._client, href=value['href'])
-            elif name in ['created_at', 'modified_at']:
-                value = parse(value)
+            elif name in ['created_at', 'modified_at', 'password_modified_at']:
+                value = parse(value) if value is not None else value
             elif name in self.timedelta_attrs:
                 value = parse_duration(value)
 
