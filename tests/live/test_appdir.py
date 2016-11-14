@@ -345,33 +345,23 @@ class TestApplicationVerificationEmail(AccountBase):
             self.app.verification_emails.resend(acc, self.dir)
 
 
-class TestDirectoryPasswordPolicy(SingleApplicationBase):
+class TestDirectoryPasswordPolicy(AccountBase):
 
     def test_password_policy_properties(self):
         password_policy = self.dir.password_policy
 
         self.assertTrue(password_policy.href)
-        self.assertEqual(
-            password_policy.reset_email_status,
-            PasswordPolicy.RESET_EMAIL_STATUS_ENABLED)
-        self.assertEqual(
-            password_policy.reset_success_email_status,
-            PasswordPolicy.RESET_EMAIL_STATUS_ENABLED)
+        self.assertEqual(password_policy.reset_email_status, PasswordPolicy.RESET_EMAIL_STATUS_ENABLED)
+        self.assertEqual(password_policy.reset_success_email_status, PasswordPolicy.RESET_EMAIL_STATUS_ENABLED)
         self.assertEqual(password_policy.reset_token_ttl, 24)
 
-        password_policy.reset_email_status = \
-            PasswordPolicy.RESET_EMAIL_STATUS_DISABLED
-        password_policy.reset_success_email_status = \
-            PasswordPolicy.RESET_EMAIL_STATUS_DISABLED
+        password_policy.reset_email_status = PasswordPolicy.RESET_EMAIL_STATUS_DISABLED
+        password_policy.reset_success_email_status = PasswordPolicy.RESET_EMAIL_STATUS_DISABLED
         password_policy.reset_token_ttl = 100
         password_policy.save()
 
-        self.assertEqual(
-            password_policy.reset_email_status,
-            PasswordPolicy.RESET_EMAIL_STATUS_DISABLED)
-        self.assertEqual(
-            password_policy.reset_success_email_status,
-            PasswordPolicy.RESET_EMAIL_STATUS_DISABLED)
+        self.assertEqual(password_policy.reset_email_status, PasswordPolicy.RESET_EMAIL_STATUS_DISABLED)
+        self.assertEqual(password_policy.reset_success_email_status, PasswordPolicy.RESET_EMAIL_STATUS_DISABLED)
         self.assertEqual(password_policy.reset_token_ttl, 100)
 
     def test_directory_password_policy_strength(self):
@@ -385,6 +375,7 @@ class TestDirectoryPasswordPolicy(SingleApplicationBase):
         self.assertEqual(strength.min_lower_case, 1)
         self.assertEqual(strength.max_length, 100)
         self.assertEqual(strength.min_numeric, 1)
+        self.assertEqual(strength.prevent_reuse, 0)
 
         strength.min_symbol = 1
         strength.min_diacritic = 2
@@ -393,6 +384,7 @@ class TestDirectoryPasswordPolicy(SingleApplicationBase):
         strength.min_lower_case = 5
         strength.max_length = 20
         strength.min_numeric = 6
+        strength.prevent_reuse = 1
         strength.save()
 
         self.assertEqual(strength.min_symbol, 1)
@@ -402,6 +394,53 @@ class TestDirectoryPasswordPolicy(SingleApplicationBase):
         self.assertEqual(strength.min_lower_case, 5)
         self.assertEqual(strength.max_length, 20)
         self.assertEqual(strength.min_numeric, 6)
+        self.assertEqual(strength.prevent_reuse, 1)
+
+    def test_directory_password_policy_strength_reuse(self):
+        strength = self.dir.password_policy.strength
+        strength.prevent_reuse = 1
+        strength.save()
+
+        _ , acc = self.create_account(self.app.accounts)
+        acc.password = 'H!Th3r3woo!'
+        acc.save()
+
+        with self.assertRaises(Error):
+            acc.password = 'H!Th3r3woo!'
+            acc.save()
+
+        acc.password = '0mgN000!oOO'
+        acc.save()
+
+        acc.password = 'H!Th3r3woo!'
+        acc.save()
+
+        strength.prevent_reuse = 2
+        strength.save()
+
+        _ , acc = self.create_account(self.app.accounts)
+        acc.password = 'H!Th3r3woo!'
+        acc.save()
+
+        acc.password = '0mgN000!oOO'
+        acc.save()
+
+        with self.assertRaises(Error):
+            acc.password = 'H!Th3r3woo!'
+            acc.save()
+
+        acc.password = 'wHatsUpD0c?'
+        acc.save()
+
+        acc.password = 'H!Th3r3woo!'
+        acc.save()
+
+        strength.prevent_reuse = 25
+        strength.save()
+
+        with self.assertRaises(Error):
+            strength.prevent_reuse = 26
+            strength.save()
 
     def test_directory_reset_email_template_list(self):
         templates = self.dir.password_policy.reset_email_templates
