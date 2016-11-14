@@ -26,6 +26,7 @@ class PasswordStrength(Resource, DictMixin, SaveMixin):
         'min_numeric',
         'min_symbol',
         'min_upper_case',
+        'prevent_reuse',
     )
 
     NUMERIC_DIGIT_MIN = u'\u0030'
