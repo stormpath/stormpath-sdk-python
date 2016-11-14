@@ -1,3 +1,14 @@
+Version 2.4.6
+-------------
+
+**Not yet released.**
+
+- Fixing broken tests.
+- Adding support for `Account.password_modified_at` property.
+- Adding support for `Error.request_id` property.
+- Simplifying Travis build scripts for speed.
+
+
 Version 2.4.5
 -------------
 
