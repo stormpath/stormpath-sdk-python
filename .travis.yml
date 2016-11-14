@@ -31,14 +31,10 @@ after_success:
 - test -z "$DEPLOY_DOCS" || git add --all
 - test -z "$DEPLOY_DOCS" || git commit -m "stormpath-sdk-python release $RELEASE_VERSION"
 - test -z "$DEPLOY_DOCS" || git push origin source
-branches:
-  only:
-  - master
-  - develop
 env:
   global:
-  - secure: A9wEUphFS7vwLzQ2aseYhobr0gR+YtmFWSj4Dths0Fp9ip/dhCtx5maABBMwJuNYO+GZolP9TjpUqppy0wq14SiTBOphpTmnZxmgNpHxVX9vXWGIO6Be/Re7Z2iamA3whiA/Ogx6PVkFbjCctlxl9Sy2dfvkkj3QAeJfkGLgXR4=
   - STORMPATH_BASE_URL=https://api.stormpath.com/v1
+  - secure: A9wEUphFS7vwLzQ2aseYhobr0gR+YtmFWSj4Dths0Fp9ip/dhCtx5maABBMwJuNYO+GZolP9TjpUqppy0wq14SiTBOphpTmnZxmgNpHxVX9vXWGIO6Be/Re7Z2iamA3whiA/Ogx6PVkFbjCctlxl9Sy2dfvkkj3QAeJfkGLgXR4=
   - secure: hoXPNFIcNy4iqR/bTBgUZhCBT66pb+QXI39ArMXAUvx5lAYhdpnpnN8j4xmiY8d6KOgf9lM3eBBJe/F17lE+xBUrZ/ympgGu6ctQjt0RtmwtyQg+OH40+2K9Gz15dxNxv67WySx5rGfGuX+tEw3pxcsXi2anAqQAOdqq1w2Sc1A=
   - secure: P3kOlZN04EVT6WoQ/P+Ri1CRUz+4LuFEUAElvOBdbAoU7BPyLRSReUG8xsq4MfyjPyGFxD2Tv/OthlRcNgNcdGdaLnMJa7JRnVkeLmDG/HbFNkw/auwID4ut3k3tKyV9jlETN8T814BDKZnfwIeXiUJElsslXl8Q+IQKmz0JqAY=
   - secure: Rg3r6TRbBbiszXNkASfhAW5/as56VuT+oFR50bYohHn1+OqyRcinIjwV2lFZb/C/FYhb6qqPGRitDGx92sOhI8Sgq3JSVPDfgcIale0bC9YRQxZKOo+TSzNrIMQEChi5hKTmLGSMopJRuie+MJSFdYTpzLa4+HvojSuh+EsGGIU=
