@@ -12,6 +12,8 @@ Version 2.4.6
   errors.
 - Adding support for `PasswordStrength.prevent_reuse` setting which allows
   developers to control password reuse settings for their Directories.
+- Adding support for `AccountSchema` and `Field` resources.
+- Adding tests for new `AccountSchema` and `Field` resources.
 
 
 Version 2.4.5
