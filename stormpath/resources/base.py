@@ -295,7 +295,7 @@ class Resource(object):
 class SaveMixin(object):
     def save(self):
         if self.is_new():
-            raise ValueError("Can't save new resources, use create instead")
+            raise ValueError("Can't save new resources, use create instead.")
 
         properties = self._get_properties()
         data = self._store.update_resource(self.href, properties)
