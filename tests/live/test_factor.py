@@ -95,7 +95,7 @@ class TestFactor(MFABase):
         error_msg = (
             'If challenge is set to False, it must also be absent ' +
             'from properties.')
-        self.assertEqual(error.exception.message, error_msg)
+        self.assertEqual(str(error.exception), error_msg)
 
         # Ensure that the newly created factor did not create a challenge.
         self.assertEqual(len(factor.challenges.items), 0)

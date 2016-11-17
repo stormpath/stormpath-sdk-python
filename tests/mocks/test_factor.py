@@ -47,7 +47,7 @@ class TestFactor(TestCase):
         error_msg = (
             'If challenge is set to False, it must also be absent ' +
             'from properties.')
-        self.assertEqual(error.exception.message, error_msg)
+        self.assertEqual(str(error.exception), error_msg)
 
     @patch('stormpath.resources.challenge.ChallengeList.create')
     def test_challenge_factor_correct_params(self, create):
@@ -75,7 +75,7 @@ class TestFactor(TestCase):
         with self.assertRaises(ValueError) as error:
             self.factor.challenge_factor()
         self.assertEqual(
-            error.exception.message, 'When challenging a ' +
+            str(error.exception), 'When challenging a ' +
             'google-authenticator factor, activation code must be provided.')
 
         # Ensure that the code will challenge the factor.

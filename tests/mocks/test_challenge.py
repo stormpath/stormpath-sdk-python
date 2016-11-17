@@ -19,7 +19,7 @@ class TestChallenge(TestCase):
 
         # Set mock.
         self.request_mock = Session.return_value.request
-        self.request_mock.return_value = MagicMock()
+        self.request_mock.return_value = MagicMock(status_code=200)
 
         ex = HttpExecutor('https://api.stormpath.com/v1', ('user', 'pass'))
         self.client = MagicMock(BASE_URL='http://example.com')
