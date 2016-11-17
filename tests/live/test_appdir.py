@@ -1,6 +1,6 @@
 """Live tests of basic Application and Directory functionality."""
 
-import datetime
+from datetime import datetime, timedelta
 
 from stormpath.error import Error
 
@@ -345,33 +345,23 @@ class TestApplicationVerificationEmail(AccountBase):
             self.app.verification_emails.resend(acc, self.dir)
 
 
-class TestDirectoryPasswordPolicy(SingleApplicationBase):
+class TestDirectoryPasswordPolicy(AccountBase):
 
     def test_password_policy_properties(self):
         password_policy = self.dir.password_policy
 
         self.assertTrue(password_policy.href)
-        self.assertEqual(
-            password_policy.reset_email_status,
-            PasswordPolicy.RESET_EMAIL_STATUS_ENABLED)
-        self.assertEqual(
-            password_policy.reset_success_email_status,
-            PasswordPolicy.RESET_EMAIL_STATUS_ENABLED)
+        self.assertEqual(password_policy.reset_email_status, PasswordPolicy.RESET_EMAIL_STATUS_ENABLED)
+        self.assertEqual(password_policy.reset_success_email_status, PasswordPolicy.RESET_EMAIL_STATUS_ENABLED)
         self.assertEqual(password_policy.reset_token_ttl, 24)
 
-        password_policy.reset_email_status = \
-            PasswordPolicy.RESET_EMAIL_STATUS_DISABLED
-        password_policy.reset_success_email_status = \
-            PasswordPolicy.RESET_EMAIL_STATUS_DISABLED
+        password_policy.reset_email_status = PasswordPolicy.RESET_EMAIL_STATUS_DISABLED
+        password_policy.reset_success_email_status = PasswordPolicy.RESET_EMAIL_STATUS_DISABLED
         password_policy.reset_token_ttl = 100
         password_policy.save()
 
-        self.assertEqual(
-            password_policy.reset_email_status,
-            PasswordPolicy.RESET_EMAIL_STATUS_DISABLED)
-        self.assertEqual(
-            password_policy.reset_success_email_status,
-            PasswordPolicy.RESET_EMAIL_STATUS_DISABLED)
+        self.assertEqual(password_policy.reset_email_status, PasswordPolicy.RESET_EMAIL_STATUS_DISABLED)
+        self.assertEqual(password_policy.reset_success_email_status, PasswordPolicy.RESET_EMAIL_STATUS_DISABLED)
         self.assertEqual(password_policy.reset_token_ttl, 100)
 
     def test_directory_password_policy_strength(self):
@@ -385,6 +375,7 @@ class TestDirectoryPasswordPolicy(SingleApplicationBase):
         self.assertEqual(strength.min_lower_case, 1)
         self.assertEqual(strength.max_length, 100)
         self.assertEqual(strength.min_numeric, 1)
+        self.assertEqual(strength.prevent_reuse, 0)
 
         strength.min_symbol = 1
         strength.min_diacritic = 2
@@ -393,6 +384,7 @@ class TestDirectoryPasswordPolicy(SingleApplicationBase):
         strength.min_lower_case = 5
         strength.max_length = 20
         strength.min_numeric = 6
+        strength.prevent_reuse = 1
         strength.save()
 
         self.assertEqual(strength.min_symbol, 1)
@@ -402,6 +394,53 @@ class TestDirectoryPasswordPolicy(SingleApplicationBase):
         self.assertEqual(strength.min_lower_case, 5)
         self.assertEqual(strength.max_length, 20)
         self.assertEqual(strength.min_numeric, 6)
+        self.assertEqual(strength.prevent_reuse, 1)
+
+    def test_directory_password_policy_strength_reuse(self):
+        strength = self.dir.password_policy.strength
+        strength.prevent_reuse = 1
+        strength.save()
+
+        _ , acc = self.create_account(self.app.accounts)
+        acc.password = 'H!Th3r3woo!'
+        acc.save()
+
+        with self.assertRaises(Error):
+            acc.password = 'H!Th3r3woo!'
+            acc.save()
+
+        acc.password = '0mgN000!oOO'
+        acc.save()
+
+        acc.password = 'H!Th3r3woo!'
+        acc.save()
+
+        strength.prevent_reuse = 2
+        strength.save()
+
+        _ , acc = self.create_account(self.app.accounts)
+        acc.password = 'H!Th3r3woo!'
+        acc.save()
+
+        acc.password = '0mgN000!oOO'
+        acc.save()
+
+        with self.assertRaises(Error):
+            acc.password = 'H!Th3r3woo!'
+            acc.save()
+
+        acc.password = 'wHatsUpD0c?'
+        acc.save()
+
+        acc.password = 'H!Th3r3woo!'
+        acc.save()
+
+        strength.prevent_reuse = 25
+        strength.save()
+
+        with self.assertRaises(Error):
+            strength.prevent_reuse = 26
+            strength.save()
 
     def test_directory_reset_email_template_list(self):
         templates = self.dir.password_policy.reset_email_templates
@@ -512,6 +551,81 @@ class TestDirectoryPasswordPolicy(SingleApplicationBase):
             template.html_body,
             'Your password has been <b>successfully</b> reset.')
         self.assertEqual(template.mime_type, EmailTemplate.MIME_TYPE_HTML)
+
+
+class TestDirectoryAccountSchema(AccountBase):
+
+    def test_account_schema_properties(self):
+        schema = self.dir.account_schema
+
+        self.assertTrue(schema.href)
+        self.assertTrue(schema.created_at)
+        self.assertTrue(schema.modified_at)
+        self.assertTrue(schema.fields.href)
+        self.assertIsInstance(schema.created_at, datetime)
+        self.assertIsInstance(schema.modified_at, datetime)
+        self.assertEqual(schema.directory.href, self.dir.href)
+
+def TestDirectoryAccountSchemaFields(AccountBase):
+
+    def test_fields_properties(self):
+        fields = self.dir.account_schema.fields
+
+        self.assertEqual(len(fields), 2)
+
+        for field in fields:
+            self.assertTrue(field.href)
+            self.assertTrue(field.created_at)
+            self.assertTrue(field.modified_at)
+            self.assertIsInstance(field.created_at, datetime)
+            self.assertIsInstance(field.modified_at, datetime)
+            self.assertTrue(field.name)
+            self.assertFalse(field.required)
+            self.assertTrue(field.schema.href)
+
+        for field in fields:
+            field.required = True
+            field.save()
+
+        for field in fields:
+            self.assertTrue(field.required)
+
+    def test_fields_required(self):
+        fields = self.dir.account_schema.fields
+
+        acc = self.dir.accounts.create({
+            'email': 'test@testmail.stormpath.com',
+            'password': 'hIthereIL0V3C00kies!!',
+        })
+
+        self.assertEqual(acc.given_name, None)
+        self.assertEqual(acc.surname, None)
+
+        for field in fields:
+            field.required = True
+            field.svae()
+
+        with self.assertRaises(Error):
+            acc = self.dir.accounts.create({
+                'email': 'test@testmail.stormpath.com',
+                'password': 'hIthereIL0V3C00kies!!',
+            })
+
+        acc = self.dir.accounts.create({
+            'given_name': 'Randall',
+            'surname': 'Degges',
+            'email': 'test@testmail.stormpath.com',
+            'password': 'hIthereIL0V3C00kies!!',
+        })
+
+    def test_fields_search(self):
+        fields = self.dir.account_schema.fields
+
+        field = fields.search('givenName')[0]
+        self.assertEqual(field.name, 'givenName')
+
+        field = fields.search('surname')[0]
+        self.assertEqual(field.name, 'surname')
 
 
 class TestDirectoryAccountCreationPolicy(SingleApplicationBase):
@@ -666,9 +780,9 @@ class TestApplicationOAuthPolicy(SingleApplicationBase):
         self.assertTrue(oauth_policy.access_token_ttl)
         self.assertTrue(oauth_policy.refresh_token_ttl)
         self.assertTrue(
-            isinstance(oauth_policy.access_token_ttl, datetime.timedelta))
+            isinstance(oauth_policy.access_token_ttl, timedelta))
         self.assertTrue(
-            isinstance(oauth_policy.refresh_token_ttl, datetime.timedelta))
+            isinstance(oauth_policy.refresh_token_ttl, timedelta))
         self.assertTrue(oauth_policy.token_endpoint)
 
     def test_oauth_policy_linked_resources(self):
@@ -688,22 +802,22 @@ class TestApplicationOAuthPolicy(SingleApplicationBase):
         oauth_policy.refresh()
 
         self.assertEqual(
-            oauth_policy.access_token_ttl, datetime.timedelta(hours=5))
+            oauth_policy.access_token_ttl, timedelta(hours=5))
         self.assertEqual(
-            oauth_policy.refresh_token_ttl, datetime.timedelta(hours=10))
+            oauth_policy.refresh_token_ttl, timedelta(hours=10))
 
     def test_update_oauth_policy_properties_timedelta(self):
         oauth_policy = self.app.oauth_policy
 
-        oauth_policy.access_token_ttl = datetime.timedelta(hours=5)
-        oauth_policy.refresh_token_ttl = datetime.timedelta(hours=10)
+        oauth_policy.access_token_ttl = timedelta(hours=5)
+        oauth_policy.refresh_token_ttl = timedelta(hours=10)
         oauth_policy.save()
         oauth_policy.refresh()
 
         self.assertEqual(
-            oauth_policy.access_token_ttl, datetime.timedelta(hours=5))
+            oauth_policy.access_token_ttl, timedelta(hours=5))
         self.assertEqual(
-            oauth_policy.refresh_token_ttl, datetime.timedelta(hours=10))
+            oauth_policy.refresh_token_ttl, timedelta(hours=10))
 
 
 class TestSamlApplication(AuthenticatedLiveBase):
@@ -858,7 +972,7 @@ class TestSamlApplication(AuthenticatedLiveBase):
         self.app.save()
         self.app.refresh()
         self.assertEqual(len(self.app.authorized_callback_uris), 3)
-        self.assertEqual(self.app.authorized_callback_uris, [uri2, uri3, uri4])
+        self.assertEqual(self.app.authorized_callback_uris, [uri2, uri4, uri3])
 
     def test_authorized_callback_uris_pop(self):
         self.assertEqual(self.app.authorized_callback_uris, [])

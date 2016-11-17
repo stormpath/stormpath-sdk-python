@@ -24,6 +24,9 @@ class Error(RuntimeError):
 
     :py:attr:`more_info` - A fully qualified URL that may be accessed to
         obtain more information about the error.
+
+    :py:attr:`request_id` - The unique request ID of this error. This will be
+        None if no ID was supplied.
     """
     def __init__(self, error, http_status=None):
         if error is None:
@@ -40,6 +43,7 @@ class Error(RuntimeError):
                 'developerMessage': error,
                 'userMessage': 'Unknown error.',
                 'moreInfo': '',
+                'requestId': None,
             }
 
         msg = error.get('developerMessage', 'Unknown error' + (' ({})'.format(http_status) if http_status else ''))
@@ -50,3 +54,4 @@ class Error(RuntimeError):
         self.user_message = error.get('message')
         self.more_info = error.get('moreInfo')
         self.message = msg
+        self.request_id = error.get('requestId')

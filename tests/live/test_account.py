@@ -31,6 +31,11 @@ class TestAccountGet(AccountBase):
         self.assertEqual(len(account.api_keys), 1)
         self.assertEqual(account.api_keys[0].href, key.href)
 
+    def test_account_passwordmodifiedat(self):
+        _, account = self.create_account(self.app.accounts)
+        self.assertTrue(hasattr(account, 'password_modified_at'))
+        self.assertIsInstance(account.password_modified_at, datetime)
+
 
 class TestAccountCreateUpdateDelete(AccountBase):
 

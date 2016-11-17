@@ -5,7 +5,7 @@ Integration tests for various pieces involved in external provider support.
 from json import loads
 from os import getenv
 
-from requests import Session
+from requests import delete, get
 
 from tests.live.base import AuthenticatedLiveBase
 from stormpath.error import Error as StormpathError
@@ -19,6 +19,41 @@ from stormpath.resources import (
 
 
 class TestProviderDirectories(AuthenticatedLiveBase):
+
+    def setUp(self):
+        super(TestProviderDirectories, self).setUp()
+
+        # Generate a Facebook Graph API access token for testing.
+        self.facebook_api_key_id = getenv('FACEBOOK_API_KEY_ID')
+        self.facebook_api_key_secret = getenv('FACEBOOK_API_KEY_SECRET')
+
+        if not self.facebook_api_key_id:
+            self.fail('Please set FACEBOOK_API_KEY_ID environment variable!')
+
+        if not self.facebook_api_key_secret:
+            self.fail('Please set FACEBOOK_API_KEY_SECRET environment variable!')
+
+        res = get('https://graph.facebook.com/oauth/access_token', params={
+            'client_id': self.facebook_api_key_id,
+            'client_secret': self.facebook_api_key_secret,
+            'grant_type': 'client_credentials'
+        })
+        self.facebook_access_token = res.text.split('=')[1]
+
+    def tearDown(self):
+        super(TestProviderDirectories, self).tearDown()
+
+        # Destroy all Facebook Graph API test accounts.
+        resp = get('https://graph.facebook.com/{}/accounts/test-users'.format(self.facebook_api_key_id), params={
+            'installed': 'true',
+            'locale': 'en_US',
+            'permissions': 'read_stream',
+            'access_token': self.facebook_access_token,
+        })
+        users = resp.json()['data']
+
+        for user in users:
+            resp = delete('https://graph.facebook.com/{}'.format(user['id']), params={'access_token': self.facebook_access_token})
 
     def test_creating_provider_directory_passes_provider_info(self):
         directory = self.client.directories.create({
@@ -55,30 +90,13 @@ class TestProviderDirectories(AuthenticatedLiveBase):
         app.delete()
 
     def test_get_provider_account_makes_request_to_facebook(self):
-        facebook_api_key_id = getenv('FACEBOOK_API_KEY_ID')
-        facebook_api_key_secret = getenv('FACEBOOK_API_KEY_SECRET')
-
-        if not facebook_api_key_id:
-            self.fail('Please set FACEBOOK_API_KEY_ID environment variable!')
-
-        if not facebook_api_key_secret:
-            self.fail('Please set FACEBOOK_API_KEY_SECRET environment variable!')
-
-        s = Session()
-        res = s.request('GET', 'https://graph.facebook.com/oauth/access_token', params={
-            'client_id': facebook_api_key_id,
-            'client_secret': facebook_api_key_secret,
-            'grant_type': 'client_credentials'
-        })
-        access_token = res.text.split('=')[1]
-
-        res = s.request('GET', 'https://graph.facebook.com/{}/accounts/test-users'.format(facebook_api_key_id), params={
+        res = get('https://graph.facebook.com/{}/accounts/test-users'.format(self.facebook_api_key_id), params={
             'installed': 'true',
             'name': 'Some User',
             'locale': 'en_US',
             'permissions': 'read_stream',
             'method': 'post',
-            'access_token': access_token,
+            'access_token': self.facebook_access_token,
         })
         access_token = loads(res.text)['access_token']
 
@@ -86,8 +104,8 @@ class TestProviderDirectories(AuthenticatedLiveBase):
             'name': self.get_random_name(),
             'description': 'Testing Facebook Auth Provider',
             'provider': {
-                'client_id': facebook_api_key_id,
-                'client_secret': facebook_api_key_secret,
+                'client_id': self.facebook_api_key_id,
+                'client_secret': self.facebook_api_key_secret,
                 'provider_id': Provider.FACEBOOK
             }
         })
@@ -106,12 +124,8 @@ class TestProviderDirectories(AuthenticatedLiveBase):
             'is_default_group_store': False
         })
 
-        with self.assertRaises(StormpathError) as se:
-            app.get_provider_account(provider=Provider.FACEBOOK, access_token=access_token)
-
-        self.assertTrue('Stormpath is unable to create or update the account because the '
-            'Facebook response did not contain the required \'email\' '
-            'property.' in str(se.exception.developer_message))
+        account = app.get_provider_account(provider=Provider.FACEBOOK, access_token=access_token)
+        self.assertTrue(account)
 
         directory.delete()
         app.delete()

@@ -29,3 +29,4 @@ class TestError(AuthenticatedLiveBase):
         self.assertEqual(error.user_message, msg)
         self.assertTrue(error.more_info)
         self.assertEqual(error.message, msg)
+        self.assertTrue(error.request_id)

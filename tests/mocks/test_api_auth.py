@@ -1395,7 +1395,7 @@ class AuthenticatorsTest(TestCase):
         pga.authenticate('some@testmail.stormpath.com', 'secret')
 
         self.session.return_value.request.assert_called_with('POST', 'https://api.stormpath.com/v1/applications/application_url/oauth/token',
-            headers = {'Content-Type': 'application/x-www-form-urlencoded', 'Accept': 'application/json'},
+            headers = {'Content-Type': 'application/x-www-form-urlencoded'},
             allow_redirects = False,
             params = None,
             data = {
