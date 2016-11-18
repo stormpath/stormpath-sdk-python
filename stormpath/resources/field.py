@@ -1,14 +1,7 @@
 """Stormpath Field resource mappings."""
 
 
-from stormpath.error import Error as StormpathError
-
-from .base import (
-    CollectionResource,
-    DictMixin,
-    Resource,
-    SaveMixin,
-)
+from .base import CollectionResource, DictMixin, Resource, SaveMixin
 
 
 class Field(Resource, DictMixin, SaveMixin):
