@@ -55,6 +55,8 @@ class Account(Resource, AutoSaveMixin, DictMixin, DeleteMixin, StatusMixin):
         from .provider_data import ProviderData
         from .tenant import Tenant
         from .api_key import ApiKeyList
+        from .factor import FactorList
+        from .phone import PhoneList
 
         return {
             'access_tokens': AuthTokenList,
@@ -68,6 +70,8 @@ class Account(Resource, AutoSaveMixin, DictMixin, DeleteMixin, StatusMixin):
             'refresh_tokens': AuthTokenList,
             'tenant': Tenant,
             'api_keys': ApiKeyList,
+            'factors': FactorList,
+            'phones': PhoneList
         }
 
     def _resolve_group(self, resolvable):
