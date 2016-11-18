@@ -188,7 +188,7 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
 
     def build_id_site_redirect_url(self, callback_uri, path=None, state=None, logout=False,
                                    show_organization_field=False, sp_token=None,
-                                   organization_name_key=None):
+                                   organization_name_key=None, use_subdomain=False):
         """Builds a redirect uri for ID site.
 
         :param callback_uri: Callback URI to witch Stormpaath will redirect after
@@ -236,6 +236,9 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
 
         if organization_name_key is not None:
             body['onk'] = organization_name_key
+
+        if use_subdomain:
+            body['usd'] = True
 
         if path:
             body['path'] = path
