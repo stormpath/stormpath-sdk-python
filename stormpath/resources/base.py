@@ -515,10 +515,15 @@ class CollectionResource(Resource):
 
         return data, params
 
-    def create(self, properties, expand=None, **params):
+    def create(self, properties=None, expand=None, **params):
+        if properties is None:
+            properties = {}
         data, params = self._prepare_for_create(properties, expand, **params)
 
-        created = self.resource_class(self._client, properties=self._store.create_resource(self._get_create_path(), data, params=params))
+        created = self.resource_class(
+            self._client,
+            properties=self._store.create_resource(self._get_create_path(), data, params=params)
+        )
         dispatcher.send(signal=SIGNAL_RESOURCE_CREATED, sender=self.resource_class, data=data, params=params)
 
         return created
