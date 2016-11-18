@@ -41,6 +41,7 @@ class Challenge(Resource, DeleteMixin, DictMixin, SaveMixin):
         """
         self.code = code
         self.save()
+        self.refresh()
 
         return self
 

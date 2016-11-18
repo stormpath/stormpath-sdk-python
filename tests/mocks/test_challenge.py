@@ -58,9 +58,10 @@ class TestChallenge(TestCase):
 
         # Ensure that a POST request was made to submit the challenge,
         # and a GET request to refresh the instance.
-        self.assertEqual(self.request_mock.call_count, 2)
+        self.assertEqual(self.request_mock.call_count, 3)
         call1 = self.request_mock._mock_call_args_list[0]
         call2 = self.request_mock._mock_call_args_list[1]
+        call3 = self.request_mock._mock_call_args_list[2]
 
         call_params = (
             ('POST', 'https://api.stormpath.com/v1/challenges/challenge_id'),
@@ -83,6 +84,17 @@ class TestChallenge(TestCase):
             }
         )
         self.assertEqual(tuple(call2), call_params)
+
+        call_params = (
+            ('GET', 'https://api.stormpath.com/v1/challenges/challenge_id'),
+            {
+                'headers': None,
+                'allow_redirects': False,
+                'params': None,
+                'data': None
+            }
+        )
+        self.assertEqual(tuple(call3), call_params)
 
     def test_status_successful(self):
         # Ensure that successful status method is properly working.

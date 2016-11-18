@@ -63,7 +63,9 @@ class Factor(Resource, DeleteMixin, DictMixin, SaveMixin, StatusMixin):
                     'activation code must be provided.')
             properties = {'code': code}
 
-        return self.challenges.create(properties=properties)
+        challenge = self.challenges.create(properties=properties)
+        self.refresh()
+        return challenge
 
 
 class FactorList(CollectionResource):
