@@ -49,6 +49,11 @@ class TestFactor(TestCase):
             'from properties.')
         self.assertEqual(str(error.exception), error_msg)
 
+        # Ensure that a properly set create parameters won't raise the
+        # ValueError.
+        properties.pop('challenge')
+        self.factors.create(properties=properties, challenge=False)
+
     @patch('stormpath.resources.challenge.ChallengeList.create')
     def test_challenge_factor_correct_params(self, create):
         # Ensure that message is properly passed on challenge create.

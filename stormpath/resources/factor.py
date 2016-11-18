@@ -70,7 +70,7 @@ class FactorList(CollectionResource):
     """Factor resource list."""
     resource_class = Factor
 
-    def create(self, properties, challenge=True, expand=None, **params):
+    def create(self, properties, expand=None, **params):
         """
         This method will check for the challenge argument, set the proper
         message (custom or default), and call the CollectionResource create
@@ -79,13 +79,16 @@ class FactorList(CollectionResource):
         :param bool challenge: Determines if a challenge is created on factor
                creation.
         """
-        if not challenge and 'challenge' in properties:
-            # If we set url query string challenge to false, make sure that
-            # challenge is also absent from the body, otherwise a challenge
-            # will be created.
+        if (
+                properties.get('type') == 'SMS' and
+                params.get('challenge') is False and
+                properties.get('challenge')):
+            # If the url query string challenge is false, make sure that
+            # challenge is also absent from the body, otherwise a
+            # challenge will be created.
             raise ValueError(
                 'If challenge is set to False, it must also be absent ' +
                 'from properties.')
 
         return super(FactorList, self).create(
-            properties, challenge=challenge, expand=expand, **params)
+            properties, expand=expand, **params)

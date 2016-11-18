@@ -17,7 +17,7 @@ class TestFactor(MFABase):
             'challenge': {'message': '${code}'},
             'type': 'SMS'
         }
-        factor = self.account.factors.create(properties=data)
+        factor = self.account.factors.create(properties=data, challenge=True)
         self.account.refresh()
 
         # Ensure that the factor and phone resources have been successfully
@@ -40,7 +40,7 @@ class TestFactor(MFABase):
         }
 
         with self.assertRaises(Error) as error:
-            self.account.factors.create(properties=data)
+            self.account.factors.create(properties=data, challenge=True)
         self.assertEqual(
             error.exception.message, 'The provided phone number is invalid.')
 
@@ -52,7 +52,7 @@ class TestFactor(MFABase):
             'challenge': {'message': '${code}'},
             'type': 'SMS'
         }
-        factor = self.account.factors.create(properties=data)
+        factor = self.account.factors.create(properties=data, challenge=True)
         self.account.refresh()
 
         # Ensure that the challenge list resource has been successfully
