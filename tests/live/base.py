@@ -5,7 +5,6 @@ from unittest import TestCase
 from uuid import uuid4
 
 from stormpath.client import Client
-from stormpath.resources import Phone
 
 
 class LiveBase(TestCase):
