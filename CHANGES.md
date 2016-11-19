@@ -14,6 +14,8 @@ Version 2.4.6
   developers to control password reuse settings for their Directories.
 - Adding support for `AccountSchema` and `Field` resources.
 - Adding tests for new `AccountSchema` and `Field` resources.
+- Supporting MFA, and all new MFA resources.
+- Adding tests for all new MFA functionality.
 
 
 Version 2.4.5
