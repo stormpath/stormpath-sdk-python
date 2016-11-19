@@ -1,13 +1,6 @@
 """Stormpath Factors resource mappings."""
 
-from .base import (
-    CollectionResource,
-    DeleteMixin,
-    DictMixin,
-    Resource,
-    SaveMixin,
-    StatusMixin,
-)
+from .base import CollectionResource, DeleteMixin, DictMixin, Resource, SaveMixin, StatusMixin
 from .phone import Phone
 
 
@@ -18,9 +11,7 @@ class Factor(Resource, DeleteMixin, DictMixin, SaveMixin, StatusMixin):
     More info in documentation:
     https://docs.stormpath.com/python/product-guide/latest/auth_n.html#using-multi-factor-authentication
     """
-
-    writable_attrs = (
-        'type', 'phone', 'challenge', 'status', 'issuer', 'account_name')
+    writable_attrs = ('type', 'phone', 'challenge', 'status', 'issuer', 'account_name')
     STATUS_VERIFIED = 'VERIFIED'
     STATUS_UNVERIFIED = 'UNVERIFIED'
     TYPE_SMS = 'SMS'
@@ -58,13 +49,13 @@ class Factor(Resource, DeleteMixin, DictMixin, SaveMixin, StatusMixin):
             properties = {'message': message}
         else:
             if code is None:
-                raise ValueError(
-                    'When challenging a google-authenticator factor, ' +
-                    'activation code must be provided.')
+                raise ValueError('When challenging a google-authenticator factor, activation code must be provided.')
+
             properties = {'code': code}
 
         challenge = self.challenges.create(properties=properties)
         self.refresh()
+
         return challenge
 
 
@@ -82,15 +73,13 @@ class FactorList(CollectionResource):
                creation.
         """
         if (
-                properties.get('type') == 'SMS' and
-                params.get('challenge') is False and
-                properties.get('challenge')):
+            properties.get('type') == 'SMS' and
+            params.get('challenge') is False and
+            properties.get('challenge')
+        ):
             # If the url query string challenge is false, make sure that
             # challenge is also absent from the body, otherwise a
             # challenge will be created.
-            raise ValueError(
-                'If challenge is set to False, it must also be absent ' +
-                'from properties.')
+            raise ValueError('If challenge is set to False, it must also be absent from properties.')
 
-        return super(FactorList, self).create(
-            properties, expand=expand, **params)
+        return super(FactorList, self).create(properties, expand=expand, **params)

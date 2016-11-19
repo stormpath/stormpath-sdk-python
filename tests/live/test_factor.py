@@ -1,5 +1,6 @@
 """Live tests of Factors and MFA functionality."""
 
+
 from .base import MFABase
 from stormpath.resources.factor import FactorList
 from stormpath.resources.challenge import Challenge, ChallengeList
@@ -10,8 +11,6 @@ from stormpath.error import Error
 class TestFactor(MFABase):
 
     def test_create(self):
-        # Create a factor.
-
         data = {
             'phone': self.phone,
             'challenge': {'message': '${code}'},
@@ -27,8 +26,7 @@ class TestFactor(MFABase):
         self.assertEqual(self.account.factors.items[0].href, factor.href)
         self.assertTrue(isinstance(self.account.phones, PhoneList))
         self.assertTrue(len(self.account.phones.items), 1)
-        self.assertEqual(
-            self.account.phones.items[0].number, data['phone']['number'])
+        self.assertEqual(self.account.phones.items[0].number, data['phone']['number'])
 
     def test_create_invalid_number(self):
         # Try creating a factor using an invalid phone number.
@@ -41,8 +39,7 @@ class TestFactor(MFABase):
 
         with self.assertRaises(Error) as error:
             self.account.factors.create(properties=data, challenge=True)
-        self.assertEqual(
-            error.exception.message, 'The provided phone number is invalid.')
+        self.assertEqual(error.exception.message, 'The provided phone number is invalid.')
 
     def test_create_with_challenge(self):
         # Create factor with challenge.
@@ -84,17 +81,15 @@ class TestFactor(MFABase):
         # Ensure that passing the challenge params while challenge=False
         # won't create a challenge.
         factor.delete()
+
         data = {
             'phone': self.phone,
             'challenge': {'message': '${code}'},
             'type': 'SMS'
         }
         with self.assertRaises(ValueError) as error:
-            factor = self.account.factors.create(
-                properties=data, challenge=False)
-        error_msg = (
-            'If challenge is set to False, it must also be absent ' +
-            'from properties.')
+            factor = self.account.factors.create(properties=data, challenge=False)
+        error_msg = 'If challenge is set to False, it must also be absent from properties.'
         self.assertEqual(str(error.exception), error_msg)
 
         # Ensure that the newly created factor did not create a challenge.
@@ -140,9 +135,8 @@ class TestFactor(MFABase):
         message = 'This message is missing a placeholder.'
         with self.assertRaises(Error) as error:
             factor.challenge_factor(message)
-        self.assertEqual(
-            error.exception.message,
-            "The challenge message must include '${code}'.")
+
+        self.assertEqual(error.exception.message, "The challenge message must include '${code}'.")
         factor.refresh()
         self.assertIsNone(factor.most_recent_challenge)
 
@@ -171,15 +165,13 @@ class TestFactor(MFABase):
         # placeholder.
         with self.assertRaises(Error) as error:
             self.account.factors.create(properties=data, challenge=True)
-        self.assertEqual(
-            error.exception.message,
-            "The challenge message must include '${code}'.")
+
+        self.assertEqual(error.exception.message, "The challenge message must include '${code}'.")
 
         # Ensure that you can customize your message.
         data['challenge']['message'] = 'This is my custom message: ${code}.'
         factor = self.account.factors.create(properties=data, challenge=True)
-        self.assertEqual(
-            factor.most_recent_challenge.message, data['challenge']['message'])
+        self.assertEqual(factor.most_recent_challenge.message, data['challenge']['message'])
 
         factor.delete()
         data.pop('challenge')

@@ -1,12 +1,6 @@
 """Stormpath Factors resource mappings."""
 
-from .base import (
-    CollectionResource,
-    DeleteMixin,
-    DictMixin,
-    Resource,
-    SaveMixin,
-)
+from .base import CollectionResource, DeleteMixin, DictMixin, Resource, SaveMixin
 
 
 class Challenge(Resource, DeleteMixin, DictMixin, SaveMixin):
@@ -16,7 +10,6 @@ class Challenge(Resource, DeleteMixin, DictMixin, SaveMixin):
     More info in documentation:
     https://docs.stormpath.com/python/product-guide/latest/auth_n.html#using-multi-factor-authentication
     """
-
     writable_attrs = ('message', 'code')
     STATUS_SUCCESS = 'SUCCESS'
     STATUS_CREATED = 'CREATED'
