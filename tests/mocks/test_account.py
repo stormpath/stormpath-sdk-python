@@ -289,6 +289,15 @@ class TestAccountApiKey(TestAccount):
         self.assertEqual(api_key.id, self.id)
         self.assertEqual(api_key.secret, self.secret)
 
+    def test_create_api_key_with_name_and_description(self):
+        name = 'key_name'
+        description = 'Some key description'
+        self.account.api_keys.create({'name': name, 'description': description})
+
+        self.ak_ds.create_resource.assert_called_with('http://example.com/api-keys',
+                                                      {'name': name, 'description': description},
+                                                      params={})
+
     def test_get_api_key_by_id(self):
         api_key = self.account.api_keys.create()
 
