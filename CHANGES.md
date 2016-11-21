@@ -1,4 +1,4 @@
-Version 2.4.6
+Version 2.5.0
 -------------
 
 **Not yet released.**
@@ -16,6 +16,7 @@ Version 2.4.6
 - Adding tests for new `AccountSchema` and `Field` resources.
 - Supporting MFA, and all new MFA resources.
 - Adding tests for all new MFA functionality.
+- Supporting `use_subdomain` option for IDSite redirect logic.
 
 
 Version 2.4.5
