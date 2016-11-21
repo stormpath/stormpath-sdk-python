@@ -29,7 +29,6 @@ class IDSiteBuildURITest(TestCase):
 
 
     def test_building_id_site_redirect_uri(self):
-
         app = Application(client=self.client, properties={'href': 'apphref'})
         ret = app.build_id_site_redirect_url('http://localhost/')
         decoded_data = self.decode_jwt(ret)
@@ -66,6 +65,12 @@ class IDSiteBuildURITest(TestCase):
         decoded_data = self.decode_jwt(ret)
         self.assertEqual(decoded_data["onk"], "testorg")
         self.assertNotEqual(decoded_data.get('sof'), True)
+
+    def test_building_id_site_redirect_uri_with_usd(self):
+        app = Application(client=self.client, properties={'href': 'apphref'})
+        ret = app.build_id_site_redirect_url('http://localhost/', use_subdomain=True)
+        decoded_data = self.decode_jwt(ret)
+        self.assertEqual(decoded_data.get('usd'), True)
 
     def decode_jwt(self, ret):
         try:
