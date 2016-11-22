@@ -19,7 +19,7 @@ class TestPhone(MFABase):
 
         # Ensure that a verified phone number is immutable.
         self.phone.verification_status = 'VERIFIED'
-        self.phone.number = '+18883915282'
+        self.phone.number = '+18883915283'
 
         with self.assertRaises(StormpathError) as error:
             self.phone.save()
