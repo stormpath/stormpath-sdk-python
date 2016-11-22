@@ -117,7 +117,7 @@ class MFABase(AccountBase):
 
         # This is Twilio's official testing phone number:
         # https://www.twilio.com/docs/api/rest/test-credentials#test-sms-messages
-        self.phone = self.account.phones.create({'number': '+18883915282'})
+        self.phone = self.account.phones.create({'number': '+15005550006'})
 
 
 class SignalReceiver(object):
