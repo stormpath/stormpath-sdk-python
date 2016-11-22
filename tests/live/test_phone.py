@@ -13,13 +13,13 @@ class TestPhone(MFABase):
         # changed.
 
         # Ensure that an unverified phone can change its number.
-        self.phone.number = '+15005559999'
+        self.phone.number = '+18883915282'
         self.assertEqual(self.phone.verification_status, 'UNVERIFIED')
         self.phone.save()
 
         # Ensure that a verified phone number is immutable.
         self.phone.verification_status = 'VERIFIED'
-        self.phone.number = '+15005558888'
+        self.phone.number = '+18883915282'
 
         with self.assertRaises(StormpathError) as error:
             self.phone.save()
@@ -29,7 +29,7 @@ class TestPhone(MFABase):
         # Ensure that phone numbers in an Account instance are unique.
 
         with self.assertRaises(StormpathError) as error:
-            self.account.phones.create({'number': '+15005550006'})
+            self.account.phones.create({'number': '+18883915282'})
 
         self.assertEqual(error.exception.message, 'An existing phone with that number already exists for this Account.')
 
@@ -39,7 +39,7 @@ class TestPhone(MFABase):
         new_username, new_account = self.create_account(self.app.accounts)
 
         # The number used here is the same as in self.phone.
-        phone = new_account.phones.create({'number': '+15005550006'})
+        phone = new_account.phones.create({'number': '+18883915282'})
         self.assertEqual(self.phone.number, phone.number)
         self.assertEqual(self.phone.account.directory.href, phone.account.directory.href)
 
