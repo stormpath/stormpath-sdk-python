@@ -19,6 +19,8 @@ Version 2.5.0
 - Supporting `use_subdomain` option for IDSite redirect logic.
 - Supporting `ApiKey.name` and `ApiKey.description` resources fields.
 - Fixing broken MFA tests after accidentally messing them up.
+- Updating tox testing tool stuff. It now works in more environments, and more
+  better-er =)
 
 
 Version 2.4.5
