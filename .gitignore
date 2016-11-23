@@ -15,6 +15,7 @@ pip-log.txt
 .coverage
 .tox
 htmlcov/
+pytest.ini
 
 # tools
 .idea
@@ -28,6 +29,7 @@ MANIFEST
 # Other
 .DS_Store
 *.swp
+*.sh
 
 # Sphinx
 docs/_build/
