@@ -569,7 +569,6 @@ class JwtAuthenticator(Authenticator):
     validate token using Stormpath or local validation.
     """
     def _authenticate_with_local_validation(self, token):
-        import pdb; pdb.set_trace
         access_token = AccessToken(self.app, token)
         if access_token._is_valid():
             try:
