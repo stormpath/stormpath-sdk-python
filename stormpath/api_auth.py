@@ -569,9 +569,21 @@ class JwtAuthenticator(Authenticator):
     validate token using Stormpath or local validation.
     """
     def _authenticate_with_local_validation(self, token):
+        import pdb; pdb.set_trace
         access_token = AccessToken(self.app, token)
-        if access_token._is_valid() and self.app.has_account(access_token.account):
-            return access_token
+        if access_token._is_valid():
+            try:
+                decoded_token = jwt.decode(
+                                    access_token.token,
+                                    self.app._client.auth.secret,
+                                    algorithms=['HS256'],
+                                    leeway=LEEWAY
+                                )
+            except jwt.DecodeError:
+                return None
+
+            if decoded_token['iss'] == self.app.href:
+                return access_token
 
         return None
 
