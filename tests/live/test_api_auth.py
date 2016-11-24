@@ -1231,7 +1231,6 @@ class TestJwtAuthenticator(ApiKeyBase):
 
     def test_authenticate_with_local_validation_invalid_issuer_fails(self):
         authenticator = JwtAuthenticator(self.app)
-        client_id = self.acc.href.split('/')[-1]
         data = {
             'iss': 'invalid issuer',
             'sub': self.acc.href,
