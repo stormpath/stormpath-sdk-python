@@ -580,8 +580,7 @@ class JwtAuthenticator(Authenticator):
                                 )
             except jwt.DecodeError:
                 return None
-
-            if decoded_token['iss'] == self.app.href:
+            if 'iss' in decoded_token and decoded_token['iss'] == self.app.href:
                 return access_token
 
         return None
