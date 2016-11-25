@@ -18,6 +18,7 @@ Version 2.5.0
 - Adding tests for all new MFA functionality.
 - Supporting `use_subdomain` option for IDSite redirect logic.
 - Supporting `ApiKey.name` and `ApiKey.description` resources fields.
+- Fixing broken MFA tests after accidentally messing them up.
 
 
 Version 2.4.5
