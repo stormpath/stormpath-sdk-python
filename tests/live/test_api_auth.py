@@ -1229,6 +1229,21 @@ class TestJwtAuthenticator(ApiKeyBase):
         self.assertEqual(result.app.href, self.app.href)
         self.assertEqual(result.token, self.access_token.token)
 
+    def test_authenticate_with_local_validation_invalid_issuer_fails(self):
+        authenticator = JwtAuthenticator(self.app)
+        data = {
+            'iss': 'invalid issuer',
+            'sub': self.acc.href,
+            'iat': datetime.datetime.utcnow(),
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=1000)
+        }
+        invalid_issuer_token = jwt.encode(data, self.app._client.auth.secret, 'HS256')
+        self.invalid_issuer_token = to_unicode(invalid_issuer_token, "UTF-8")
+
+        result = authenticator.authenticate(
+            self.invalid_issuer_token, local_validation=True)
+
+        self.assertIsNone(result)
 
 class TestRefreshGrantAuthenticator(ApiKeyBase):
 
