@@ -32,6 +32,7 @@ from .login_attempt import LoginAttemptList
 from .password_reset_token import PasswordResetTokenList
 from .organization import Organization
 from .saml_policy import SamlPolicy
+from .account_linking_policy import AccountLinkingPolicy
 from ..api_auth import LEEWAY
 from ..error import Error as StormpathError
 from ..nonce import Nonce
@@ -97,7 +98,8 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
             'password_reset_tokens': PasswordResetTokenList,
             'saml_policy': SamlPolicy,
             'tenant': Tenant,
-            'verification_emails': VerificationEmailList
+            'verification_emails': VerificationEmailList,
+            'account_linking_policy': AccountLinkingPolicy
         }
 
     def authenticate_account(self, login, password, expand=None,
