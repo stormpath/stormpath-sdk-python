@@ -11,7 +11,7 @@ except ImportError:
     from unittest.mock import MagicMock
 
 
-class TestAccountCreationPolicy(TestCase):
+class TestAccountLinkingPolicy(TestCase):
 
     def test_modifying_account_creation_policy(self):
         ds = MagicMock()
