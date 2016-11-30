@@ -13,7 +13,7 @@ except ImportError:
 
 class TestAccountLinkingPolicy(TestCase):
 
-    def test_modifying_account_creation_policy(self):
+    def test_modifying_account_linking_policy(self):
         ds = MagicMock()
         ds.update_resource.return_value = {}
 
