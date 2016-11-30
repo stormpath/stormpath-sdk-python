@@ -5,6 +5,7 @@ from datetime import datetime
 from stormpath.error import Error
 
 from .base import AccountBase
+from stormpath.resources import AccountList, AccountLinkList
 from stormpath.resources.application import ApplicationList
 from stormpath.resources.api_key import ApiKeyList
 
@@ -424,3 +425,55 @@ class TestAccountProviderData(AccountBase):
             del pd['created_at']
         with self.assertRaises(Exception):
             del pd['modified_at']
+
+
+class TestAccountLinks(AccountBase):
+
+    def test_account_has_account_link_fields(self):
+        _, acc = self.create_account(self.app.accounts)
+        self.assertIsInstance(acc.linked_accounts, AccountList)
+        self.assertIsInstance(acc.account_links, AccountLinkList)
+        self.assertEqual(acc.linked_accounts.items, [])
+        self.assertEqual(acc.account_links.items, [])
+
+    def test_link_two_accounts_in_same_directory_fails(self):
+        _, acc1 = self.create_account(self.app.accounts)
+        _, acc2 = self.create_account(self.app.accounts)
+        with self.assertRaises(Error):
+            self.client.account_links.create({'left_account': acc1, 'right_account': acc2})
+
+    def test_link_two_accounts_in_separate_directories(self):
+        _, acc1 = self.create_account(self.app.accounts)
+        other_directory = self.client.directories.create({
+            'name': self.get_random_name(),
+            'description': 'Some description',
+        })
+        email = "{}_test@stormpath.com".format(self.get_random_name())
+        acc2 = other_directory.accounts.create({
+            'username': self.get_random_name(),
+            'given_name': self.get_random_name(),
+            'surname': self.get_random_name(),
+            'email': email,
+            'password': 'ChangeMe123!'
+        })
+
+        try:
+            response = self.client.account_links.create({'left_account': acc1, 'right_account': acc2})
+            self.assertEqual(response.left_account.href, acc1.href)
+            self.assertEqual(response.right_account.href, acc2.href)
+
+            with self.assertRaises(Error):
+                self.client.account_links.create({'left_account': acc1, 'right_account': acc2})
+
+            self.assertEqual(len(acc1.linked_accounts.items), 1)
+            self.assertEqual(acc1.linked_accounts.items[0].href, acc2.href)
+            self.assertEqual(len(acc1.account_links.items), 1)
+            self.assertEqual(acc1.account_links.items[0].href, response.href)
+
+            acc1.account_links.items[0].delete()
+            acc1.account_links.refresh()
+            acc1.linked_accounts.refresh()
+            self.assertEqual(len(acc1.linked_accounts.items), 0)
+            self.assertEqual(len(acc1.account_links.items), 0)
+        finally:
+            other_directory.delete()
