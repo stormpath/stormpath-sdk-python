@@ -440,7 +440,9 @@ class TestAccountLinks(AccountBase):
         _, acc1 = self.create_account(self.app.accounts)
         _, acc2 = self.create_account(self.app.accounts)
         with self.assertRaises(Error):
-            self.client.account_links.create({'left_account': acc1, 'right_account': acc2})
+            self.client.account_links.create(
+                {'left_account': acc1, 'right_account': acc2}
+            )
 
     def test_link_two_accounts_in_separate_directories(self):
         _, acc1 = self.create_account(self.app.accounts)
@@ -458,12 +460,14 @@ class TestAccountLinks(AccountBase):
         })
 
         try:
-            response = self.client.account_links.create({'left_account': acc1, 'right_account': acc2})
+            response = self.client.account_links.create({'left_account': acc1,
+                                                         'right_account': acc2})
             self.assertEqual(response.left_account.href, acc1.href)
             self.assertEqual(response.right_account.href, acc2.href)
 
             with self.assertRaises(Error):
-                self.client.account_links.create({'left_account': acc1, 'right_account': acc2})
+                self.client.account_links.create({'left_account': acc1,
+                                                  'right_account': acc2})
 
             self.assertEqual(len(acc1.linked_accounts.items), 1)
             self.assertEqual(acc1.linked_accounts.items[0].href, acc2.href)
