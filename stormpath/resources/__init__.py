@@ -3,6 +3,7 @@
 
 from .account import Account, AccountList
 from .account_creation_policy import AccountCreationPolicy
+from .account_link import AccountLink, AccountLinkList
 from .account_schema import AccountSchema
 from .account_store import AccountStore
 from .assertion_consumer_service_post_endpoint import AssertionConsumerServicePostEndpoint
