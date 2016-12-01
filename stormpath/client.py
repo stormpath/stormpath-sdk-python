@@ -5,6 +5,7 @@ from .auth import Auth
 from .data_store import DataStore
 from .http import HttpExecutor
 from .resources.account_store_mapping import AccountStoreMappingList
+from .resources.account_link import AccountLinkList
 from .resources.api_key import ApiKeyList
 from .resources.group_membership import GroupMembershipList
 from .resources.organization_account_store_mapping import OrganizationAccountStoreMappingList
@@ -120,6 +121,24 @@ class Client(object):
             agent = client.agents.get(href)
         """
         return self.tenant.agents
+
+    @property
+    def account_links(self):
+        """
+        This property allows you to create links between Accounts (AccountLink) in separate Directories
+
+        .. note::
+            You *cannot* iterate over AccountLinks directly from this Client object.
+            This is not supported by the Stormpath API.
+
+        Examples:
+
+        Creating an AccountLink::
+
+            account_link = client.account_links.create('left_account': account1, 'right_account': account2)
+
+        """
+        return AccountLinkList(self, href='/accountLinks')
 
     @property
     def api_keys(self):
