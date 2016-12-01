@@ -23,6 +23,8 @@ Version 2.5.0
   better-er =)
 - Fixing security issue / performance issue regarding local JWT validation. We
   now do this properly in a faster, more efficient manner.
+- Supporting manual account linking. This now includes the new resources and
+  tests.
 
 
 Version 2.4.5
