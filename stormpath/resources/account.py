@@ -47,6 +47,7 @@ class Account(Resource, AutoSaveMixin, DictMixin, DeleteMixin, StatusMixin):
     @staticmethod
     def get_resource_attributes():
         from .application import ApplicationList
+        from .account_link import AccountLinkList
         from .auth_token import AuthTokenList
         from .custom_data import CustomData
         from .directory import Directory
@@ -71,7 +72,9 @@ class Account(Resource, AutoSaveMixin, DictMixin, DeleteMixin, StatusMixin):
             'tenant': Tenant,
             'api_keys': ApiKeyList,
             'factors': FactorList,
-            'phones': PhoneList
+            'phones': PhoneList,
+            'account_links': AccountLinkList,
+            'linked_accounts': AccountList
         }
 
     def _resolve_group(self, resolvable):

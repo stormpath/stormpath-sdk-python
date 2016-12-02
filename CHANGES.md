@@ -21,6 +21,8 @@ Version 2.5.0
 - Fixing broken MFA tests after accidentally messing them up.
 - Updating tox testing tool stuff. It now works in more environments, and more
   better-er =)
+- Fixing security issue / performance issue regarding local JWT validation. We
+  now do this properly in a faster, more efficient manner.
 
 
 Version 2.4.5
