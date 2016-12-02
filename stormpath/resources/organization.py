@@ -10,6 +10,8 @@ from .base import (
     StatusMixin,
 )
 
+from .account_linking_policy import AccountLinkingPolicy
+
 
 class Organization(Resource, AutoSaveMixin, DeleteMixin, DictMixin, StatusMixin):
     """Organization resource.
@@ -44,6 +46,7 @@ class Organization(Resource, AutoSaveMixin, DeleteMixin, DictMixin, StatusMixin)
             'default_group_store_mapping': AccountStoreMapping,
             'groups': GroupList,
             'tenant': Tenant,
+            'account_linking_policy': AccountLinkingPolicy
         }
 
     @property

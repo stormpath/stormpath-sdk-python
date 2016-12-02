@@ -6,7 +6,7 @@ from stormpath.error import Error
 
 from .base import AuthenticatedLiveBase, SingleApplicationBase, AccountBase
 from stormpath.resources import (
-    AccountCreationPolicy, Provider, SamlPolicy, SamlServiceProvider,
+    AccountCreationPolicy, AccountLinkingPolicy, Provider, SamlPolicy, SamlServiceProvider,
     SsoInitiationEndpoint
 )
 from stormpath.resources.application import Application
@@ -343,6 +343,45 @@ class TestApplicationVerificationEmail(AccountBase):
         _ , acc = self.create_account(self.app.accounts)
         with self.assertRaises(Error):
             self.app.verification_emails.resend(acc, self.dir)
+
+
+class TestApplicationAccountLinkingPolicy(AccountBase):
+    def test_application_with_default_account_linking_policy(self):
+        self.assertIsInstance(self.app.account_linking_policy,
+                              AccountLinkingPolicy)
+        self.assertEqual(self.app.account_linking_policy.status,
+                         self.app.account_linking_policy.STATUS_DISABLED)
+        self.assertEqual(
+            self.app.account_linking_policy.automatic_provisioning,
+            self.app.account_linking_policy.AUTOMATIC_PROVISIONING_DISABLED
+        )
+        self.assertIsNone(self.app.account_linking_policy.matching_property)
+
+    def test_application_with_updating_account_linking_policy(self):
+        self.assertIsInstance(self.app.account_linking_policy,
+                              AccountLinkingPolicy)
+        self.app.account_linking_policy.status = \
+            self.app.account_linking_policy.STATUS_ENABLED
+        self.app.account_linking_policy.automatic_provisioning = \
+            self.app.account_linking_policy.AUTOMATIC_PROVISIONING_ENABLED
+        self.app.account_linking_policy.matching_property = \
+            self.app.account_linking_policy.MATCHING_PROPERTY_EMAIL
+
+        self.app.account_linking_policy.save()
+        self.app.account_linking_policy.refresh()
+
+        self.assertIsInstance(self.app.account_linking_policy,
+                              AccountLinkingPolicy)
+        self.assertEqual(self.app.account_linking_policy.status,
+                         self.app.account_linking_policy.STATUS_ENABLED)
+        self.assertEqual(
+            self.app.account_linking_policy.automatic_provisioning,
+            self.app.account_linking_policy.AUTOMATIC_PROVISIONING_ENABLED
+        )
+        self.assertEqual(
+            self.app.account_linking_policy.matching_property,
+            self.app.account_linking_policy.MATCHING_PROPERTY_EMAIL
+        )
 
 
 class TestDirectoryPasswordPolicy(AccountBase):
