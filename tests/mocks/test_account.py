@@ -1,6 +1,7 @@
 from unittest import TestCase, main
 from stormpath.error import Error as StormpathError
-from stormpath.resources import GroupMembershipList, GroupMembership
+from stormpath.resources import GroupMembershipList, GroupMembership, \
+    AccountLinkList
 from stormpath.resources.account_store import AccountStore
 from stormpath.resources.api_key import ApiKeyList
 
@@ -264,6 +265,40 @@ class TestAccount(TestCase):
         self.assertRaises(ValueError, AccountStore, [self.client])
         self.assertRaises(
             ValueError, AccountStore, [self.client, '/wrong/href'])
+
+    def test_manual_account_linking(self):
+        ds = MagicMock()
+        ds.create_resource.return_value = {}
+        client = MagicMock(
+            BASE_URL='http://example.com',
+            data_store=ds
+        )
+        self.account._set_properties({
+            'account_links': AccountLinkList(client, href='/accountLinks')
+        })
+        self.account2 = Account(self.client,
+                                properties={
+                                    'href': 'http://example.com/account2',
+                                    'username': 'username2',
+                                    'given_name': 'given_name2',
+                                    'surname': 'surname2',
+                                    'email': 'test2@testmail.stormpath.com',
+                                    'password': 'Password123!'
+                                })
+
+        self.account.account_links.create({
+            'left_account': self.account,
+            'right_account': self.account2
+        })
+
+        ds.create_resource.assert_called_once_with(
+            'http://example.com/accountLinks',
+            {
+                'leftAccount': {'href': self.account.href},
+                'rightAccount': {'href': self.account2.href}
+            },
+            params={}
+        )
 
 
 class TestAccountApiKey(TestAccount):
