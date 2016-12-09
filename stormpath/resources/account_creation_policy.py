@@ -4,8 +4,7 @@
 from .base import (
     DictMixin,
     Resource,
-    SaveMixin,
-    ListOnResource
+    SaveMixin
 )
 
 
