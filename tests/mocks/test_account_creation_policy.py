@@ -35,6 +35,33 @@ class TestAccountCreationPolicy(TestCase):
                     AccountCreationPolicy.EMAIL_STATUS_ENABLED
             })
 
+    def test_modifying_email_domain_whitelist_and_blacklist(self):
+        ds = MagicMock()
+        ds.update_resource.return_value = {}
+
+        pp = AccountCreationPolicy(
+            client=MagicMock(data_store=ds, BASE_URL='http://example.com'),
+            href='account-creation-policy')
+
+        pp._set_properties(
+            {
+                'email_domain_whitelist':
+                    ['gmail.com', 'yahoo.com', 'stormpath.com'],
+                'email_domain_blacklist':
+                    ['mail.ru', 'somedomain.com']
+            }
+        )
+        pp.save()
+
+        ds.update_resource.assert_called_once_with(
+            'account-creation-policy',
+            {
+                'emailDomainWhitelist':
+                    ['gmail.com', 'yahoo.com', 'stormpath.com'],
+                'emailDomainBlacklist':
+                    ['mail.ru', 'somedomain.com']
+            }
+        )
 
 if __name__ == '__main__':
     main()

@@ -37,7 +37,5 @@ class AccountCreationPolicy(Resource, DictMixin, SaveMixin):
         return {
             'verification_email_templates': DefaultModelEmailTemplateList,
             'verification_success_email_templates': EmailTemplateList,
-            'welcome_email_templates': EmailTemplateList,
-            'email_domain_whitelist': ListOnResource,
-            'email_domain_blacklist': ListOnResource
+            'welcome_email_templates': EmailTemplateList
         }

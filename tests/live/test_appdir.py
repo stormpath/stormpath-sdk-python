@@ -642,16 +642,41 @@ class TestDirectoryAccountCreationPolicy(SingleApplicationBase):
         account_creation_policy.save()
         account_creation_policy.refresh()
 
-        self.assertEqual(account_creation_policy.email_domain_whitelist, [w_domain1])
-        self.assertEqual(account_creation_policy.email_domain_blacklist, [b_domain1])
+        self.assertEqual(len(account_creation_policy.email_domain_whitelist), 1)
+        self.assertEqual(account_creation_policy.email_domain_whitelist,
+                         [w_domain1])
+        self.assertEqual(len(account_creation_policy.email_domain_blacklist), 1)
+        self.assertEqual(account_creation_policy.email_domain_blacklist,
+                         [b_domain1])
 
-        account_creation_policy.email_domain_whitelist.append(w_domain2)
+        account_creation_policy.email_domain_whitelist.extend([w_domain2,
+                                                               w_domain3])
         account_creation_policy.email_domain_blacklist.append(b_domain2)
         account_creation_policy.save()
         account_creation_policy.refresh()
 
-        self.assertEqual(account_creation_policy.email_domain_whitelist, [w_domain1, w_domain2])
-        self.assertEqual(account_creation_policy.email_domain_blacklist, [b_domain1, b_domain2])
+        self.assertEqual(len(account_creation_policy.email_domain_whitelist), 3)
+        self.assertEqual(account_creation_policy.email_domain_whitelist,
+                         [w_domain1, w_domain2, w_domain3])
+        self.assertEqual(len(account_creation_policy.email_domain_blacklist), 2)
+        self.assertEqual(account_creation_policy.email_domain_blacklist,
+                         [b_domain1, b_domain2])
+
+        account_creation_policy.email_domain_whitelist.remove(w_domain2)
+        account_creation_policy.save()
+        account_creation_policy.refresh()
+
+        self.assertEqual(len(account_creation_policy.email_domain_whitelist), 2)
+        self.assertEqual(account_creation_policy.email_domain_whitelist,
+                         [w_domain1, w_domain3])
+
+        account_creation_policy.email_domain_whitelist.insert(1, w_domain2)
+        account_creation_policy.save()
+        account_creation_policy.refresh()
+
+        self.assertEqual(len(account_creation_policy.email_domain_whitelist), 3)
+        self.assertEqual(account_creation_policy.email_domain_whitelist,
+                         [w_domain1, w_domain2, w_domain3])
 
     def test_directory_verification_email_template(self):
         account_creation_policy = self.dir.account_creation_policy
