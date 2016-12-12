@@ -6,7 +6,7 @@ from stormpath.error import Error
 
 from .base import AuthenticatedLiveBase, SingleApplicationBase, AccountBase
 from stormpath.resources import (
-    AccountCreationPolicy, Provider, SamlPolicy, SamlServiceProvider,
+    AccountCreationPolicy, AccountLinkingPolicy, Provider, SamlPolicy, SamlServiceProvider,
     SsoInitiationEndpoint
 )
 from stormpath.resources.application import Application
@@ -345,6 +345,45 @@ class TestApplicationVerificationEmail(AccountBase):
             self.app.verification_emails.resend(acc, self.dir)
 
 
+class TestApplicationAccountLinkingPolicy(AccountBase):
+    def test_application_with_default_account_linking_policy(self):
+        self.assertIsInstance(self.app.account_linking_policy,
+                              AccountLinkingPolicy)
+        self.assertEqual(self.app.account_linking_policy.status,
+                         self.app.account_linking_policy.STATUS_DISABLED)
+        self.assertEqual(
+            self.app.account_linking_policy.automatic_provisioning,
+            self.app.account_linking_policy.AUTOMATIC_PROVISIONING_DISABLED
+        )
+        self.assertIsNone(self.app.account_linking_policy.matching_property)
+
+    def test_application_with_updating_account_linking_policy(self):
+        self.assertIsInstance(self.app.account_linking_policy,
+                              AccountLinkingPolicy)
+        self.app.account_linking_policy.status = \
+            self.app.account_linking_policy.STATUS_ENABLED
+        self.app.account_linking_policy.automatic_provisioning = \
+            self.app.account_linking_policy.AUTOMATIC_PROVISIONING_ENABLED
+        self.app.account_linking_policy.matching_property = \
+            self.app.account_linking_policy.MATCHING_PROPERTY_EMAIL
+
+        self.app.account_linking_policy.save()
+        self.app.account_linking_policy.refresh()
+
+        self.assertIsInstance(self.app.account_linking_policy,
+                              AccountLinkingPolicy)
+        self.assertEqual(self.app.account_linking_policy.status,
+                         self.app.account_linking_policy.STATUS_ENABLED)
+        self.assertEqual(
+            self.app.account_linking_policy.automatic_provisioning,
+            self.app.account_linking_policy.AUTOMATIC_PROVISIONING_ENABLED
+        )
+        self.assertEqual(
+            self.app.account_linking_policy.matching_property,
+            self.app.account_linking_policy.MATCHING_PROPERTY_EMAIL
+        )
+
+
 class TestDirectoryPasswordPolicy(AccountBase):
 
     def test_password_policy_properties(self):
@@ -586,6 +625,58 @@ class TestDirectoryAccountCreationPolicy(SingleApplicationBase):
         self.assertEqual(
             account_creation_policy.welcome_email_status,
             AccountCreationPolicy.EMAIL_STATUS_ENABLED)
+
+    def test_account_creation_policy_email_whitelist_and_blacklist(self):
+        account_creation_policy = self.dir.account_creation_policy
+        w_domain1 = 'gmail.com'
+        w_domain2 = 'yahoo.com'
+        w_domain3 = 'stormpath.com'
+        b_domain1 = 'mail.ru'
+        b_domain2 = 'somedomain.com'
+
+        self.assertEqual(account_creation_policy.email_domain_whitelist, [])
+        self.assertEqual(account_creation_policy.email_domain_blacklist, [])
+
+        account_creation_policy.email_domain_whitelist = [w_domain1]
+        account_creation_policy.email_domain_blacklist = [b_domain1]
+        account_creation_policy.save()
+        account_creation_policy.refresh()
+
+        self.assertEqual(len(account_creation_policy.email_domain_whitelist), 1)
+        self.assertEqual(account_creation_policy.email_domain_whitelist,
+                         [w_domain1])
+        self.assertEqual(len(account_creation_policy.email_domain_blacklist), 1)
+        self.assertEqual(account_creation_policy.email_domain_blacklist,
+                         [b_domain1])
+
+        account_creation_policy.email_domain_whitelist.extend([w_domain2,
+                                                               w_domain3])
+        account_creation_policy.email_domain_blacklist.append(b_domain2)
+        account_creation_policy.save()
+        account_creation_policy.refresh()
+
+        self.assertEqual(len(account_creation_policy.email_domain_whitelist), 3)
+        self.assertEqual(account_creation_policy.email_domain_whitelist,
+                         [w_domain1, w_domain2, w_domain3])
+        self.assertEqual(len(account_creation_policy.email_domain_blacklist), 2)
+        self.assertEqual(account_creation_policy.email_domain_blacklist,
+                         [b_domain1, b_domain2])
+
+        account_creation_policy.email_domain_whitelist.remove(w_domain2)
+        account_creation_policy.save()
+        account_creation_policy.refresh()
+
+        self.assertEqual(len(account_creation_policy.email_domain_whitelist), 2)
+        self.assertEqual(account_creation_policy.email_domain_whitelist,
+                         [w_domain1, w_domain3])
+
+        account_creation_policy.email_domain_whitelist.insert(1, w_domain2)
+        account_creation_policy.save()
+        account_creation_policy.refresh()
+
+        self.assertEqual(len(account_creation_policy.email_domain_whitelist), 3)
+        self.assertEqual(account_creation_policy.email_domain_whitelist,
+                         [w_domain1, w_domain2, w_domain3])
 
     def test_directory_verification_email_template(self):
         account_creation_policy = self.dir.account_creation_policy

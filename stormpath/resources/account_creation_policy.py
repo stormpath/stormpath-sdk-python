@@ -4,7 +4,7 @@
 from .base import (
     DictMixin,
     Resource,
-    SaveMixin,
+    SaveMixin
 )
 
 
@@ -22,6 +22,8 @@ class AccountCreationPolicy(Resource, DictMixin, SaveMixin):
         'verification_email_status',
         'verification_success_email_status',
         'welcome_email_status',
+        'email_domain_whitelist',
+        'email_domain_blacklist'
     )
 
     @staticmethod
@@ -34,5 +36,5 @@ class AccountCreationPolicy(Resource, DictMixin, SaveMixin):
         return {
             'verification_email_templates': DefaultModelEmailTemplateList,
             'verification_success_email_templates': EmailTemplateList,
-            'welcome_email_templates': EmailTemplateList,
+            'welcome_email_templates': EmailTemplateList
         }
