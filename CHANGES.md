@@ -1,7 +1,7 @@
 Version 2.5.0
 -------------
 
-**Not yet released.**
+**Released December 12, 2016.**
 
 - Fixing broken tests.
 - Adding support for `Account.password_modified_at` property.
