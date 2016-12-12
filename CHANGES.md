@@ -25,6 +25,7 @@ Version 2.5.0
   now do this properly in a faster, more efficient manner.
 - Supporting manual account linking. This now includes the new resources and
   tests.
+- Supporting email blacklist / whitelist policies for Directories.
 
 
 Version 2.4.5
