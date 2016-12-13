@@ -1012,7 +1012,6 @@ class TestPasswordGrantAuthenticator(ApiKeyBase):
             'application': self.app,
         })
 
-
     def test_authenticate_succeeds(self):
         authenticator = PasswordGrantAuthenticator(self.app)
         result = authenticator.authenticate(self.username, self.password)
@@ -1022,6 +1021,24 @@ class TestPasswordGrantAuthenticator(ApiKeyBase):
         self.assertTrue(result.stormpath_access_token)
         self.assertEqual(result.token_type, 'Bearer')
         self.assertTrue(result.refresh_token)
+        self.assertEqual(result.expires_in, 3600)
+        self.assertEqual(result.account.href, self.acc.href)
+
+    def test_authenticate_succeeds_with_no_refresh_token(self):
+        from datetime import timedelta
+        self.app.oauth_policy.refresh_token_ttl = \
+            self.app.oauth_policy.refresh_token_ttl - timedelta(days=60)
+        self.app.oauth_policy.save()
+        self.app.oauth_policy.refresh()
+
+        authenticator = PasswordGrantAuthenticator(self.app)
+        result = authenticator.authenticate(self.username, self.password)
+
+        self.assertTrue(result.access_token)
+        self.assertTrue(result.refresh_token)
+        self.assertTrue(result.stormpath_access_token)
+        self.assertEqual(result.token_type, 'Bearer')
+        self.assertFalse(result.refresh_token.token)
         self.assertEqual(result.expires_in, 3600)
         self.assertEqual(result.account.href, self.acc.href)
 
@@ -1244,6 +1261,7 @@ class TestJwtAuthenticator(ApiKeyBase):
             self.invalid_issuer_token, local_validation=True)
 
         self.assertIsNone(result)
+
 
 class TestRefreshGrantAuthenticator(ApiKeyBase):
 

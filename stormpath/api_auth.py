@@ -561,7 +561,15 @@ class PasswordGrantAuthenticator(Authenticator):
         except StormpathError as err:
             return None
 
-        return PasswordAuthenticationResult(self.app, res['stormpath_access_token_href'], res['access_token'], res['expires_in'], res['token_type'], res['refresh_token'])
+        refresh_token = res['refresh_token'] if 'refresh_token' in res else None
+
+        return PasswordAuthenticationResult(self.app,
+                                            res['stormpath_access_token_href'],
+                                            res['access_token'],
+                                            res['expires_in'],
+                                            res['token_type'],
+                                            refresh_token
+                                            )
 
 
 class JwtAuthenticator(Authenticator):
