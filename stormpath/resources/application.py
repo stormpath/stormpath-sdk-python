@@ -129,6 +129,7 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
 
             * :const:`stormpath.resources.provider.Provider.GOOGLE`
             * :const:`stormpath.resources.provider.Provider.FACEBOOK`
+            * :const:`stormpath.resources.provider.Provider.TWITTER`
             * :const:`stormpath.resources.provider.Provider.STORMPATH`
 
 

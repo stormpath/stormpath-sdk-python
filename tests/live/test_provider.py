@@ -202,6 +202,47 @@ class TestProviderDirectories(AuthenticatedLiveBase):
         directory.delete()
         app.delete()
 
+    def test_get_provider_account_makes_request_to_twitter(self):
+        client_id = '2719569968-l9LgN1UKb7ASGGYwu65dJiKFIYfC0TnWNiLmX3i'
+        client_secret = 'ZGY5YJqSebkEXfxqStfxl52kkSqtW17KOkWmMW45fuG5K'
+
+        directory = self.client.directories.create({
+            'name': self.get_random_name(),
+            'description': 'Testing Twitter Auth Provider',
+            'provider': {
+                'client_id': client_id,
+                'client_secret': client_secret,
+                'provider_id': Provider.TWITTER
+            }
+        })
+
+        app = self.client.applications.create({
+            'name': self.get_random_name(),
+            'description': 'Testing app for Twitter Auth',
+            'status': 'enabled'
+        })
+
+        self.client.account_store_mappings.create({
+            'application': app,
+            'account_store': directory,
+            'list_index': 0,
+            'is_default_account_store': False,
+            'is_default_group_store': False
+        })
+
+        with self.assertRaises(StormpathError) as se:
+            app.get_provider_account(provider=Provider.TWITTER,
+                                     access_token=client_id,
+                                     access_token_secret=client_secret)
+
+        try:
+            # TODO change this assert after syncing with Randall
+            self.assertTrue('Linkedin error message: Invalid access token.' in
+                            str(se.exception.developer_message))
+        finally:
+            directory.delete()
+            app.delete()
+
     def test_create_directory_with_saml_provider(self):
         sso_login_url = 'https://idp.whatever.com/saml2/sso/login'
         sso_logout_url = 'https://idp.whatever.com/saml2/sso/logout'
