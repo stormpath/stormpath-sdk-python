@@ -1,3 +1,12 @@
+Version 2.5.1
+-------------
+
+**Not yet released.**
+
+- Fixing bug in `PasswordGrantAuthenticator`. If refresh tokens are disabled,
+  this used to error out. This has now been resolved.
+
+
 Version 2.5.0
 -------------
 
