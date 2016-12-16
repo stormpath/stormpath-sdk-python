@@ -236,8 +236,9 @@ class TestProviderDirectories(AuthenticatedLiveBase):
                                      access_token_secret=client_secret)
 
         try:
-            # TODO change this assert after syncing with Randall
-            self.assertTrue('Linkedin error message: Invalid access token.' in
+            self.assertTrue('Twitter error message: Authorization is required '
+                            'for the operation, but the API binding was '
+                            'created without authorization.' in
                             str(se.exception.developer_message))
         finally:
             directory.delete()
