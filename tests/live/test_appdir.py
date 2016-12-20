@@ -1071,3 +1071,113 @@ class TestSamlApplication(AuthenticatedLiveBase):
         self.app.refresh()
         self.assertEqual(len(self.app.authorized_callback_uris), 1)
         self.assertEqual(self.app.authorized_callback_uris, [uri3])
+
+
+class TestApplicationAuthorizedOriginUris(AuthenticatedLiveBase):
+
+    def setUp(self):
+        super(TestApplicationAuthorizedOriginUris, self).setUp()
+
+        self.app_name = self.get_random_name()
+        self.app = self.client.applications.create({
+            'name': self.app_name,
+            'description': 'test app'
+        })
+
+    def test_app_has_authorized_origins_uris(self):
+        self.assertTrue('authorized_origin_uris' in self.app.keys())
+        self.assertEqual(len(self.app.authorized_origin_uris), 1)
+
+    def test_append_origin_uri_wrong_format(self):
+        origin = 'someorigin.com'
+        self.app.authorized_origin_uris.append(origin)
+
+        with self.assertRaises(Error):
+            self.app.save()
+
+    def test_append_origin_uri(self):
+        origin = 'http://www.someorigin.com'
+        self.app.authorized_origin_uris.append(origin)
+        self.app.save()
+        self.app.refresh()
+
+        self.assertEqual(len(self.app.authorized_origin_uris), 2)
+        self.assertTrue(origin in self.app.authorized_origin_uris)
+
+    def test_delete_origin_uri(self):
+        origin = 'http://www.someorigin.com'
+        self.app.authorized_origin_uris.append(origin)
+        self.app.save()
+        self.app.refresh()
+
+        self.assertEqual(len(self.app.authorized_origin_uris), 2)
+        self.assertTrue(origin in self.app.authorized_origin_uris)
+
+        self.app.authorized_origin_uris.remove(origin)
+        self.app.save()
+        self.app.refresh()
+
+        self.assertEqual(len(self.app.authorized_origin_uris), 1)
+
+
+class TestApplicationWebConfig(AuthenticatedLiveBase):
+
+    def setUp(self):
+        super(TestApplicationWebConfig, self).setUp()
+
+        self.app_name = self.get_random_name()
+        self.app = self.client.applications.create({
+            'name': self.app_name,
+            'description': 'test app'
+        })
+
+    def test_app_has_web_config(self):
+        self.assertTrue('web_config' in self.app.keys())
+        self.assertEqual(self.app.web_config['status'], 'ENABLED')
+
+    def test_web_config_is_editable_with_default_values(self):
+        new_label = 'new-label'
+        self.app.web_config.dns_label = new_label
+        self.app.web_config.save()
+        self.app.web_config.refresh()
+
+        self.assertEqual(self.app.web_config.dns_label, new_label)
+        self.assertTrue(self.app.web_config.oauth2['enabled'])
+        self.assertTrue(self.app.web_config.register['enabled'])
+        self.assertTrue(self.app.web_config.verify_email['enabled'] is None)
+        self.assertTrue(self.app.web_config.login['enabled'])
+        self.assertTrue(self.app.web_config.forgot_password['enabled'] is None)
+        self.assertTrue(self.app.web_config.change_password['enabled'] is None)
+        self.assertTrue(self.app.web_config.me['enabled'])
+
+        self.app.web_config.oauth2['enabled'] = False
+        self.app.web_config.register['enabled'] = False
+        self.app.web_config.verify_email['enabled'] = True
+        self.app.web_config.login['enabled'] = False
+        self.app.web_config.forgot_password['enabled'] = True
+        self.app.web_config.change_password['enabled'] = True
+        self.app.web_config.me['enabled'] = False
+        self.app.web_config.save()
+        self.app.web_config.refresh()
+
+        self.assertFalse(self.app.web_config.oauth2['enabled'])
+        self.assertFalse(self.app.web_config.register['enabled'])
+        self.assertTrue(self.app.web_config.verify_email['enabled'])
+        self.assertFalse(self.app.web_config.login['enabled'])
+        self.assertTrue(self.app.web_config.forgot_password['enabled'])
+        self.assertTrue(self.app.web_config.change_password['enabled'])
+        self.assertFalse(self.app.web_config.login['enabled'])
+
+    def test_web_config_me_default_all_false(self):
+        for key in self.app.web_config.me['expand']:
+            self.assertFalse(self.app.web_config.me['expand'][key])
+
+    def test_web_config_me_editable(self):
+        for key in self.app.web_config.me['expand']:
+            self.app.web_config.me['expand'][key] = True
+
+        self.app.web_config.save()
+        self.app.web_config.refresh()
+
+        for key in self.app.web_config.me['expand']:
+            self.assertTrue(self.app.web_config.me['expand'][key])

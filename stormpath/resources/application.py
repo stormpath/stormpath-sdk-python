@@ -26,13 +26,14 @@ from .base import (
     Resource,
     SaveMixin,
     StatusMixin,
-    AutoSaveMixin,
+    AutoSaveMixin
 )
 from .login_attempt import LoginAttemptList
 from .password_reset_token import PasswordResetTokenList
 from .organization import Organization
 from .saml_policy import SamlPolicy
 from .account_linking_policy import AccountLinkingPolicy
+from .web_config import WebConfig
 from ..api_auth import LEEWAY
 from ..error import Error as StormpathError
 from ..nonce import Nonce
@@ -58,6 +59,7 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
     autosaves = ('custom_data',)
     writable_attrs = (
         'authorized_callback_uris',
+        'authorized_origin_uris',
         'custom_data',
         'description',
         'name',
@@ -85,6 +87,7 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
 
         return {
             'authorized_callback_uris': ListOnResource,
+            'authorized_origin_uris': ListOnResource,
             'custom_data': CustomData,
             'accounts': AccountList,
             'account_store_mappings': AccountStoreMappingList,
@@ -99,7 +102,8 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
             'saml_policy': SamlPolicy,
             'tenant': Tenant,
             'verification_emails': VerificationEmailList,
-            'account_linking_policy': AccountLinkingPolicy
+            'account_linking_policy': AccountLinkingPolicy,
+            'web_config': WebConfig
         }
 
     def authenticate_account(self, login, password, expand=None,
