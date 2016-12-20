@@ -18,26 +18,24 @@ class TestApplicationWebConfig(TestCase):
         ds = MagicMock()
         ds.update_resource.return_value = {}
 
-        pp = WebConfig(
+        web_config = WebConfig(
             client=MagicMock(data_store=ds, BASE_URL='http://example.com'),
             href='application-web-config')
 
-        pp._set_properties(
+        web_config._set_properties(
             {
-                'status':
-                    WebConfig.STATUS_ENABLED,
-                'dns_label':
-                    'a-dns-label'
+                'status': WebConfig.STATUS_ENABLED,
+                'dns_label': 'a-dns-label',
+                'register': {'enabled': True}
             })
-        pp.save()
+        web_config.save()
 
         ds.update_resource.assert_called_once_with(
             'application-web-config',
             {
-                'status':
-                    WebConfig.STATUS_ENABLED,
-                'dnsLabel':
-                    'a-dns-label'
+                'status': WebConfig.STATUS_ENABLED,
+                'dnsLabel': 'a-dns-label',
+                'register': {'enabled': True}
             })
 
 
