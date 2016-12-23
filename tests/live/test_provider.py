@@ -203,8 +203,8 @@ class TestProviderDirectories(AuthenticatedLiveBase):
         app.delete()
 
     def test_get_provider_account_makes_request_to_twitter(self):
-        client_id = '2719569968-l9LgN1UKb7ASGGYwu65dJiKFIYfC0TnWNiLmX3i'
-        client_secret = 'ZGY5YJqSebkEXfxqStfxl52kkSqtW17KOkWmMW45fuG5K'
+        client_id = '812237713457954816-v5LmyCHBhoQ31IU0ntYMhAYx9fepDAn'
+        client_secret = 'twuSITJ8sKxaMG46Nv7GmJd2zXFGQCQTrrUhc7Zs44Aux'
 
         directory = self.client.directories.create({
             'name': self.get_random_name(),
