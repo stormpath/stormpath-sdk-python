@@ -1,7 +1,17 @@
-Version 2.5.0
+Version 2.5.1
 -------------
 
 **Not yet released.**
+
+- Fixing bug in `PasswordGrantAuthenticator`. If refresh tokens are disabled,
+  this used to error out. This has now been resolved.
+- Fixing travis builds for PRs.
+
+
+Version 2.5.0
+-------------
+
+**Released December 12, 2016.**
 
 - Fixing broken tests.
 - Adding support for `Account.password_modified_at` property.
@@ -23,6 +33,9 @@ Version 2.5.0
   better-er =)
 - Fixing security issue / performance issue regarding local JWT validation. We
   now do this properly in a faster, more efficient manner.
+- Supporting manual account linking. This now includes the new resources and
+  tests.
+- Supporting email blacklist / whitelist policies for Directories.
 
 
 Version 2.4.5
