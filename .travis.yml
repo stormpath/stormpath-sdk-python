@@ -44,6 +44,7 @@ matrix:
   - env: BUILD_DOCS=true
     python: '2.7'
 before_install:
-- test -z "$BUILD_DOCS" || openssl aes-256-cbc -K $encrypted_09e6ef1dc349_key -iv $encrypted_09e6ef1dc349_iv
-  -in keypair.enc -out ~/.ssh/id_rsa -d
-- test -z "$BUILD_DOCS" || chmod 600 ~/.ssh/id_rsa
+- if [ $TRAVIS_PULL_REQUEST == 'false' ]; then
+    test -z "$BUILD_DOCS" || openssl aes-256-cbc -K $encrypted_09e6ef1dc349_key -iv $encrypted_09e6ef1dc349_iv -in keypair.enc -out ~/.ssh/id_rsa -d;
+    test -z "$BUILD_DOCS" || chmod 600 ~/.ssh/id_rsa;
+  fi
