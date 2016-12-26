@@ -6,6 +6,7 @@ Version 2.5.1
 - Fixing bug in `PasswordGrantAuthenticator`. If refresh tokens are disabled,
   this used to error out. This has now been resolved.
 - Fixing travis builds for PRs.
+- Adding support for Twitter as a social login provider.
 
 
 Version 2.5.0
