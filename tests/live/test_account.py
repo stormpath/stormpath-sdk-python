@@ -172,6 +172,22 @@ class TestAccountCreateUpdateDelete(AccountBase):
         self.assertEqual(acc.custom_data['key'], 'value')
         self.assertTrue(accs[0].is_enabled())
 
+    # As agreed with Randall - this test will be commented out
+    # but it should be back in when the status/code bug in Stormpath REST API
+    # is resolved
+
+    # def test_update_account_with_existing_email(self):
+    #     _, account1 = self.create_account(self.app.accounts)
+    #     _, account2 = self.create_account(self.app.accounts)
+    #
+    #     account2.email = account1.email
+    #
+    #     try:
+    #         account2.save()
+    #     except Error as err:
+    #         self.assertEqual(err.code, 2001)
+    #         self.assertEqual(err.status, 409)
+
 
 class TestApplicationAuthentication(AccountBase):
 
