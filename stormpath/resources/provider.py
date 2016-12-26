@@ -20,6 +20,7 @@ class Provider(Resource, DeleteMixin, DictMixin, SaveMixin):
     FACEBOOK = 'facebook'
     GITHUB = 'github'
     LINKEDIN = 'linkedin'
+    TWITTER = 'twitter'
     STORMPATH = 'stormpath'
     SAML = 'saml'
 

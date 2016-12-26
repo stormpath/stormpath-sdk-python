@@ -14,6 +14,7 @@ class ProviderData(Resource, DictMixin):
 
     writable_attrs = (
         'access_token',
+        'access_token_secret',
         'code',
         'provider_id',
         'refresh_token',
