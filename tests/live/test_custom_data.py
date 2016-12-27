@@ -340,6 +340,14 @@ class TestGroupCustomData(SingleApplicationBase):
 
         self.assertEqual(set(res.custom_data), set(res.custom_data.exposed_readonly_timestamp_attrs))
 
+    def test_custom_data_search(self):
+        self.dir.groups.create({'name': self.get_random_name() + 'group1', 'custom_data': CUSTOM_DATA})
+        self.dir.groups.create({'name': self.get_random_name() + 'group2', 'custom_data': {'omg': 'noway'}})
+
+        for group in self.dir.groups.search('customData.omg=noway'):
+            self.assertTrue('group2' in group.name)
+            self.assertEqual(group.custom_data['omg'], 'noway'
+
 
 class TestTenantCustomData(SingleApplicationBase):
 
