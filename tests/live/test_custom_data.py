@@ -346,7 +346,7 @@ class TestGroupCustomData(SingleApplicationBase):
 
         for group in self.dir.groups.search('customData.omg=noway'):
             self.assertTrue('group2' in group.name)
-            self.assertEqual(group.custom_data['omg'], 'noway'
+            self.assertEqual(group.custom_data['omg'], 'noway')
 
 
 class TestTenantCustomData(SingleApplicationBase):
