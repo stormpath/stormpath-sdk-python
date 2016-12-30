@@ -296,13 +296,11 @@ class Account(Resource, AutoSaveMixin, DictMixin, DeleteMixin, StatusMixin):
         :param resolvable: This could be any one of the following:
 
             - A :class:`stormpath.resources.group.Group` object.
-            - A Group href, ex:
-                'https://api.stormpath.com/v1/groups/3wzkqr03K8WxRp8NQuYSs3'
+            - A Group href, ex: 'https://api.stormpath.com/v1/groups/3wzkqr03K8WxRp8NQuYSs3'
             - A Group name, ex: 'admins'.
-            - A search query, ex: {'name': '*_admins'}.
+            - A search query, ex: {'name': '\*_admins'}.
 
-        :raises: :class:`stormpath.error.StormpathError` if the Group specified
-            does not contain this Account.
+        :raises: :class:`stormpath.error.StormpathError` if the Group specified does not contain this Account.
 
         .. note::
             Passing in a :class:`stormpath.resources.group.Group` object will
@@ -316,9 +314,7 @@ class Account(Resource, AutoSaveMixin, DictMixin, DeleteMixin, StatusMixin):
                 membership.delete()
                 return
 
-        raise StormpathError({
-            'developerMessage': 'This user is not part of Group %s.' % group.name,
-        })
+        raise StormpathError({'developerMessage': 'This user is not part of Group %s.' % group.name})
 
     def remove_groups(self, resolvables):
         """Remove this Account from the specified Groups.
@@ -326,13 +322,11 @@ class Account(Resource, AutoSaveMixin, DictMixin, DeleteMixin, StatusMixin):
         :param resolvables: A list of either:
 
             - A :class:`stormpath.resources.group.Group` object.
-            - A Group href, ex:
-                'https://api.stormpath.com/v1/groups/3wzkqr03K8WxRp8NQuYSs3'
+            - A Group href, ex: 'https://api.stormpath.com/v1/groups/3wzkqr03K8WxRp8NQuYSs3'
             - A Group name, ex: 'admins'.
-            - A search query, ex: {'name': '*_admins'}.
+            - A search query, ex: {'name': '\*_admins'}.
 
-        :raises: :class:`stormpath.error.StormpathError` if the Groups
-            specified do not contain this Account.
+        :raises: :class:`stormpath.error.StormpathError` if the Groups specified do not contain this Account.
 
         .. note::
             Passing in a :class:`stormpath.resources.group.Group` object will
@@ -340,6 +334,7 @@ class Account(Resource, AutoSaveMixin, DictMixin, DeleteMixin, StatusMixin):
             doesn't require any additional API calls.
         """
         memberships = [membership for membership in self.group_memberships]
+
         for g in [self._resolve_group(group) for group in resolvables]:
             done = False
             for membership in memberships:
@@ -348,9 +343,7 @@ class Account(Resource, AutoSaveMixin, DictMixin, DeleteMixin, StatusMixin):
                     done = True
 
             if not done:
-                raise StormpathError({
-                    'developerMessage': 'This user is not part of Group %s.' % g.name,
-                })
+                raise StormpathError({'developerMessage': 'This user is not part of Group %s.' % g.name})
 
 
 # Proxy methods for convenience.
