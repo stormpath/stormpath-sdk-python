@@ -157,17 +157,15 @@ class Account(Resource, AutoSaveMixin, DictMixin, DeleteMixin, StatusMixin):
     def add_group(self, resolvable):
         """Associate a Group with this Account.
 
-        This creates a
-        :class:`stormpath.resources.group_membership.GroupMembership` resource
+        This creates a :class:`stormpath.resources.group_membership.GroupMembership` resource
         on the backend.
 
         :param resolvable: This could be any one of the following:
 
             - A :class:`stormpath.resources.group.Group` object.
-            - A Group href, ex:
-                'https://api.stormpath.com/v1/groups/3wzkqr03K8WxRp8NQuYSs3'
+            - A Group href, ex: 'https://api.stormpath.com/v1/groups/3wzkqr03K8WxRp8NQuYSs3'
             - A Group name, ex: 'admins'.
-            - A search query, ex: {'name': '*_admins'}.
+            - A search query, ex: {'name': '\*_admins'}.
 
         .. note::
             Passing in a :class:`stormpath.resources.group.Group` object will
@@ -186,18 +184,15 @@ class Account(Resource, AutoSaveMixin, DictMixin, DeleteMixin, StatusMixin):
         :param resolvables: A list of either:
 
             - :class:`stormpath.resources.group.Group` objects.
-            - Group hrefs, ex:
-                'https://api.stormpath.com/v1/groups/3wzkqr03K8WxRp8NQuYSs3'
+            - Group hrefs, ex: 'https://api.stormpath.com/v1/groups/3wzkqr03K8WxRp8NQuYSs3'
             - Group names, ex: 'admins'.
-            - A search query, ex: {'name': '*_admins'}.
-
-                This could look something like:
+            - A search query, ex: {'name': '\*_admins'}.  This could look something like::
 
                 [
                     group,
                     'https://api.stormpath.com/v1/groups/3wzkqr03K8WxRp8NQuYSs3',
                     'admins',
-                    {'name': '*_admins'},
+                    {'name': '\*_admins'},
                 ]
 
         .. note::
@@ -218,18 +213,16 @@ class Account(Resource, AutoSaveMixin, DictMixin, DeleteMixin, StatusMixin):
         :param resolvable: This could be any one of the following:
 
             - A :class:`stormpath.resources.group.Group` object.
-            - A Group href, ex:
-                'https://api.stormpath.com/v1/groups/3wzkqr03K8WxRp8NQuYSs3'
+            - A Group href, ex: 'https://api.stormpath.com/v1/groups/3wzkqr03K8WxRp8NQuYSs3'
             - A Group name, ex: 'admins'.
-            - A search query, ex: {'name': '*_admins'}.
+            - A search query, ex: {'name': '\*_admins'}.
 
         .. note::
             Passing in a :class:`stormpath.resources.group.Group` object will
             always be the quickest way to check a Group's membership, since it
             doesn't require any additional API calls.
 
-        :returns: True if the Account is a member of the Group, False
-            otherwise.
+        :returns: True if the Account is a member of the Group, False otherwise.
         """
         group = self._resolve_group(resolvable)
 
@@ -246,18 +239,15 @@ class Account(Resource, AutoSaveMixin, DictMixin, DeleteMixin, StatusMixin):
         :param resolvables: A list of either:
 
             - :class:`stormpath.resources.group.Group` objects.
-            - Group hrefs, ex:
-                'https://api.stormpath.com/v1/groups/3wzkqr03K8WxRp8NQuYSs3'
+            - Group hrefs, ex: 'https://api.stormpath.com/v1/groups/3wzkqr03K8WxRp8NQuYSs3'
             - Group names, ex: 'admins'.
-            - A search query, ex: {'name': '*_admins'}.
-
-                This could look something like:
+            - A search query, ex: {'name': '\*_admins'}.  This could look something like::
 
                 [
                     group,
                     'https://api.stormpath.com/v1/groups/3wzkqr03K8WxRp8NQuYSs3',
                     'admins',
-                    {'name': '*_admins'},
+                    {'name': '\*_admins'},
                 ]
 
         :param all: A boolean (default: True) which controls how Group
