@@ -41,12 +41,10 @@ This section of the documentation contains information about Stormpath
 Account Stores.
 
 
-AccountStore Object
-...................
+AccountStore Factory
+....................
 
-.. autoclass:: stormpath.resources.account_store.AccountStore
-    :members:
-    :inherited-members:
+.. autofunction:: stormpath.resources.account_store.AccountStore
 
 
 Account Store Mappings
