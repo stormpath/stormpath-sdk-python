@@ -937,6 +937,7 @@ class TestSamlApplication(AuthenticatedLiveBase):
         properties = self.app._get_properties()
         properties['authorizedCallbackUris'] = [uri2]
         self.client.data_store.executor.post(self.app.href, properties)
+        self.app.refresh()
 
         self.app.authorized_callback_uris.append(uri3)
         self.app.save()
@@ -960,6 +961,7 @@ class TestSamlApplication(AuthenticatedLiveBase):
         properties = self.app._get_properties()
         properties['authorizedCallbackUris'] = [uri2]
         self.client.data_store.executor.post(self.app.href, properties)
+        self.app.refresh()
 
         self.app.authorized_callback_uris.extend([uri3, uri4])
         self.app.save()
@@ -983,6 +985,7 @@ class TestSamlApplication(AuthenticatedLiveBase):
         properties = self.app._get_properties()
         properties['authorizedCallbackUris'] = [uri2, uri3]
         self.client.data_store.executor.post(self.app.href, properties)
+        self.app.refresh()
 
         self.app.authorized_callback_uris.insert(1, uri4)
         self.app.save()
@@ -1005,12 +1008,13 @@ class TestSamlApplication(AuthenticatedLiveBase):
         properties = self.app._get_properties()
         properties['authorizedCallbackUris'] = [uri2, uri3]
         self.client.data_store.executor.post(self.app.href, properties)
+        self.app.refresh()
 
         self.app.authorized_callback_uris.pop()
         self.app.save()
         self.app.refresh()
         self.assertEqual(len(self.app.authorized_callback_uris), 1)
-        self.assertEqual(self.app.authorized_callback_uris, [uri3])
+        self.assertEqual(self.app.authorized_callback_uris, [uri2])
 
     def test_authorized_callback_uris_remove(self):
         self.assertEqual(self.app.authorized_callback_uris, [])
@@ -1027,6 +1031,7 @@ class TestSamlApplication(AuthenticatedLiveBase):
         properties = self.app._get_properties()
         properties['authorizedCallbackUris'] = [uri2, uri3]
         self.client.data_store.executor.post(self.app.href, properties)
+        self.app.refresh()
 
         self.app.authorized_callback_uris.remove(uri2)
         self.app.save()
@@ -1038,10 +1043,6 @@ class TestSamlApplication(AuthenticatedLiveBase):
         properties = self.app._get_properties()
         properties['authorizedCallbackUris'] = [uri2]
         self.client.data_store.executor.post(self.app.href, properties)
-
-        # try to remove item that doesn't exist any more
-        self.app.authorized_callback_uris.remove(uri3)
-        self.app.save()
         self.app.refresh()
         self.assertEqual(len(self.app.authorized_callback_uris), 1)
         self.assertEqual(self.app.authorized_callback_uris, [uri2])
@@ -1065,8 +1066,9 @@ class TestSamlApplication(AuthenticatedLiveBase):
         properties = self.app._get_properties()
         properties['authorizedCallbackUris'] = [uri2, uri3]
         self.client.data_store.executor.post(self.app.href, properties)
+        self.app.refresh()
 
-        del self.app.authorized_callback_uris[1]
+        del self.app.authorized_callback_uris[0]
         self.app.save()
         self.app.refresh()
         self.assertEqual(len(self.app.authorized_callback_uris), 1)

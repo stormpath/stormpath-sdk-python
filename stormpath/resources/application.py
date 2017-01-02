@@ -86,8 +86,6 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
         from .oauth_policy import OauthPolicy
 
         return {
-            'authorized_callback_uris': ListOnResource,
-            'authorized_origin_uris': ListOnResource,
             'custom_data': CustomData,
             'accounts': AccountList,
             'account_store_mappings': AccountStoreMappingList,
