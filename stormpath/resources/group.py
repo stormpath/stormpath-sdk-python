@@ -250,14 +250,12 @@ class Group(Resource, AutoSaveMixin, DeleteMixin, DictMixin, StatusMixin):
         :param resolvable: This could be any one of the following:
 
             - An :class:`stormpath.resources.account.Account` object.
-            - An Account href, ex:
-                'https://api.stormpath.com/v1/accounts/3wzkqr03K8WxRp8NQuYSs3'
+            - An Account href, ex: 'https://api.stormpath.com/v1/accounts/3wzkqr03K8WxRp8NQuYSs3'
             - An account username, ex: 'rdegges'.
             - An account email, ex: 'randall@stormpath.com'.
             - A search query, ex: {'username': '*rdegges*'}.
 
-        :returns: True if the Account is a member of this Group, False
-            otherwise.
+        :returns: True if the Account is a member of this Group, False otherwise.
 
         .. note::
             Passing in a :class:`stormpath.resources.group.Account` object will
@@ -279,13 +277,10 @@ class Group(Resource, AutoSaveMixin, DeleteMixin, DictMixin, StatusMixin):
         :param resolvable: A list of either:
 
             - :class:`stormpath.resources.group.Account` objects.
-            - Account hrefs, ex:
-                'https://api.stormpath.com/v1/accounts/3wzkqr03K8WxRp8NQuYSs3'
+            - Account hrefs, ex: 'https://api.stormpath.com/v1/accounts/3wzkqr03K8WxRp8NQuYSs3'
             - Account usernames, ex: 'rdegges'.
             - Account emails, ex: 'randall@stormpath.com'.
-            - A search query, ex: {'username': '*rdegges*'}.
-
-                This could look something like:
+            - A search query, ex: {'username': '*rdegges*'}. This could look something like::
 
                 [
                     account,

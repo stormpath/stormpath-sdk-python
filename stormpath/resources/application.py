@@ -127,30 +127,28 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
 
     def get_provider_account(self, provider, **provider_kwargs):
         """Used for getting account data from 3rd party Providers
-        (ie. Google, Facebook)
+        (eg: Google, Facebook).
 
-        :param provider: Can be one of the following Constants:
+        :param provider: Can be one of the following constants:
+            :const:`stormpath.resources.provider.Provider.GOOGLE`,
+            :const:`stormpath.resources.provider.Provider.FACEBOOK`,
+            :const:`stormpath.resources.provider.Provider.TWITTER`,
+            or :const:`stormpath.resources.provider.Provider.STORMPATH`.
 
-            * :const:`stormpath.resources.provider.Provider.GOOGLE`
-            * :const:`stormpath.resources.provider.Provider.FACEBOOK`
-            * :const:`stormpath.resources.provider.Provider.STORMPATH`
+        :param provider_kwargs: Which specific kwargs are needed depends on the
+            chosen Provider. For example::
 
-
-        :param provider_kwargs: Which specific kwargs are needed depends on the chosen Provider.
-
-            {
-                'code': '...',
-                'access_token': '...',
-                'client_id': '...',
-                'client_secret': '...'
-            }
+                {
+                    'code': '...',
+                    'access_token': '...',
+                    'client_id': '...',
+                    'client_secret': '...'
+                }
         """
         provider_data = provider_kwargs.copy()
         provider_data['provider_id'] = provider
 
-        return self.accounts.create({
-            'provider_data': provider_data
-        })
+        return self.accounts.create({'provider_data': provider_data})
 
     def send_password_reset_email(self, email, account_store=None):
         """Send a password reset email.
