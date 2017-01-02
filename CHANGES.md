@@ -1,12 +1,13 @@
 Version 2.5.1
 -------------
 
-**Not yet released.**
+**Released January 1, 2017.**
 
 - Fixing bug in `PasswordGrantAuthenticator`. If refresh tokens are disabled,
   this used to error out. This has now been resolved.
 - Fixing travis builds for PRs.
 - Adding support for Twitter as a social login provider.
+- Updating Python API docs.
 
 
 Version 2.5.0
