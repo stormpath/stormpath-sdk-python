@@ -4,6 +4,8 @@ Version 2.5.2
 **Not yet released.**
 
 - Adding support for Stormpath Client API configuration.
+- Adding a pytest cleanup hook to ensure all Stormpath test resources are
+  destroyed even if the user performs a keyboard interrupt during testing.
 
 
 Version 2.5.1
