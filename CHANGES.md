@@ -1,3 +1,11 @@
+Version 2.5.2
+-------------
+
+**Not yet released.**
+
+- Adding support for Stormpath Client API configuration.
+
+
 Version 2.5.1
 -------------
 
