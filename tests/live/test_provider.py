@@ -84,7 +84,8 @@ class TestProviderDirectories(AuthenticatedLiveBase):
         with self.assertRaises(StormpathError) as se:
             app.get_provider_account(provider=Provider.GOOGLE, code='some-code')
 
-        self.assertTrue("Google error message: 400 Bad Request" in str(se.exception.developer_message))
+        self.assertTrue("Google error message: 400 Bad Request".lower()
+                        in str(se.exception.developer_message.lower()))
 
         directory.delete()
         app.delete()
@@ -124,7 +125,8 @@ class TestProviderDirectories(AuthenticatedLiveBase):
             'is_default_group_store': False
         })
 
-        account = app.get_provider_account(provider=Provider.FACEBOOK, access_token=access_token)
+        account = app.get_provider_account(provider=Provider.FACEBOOK,
+                                           access_token=access_token)
         self.assertTrue(account)
 
         directory.delete()
@@ -159,9 +161,11 @@ class TestProviderDirectories(AuthenticatedLiveBase):
         })
 
         with self.assertRaises(StormpathError) as se:
-            app.get_provider_account(provider=Provider.GITHUB, access_token='some-access-token')
+            app.get_provider_account(provider=Provider.GITHUB,
+                                     access_token='some-access-token')
 
-        self.assertTrue("Github error message: 401 Unauthorized" in str(se.exception.developer_message))
+        self.assertTrue('Github error message: 401 Unauthorized'.lower()
+                        in str(se.exception.developer_message.lower()))
 
         directory.delete()
         app.delete()
@@ -195,9 +199,11 @@ class TestProviderDirectories(AuthenticatedLiveBase):
         })
 
         with self.assertRaises(StormpathError) as se:
-            app.get_provider_account(provider=Provider.LINKEDIN, access_token='some-access-token')
+            app.get_provider_account(provider=Provider.LINKEDIN,
+                                     access_token='some-access-token')
 
-        self.assertTrue('Linkedin error message: Invalid access token.' in str(se.exception.developer_message))
+        self.assertTrue('Linkedin error message: Invalid access token.'.lower()
+                        in str(se.exception.developer_message.lower()))
 
         directory.delete()
         app.delete()
@@ -238,8 +244,8 @@ class TestProviderDirectories(AuthenticatedLiveBase):
         try:
             self.assertTrue('Twitter error message: Authorization is required '
                             'for the operation, but the API binding was '
-                            'created without authorization.' in
-                            str(se.exception.developer_message))
+                            'created without authorization.'.lower() in
+                            str(se.exception.developer_message.lower()))
         finally:
             directory.delete()
             app.delete()
