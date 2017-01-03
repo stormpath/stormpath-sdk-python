@@ -29,3 +29,4 @@ from .saml_service_provider import SamlServiceProvider
 from .saml_service_provider_metadata import SamlServiceProviderMetadata
 from .sso_initiation_endpoint import SsoInitiationEndpoint
 from .tenant import Tenant
+from .web_config import WebConfig
