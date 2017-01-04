@@ -13,28 +13,51 @@ except ImportError:
 
 class TestAccountCreationPolicy(TestCase):
 
+    def setUp(self):
+        self.ds = MagicMock()
+        self.ds.update_resource.return_value = {}
+
+        self.pp = AccountCreationPolicy(
+                    client=MagicMock(data_store=self.ds,
+                                     BASE_URL='http://example.com'),
+                    href='account-creation-policy'
+        )
+
     def test_modifying_account_creation_policy(self):
-        ds = MagicMock()
-        ds.update_resource.return_value = {}
-
-        pp = AccountCreationPolicy(
-            client=MagicMock(data_store=ds, BASE_URL='http://example.com'),
-            href='account-creation-policy')
-
-        pp._set_properties(
+        self.pp._set_properties(
             {
                 'verification_email_status':
                     AccountCreationPolicy.EMAIL_STATUS_ENABLED
             })
-        pp.save()
+        self.pp.save()
 
-        ds.update_resource.assert_called_once_with(
+        self.ds.update_resource.assert_called_once_with(
             'account-creation-policy',
             {
                 'verificationEmailStatus':
                     AccountCreationPolicy.EMAIL_STATUS_ENABLED
             })
 
+    def test_modifying_email_domain_whitelist_and_blacklist(self):
+        self.pp._set_properties(
+            {
+                'email_domain_whitelist':
+                    ['gmail.com', 'yahoo.com', 'stormpath.com'],
+                'email_domain_blacklist':
+                    ['mail.ru', 'somedomain.com']
+            }
+        )
+        self.pp.save()
+
+        self.ds.update_resource.assert_called_once_with(
+            'account-creation-policy',
+            {
+                'emailDomainWhitelist':
+                    ['gmail.com', 'yahoo.com', 'stormpath.com'],
+                'emailDomainBlacklist':
+                    ['mail.ru', 'somedomain.com']
+            }
+        )
 
 if __name__ == '__main__':
     main()

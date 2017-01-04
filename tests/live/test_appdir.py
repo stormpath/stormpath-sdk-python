@@ -626,6 +626,58 @@ class TestDirectoryAccountCreationPolicy(SingleApplicationBase):
             account_creation_policy.welcome_email_status,
             AccountCreationPolicy.EMAIL_STATUS_ENABLED)
 
+    def test_account_creation_policy_email_whitelist_and_blacklist(self):
+        account_creation_policy = self.dir.account_creation_policy
+        w_domain1 = 'gmail.com'
+        w_domain2 = 'yahoo.com'
+        w_domain3 = 'stormpath.com'
+        b_domain1 = 'mail.ru'
+        b_domain2 = 'somedomain.com'
+
+        self.assertEqual(account_creation_policy.email_domain_whitelist, [])
+        self.assertEqual(account_creation_policy.email_domain_blacklist, [])
+
+        account_creation_policy.email_domain_whitelist = [w_domain1]
+        account_creation_policy.email_domain_blacklist = [b_domain1]
+        account_creation_policy.save()
+        account_creation_policy.refresh()
+
+        self.assertEqual(len(account_creation_policy.email_domain_whitelist), 1)
+        self.assertEqual(account_creation_policy.email_domain_whitelist,
+                         [w_domain1])
+        self.assertEqual(len(account_creation_policy.email_domain_blacklist), 1)
+        self.assertEqual(account_creation_policy.email_domain_blacklist,
+                         [b_domain1])
+
+        account_creation_policy.email_domain_whitelist.extend([w_domain2,
+                                                               w_domain3])
+        account_creation_policy.email_domain_blacklist.append(b_domain2)
+        account_creation_policy.save()
+        account_creation_policy.refresh()
+
+        self.assertEqual(len(account_creation_policy.email_domain_whitelist), 3)
+        self.assertEqual(account_creation_policy.email_domain_whitelist,
+                         [w_domain1, w_domain2, w_domain3])
+        self.assertEqual(len(account_creation_policy.email_domain_blacklist), 2)
+        self.assertEqual(account_creation_policy.email_domain_blacklist,
+                         [b_domain1, b_domain2])
+
+        account_creation_policy.email_domain_whitelist.remove(w_domain2)
+        account_creation_policy.save()
+        account_creation_policy.refresh()
+
+        self.assertEqual(len(account_creation_policy.email_domain_whitelist), 2)
+        self.assertEqual(account_creation_policy.email_domain_whitelist,
+                         [w_domain1, w_domain3])
+
+        account_creation_policy.email_domain_whitelist.insert(1, w_domain2)
+        account_creation_policy.save()
+        account_creation_policy.refresh()
+
+        self.assertEqual(len(account_creation_policy.email_domain_whitelist), 3)
+        self.assertEqual(account_creation_policy.email_domain_whitelist,
+                         [w_domain1, w_domain2, w_domain3])
+
     def test_directory_verification_email_template(self):
         account_creation_policy = self.dir.account_creation_policy
         templates = account_creation_policy.verification_email_templates
@@ -885,6 +937,7 @@ class TestSamlApplication(AuthenticatedLiveBase):
         properties = self.app._get_properties()
         properties['authorizedCallbackUris'] = [uri2]
         self.client.data_store.executor.post(self.app.href, properties)
+        self.app.refresh()
 
         self.app.authorized_callback_uris.append(uri3)
         self.app.save()
@@ -908,6 +961,7 @@ class TestSamlApplication(AuthenticatedLiveBase):
         properties = self.app._get_properties()
         properties['authorizedCallbackUris'] = [uri2]
         self.client.data_store.executor.post(self.app.href, properties)
+        self.app.refresh()
 
         self.app.authorized_callback_uris.extend([uri3, uri4])
         self.app.save()
@@ -931,6 +985,7 @@ class TestSamlApplication(AuthenticatedLiveBase):
         properties = self.app._get_properties()
         properties['authorizedCallbackUris'] = [uri2, uri3]
         self.client.data_store.executor.post(self.app.href, properties)
+        self.app.refresh()
 
         self.app.authorized_callback_uris.insert(1, uri4)
         self.app.save()
@@ -953,12 +1008,13 @@ class TestSamlApplication(AuthenticatedLiveBase):
         properties = self.app._get_properties()
         properties['authorizedCallbackUris'] = [uri2, uri3]
         self.client.data_store.executor.post(self.app.href, properties)
+        self.app.refresh()
 
         self.app.authorized_callback_uris.pop()
         self.app.save()
         self.app.refresh()
         self.assertEqual(len(self.app.authorized_callback_uris), 1)
-        self.assertEqual(self.app.authorized_callback_uris, [uri3])
+        self.assertEqual(self.app.authorized_callback_uris, [uri2])
 
     def test_authorized_callback_uris_remove(self):
         self.assertEqual(self.app.authorized_callback_uris, [])
@@ -975,6 +1031,7 @@ class TestSamlApplication(AuthenticatedLiveBase):
         properties = self.app._get_properties()
         properties['authorizedCallbackUris'] = [uri2, uri3]
         self.client.data_store.executor.post(self.app.href, properties)
+        self.app.refresh()
 
         self.app.authorized_callback_uris.remove(uri2)
         self.app.save()
@@ -986,10 +1043,6 @@ class TestSamlApplication(AuthenticatedLiveBase):
         properties = self.app._get_properties()
         properties['authorizedCallbackUris'] = [uri2]
         self.client.data_store.executor.post(self.app.href, properties)
-
-        # try to remove item that doesn't exist any more
-        self.app.authorized_callback_uris.remove(uri3)
-        self.app.save()
         self.app.refresh()
         self.assertEqual(len(self.app.authorized_callback_uris), 1)
         self.assertEqual(self.app.authorized_callback_uris, [uri2])
@@ -1013,9 +1066,95 @@ class TestSamlApplication(AuthenticatedLiveBase):
         properties = self.app._get_properties()
         properties['authorizedCallbackUris'] = [uri2, uri3]
         self.client.data_store.executor.post(self.app.href, properties)
+        self.app.refresh()
 
-        del self.app.authorized_callback_uris[1]
+        del self.app.authorized_callback_uris[0]
         self.app.save()
         self.app.refresh()
         self.assertEqual(len(self.app.authorized_callback_uris), 1)
         self.assertEqual(self.app.authorized_callback_uris, [uri3])
+
+
+class TestApplicationAuthorizedOriginUris(AuthenticatedLiveBase):
+
+    def setUp(self):
+        super(TestApplicationAuthorizedOriginUris, self).setUp()
+
+        self.app_name = self.get_random_name()
+        self.app = self.client.applications.create({
+            'name': self.app_name,
+            'description': 'test app'
+        })
+
+    def test_append_origin_uri_wrong_format(self):
+        origin = 'someorigin.com'
+        self.app.authorized_origin_uris.append(origin)
+
+        with self.assertRaises(Error):
+            self.app.save()
+
+    def test_append_origin_uri(self):
+        origin = 'http://www.someorigin.com'
+        self.app.authorized_origin_uris.append(origin)
+        self.app.save()
+        self.app.refresh()
+
+        self.assertTrue(origin in self.app.authorized_origin_uris)
+
+    def test_delete_origin_uri(self):
+        origin = 'http://www.someorigin.com'
+        self.app.authorized_origin_uris.append(origin)
+        self.app.save()
+        self.app.refresh()
+
+        self.assertTrue(origin in self.app.authorized_origin_uris)
+
+        self.app.authorized_origin_uris.remove(origin)
+        self.app.save()
+        self.app.refresh()
+
+        self.assertFalse(origin in self.app.authorized_origin_uris)
+
+
+class TestApplicationWebConfig(AuthenticatedLiveBase):
+
+    def setUp(self):
+        super(TestApplicationWebConfig, self).setUp()
+
+        self.app_name = self.get_random_name()
+        self.app = self.client.applications.create({
+            'name': self.app_name,
+            'description': 'test app'
+        })
+
+    def test_web_config_is_editable_with_default_values(self):
+        new_label = 'new-label'
+        self.app.web_config.dns_label = new_label
+        self.app.web_config.oauth2['enabled'] = False
+        self.app.web_config.register['enabled'] = False
+        self.app.web_config.verify_email['enabled'] = True
+        self.app.web_config.login['enabled'] = False
+        self.app.web_config.forgot_password['enabled'] = True
+        self.app.web_config.change_password['enabled'] = True
+        self.app.web_config.me['enabled'] = False
+        self.app.web_config.save()
+        self.app.web_config.refresh()
+
+        self.assertEqual(self.app.web_config.dns_label, new_label)
+        self.assertFalse(self.app.web_config.oauth2['enabled'])
+        self.assertFalse(self.app.web_config.register['enabled'])
+        self.assertTrue(self.app.web_config.verify_email['enabled'])
+        self.assertFalse(self.app.web_config.login['enabled'])
+        self.assertTrue(self.app.web_config.forgot_password['enabled'])
+        self.assertTrue(self.app.web_config.change_password['enabled'])
+        self.assertFalse(self.app.web_config.login['enabled'])
+
+    def test_web_config_me_editable(self):
+        for key in self.app.web_config.me['expand']:
+            self.app.web_config.me['expand'][key] = True
+
+        self.app.web_config.save()
+        self.app.web_config.refresh()
+
+        for key in self.app.web_config.me['expand']:
+            self.assertTrue(self.app.web_config.me['expand'][key])

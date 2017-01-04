@@ -26,13 +26,14 @@ from .base import (
     Resource,
     SaveMixin,
     StatusMixin,
-    AutoSaveMixin,
+    AutoSaveMixin
 )
 from .login_attempt import LoginAttemptList
 from .password_reset_token import PasswordResetTokenList
 from .organization import Organization
 from .saml_policy import SamlPolicy
 from .account_linking_policy import AccountLinkingPolicy
+from .web_config import WebConfig
 from ..api_auth import LEEWAY
 from ..error import Error as StormpathError
 from ..nonce import Nonce
@@ -58,6 +59,7 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
     autosaves = ('custom_data',)
     writable_attrs = (
         'authorized_callback_uris',
+        'authorized_origin_uris',
         'custom_data',
         'description',
         'name',
@@ -84,7 +86,6 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
         from .oauth_policy import OauthPolicy
 
         return {
-            'authorized_callback_uris': ListOnResource,
             'custom_data': CustomData,
             'accounts': AccountList,
             'account_store_mappings': AccountStoreMappingList,
@@ -99,7 +100,8 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
             'saml_policy': SamlPolicy,
             'tenant': Tenant,
             'verification_emails': VerificationEmailList,
-            'account_linking_policy': AccountLinkingPolicy
+            'account_linking_policy': AccountLinkingPolicy,
+            'web_config': WebConfig
         }
 
     def authenticate_account(self, login, password, expand=None,
@@ -123,30 +125,28 @@ class Application(Resource, DeleteMixin, DictMixin, AutoSaveMixin, SaveMixin, St
 
     def get_provider_account(self, provider, **provider_kwargs):
         """Used for getting account data from 3rd party Providers
-        (ie. Google, Facebook)
+        (eg: Google, Facebook).
 
-        :param provider: Can be one of the following Constants:
+        :param provider: Can be one of the following constants:
+            :const:`stormpath.resources.provider.Provider.GOOGLE`,
+            :const:`stormpath.resources.provider.Provider.FACEBOOK`,
+            :const:`stormpath.resources.provider.Provider.TWITTER`,
+            or :const:`stormpath.resources.provider.Provider.STORMPATH`.
 
-            * :const:`stormpath.resources.provider.Provider.GOOGLE`
-            * :const:`stormpath.resources.provider.Provider.FACEBOOK`
-            * :const:`stormpath.resources.provider.Provider.STORMPATH`
+        :param provider_kwargs: Which specific kwargs are needed depends on the
+            chosen Provider. For example::
 
-
-        :param provider_kwargs: Which specific kwargs are needed depends on the chosen Provider.
-
-            {
-                'code': '...',
-                'access_token': '...',
-                'client_id': '...',
-                'client_secret': '...'
-            }
+                {
+                    'code': '...',
+                    'access_token': '...',
+                    'client_id': '...',
+                    'client_secret': '...'
+                }
         """
         provider_data = provider_kwargs.copy()
         provider_data['provider_id'] = provider
 
-        return self.accounts.create({
-            'provider_data': provider_data
-        })
+        return self.accounts.create({'provider_data': provider_data})
 
     def send_password_reset_email(self, email, account_store=None):
         """Send a password reset email.

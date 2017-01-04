@@ -84,7 +84,8 @@ class TestProviderDirectories(AuthenticatedLiveBase):
         with self.assertRaises(StormpathError) as se:
             app.get_provider_account(provider=Provider.GOOGLE, code='some-code')
 
-        self.assertTrue("Google error message: 400 Bad Request" in str(se.exception.developer_message))
+        self.assertTrue("Google error message: 400 Bad Request".lower()
+                        in str(se.exception.developer_message.lower()))
 
         directory.delete()
         app.delete()
@@ -124,7 +125,8 @@ class TestProviderDirectories(AuthenticatedLiveBase):
             'is_default_group_store': False
         })
 
-        account = app.get_provider_account(provider=Provider.FACEBOOK, access_token=access_token)
+        account = app.get_provider_account(provider=Provider.FACEBOOK,
+                                           access_token=access_token)
         self.assertTrue(account)
 
         directory.delete()
@@ -159,9 +161,11 @@ class TestProviderDirectories(AuthenticatedLiveBase):
         })
 
         with self.assertRaises(StormpathError) as se:
-            app.get_provider_account(provider=Provider.GITHUB, access_token='some-access-token')
+            app.get_provider_account(provider=Provider.GITHUB,
+                                     access_token='some-access-token')
 
-        self.assertTrue("Github error message: 401 Unauthorized" in str(se.exception.developer_message))
+        self.assertTrue('Github error message: 401 Unauthorized'.lower()
+                        in str(se.exception.developer_message.lower()))
 
         directory.delete()
         app.delete()
@@ -195,12 +199,56 @@ class TestProviderDirectories(AuthenticatedLiveBase):
         })
 
         with self.assertRaises(StormpathError) as se:
-            app.get_provider_account(provider=Provider.LINKEDIN, access_token='some-access-token')
+            app.get_provider_account(provider=Provider.LINKEDIN,
+                                     access_token='some-access-token')
 
-        self.assertTrue('Linkedin error message: Invalid access token.' in str(se.exception.developer_message))
+        self.assertTrue('Linkedin error message: Invalid access token.'.lower()
+                        in str(se.exception.developer_message.lower()))
 
         directory.delete()
         app.delete()
+
+    def test_get_provider_account_makes_request_to_twitter(self):
+        client_id = '812237713457954816-v5LmyCHBhoQ31IU0ntYMhAYx9fepDAn'
+        client_secret = 'twuSITJ8sKxaMG46Nv7GmJd2zXFGQCQTrrUhc7Zs44Aux'
+
+        directory = self.client.directories.create({
+            'name': self.get_random_name(),
+            'description': 'Testing Twitter Auth Provider',
+            'provider': {
+                'client_id': client_id,
+                'client_secret': client_secret,
+                'provider_id': Provider.TWITTER
+            }
+        })
+
+        app = self.client.applications.create({
+            'name': self.get_random_name(),
+            'description': 'Testing app for Twitter Auth',
+            'status': 'enabled'
+        })
+
+        self.client.account_store_mappings.create({
+            'application': app,
+            'account_store': directory,
+            'list_index': 0,
+            'is_default_account_store': False,
+            'is_default_group_store': False
+        })
+
+        with self.assertRaises(StormpathError) as se:
+            app.get_provider_account(provider=Provider.TWITTER,
+                                     access_token=client_id,
+                                     access_token_secret=client_secret)
+
+        try:
+            self.assertTrue('Twitter error message: Authorization is required '
+                            'for the operation, but the API binding was '
+                            'created without authorization.'.lower() in
+                            str(se.exception.developer_message.lower()))
+        finally:
+            directory.delete()
+            app.delete()
 
     def test_create_directory_with_saml_provider(self):
         sso_login_url = 'https://idp.whatever.com/saml2/sso/login'
