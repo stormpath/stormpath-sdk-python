@@ -382,8 +382,5 @@ class AccountList(CollectionResource):
             )
         )
 
-        dispatcher.send(
-            signal=SIGNAL_RESOURCE_CREATED, sender=self.resource_class,
-            data=data, params=params)
-
+        dispatcher.send(signal=SIGNAL_RESOURCE_CREATED, sender=self.resource_class, data=data, params=params)
         return created
