@@ -1394,3 +1394,29 @@ class TestIdSiteTokenAuthenticator(ApiKeyBase):
         result = authenticator.authenticate('invalid_token')
 
         self.assertIsNone(result)
+
+
+class TestTokenRevocation(ApiKeyBase):
+
+    def setUp(self):
+        super(TestTokenRevocation, self).setUp()
+
+        self.username = self.get_random_name()
+        self.password = 'W00t123!' + self.username
+        _, self.acc = self.create_account(self.app.accounts,
+                                          username=self.username,
+                                          password=self.password)
+
+    def test_revoke_token_succeeds(self):
+        authenticator = PasswordGrantAuthenticator(self.app)
+        result = authenticator.authenticate(self.username, self.password)
+
+        self.assertTrue(result.access_token)
+        self.assertEqual(result.account.href, self.acc.href)
+
+        acc_tokens = self.acc.access_tokens
+        self.assertEqual(len(acc_tokens.items), 1)
+
+        acc_tokens.items[0].delete()
+        acc_tokens.refresh()
+        self.assertEqual(len(acc_tokens.items), 0)
