@@ -4,12 +4,14 @@ import base64
 from time import sleep
 
 from jwt import decode
+from os import getenv
+from requests import get, delete, post
 from six import u
 
 from .base import ApiKeyBase
 from stormpath.api_auth import *
 from stormpath.error import Error as StormpathError
-from stormpath.resources import AuthToken, Expansion
+from stormpath.resources import AuthToken, Expansion, Provider
 
 
 class TestApiRequestAuthenticator(ApiKeyBase):
@@ -985,6 +987,187 @@ class TestOAuthBearerRequestAuthenticator(ApiKeyBase):
             headers=headers, scopes=allowed_scopes)
 
         self.assertIsNone(result)
+
+
+class TestStormpathTokenGrantAuthenticator(ApiKeyBase):
+
+    def setUp(self):
+        super(TestStormpathTokenGrantAuthenticator, self).setUp()
+
+        self.username = self.get_random_name()
+        self.password = 'W00t123!' + self.username
+        _, self.acc = self.create_account(self.app.accounts, username=self.username, password=self.password)
+
+        org_name = self.get_random_name()
+        org_name_key = org_name[:63]
+
+        self.org = self.client.tenant.organizations.create({
+            'name': org_name,
+            'name_key': org_name_key,
+        })
+        self.client.organization_account_store_mappings.create({
+            'account_store': self.dir,
+            'organization': self.org,
+        })
+        self.client.account_store_mappings.create({
+            'account_store': self.org,
+            'application': self.app,
+        })
+
+    def test_authenticate_succeeds(self):
+        id_site_url = self.app.build_id_site_redirect_url('http://localhost:5000/')
+        parsed_url = urlparse(id_site_url)
+        id_site_jwt = parse_qs(parsed_url.query)['jwtRequest'][0]
+        auth_header = 'Bearer %s' % id_site_jwt
+        headers = {
+            'Authorization': auth_header,
+            'Origin': 'http://localhost:5000/',
+            'Referer': 'http://localhost:5000/'
+        }
+        url = self.app.href + '?expand=idSiteModel'
+        res = self.app._store.executor.session.request('GET', url, headers=headers)
+        next_jwt = res.headers['Authorization'].split('Bearer ')[1]
+
+        authenticator = StormpathTokenGrantAuthenticator(self.app)
+        import pytest; pytest.set_trace()
+        result = authenticator.authenticate(id_site_jwt)
+
+        self.assertTrue(result.access_token)
+        self.assertTrue(result.refresh_token)
+        self.assertTrue(result.stormpath_access_token)
+        self.assertEqual(result.token_type, 'Bearer')
+        self.assertTrue(result.refresh_token)
+        self.assertEqual(result.expires_in, 3600)
+        self.assertEqual(result.account.href, self.acc.href)
+
+
+class TestStormpathSocialGrantAuthenticator(ApiKeyBase):
+
+    def setUp(self):
+        super(TestStormpathSocialGrantAuthenticator, self).setUp()
+
+        org_name = self.get_random_name()
+        org_name_key = org_name[:63]
+
+        self.org = self.client.tenant.organizations.create({
+            'name': org_name,
+            'name_key': org_name_key,
+        })
+        self.client.organization_account_store_mappings.create({
+            'account_store': self.dir,
+            'organization': self.org,
+        })
+        self.client.account_store_mappings.create({
+            'account_store': self.org,
+            'application': self.app,
+        })
+
+        # Generate a Facebook Test User
+        self.facebook_api_key_id = getenv('FACEBOOK_API_KEY_ID')
+        self.facebook_api_key_secret = getenv('FACEBOOK_API_KEY_SECRET')
+
+        if not self.facebook_api_key_id:
+            self.fail('Please set FACEBOOK_API_KEY_ID environment variable!')
+
+        if not self.facebook_api_key_secret:
+            self.fail('Please set FACEBOOK_API_KEY_SECRET environment variable!')
+
+        self.fb_api_base_url = 'https://graph.facebook.com/v2.8'
+        fb_api_create_user_url = '%s/%s/accounts/test-users' % (self.fb_api_base_url,
+                                                                self.facebook_api_key_id)
+
+        short_token_response = get('https://graph.facebook.com/oauth/access_token', params={
+            'client_id': self.facebook_api_key_id,
+            'client_secret': self.facebook_api_key_secret,
+            'grant_type': 'client_credentials'
+        })
+        short_token = short_token_response.text.split('=')[1]
+
+        test_user_response = post(fb_api_create_user_url, params={
+            'access_token': short_token,
+            'permissions': ['email']
+        })
+
+        self.test_user = json.loads(test_user_response.text)
+
+        self.fb_dir = self.client.directories.create({
+            'name': self.get_random_name(),
+            'description': 'Testing Facebook Auth Provider',
+            'provider': {
+                'client_id': self.facebook_api_key_id,
+                'client_secret': self.facebook_api_key_secret,
+                'provider_id': Provider.FACEBOOK
+            }
+        })
+
+        self.client.account_store_mappings.create({
+            'application': self.app,
+            'account_store': self.fb_dir,
+            'list_index': 0,
+            'is_default_account_store': False,
+            'is_default_group_store': False
+        })
+
+    def tearDown(self):
+        super(TestStormpathSocialGrantAuthenticator, self).tearDown()
+
+        fb_delete_user_url = self.fb_api_base_url + '/%s' % self.test_user['id']
+        delete(fb_delete_user_url, params={
+            'access_token': self.test_user['access_token']
+        })
+
+    def test_authenticate_succeeds(self):
+        authenticator = StormpathSocialGrantAuthenticator(self.app)
+        result = authenticator.authenticate(provider_id=Provider.FACEBOOK,
+                                            access_token=self.test_user['access_token'])
+
+        self.assertTrue(result.access_token)
+        self.assertTrue(result.refresh_token)
+        self.assertTrue(result.stormpath_access_token)
+        self.assertEqual(result.token_type, 'Bearer')
+        self.assertTrue(result.refresh_token)
+        self.assertEqual(result.expires_in, 3600)
+        self.assertEqual(result.account.email, self.test_user['email'])
+
+    def test_authenticate_succeeds_with_no_refresh_token(self):
+        from datetime import timedelta
+        self.app.oauth_policy.refresh_token_ttl = \
+            self.app.oauth_policy.refresh_token_ttl - timedelta(days=60)
+        self.app.oauth_policy.save()
+        self.app.oauth_policy.refresh()
+
+        authenticator = StormpathSocialGrantAuthenticator(self.app)
+        result = authenticator.authenticate(provider_id=Provider.FACEBOOK,
+                                            access_token=self.test_user['access_token'])
+
+        self.assertTrue(result.access_token)
+        self.assertTrue(result.refresh_token)
+        self.assertTrue(result.stormpath_access_token)
+        self.assertEqual(result.token_type, 'Bearer')
+        self.assertFalse(result.refresh_token.token)
+        self.assertEqual(result.expires_in, 3600)
+        self.assertEqual(result.account.email, self.test_user['email'])
+
+    def test_authenticate_fails(self):
+        authenticator = StormpathSocialGrantAuthenticator(self.app)
+        result = authenticator.authenticate(provider_id=Provider.FACEBOOK,
+                                            access_token='invalid')
+
+        self.assertIsNone(result)
+
+    def test_authenticate_with_account_store_succeeds(self):
+        authenticator = StormpathSocialGrantAuthenticator(self.app)
+        result = authenticator.authenticate(provider_id=Provider.FACEBOOK,
+                                            access_token=self.test_user['access_token'],
+                                            account_store=self.fb_dir)
+
+        self.assertTrue(result.access_token)
+        self.assertTrue(result.refresh_token)
+        self.assertTrue('access_token' in result.access_token.to_json())
+        self.assertTrue('refresh_token' in result.refresh_token.to_json())
+        self.assertEqual(result.token_type, 'Bearer')
+        self.assertEqual(result.expires_in, 3600)
+        self.assertEqual(result.account.email, self.test_user['email'])
 
 
 class TestPasswordGrantAuthenticator(ApiKeyBase):

@@ -521,6 +521,115 @@ class OAuthClientCredentialsRequestAuthenticator(RequestAuthenticator):
         return None, None
 
 
+class StormpathTokenGrantAuthenticator(Authenticator):
+    """This class should authenticate using ID Site JWT.
+        It gets authentication tokens for valid credentials.
+    """
+    def authenticate(self, id_site_jwt, account_store=None, url=None):
+        """Method that authenticates with ID Site JWT.
+
+        :param account_store: If this parameter is set, token
+            generation is targeted against this account store.
+        :param url: url that is used for authentication. If this
+            parameter is not specified, default url
+            (APP_ID/oauth/token) is used.
+
+        :rtype: :class:`stormpath.api_auth.PasswordAuthenticationResult`
+        :returns: result if request is valid, `None` otherwise.
+        """
+        if not url:
+            url = self.app.href + '/oauth/token'
+
+        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+        data = {
+            'grant_type': 'stormpath_token',
+            'token': id_site_jwt
+        }
+
+        if account_store:
+            if isinstance(account_store, string_types):
+                data['accountStore'] = account_store
+            elif hasattr(account_store, 'href'):
+                data['accountStore'] = account_store.href
+            else:
+                raise TypeError('Unsupported type for account_store.')
+
+        try:
+            res = self.app._store.executor.request('POST', url, headers=headers,
+                                                   data=data)
+        except StormpathError:
+            return None
+
+        refresh_token = res['refresh_token'] if 'refresh_token' in res else None
+
+        return PasswordAuthenticationResult(self.app,
+                                            res['stormpath_access_token_href'],
+                                            res['access_token'],
+                                            res['expires_in'],
+                                            res['token_type'],
+                                            refresh_token
+                                            )
+
+
+class StormpathSocialGrantAuthenticator(Authenticator):
+    """This class should authenticate using provider_id and either the
+        Authorization Code or the access token for that Social Provider.
+        It gets authentication tokens for valid credentials.
+    """
+    def authenticate(self, provider_id, code=None, access_token=None, account_store=None, url=None):
+        """Method that authenticates with provider_id and authorization code
+         or access token using stormpath social grant type.
+
+        :param account_store: If this parameter is set, token
+            generation is targeted against this account store.
+        :param url: url that is used for authentication. If this
+            parameter is not specified, default url
+            (APP_ID/oauth/token) is used.
+
+        :rtype: :class:`stormpath.api_auth.PasswordAuthenticationResult`
+        :returns: result if request is valid, `None` otherwise.
+        """
+        if not url:
+            url = self.app.href + '/oauth/token'
+
+        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+        data = {
+            'grant_type': 'stormpath_social',
+            'providerId': provider_id
+        }
+
+        if code:
+            data['code'] = code
+        elif access_token:
+            data['accessToken'] = access_token
+        else:
+            raise TypeError("'code' or 'access_token' params are required.")
+
+        if account_store:
+            if isinstance(account_store, string_types):
+                data['accountStore'] = account_store
+            elif hasattr(account_store, 'href'):
+                data['accountStore'] = account_store.href
+            else:
+                raise TypeError('Unsupported type for account_store.')
+
+        try:
+            res = self.app._store.executor.request('POST', url, headers=headers,
+                                                   data=data)
+        except StormpathError:
+            return None
+
+        refresh_token = res['refresh_token'] if 'refresh_token' in res else None
+
+        return PasswordAuthenticationResult(self.app,
+                                            res['stormpath_access_token_href'],
+                                            res['access_token'],
+                                            res['expires_in'],
+                                            res['token_type'],
+                                            refresh_token
+                                            )
+
+
 class PasswordGrantAuthenticator(Authenticator):
     """This class should authenticate using login and password.
     It gets authentication tokens for valid credentials.
