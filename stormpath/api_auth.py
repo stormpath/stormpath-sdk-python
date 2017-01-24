@@ -525,7 +525,7 @@ class StormpathTokenGrantAuthenticator(Authenticator):
     """This class should authenticate using ID Site JWT.
         It gets authentication tokens for valid credentials.
     """
-    def authenticate(self, id_site_jwt, account_store=None, url=None):
+    def authenticate(self, id_site_jwt, organization_name_key=None, account_store=None, url=None):
         """Method that authenticates with ID Site JWT.
 
         :param account_store: If this parameter is set, token
@@ -545,6 +545,12 @@ class StormpathTokenGrantAuthenticator(Authenticator):
             'grant_type': 'stormpath_token',
             'token': id_site_jwt
         }
+
+        if organization_name_key:
+            if isinstance(organization_name_key, string_types):
+                data['organizationNameKey'] = organization_name_key
+            else:
+                raise TypeError('Unsupported type for organization_name_key.')
 
         if account_store:
             if isinstance(account_store, string_types):
@@ -599,9 +605,15 @@ class StormpathSocialGrantAuthenticator(Authenticator):
         }
 
         if code:
-            data['code'] = code
+            if isinstance(code, string_types):
+                data['code'] = account_store
+            else:
+                raise TypeError("Unsupported type for 'code'.")
         elif access_token:
-            data['accessToken'] = access_token
+            if isinstance(access_token, string_types):
+                data['accessToken'] = access_token
+            else:
+                raise TypeError('Unsupported type for code.')
         else:
             raise TypeError("'code' or 'access_token' params are required.")
 
