@@ -572,6 +572,46 @@ class PasswordGrantAuthenticator(Authenticator):
                                             )
 
 
+class ClientCredentialsGrantAuthenticator(Authenticator):
+    """
+    This class should authenticate using user's API ID and secret.
+    It gets authentication tokens for valid credentials.
+    """
+    def authenticate(self, client_id, client_secret, account_store=None, url=None):
+        if not url:
+            url = self.app.href + '/oauth/token'
+
+        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+
+        data = {
+            'grant_type': 'client_credentials',
+            'client_id': client_id,
+            'client_secret': client_secret
+        }
+
+        if account_store:
+            if isinstance(account_store, string_types):
+                data['accountStore'] = account_store
+            elif hasattr(account_store, 'href'):
+                data['accountStore'] = account_store.href
+            else:
+                raise TypeError('Unsupported type for account_store.')
+
+        try:
+            res = self.app._store.executor.request('POST', url, headers=headers, data=data)
+        except StormpathError:
+            return None
+
+        refresh_token = res['refresh_token'] if 'refresh_token' in res else None
+
+        return PasswordAuthenticationResult(
+            self.app,
+            res['stormpath_access_token_href'],
+            res['access_token'], res['expires_in'],
+            res['token_type'], refresh_token
+        )
+
+
 class JwtAuthenticator(Authenticator):
     """This class should authenticate using access token. It can
     validate token using Stormpath or local validation.

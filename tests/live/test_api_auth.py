@@ -1106,6 +1106,78 @@ class TestPasswordGrantAuthenticator(ApiKeyBase):
         self.assertEqual(claims.get('org'), self.org.href)
 
 
+class TestClientCredentialsGrantAuthenticator(ApiKeyBase):
+
+    def setUp(self):
+        super(TestClientCredentialsGrantAuthenticator, self).setUp()
+
+        self.username = self.get_random_name()
+        self.password = 'W00t123!' + self.username
+        _, self.acc = self.create_account(self.app.accounts,
+                                          username=self.username,
+                                          password=self.password)
+
+        self.user_api_key = self.acc.api_keys.create()
+
+        org_name = self.get_random_name()
+        org_name_key = org_name[:63]
+
+        self.org = self.client.tenant.organizations.create({
+            'name': org_name,
+            'name_key': org_name_key,
+        })
+        self.client.organization_account_store_mappings.create({
+            'account_store': self.dir,
+            'organization': self.org,
+        })
+        self.client.account_store_mappings.create({
+            'account_store': self.org,
+            'application': self.app,
+        })
+
+    def test_authenticate_succeeds(self):
+        authenticator = ClientCredentialsGrantAuthenticator(self.app)
+        result = authenticator.authenticate(self.user_api_key.id,
+                                            self.user_api_key.secret)
+
+        self.assertTrue(result.access_token)
+        self.assertFalse(result.refresh_token.token)
+        self.assertTrue(result.stormpath_access_token)
+        self.assertEqual(result.token_type, 'Bearer')
+        self.assertEqual(result.expires_in, 3600)
+        self.assertEqual(result.account.href, self.acc.href)
+
+    def test_authenticate_fails(self):
+        authenticator = ClientCredentialsGrantAuthenticator(self.app)
+        result = authenticator.authenticate('wrong id', 'wrong secret')
+
+        self.assertIsNone(result)
+
+    def test_authenticate_with_account_store_succeeds(self):
+        authenticator = ClientCredentialsGrantAuthenticator(self.app)
+        result = authenticator.authenticate(self.user_api_key.id,
+                                            self.user_api_key.secret,
+                                            account_store=self.dir)
+
+        self.assertTrue(result.access_token)
+        self.assertEqual(result.account.href, self.acc.href)
+        self.assertTrue('access_token' in result.access_token.to_json())
+        self.assertTrue(hasattr(result.stormpath_access_token, 'href'))
+        self.assertEqual(result.stormpath_access_token.account.href,
+                         self.acc.href)
+        self.assertEqual(result.token_type, 'Bearer')
+        self.assertEqual(result.expires_in, 3600)
+        self.assertEqual(result.account.href, self.acc.href)
+
+    def test_authenticate_with_account_store_fails(self):
+        authenticator = ClientCredentialsGrantAuthenticator(self.app)
+        result = authenticator.authenticate('wrong id',
+                                            'wrong secret',
+                                            account_store=self.dir)
+
+        self.assertIsNone(result)
+
+
 class TestJwtAuthenticator(ApiKeyBase):
 
     def setUp(self):
