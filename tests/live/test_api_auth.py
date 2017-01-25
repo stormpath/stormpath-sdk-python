@@ -1177,24 +1177,6 @@ class TestClientCredentialsGrantAuthenticator(ApiKeyBase):
 
         self.assertIsNone(result)
 
-    def test_authenticate_with_account_store_org_succeeds(self):
-        authenticator = ClientCredentialsGrantAuthenticator(self.app)
-        result = authenticator.authenticate(self.user_api_key.id,
-                                            self.user_api_key.secret,
-                                            account_store=self.dir)
-
-        claims = decode(result.access_token.token, verify=False)
-
-        self.assertTrue(result.access_token)
-        self.assertEqual(result.account.href, self.acc.href)
-        self.assertTrue('access_token' in result.access_token.to_json())
-        self.assertTrue(hasattr(result.stormpath_access_token, 'href'))
-        self.assertEqual(result.stormpath_access_token.account.href, self.acc.href)
-        self.assertEqual(result.token_type, 'Bearer')
-        self.assertEqual(result.expires_in, 3600)
-        self.assertEqual(result.account.href, self.acc.href)
-        self.assertEqual(claims.get('org'), self.org.href)
-
 
 class TestJwtAuthenticator(ApiKeyBase):
 
