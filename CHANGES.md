@@ -7,6 +7,7 @@ Version 2.5.2
 - Adding a pytest cleanup hook to ensure all Stormpath test resources are
   destroyed even if the user performs a keyboard interrupt during testing.
 - Adding tests for token revocation.
+- Adding support for OAuth2 Client Credentials flow.
 
 
 Version 2.5.1
