@@ -1015,21 +1015,22 @@ class TestStormpathTokenGrantAuthenticator(ApiKeyBase):
         })
 
     def test_authenticate_succeeds(self):
-        id_site_url = self.app.build_id_site_redirect_url('http://localhost:5000/')
+        id_site_url = self.app.build_id_site_redirect_url('http://localhost:5000')
         parsed_url = urlparse(id_site_url)
         id_site_jwt = parse_qs(parsed_url.query)['jwtRequest'][0]
         auth_header = 'Bearer %s' % id_site_jwt
         headers = {
             'Authorization': auth_header,
-            'Origin': 'http://localhost:5000/',
-            'Referer': 'http://localhost:5000/'
+            'Origin': 'http://localhost:5000',
+            'Referer': 'http://localhost:5000'
         }
         url = self.app.href + '?expand=idSiteModel'
-        res = self.app._store.executor.session.request('GET', url, headers=headers)
+        res = self.app._store.executor.request('GET', url, headers=headers)
+        print res.headers
         next_jwt = res.headers['Authorization'].split('Bearer ')[1]
+        # TODO update this part after syncing with Robert
 
         authenticator = StormpathTokenGrantAuthenticator(self.app)
-        import pytest; pytest.set_trace()
         result = authenticator.authenticate(id_site_jwt)
 
         self.assertTrue(result.access_token)
