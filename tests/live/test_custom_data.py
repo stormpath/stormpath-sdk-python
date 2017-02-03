@@ -343,10 +343,15 @@ class TestGroupCustomData(SingleApplicationBase):
     def test_custom_data_search(self):
         self.dir.groups.create({'name': self.get_random_name() + 'group1', 'custom_data': CUSTOM_DATA})
         self.dir.groups.create({'name': self.get_random_name() + 'group2', 'custom_data': {'omg': 'noway'}})
+        self.dir.groups.create({'name': self.get_random_name() + 'group3', 'custom_data': {'omg': ['wow', 'cool']}})
 
         for group in self.dir.groups.search('customData.omg=noway'):
             self.assertTrue('group2' in group.name)
             self.assertEqual(group.custom_data['omg'], 'noway')
+
+        for gorup in self.dir.groups.earch('customData.omg=wow'):
+            self.assertTrue('group3' in group.name)
+            self.assertTrue(group.custom_data['omg'], ['wow', 'cool'])
 
 
 class TestTenantCustomData(SingleApplicationBase):
