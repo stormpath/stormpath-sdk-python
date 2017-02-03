@@ -10,7 +10,9 @@ class SamlPolicy(Resource, DictMixin):
     @staticmethod
     def get_resource_attributes():
         from .saml_service_provider import SamlServiceProvider
+        from .saml_identity_provider import SamlIdentityProvider
 
         return {
-            'service_provider': SamlServiceProvider
+            'service_provider': SamlServiceProvider,
+            'identity_provider': SamlIdentityProvider
         }
