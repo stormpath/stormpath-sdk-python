@@ -7,8 +7,10 @@ from stormpath.error import Error
 from .base import AuthenticatedLiveBase, SingleApplicationBase, AccountBase
 from stormpath.resources import (
     AccountCreationPolicy, AccountLinkingPolicy, Provider, SamlPolicy, SamlServiceProvider,
-    SsoInitiationEndpoint
-)
+    SsoInitiationEndpoint,
+    SamlIdentityProvider, SsoLoginEndpoint, AttributeStatementMappingRules,
+    RegisteredSamlServiceProviders, X509SigningCert,
+    SamlServiceProviderRegistrations)
 from stormpath.resources.application import Application
 from stormpath.resources.default_relay_state import (
     DefaultRelayState, DefaultRelayStateList
@@ -892,10 +894,62 @@ class TestSamlApplication(AuthenticatedLiveBase):
 
     def test_saml_policy_properties(self):
         self.assertIsInstance(self.app.saml_policy, SamlPolicy)
-        self.assertIsInstance(self.app.saml_policy.service_provider, SamlServiceProvider)
-        self.assertIsInstance(self.app.saml_policy.service_provider.sso_initiation_endpoint, SsoInitiationEndpoint)
-        self.assertIsInstance(self.app.saml_policy.service_provider.default_relay_states, DefaultRelayStateList)
-        self.assertIn('/saml/sso/idpRedirect', self.app.saml_policy.service_provider.sso_initiation_endpoint.href)
+        self.assertIsInstance(
+            self.app.saml_policy.service_provider,
+            SamlServiceProvider
+        )
+        self.assertIsInstance(
+            self.app.saml_policy.service_provider.sso_initiation_endpoint,
+            SsoInitiationEndpoint
+        )
+        self.assertIsInstance(
+            self.app.saml_policy.service_provider.default_relay_states,
+            DefaultRelayStateList
+        )
+        self.assertIn(
+            '/saml/sso/idpRedirect',
+            self.app.saml_policy.service_provider.sso_initiation_endpoint.href
+        )
+        self.assertIsInstance(
+            self.app.saml_policy.identity_provider,
+            SamlIdentityProvider
+        )
+        self.assertIsInstance(
+            self.app.saml_policy.identity_provider.sso_login_endpoint,
+            SsoLoginEndpoint
+        )
+        self.assertIsInstance(
+            self.app.saml_policy.identity_provider.x509_signing_cert,
+            X509SigningCert
+        )
+        self.assertIsInstance(
+            self.app.saml_policy.identity_provider.attribute_statement_mapping_rules,
+            AttributeStatementMappingRules
+        )
+        self.assertIsInstance(
+            self.app.saml_policy.identity_provider.registered_saml_service_providers,
+            RegisteredSamlServiceProviders
+        )
+        self.assertIsInstance(
+            self.app.saml_policy.identity_provider.saml_service_provider_registrations,
+            SamlServiceProviderRegistrations
+        )
+
+    def test_saml_policy_identity_provider(self):
+        self.assertEqual(
+            self.app.saml_policy.identity_provider.status,
+            self.app.saml_policy.identity_provider.STATUS_ENABLED
+        )
+
+        new_status = self.app.saml_policy.identity_provider.STATUS_DISABLED
+        self.app.saml_policy.identity_provider.status = new_status
+        self.app.saml_policy.identity_provider.save()
+        self.app.saml_policy.identity_provider.refresh()
+
+        self.assertEqual(
+            self.app.saml_policy.identity_provider.status,
+            self.app.saml_policy.identity_provider.STATUS_DISABLED
+        )
 
     def test_default_relay_states(self):
         self.app.authorized_callback_uris = ['https://myapplication.com/whatever/callback']
