@@ -1041,10 +1041,10 @@ class TestStormpathTokenGrantAuthenticator(ApiKeyBase):
             'type': 'basic'
         }
         resp = post(post_url, headers=headers, json=body)
-        next_jwt = resp.headers['stormpath-sso-redirect-location'].split('jwtResponse=')[1]
+        final_jwt = resp.headers['stormpath-sso-redirect-location'].split('jwtResponse=')[1]
 
         authenticator = StormpathTokenGrantAuthenticator(self.app)
-        result = authenticator.authenticate(next_jwt)
+        result = authenticator.authenticate(final_jwt)
 
         self.assertTrue(result.access_token)
         self.assertTrue(result.refresh_token)
