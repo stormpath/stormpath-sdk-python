@@ -27,6 +27,12 @@ from .provider import Provider
 from .saml_policy import SamlPolicy
 from .saml_service_provider import SamlServiceProvider
 from .saml_service_provider_metadata import SamlServiceProviderMetadata
+from .saml_identity_provider import SamlIdentityProvider
+from .saml_signing_cert import X509SigningCert
+from .sso_login_endpoint import SsoLoginEndpoint
+from .saml_identity_provider_metadata import SamlIdentityProviderMetadata
+from .registered_saml_service_providers import RegisteredSamlServiceProviders
+from .saml_service_provider_registrations import SamlServiceProviderRegistrations
 from .sso_initiation_endpoint import SsoInitiationEndpoint
 from .tenant import Tenant
 from .web_config import WebConfig
