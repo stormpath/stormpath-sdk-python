@@ -1061,6 +1061,62 @@ class TestStormpathTokenGrantAuthenticator(ApiKeyBase):
         self.assertEqual(result.expires_in, 3600)
         self.assertEqual(result.account.href, self.acc.href)
 
+    def test_authenticate_fails(self):
+        authenticator = StormpathTokenGrantAuthenticator(self.app)
+        result = authenticator.authenticate('invalid jwt')
+
+        self.assertIsNone(result)
+
+    def test_authenticate_with_account_store_succeeds(self):
+        id_site_url = self.app.build_id_site_redirect_url(
+            'https://hi.com')
+
+        resp = get(id_site_url, allow_redirects=False)
+        jwt = resp.headers['Location'].split('jwt=')[1]
+        origin = resp.headers['Location'].split('#')[0]
+
+        resp = get(self.app.href, params={'expand': 'idSiteModel'}, headers={
+            'Authorization': 'Bearer {}'.format(jwt),
+            'Origin': origin,
+            'Referer': origin,
+        })
+
+        next_jwt = resp.headers['Authorization'].split('Bearer ')[1]
+
+        post_url = '%s%s' % (self.app.href, '/loginAttempts')
+        headers = {
+            'Authorization': 'Bearer {}'.format(next_jwt),
+            'Origin': origin,
+            'Referer': origin,
+            'Content Type': 'application/json'
+        }
+
+        user_pass = '%s:%s' % (self.acc.email, self.password)
+        try:
+            encrypted_value = base64.b64encode(bytes(user_pass))
+        except:
+            # Python 3
+            encrypted_value = base64.b64encode(bytes(user_pass, 'utf-8'))
+            encrypted_value = encrypted_value.decode('utf-8')
+
+        body = {
+            'value': encrypted_value,
+            'type': 'basic'
+        }
+        resp = post(post_url, headers=headers, json=body)
+        final_jwt = resp.headers['stormpath-sso-redirect-location'].split('jwtResponse=')[1]
+
+        authenticator = StormpathTokenGrantAuthenticator(self.app)
+        result = authenticator.authenticate(final_jwt, account_store=self.dir)
+
+        self.assertTrue(result.access_token)
+        self.assertTrue(result.refresh_token)
+        self.assertTrue(result.stormpath_access_token)
+        self.assertEqual(result.token_type, 'Bearer')
+        self.assertTrue(result.refresh_token)
+        self.assertEqual(result.expires_in, 3600)
+        self.assertEqual(result.account.href, self.acc.href)
+
 
 class TestStormpathSocialGrantAuthenticator(ApiKeyBase):
     def setUp(self):
