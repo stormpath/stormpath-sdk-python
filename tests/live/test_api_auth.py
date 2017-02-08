@@ -1013,7 +1013,7 @@ class TestStormpathTokenGrantAuthenticator(ApiKeyBase):
 
     def test_authenticate_succeeds(self):
         id_site_url = self.app.build_id_site_redirect_url(
-            'http://localhost:5000')
+            'https://hi.com')
 
         resp = get(id_site_url, allow_redirects=False)
         jwt = resp.headers['Location'].split('jwt=')[1]
@@ -1034,8 +1034,15 @@ class TestStormpathTokenGrantAuthenticator(ApiKeyBase):
             'Referer': origin,
             'Content Type': 'application/json'
         }
+
         user_pass = '%s:%s' % (self.acc.email, self.password)
-        encrypted_value = base64.b64encode(bytes(user_pass))
+        try:
+            encrypted_value = base64.b64encode(bytes(user_pass))
+        except:
+            # Python 3
+            encrypted_value = base64.b64encode(bytes(user_pass, 'utf-8'))
+            encrypted_value = encrypted_value.decode('utf-8')
+
         body = {
             'value': encrypted_value,
             'type': 'basic'
