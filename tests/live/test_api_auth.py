@@ -4,16 +4,17 @@ import base64
 from time import sleep
 
 from jwt import decode
+from os import getenv
+from requests import get, delete, post
 from six import u
 
 from .base import ApiKeyBase
 from stormpath.api_auth import *
 from stormpath.error import Error as StormpathError
-from stormpath.resources import AuthToken, Expansion
+from stormpath.resources import AuthToken, Expansion, Provider
 
 
 class TestApiRequestAuthenticator(ApiKeyBase):
-
     def test_basic_api_authentication_succeeds(self):
         _, acc = self.create_account(self.app.accounts)
         api_key = self.create_api_key(acc)
@@ -237,8 +238,8 @@ class TestApiRequestAuthenticator(ApiKeyBase):
 
         body = {'grant_type': 'client_credentials', 'scope': 'test1'}
         headers = {
-                'Authorization': b'Basic ' + basic_auth
-                }
+            'Authorization': b'Basic ' + basic_auth
+        }
 
         allowed_scopes = ['test1']
 
@@ -251,8 +252,8 @@ class TestApiRequestAuthenticator(ApiKeyBase):
         token = result.token
         body = {}
         headers = {
-                'Authorization': b'Bearer ' + token.token.encode('utf-8')
-                }
+            'Authorization': b'Bearer ' + token.token.encode('utf-8')
+        }
 
         api_key.delete()
 
@@ -270,8 +271,8 @@ class TestApiRequestAuthenticator(ApiKeyBase):
 
         body = {'grant_type': 'client_credentials', 'scope': 'test1'}
         headers = {
-                'Authorization': b'Basic ' + basic_auth
-                }
+            'Authorization': b'Basic ' + basic_auth
+        }
 
         allowed_scopes = ['test1']
 
@@ -284,8 +285,8 @@ class TestApiRequestAuthenticator(ApiKeyBase):
         token = result.token
         body = {}
         headers = {
-                'Authorization': b'Bearer ' + token.token.encode('utf-8')
-                }
+            'Authorization': b'Bearer ' + token.token.encode('utf-8')
+        }
 
         api_key.status = 'disabled'
         api_key.save()
@@ -304,8 +305,8 @@ class TestApiRequestAuthenticator(ApiKeyBase):
 
         body = {'grant_type': 'invalid_grant', 'scope': 'test1'}
         headers = {
-                'Authorization': b'Basic ' + basic_auth
-                }
+            'Authorization': b'Basic ' + basic_auth
+        }
 
         allowed_scopes = ['test1']
 
@@ -434,7 +435,6 @@ class TestApiRequestAuthenticator(ApiKeyBase):
 
 
 class TestBasicRequestAuthenticator(ApiKeyBase):
-
     def test_basic_api_authentication_succeeds(self):
         _, acc = self.create_account(self.app.accounts)
         api_key = self.create_api_key(acc)
@@ -489,7 +489,6 @@ class TestBasicRequestAuthenticator(ApiKeyBase):
 
 
 class TestOAuthRequestAuthenticator(ApiKeyBase):
-
     def test_correct_basic_api_authentication_fails(self):
         _, acc = self.create_account(self.app.accounts)
         api_key = self.create_api_key(acc)
@@ -673,8 +672,8 @@ class TestOAuthRequestAuthenticator(ApiKeyBase):
 
         body = {'grant_type': 'client_credentials', 'scope': 'test1'}
         headers = {
-                'Authorization': b'Basic ' + basic_auth
-                }
+            'Authorization': b'Basic ' + basic_auth
+        }
 
         allowed_scopes = ['test1']
 
@@ -687,8 +686,8 @@ class TestOAuthRequestAuthenticator(ApiKeyBase):
         token = result.token
         body = {}
         headers = {
-                'Authorization': b'Bearer ' + token.token.encode('utf-8')
-                }
+            'Authorization': b'Bearer ' + token.token.encode('utf-8')
+        }
 
         api_key.delete()
 
@@ -706,8 +705,8 @@ class TestOAuthRequestAuthenticator(ApiKeyBase):
 
         body = {'grant_type': 'client_credentials', 'scope': 'test1'}
         headers = {
-                'Authorization': b'Basic ' + basic_auth
-                }
+            'Authorization': b'Basic ' + basic_auth
+        }
 
         allowed_scopes = ['test1']
 
@@ -720,8 +719,8 @@ class TestOAuthRequestAuthenticator(ApiKeyBase):
         token = result.token
         body = {}
         headers = {
-                'Authorization': b'Bearer ' + token.token.encode('utf-8')
-                }
+            'Authorization': b'Bearer ' + token.token.encode('utf-8')
+        }
 
         api_key.status = 'disabled'
         api_key.save()
@@ -740,8 +739,8 @@ class TestOAuthRequestAuthenticator(ApiKeyBase):
 
         body = {'grant_type': 'invalid_grant', 'scope': 'test1'}
         headers = {
-                'Authorization': b'Basic ' + basic_auth
-                }
+            'Authorization': b'Basic ' + basic_auth
+        }
 
         allowed_scopes = ['test1']
 
@@ -770,7 +769,6 @@ class TestOAuthRequestAuthenticator(ApiKeyBase):
 
 
 class TestOAuthBearerRequestAuthenticator(ApiKeyBase):
-
     def test_correct_basic_api_authentication_fails(self):
         _, acc = self.create_account(self.app.accounts)
         api_key = self.create_api_key(acc)
@@ -926,8 +924,8 @@ class TestOAuthBearerRequestAuthenticator(ApiKeyBase):
 
         body = {'grant_type': 'client_credentials', 'scope': 'test1'}
         headers = {
-                'Authorization': b'Basic ' + basic_auth
-                }
+            'Authorization': b'Basic ' + basic_auth
+        }
 
         allowed_scopes = ['test1']
 
@@ -940,8 +938,8 @@ class TestOAuthBearerRequestAuthenticator(ApiKeyBase):
         token = result.token
         body = {}
         headers = {
-                'Authorization': b'Bearer ' + token.token.encode('utf-8')
-                }
+            'Authorization': b'Bearer ' + token.token.encode('utf-8')
+        }
 
         api_key.delete()
 
@@ -960,8 +958,8 @@ class TestOAuthBearerRequestAuthenticator(ApiKeyBase):
 
         body = {'grant_type': 'client_credentials', 'scope': 'test1'}
         headers = {
-                'Authorization': b'Basic ' + basic_auth
-                }
+            'Authorization': b'Basic ' + basic_auth
+        }
 
         allowed_scopes = ['test1']
 
@@ -974,8 +972,8 @@ class TestOAuthBearerRequestAuthenticator(ApiKeyBase):
         token = result.token
         body = {}
         headers = {
-                'Authorization': b'Bearer ' + token.token.encode('utf-8')
-                }
+            'Authorization': b'Bearer ' + token.token.encode('utf-8')
+        }
 
         api_key.status = 'disabled'
         api_key.save()
@@ -987,14 +985,282 @@ class TestOAuthBearerRequestAuthenticator(ApiKeyBase):
         self.assertIsNone(result)
 
 
-class TestPasswordGrantAuthenticator(ApiKeyBase):
+class TestStormpathTokenGrantAuthenticator(ApiKeyBase):
+    def setUp(self):
+        super(TestStormpathTokenGrantAuthenticator, self).setUp()
 
+        self.username = self.get_random_name()
+        self.password = 'W00t123!' + self.username
+        _, self.acc = self.create_account(self.app.accounts,
+                                          username=self.username,
+                                          password=self.password)
+
+        org_name = self.get_random_name()
+        org_name_key = org_name[:63]
+
+        self.org = self.client.tenant.organizations.create({
+            'name': org_name,
+            'name_key': org_name_key,
+        })
+        self.client.organization_account_store_mappings.create({
+            'account_store': self.dir,
+            'organization': self.org,
+        })
+        self.client.account_store_mappings.create({
+            'account_store': self.org,
+            'application': self.app,
+        })
+
+    def test_authenticate_succeeds(self):
+        id_site_url = self.app.build_id_site_redirect_url(
+            'https://hi.com')
+
+        resp = get(id_site_url, allow_redirects=False)
+        jwt = resp.headers['Location'].split('jwt=')[1]
+        origin = resp.headers['Location'].split('#')[0]
+
+        resp = get(self.app.href, params={'expand': 'idSiteModel'}, headers={
+            'Authorization': 'Bearer {}'.format(jwt),
+            'Origin': origin,
+            'Referer': origin,
+        })
+
+        next_jwt = resp.headers['Authorization'].split('Bearer ')[1]
+
+        post_url = '%s%s' % (self.app.href, '/loginAttempts')
+        headers = {
+            'Authorization': 'Bearer {}'.format(next_jwt),
+            'Origin': origin,
+            'Referer': origin,
+            'Content Type': 'application/json'
+        }
+
+        user_pass = '%s:%s' % (self.acc.email, self.password)
+        try:
+            encrypted_value = base64.b64encode(bytes(user_pass))
+        except TypeError:
+            # Python 3
+            encrypted_value = base64.b64encode(bytes(user_pass, 'utf-8'))
+            encrypted_value = encrypted_value.decode('utf-8')
+
+        body = {
+            'value': encrypted_value,
+            'type': 'basic'
+        }
+        resp = post(post_url, headers=headers, json=body)
+        final_jwt = resp.headers['stormpath-sso-redirect-location'].split('jwtResponse=')[1]
+
+        authenticator = StormpathTokenGrantAuthenticator(self.app)
+        result = authenticator.authenticate(final_jwt)
+
+        self.assertTrue(result.access_token)
+        self.assertTrue(result.refresh_token)
+        self.assertTrue(result.stormpath_access_token)
+        self.assertEqual(result.token_type, 'Bearer')
+        self.assertTrue(result.refresh_token)
+        self.assertEqual(result.expires_in, 3600)
+        self.assertEqual(result.account.href, self.acc.href)
+
+    def test_authenticate_fails(self):
+        authenticator = StormpathTokenGrantAuthenticator(self.app)
+        result = authenticator.authenticate('invalid jwt')
+
+        self.assertIsNone(result)
+
+    def test_authenticate_with_account_store_succeeds(self):
+        id_site_url = self.app.build_id_site_redirect_url(
+            'https://hi.com')
+
+        resp = get(id_site_url, allow_redirects=False)
+        jwt = resp.headers['Location'].split('jwt=')[1]
+        origin = resp.headers['Location'].split('#')[0]
+
+        resp = get(self.app.href, params={'expand': 'idSiteModel'}, headers={
+            'Authorization': 'Bearer {}'.format(jwt),
+            'Origin': origin,
+            'Referer': origin,
+        })
+
+        next_jwt = resp.headers['Authorization'].split('Bearer ')[1]
+
+        post_url = '%s%s' % (self.app.href, '/loginAttempts')
+        headers = {
+            'Authorization': 'Bearer {}'.format(next_jwt),
+            'Origin': origin,
+            'Referer': origin,
+            'Content Type': 'application/json'
+        }
+
+        user_pass = '%s:%s' % (self.acc.email, self.password)
+        try:
+            encrypted_value = base64.b64encode(bytes(user_pass))
+        except TypeError:
+            # Python 3
+            encrypted_value = base64.b64encode(bytes(user_pass, 'utf-8'))
+            encrypted_value = encrypted_value.decode('utf-8')
+
+        body = {
+            'value': encrypted_value,
+            'type': 'basic'
+        }
+        resp = post(post_url, headers=headers, json=body)
+        final_jwt = resp.headers['stormpath-sso-redirect-location'].split('jwtResponse=')[1]
+
+        authenticator = StormpathTokenGrantAuthenticator(self.app)
+        result = authenticator.authenticate(final_jwt, account_store=self.dir)
+
+        self.assertTrue(result.access_token)
+        self.assertTrue(result.refresh_token)
+        self.assertTrue(result.stormpath_access_token)
+        self.assertEqual(result.token_type, 'Bearer')
+        self.assertTrue(result.refresh_token)
+        self.assertEqual(result.expires_in, 3600)
+        self.assertEqual(result.account.href, self.acc.href)
+
+
+class TestStormpathSocialGrantAuthenticator(ApiKeyBase):
+    def setUp(self):
+        super(TestStormpathSocialGrantAuthenticator, self).setUp()
+
+        org_name = self.get_random_name()
+        org_name_key = org_name[:63]
+
+        self.org = self.client.tenant.organizations.create({
+            'name': org_name,
+            'name_key': org_name_key,
+        })
+        self.client.organization_account_store_mappings.create({
+            'account_store': self.dir,
+            'organization': self.org,
+        })
+        self.client.account_store_mappings.create({
+            'account_store': self.org,
+            'application': self.app,
+        })
+
+        # Generate a Facebook Test User
+        self.facebook_api_key_id = getenv('FACEBOOK_API_KEY_ID')
+        self.facebook_api_key_secret = getenv('FACEBOOK_API_KEY_SECRET')
+
+        if not self.facebook_api_key_id:
+            self.fail('Please set FACEBOOK_API_KEY_ID environment variable!')
+
+        if not self.facebook_api_key_secret:
+            self.fail(
+                'Please set FACEBOOK_API_KEY_SECRET environment variable!')
+
+        self.fb_api_base_url = 'https://graph.facebook.com/v2.8'
+        fb_api_create_user_url = '%s/%s/accounts/test-users' % (
+        self.fb_api_base_url,
+        self.facebook_api_key_id)
+
+        short_token_response = get(
+            'https://graph.facebook.com/oauth/access_token', params={
+                'client_id': self.facebook_api_key_id,
+                'client_secret': self.facebook_api_key_secret,
+                'grant_type': 'client_credentials'
+            })
+        short_token = short_token_response.text.split('=')[1]
+
+        test_user_response = post(fb_api_create_user_url, params={
+            'access_token': short_token,
+            'permissions': ['email']
+        })
+
+        self.test_user = json.loads(test_user_response.text)
+
+        self.fb_dir = self.client.directories.create({
+            'name': self.get_random_name(),
+            'description': 'Testing Facebook Auth Provider',
+            'provider': {
+                'client_id': self.facebook_api_key_id,
+                'client_secret': self.facebook_api_key_secret,
+                'provider_id': Provider.FACEBOOK
+            }
+        })
+
+        self.client.account_store_mappings.create({
+            'application': self.app,
+            'account_store': self.fb_dir,
+            'list_index': 0,
+            'is_default_account_store': False,
+            'is_default_group_store': False
+        })
+
+    def tearDown(self):
+        super(TestStormpathSocialGrantAuthenticator, self).tearDown()
+
+        fb_delete_user_url = self.fb_api_base_url + '/%s' % self.test_user['id']
+        delete(fb_delete_user_url, params={
+            'access_token': self.test_user['access_token']
+        })
+
+    def test_authenticate_succeeds(self):
+        authenticator = StormpathSocialGrantAuthenticator(self.app)
+        result = authenticator.authenticate(provider_id=Provider.FACEBOOK,
+                                            access_token=self.test_user[
+                                                'access_token'])
+
+        self.assertTrue(result.access_token)
+        self.assertTrue(result.refresh_token)
+        self.assertTrue(result.stormpath_access_token)
+        self.assertEqual(result.token_type, 'Bearer')
+        self.assertTrue(result.refresh_token)
+        self.assertEqual(result.expires_in, 3600)
+        self.assertEqual(result.account.email, self.test_user['email'])
+
+    def test_authenticate_succeeds_with_no_refresh_token(self):
+        from datetime import timedelta
+        self.app.oauth_policy.refresh_token_ttl = \
+            self.app.oauth_policy.refresh_token_ttl - timedelta(days=60)
+        self.app.oauth_policy.save()
+        self.app.oauth_policy.refresh()
+
+        authenticator = StormpathSocialGrantAuthenticator(self.app)
+        result = authenticator.authenticate(provider_id=Provider.FACEBOOK,
+                                            access_token=self.test_user[
+                                                'access_token'])
+
+        self.assertTrue(result.access_token)
+        self.assertTrue(result.refresh_token)
+        self.assertTrue(result.stormpath_access_token)
+        self.assertEqual(result.token_type, 'Bearer')
+        self.assertFalse(result.refresh_token.token)
+        self.assertEqual(result.expires_in, 3600)
+        self.assertEqual(result.account.email, self.test_user['email'])
+
+    def test_authenticate_fails(self):
+        authenticator = StormpathSocialGrantAuthenticator(self.app)
+        result = authenticator.authenticate(provider_id=Provider.FACEBOOK,
+                                            access_token='invalid')
+
+        self.assertIsNone(result)
+
+    def test_authenticate_with_account_store_succeeds(self):
+        authenticator = StormpathSocialGrantAuthenticator(self.app)
+        result = authenticator.authenticate(provider_id=Provider.FACEBOOK,
+                                            access_token=self.test_user[
+                                                'access_token'],
+                                            account_store=self.fb_dir)
+
+        self.assertTrue(result.access_token)
+        self.assertTrue(result.refresh_token)
+        self.assertTrue('access_token' in result.access_token.to_json())
+        self.assertTrue('refresh_token' in result.refresh_token.to_json())
+        self.assertEqual(result.token_type, 'Bearer')
+        self.assertEqual(result.expires_in, 3600)
+        self.assertEqual(result.account.email, self.test_user['email'])
+
+
+class TestPasswordGrantAuthenticator(ApiKeyBase):
     def setUp(self):
         super(TestPasswordGrantAuthenticator, self).setUp()
 
         self.username = self.get_random_name()
         self.password = 'W00t123!' + self.username
-        _, self.acc = self.create_account(self.app.accounts, username=self.username, password=self.password)
+        _, self.acc = self.create_account(self.app.accounts,
+                                          username=self.username,
+                                          password=self.password)
 
         org_name = self.get_random_name()
         org_name_key = org_name[:63]
@@ -1050,7 +1316,8 @@ class TestPasswordGrantAuthenticator(ApiKeyBase):
 
     def test_authenticate_with_account_store_succeeds(self):
         authenticator = PasswordGrantAuthenticator(self.app)
-        result = authenticator.authenticate(self.username, self.password, account_store=self.dir)
+        result = authenticator.authenticate(self.username, self.password,
+                                            account_store=self.dir)
 
         self.assertTrue(result.access_token)
         self.assertTrue(result.refresh_token)
@@ -1058,20 +1325,23 @@ class TestPasswordGrantAuthenticator(ApiKeyBase):
         self.assertTrue('access_token' in result.access_token.to_json())
         self.assertTrue('refresh_token' in result.refresh_token.to_json())
         self.assertTrue(hasattr(result.stormpath_access_token, 'href'))
-        self.assertEqual(result.stormpath_access_token.account.href, self.acc.href)
+        self.assertEqual(result.stormpath_access_token.account.href,
+                         self.acc.href)
         self.assertEqual(result.token_type, 'Bearer')
         self.assertEqual(result.expires_in, 3600)
         self.assertEqual(result.account.href, self.acc.href)
 
     def test_authenticate_with_account_store_fails(self):
         authenticator = PasswordGrantAuthenticator(self.app)
-        result = authenticator.authenticate(self.username, 'invalid', account_store=self.dir)
+        result = authenticator.authenticate(self.username, 'invalid',
+                                            account_store=self.dir)
 
         self.assertIsNone(result)
 
     def test_authenticate_with_account_store_org_succeeds(self):
         authenticator = PasswordGrantAuthenticator(self.app)
-        result = authenticator.authenticate(self.username, self.password, account_store=self.org)
+        result = authenticator.authenticate(self.username, self.password,
+                                            account_store=self.org)
 
         claims = decode(result.access_token.token, verify=False)
 
@@ -1081,7 +1351,8 @@ class TestPasswordGrantAuthenticator(ApiKeyBase):
         self.assertTrue('access_token' in result.access_token.to_json())
         self.assertTrue('refresh_token' in result.refresh_token.to_json())
         self.assertTrue(hasattr(result.stormpath_access_token, 'href'))
-        self.assertEqual(result.stormpath_access_token.account.href, self.acc.href)
+        self.assertEqual(result.stormpath_access_token.account.href,
+                         self.acc.href)
         self.assertEqual(result.token_type, 'Bearer')
         self.assertEqual(result.expires_in, 3600)
         self.assertEqual(result.account.href, self.acc.href)
@@ -1089,7 +1360,8 @@ class TestPasswordGrantAuthenticator(ApiKeyBase):
 
     def test_authenticate_with_account_store_org_href_succeeds(self):
         authenticator = PasswordGrantAuthenticator(self.app)
-        result = authenticator.authenticate(self.username, self.password, account_store=self.org.href)
+        result = authenticator.authenticate(self.username, self.password,
+                                            account_store=self.org.href)
 
         claims = decode(result.access_token.token, verify=False)
 
@@ -1099,7 +1371,8 @@ class TestPasswordGrantAuthenticator(ApiKeyBase):
         self.assertTrue('access_token' in result.access_token.to_json())
         self.assertTrue('refresh_token' in result.refresh_token.to_json())
         self.assertTrue(hasattr(result.stormpath_access_token, 'href'))
-        self.assertEqual(result.stormpath_access_token.account.href, self.acc.href)
+        self.assertEqual(result.stormpath_access_token.account.href,
+                         self.acc.href)
         self.assertEqual(result.token_type, 'Bearer')
         self.assertEqual(result.expires_in, 3600)
         self.assertEqual(result.account.href, self.acc.href)
@@ -1179,7 +1452,6 @@ class TestClientCredentialsGrantAuthenticator(ApiKeyBase):
 
 
 class TestJwtAuthenticator(ApiKeyBase):
-
     def setUp(self):
         super(TestJwtAuthenticator, self).setUp()
 
@@ -1326,7 +1598,8 @@ class TestJwtAuthenticator(ApiKeyBase):
             'iat': datetime.datetime.utcnow(),
             'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=1000)
         }
-        invalid_issuer_token = jwt.encode(data, self.app._client.auth.secret, 'HS256')
+        invalid_issuer_token = jwt.encode(data, self.app._client.auth.secret,
+                                          'HS256')
         self.invalid_issuer_token = to_unicode(invalid_issuer_token, "UTF-8")
 
         result = authenticator.authenticate(
@@ -1336,7 +1609,6 @@ class TestJwtAuthenticator(ApiKeyBase):
 
 
 class TestRefreshGrantAuthenticator(ApiKeyBase):
-
     def setUp(self):
         super(TestRefreshGrantAuthenticator, self).setUp()
 
@@ -1460,7 +1732,6 @@ class TestRefreshGrantAuthenticator(ApiKeyBase):
 
 
 class TestIdSiteTokenAuthenticator(ApiKeyBase):
-
     def test_authenticate_with_invalid_token_fails(self):
         authenticator = IdSiteTokenAuthenticator(self.app)
         result = authenticator.authenticate('invalid_token')
