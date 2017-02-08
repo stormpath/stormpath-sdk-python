@@ -1038,7 +1038,7 @@ class TestStormpathTokenGrantAuthenticator(ApiKeyBase):
         user_pass = '%s:%s' % (self.acc.email, self.password)
         try:
             encrypted_value = base64.b64encode(bytes(user_pass))
-        except:
+        except TypeError:
             # Python 3
             encrypted_value = base64.b64encode(bytes(user_pass, 'utf-8'))
             encrypted_value = encrypted_value.decode('utf-8')
@@ -1094,7 +1094,7 @@ class TestStormpathTokenGrantAuthenticator(ApiKeyBase):
         user_pass = '%s:%s' % (self.acc.email, self.password)
         try:
             encrypted_value = base64.b64encode(bytes(user_pass))
-        except:
+        except TypeError:
             # Python 3
             encrypted_value = base64.b64encode(bytes(user_pass, 'utf-8'))
             encrypted_value = encrypted_value.decode('utf-8')
