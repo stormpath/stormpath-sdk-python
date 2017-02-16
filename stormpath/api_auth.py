@@ -539,6 +539,9 @@ class StormpathTokenGrantAuthenticator(Authenticator):
         """
         if not url:
             url = self.app.href + '/oauth/token'
+        else:
+            if not url.startswith(self.app._client.BASE_URL):
+                raise ValueError('Invalid API url.')
 
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
         data = {
@@ -597,6 +600,9 @@ class StormpathSocialGrantAuthenticator(Authenticator):
         """
         if not url:
             url = self.app.href + '/oauth/token'
+        else:
+            if not url.startswith(self.app._client.BASE_URL):
+                raise ValueError('Invalid API url.')
 
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
         data = {
@@ -661,6 +667,9 @@ class PasswordGrantAuthenticator(Authenticator):
         """
         if not url:
             url = self.app.href + '/oauth/token'
+        else:
+            if not url.startswith(self.app._client.BASE_URL):
+                raise ValueError('Invalid API url.')
 
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
         data = {
@@ -701,6 +710,9 @@ class ClientCredentialsGrantAuthenticator(Authenticator):
     def authenticate(self, client_id, client_secret, account_store=None, url=None):
         if not url:
             url = self.app.href + '/oauth/token'
+        else:
+            if not url.startswith(self.app._client.BASE_URL):
+                raise ValueError('Invalid API url.')
 
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
 
