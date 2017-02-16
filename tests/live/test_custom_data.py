@@ -349,7 +349,7 @@ class TestGroupCustomData(SingleApplicationBase):
             self.assertTrue('group2' in group.name)
             self.assertEqual(group.custom_data['omg'], 'noway')
 
-        for gorup in self.dir.groups.earch('customData.omg=wow'):
+        for group in self.dir.groups.search('customData.omg=wow'):
             self.assertTrue('group3' in group.name)
             self.assertTrue(group.custom_data['omg'], ['wow', 'cool'])
 
