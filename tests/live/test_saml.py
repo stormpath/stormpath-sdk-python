@@ -52,5 +52,3 @@ class TestSamlIdpUrlBuilder(AuthenticatedLiveBase):
         self.assertEqual(result['ash'], options['ash'])
         self.assertEqual(result['onk'], options['onk'])
         self.assertEqual(result['state'], options['state'])
-
-        # import pytest; pytest.set_trace()
