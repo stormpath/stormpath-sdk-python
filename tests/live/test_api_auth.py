@@ -1117,6 +1117,50 @@ class TestStormpathTokenGrantAuthenticator(ApiKeyBase):
         self.assertEqual(result.expires_in, 3600)
         self.assertEqual(result.account.href, self.acc.href)
 
+    def test_with_invalid_url_fails(self):
+        id_site_url = self.app.build_id_site_redirect_url(
+            'https://hi.com')
+
+        resp = get(id_site_url, allow_redirects=False)
+        jwt = resp.headers['Location'].split('jwt=')[1]
+        origin = resp.headers['Location'].split('#')[0]
+
+        resp = get(self.app.href, params={'expand': 'idSiteModel'}, headers={
+            'Authorization': 'Bearer {}'.format(jwt),
+            'Origin': origin,
+            'Referer': origin,
+        })
+
+        next_jwt = resp.headers['Authorization'].split('Bearer ')[1]
+
+        post_url = '%s%s' % (self.app.href, '/loginAttempts')
+        headers = {
+            'Authorization': 'Bearer {}'.format(next_jwt),
+            'Origin': origin,
+            'Referer': origin,
+            'Content Type': 'application/json'
+        }
+
+        user_pass = '%s:%s' % (self.acc.email, self.password)
+        try:
+            encrypted_value = base64.b64encode(bytes(user_pass))
+        except TypeError:
+            # Python 3
+            encrypted_value = base64.b64encode(bytes(user_pass, 'utf-8'))
+            encrypted_value = encrypted_value.decode('utf-8')
+
+        body = {
+            'value': encrypted_value,
+            'type': 'basic'
+        }
+        resp = post(post_url, headers=headers, json=body)
+        final_jwt = resp.headers['stormpath-sso-redirect-location'].split('jwtResponse=')[1]
+
+        authenticator = StormpathTokenGrantAuthenticator(self.app)
+
+        with self.assertRaises(ValueError):
+            authenticator.authenticate(final_jwt, url='http://attack.com')
+
 
 class TestStormpathSocialGrantAuthenticator(ApiKeyBase):
     def setUp(self):
@@ -1251,6 +1295,15 @@ class TestStormpathSocialGrantAuthenticator(ApiKeyBase):
         self.assertEqual(result.expires_in, 3600)
         self.assertEqual(result.account.email, self.test_user['email'])
 
+    def test_with_invalid_url_fails(self):
+        authenticator = StormpathSocialGrantAuthenticator(self.app)
+        with self.assertRaises(ValueError):
+            authenticator.authenticate(
+                provider_id=Provider.FACEBOOK,
+                access_token=self.test_user['access_token'],
+                url='http://attack.com'
+            )
+
 
 class TestPasswordGrantAuthenticator(ApiKeyBase):
     def setUp(self):
@@ -1378,6 +1431,13 @@ class TestPasswordGrantAuthenticator(ApiKeyBase):
         self.assertEqual(result.account.href, self.acc.href)
         self.assertEqual(claims.get('org'), self.org.href)
 
+    def test_with_invalid_url_fails(self):
+        authenticator = PasswordGrantAuthenticator(self.app)
+        with self.assertRaises(ValueError):
+            authenticator.authenticate(self.username,
+                                       self.password,
+                                       url='http://attack.com')
+
 
 class TestClientCredentialsGrantAuthenticator(ApiKeyBase):
 
@@ -1449,6 +1509,13 @@ class TestClientCredentialsGrantAuthenticator(ApiKeyBase):
                                             account_store=self.dir)
 
         self.assertIsNone(result)
+
+    def test_with_invalid_url_fails(self):
+        authenticator = ClientCredentialsGrantAuthenticator(self.app)
+        with self.assertRaises(ValueError):
+            authenticator.authenticate(self.user_api_key.id,
+                                       self.user_api_key.secret,
+                                       url='http://attack.com')
 
 
 class TestJwtAuthenticator(ApiKeyBase):
