@@ -1,7 +1,7 @@
 Version 2.5.2
 -------------
 
-**Not yet released.**
+**Released February 16, 2017.**
 
 - Adding support for Stormpath Client API configuration.
 - Adding a pytest cleanup hook to ensure all Stormpath test resources are
@@ -9,6 +9,8 @@ Version 2.5.2
 - Adding tests for token revocation.
 - Adding support for OAuth2 Client Credentials flow.
 - Supporting the `stormpath_token` grant type.
+- Supporting custom URLs in auth methods.
+- Supporting SAML IdP URL builder.
 
 
 Version 2.5.1
