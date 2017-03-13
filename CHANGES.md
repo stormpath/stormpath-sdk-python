@@ -1,3 +1,11 @@
+Version 2.5.3
+-------------
+
+**Released March 13, 2017.**
+
+- Minor release to add in necessary header for future tooling.
+
+
 Version 2.5.2
 -------------
 
