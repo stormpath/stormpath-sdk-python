@@ -1,3 +1,11 @@
+Version 2.5.4
+-------------
+
+**Released April 10, 2017.**
+
+- Removing prior additions.
+
+
 Version 2.5.3
 -------------
 
