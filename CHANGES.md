@@ -1,6 +1,14 @@
 Version 2.5.4
 -------------
 
+**Released April 11, 2017.**
+
+- Removing export header.
+
+
+Version 2.5.4
+-------------
+
 **Released April 10, 2017.**
 
 - Removing prior additions.
