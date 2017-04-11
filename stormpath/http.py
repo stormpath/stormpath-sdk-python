@@ -74,7 +74,6 @@ class HttpExecutor(object):
             'Accept': 'application/json',
             'Content-Type': 'application/json',
             'User-Agent': self.USER_AGENT,
-            'X-Stormpath-Options': 'export',
         })
 
     def is_throttling_or_unexpected_error(self, status):
